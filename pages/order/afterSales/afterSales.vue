@@ -1,0 +1,412 @@
+<template>
+  <view class="content">
+    <view class="u-tabs-box">
+      <u-tabs bg-color="#fff" :list="list" :is-scroll="false" :current="current" @change="change" :active-color="$lightColor"></u-tabs>
+    </view>
+    <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
+      <view class="seller-view" v-for="(order, orderIndex) in orderList" :key="orderIndex">
+        <!-- 店铺名称 -->
+        <view class="seller-info u-flex u-row-between" v-if="current == 0">
+          <view class="seller-name">
+            <view class="name">{{ order.storeName }}</view>
+          </view>
+          <view class="order-sn">订单编号：{{ order.sn }}</view>
+        </view>
+        <!-- 申请记录 选项卡 -->
+        <view class="seller-info u-flex u-row-between" v-if="current != 0">
+          <view class="order-sn">售后单号：{{ order.service_sn || order.sn }}</view>
+          <view class="order-sn">{{ order.serviceType_text }}</view>
+        </view>
+        <view v-for="(sku, goodsIndex) in order.orderItems" :key="goodsIndex">
+          <view class="goods-item-view" @click="onDetail(sku)">
+            <view class="goods-img">
+              <u-image border-radius="6" width="100%" height="100%" :src="sku.image"></u-image>
+            </view>
+            <view class="goods-info">
+              <view class="goods-title u-line-2">{{ sku.name }}</view>
+              <!-- 如果商品多个则不显示每个商品价格-->
+              <view class="goods-price" v-if="order.orderItems.length <= 1">
+                ￥{{ order.flowPrice | unitPrice }}
+              </view>
+            </view>
+            <view class="goods-num">
+              <view>x{{ sku.num }}</view>
+            </view>
+          </view>
+          <view class="btn-view u-flex u-row-between">
+            <view class="description">
+              <!-- 售后申请 -->
+              <view v-if="
+                  current === 0 && order.groupAfterSaleStatus &&
+                  order.groupAfterSaleStatus === 'ALREADY_APPLIED'
+                " class="cannot_apply">
+                <u-icon class="icon" name="info-circle-fill"></u-icon>
+                该商品已申请售后服务
+              </view>
+              <view class="cannot_apply" v-if="current === 0 && order.groupAfterSaleStatus && order.groupAfterSaleStatus === 'EXPIRED'" @click="tipsShow = true">
+                <u-icon class="icon" name="info-circle-fill"></u-icon>
+                该商品无法申请售后
+              </view>
+
+              <div v-if="current === 1 || current === 2">
+                <!-- 申请中 -->
+                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_GOODS'">退货处理-{{ serviceStatusList[order.serviceStatus] }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'">补发商品-{{ serviceStatusList[order.serviceStatus] }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_MONEY'">退款-{{ serviceStatusList[order.serviceStatus] }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'EXCHANGE_GOODS'">换货-{{ serviceStatusList[order.serviceStatus] }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'CANCEL'">取消订单-{{ serviceStatusList[order.serviceStatus] }}</view>
+              </div>
+              <!-- 申请记录 -->
+            </view>
+            <view class="after-line">
+              <!-- 售后申请 -->
+              <view v-if="
+                  current === 0 && order.groupAfterSaleStatus=='NOT_APPLIED'
+                " @click="applyService(sku.sn, order, sku)" class="rebuy-btn">
+                申请售后
+              </view>
+              <!-- 申请中 -->
+              <view class="rebuy-btn" v-if="
+                  current === 2 &&
+                  order.serviceStatus &&
+                  order.serviceStatus == 'PASS' &&
+                  order.serviceType != 'RETURN_MONEY'
+                " @click="onExpress(order, sku)">
+                提交物流
+              </view>
+
+              <view @click="afterDetails(order, sku)" v-if="current === 1 || current === 2" class="rebuy-btn">
+                售后详情
+              </view>
+
+              <!-- 申请记录 -->
+              <!-- <u-button type="info" size="mini" shape="circle" v-if="current === 2">删除记录</u-button> -->
+            </view>
+          </view>
+        </view>
+        <view v-if="
+            current === 0 && order.groupAfterSaleStatus &&
+            order.groupAfterSaleStatus != 'ALREADY_APPLIED' &&
+            order.orderItems.length >= 1
+          " class="btn-view u-flex u-row-between">
+          <!-- 多个商品显示订单总价格 -->
+          <view class="cannot_apply">
+            订单总金额:<span class="countMoney">￥{{ order.flowPrice | unitPrice }}</span>
+          </view>
+        </view>
+      </view>
+      <u-loadmore bg-color="#f8f8f8" :status="status" />
+    </scroll-view>
+    <u-modal v-model="tipsShow" content="当订单未确认收货|已过售后服务有效期|已申请售后服务时，不能申请售后"></u-modal>
+  </view>
+</template>
+
+<script>
+import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
+import empty from "@/components/empty";
+import { getAfterSale, getAfterSaleList } from "@/api/after-sale.js";
+import { getOrderList } from "@/api/order.js";
+
+export default {
+  components: {
+    uniLoadMore,
+  },
+  data() {
+    return {
+      serviceStatusList: {
+        APPLY: "申请售后",
+        PASS: "通过售后",
+        REFUSE: "拒绝售后",
+        BUYER_RETURN: "买家退货，待卖家收货",
+        SELLER_RE_DELIVERY: "商家换货/补发",
+        SELLER_CONFIRM: "卖家确认收货",
+        SELLER_TERMINATION: "卖家终止售后",
+        BUYER_CONFIRM: "买家确认收货",
+        BUYER_CANCEL: "买家取消售后",
+        WAIT_REFUND: "等待平台退款",
+        COMPLETE: "完成售后",
+      },
+      list: [
+        {
+          name: "售后申请",
+        },
+        {
+          name: "申请中",
+        },
+        {
+          name: "申请记录",
+        },
+      ],
+      current: 0,
+      tipsShow: false,
+      orderList: [],
+      params: {
+        pageNumber: 1,
+        pageSize: 10,
+      },
+      logParams: {
+        pageNumber: 1,
+        pageSize: 10,
+      },
+      status: "loadmore",
+    };
+  },
+  onLoad() {
+    this.orderList = [];
+    this.params.pageNumber = 1;
+    this.getOrderList(this.current);
+  },
+  onPullDownRefresh() {
+    this.change(this.current);
+  },
+  watch: {
+    current(val) {},
+  },
+  methods: {
+    //切换tab页时，初始化数据
+    change(index) {
+      this.current = index;
+      this.params = {
+        pageNumber: 1,
+        pageSize: 10,
+      };
+      this.orderList = [];
+      //如果是2 则读取售后申请记录列表
+      if (index == 0) {
+        this.getOrderList(index);
+      } else {
+        this.logParams = {
+          pageNumber: 1,
+          pageSize: 10,
+        };
+        if (index === 1) {
+          this.logParams.serviceStatus = "APPLY";
+        }
+        this.orderList = [];
+        this.getAfterSaleLogList();
+      }
+      uni.stopPullDownRefresh();
+    },
+    getOrderList(index) {
+      uni.showLoading({
+        title: "加载中",
+        mask: true,
+      });
+      getOrderList(this.params).then((res) => {
+        uni.hideLoading();
+        const orderlist = res.data.result.records;
+        if (orderlist.length > 0) {
+          this.orderList = this.orderList.concat(orderlist);
+          this.params.pageNumber += 1;
+        }
+        if (orderlist.length < 10) {
+          this.status = "nomore";
+        } else {
+          this.status = "loading";
+        }
+      });
+    },
+
+    // 详情
+    afterDetails(order) {
+      uni.navigateTo({
+        url: "./applyDetail?sn=" + order.sn,
+      });
+    },
+
+    //申请记录列表
+    getAfterSaleLogList() {
+      getAfterSaleList(this.logParams).then((res) => {
+        let afterSaleLogList = res.data.result.records;
+
+        afterSaleLogList.forEach((item) => {
+          item.orderItems = [
+            {
+              image: item.goodsImage,
+              skuId: item.skuId,
+              name: item.goodsName,
+              num: item.num,
+              price: item.flowPrice,
+            },
+          ];
+          console.log(item.orderItems);
+        });
+
+        this.orderList = this.orderList.concat(afterSaleLogList);
+
+        if (afterSaleLogList.length < 10) {
+          this.status = "nomore";
+        } else {
+          this.status = "loading";
+        }
+      });
+    },
+    //申请售后
+    applyService(sn, order, sku) {
+      let data = {
+        ...order,
+        ...sku,
+      };
+
+      uni.navigateTo({
+        url: `/pages/order/afterSales/afterSalesSelect?sn=${sn}&sku=${encodeURIComponent(
+          JSON.stringify(data)
+        )}`,
+      });
+    },
+    //提交物流信息
+    onExpress(order, sku) {
+      sku.storeName = order.storeName;
+
+      uni.navigateTo({
+        url: `./afterSalesDetailExpress?serviceSn=${
+          order.sn
+        }&sku=${encodeURIComponent(JSON.stringify(sku))}`,
+      });
+    },
+
+    onDetail(sku) {
+      console.log(sku);
+      if (!this.$u.test.isEmpty(sku.skuId)) {
+        uni.navigateTo({
+          url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId}`,
+        });
+      }
+    },
+    renderDate() {
+      if (this.current === 0) {
+        this.params.pageNumber += 1;
+        this.getOrderList();
+      } else {
+        this.logParams.pageNumber += 1;
+        this.getAfterSaleLogList();
+      }
+    },
+  },
+};
+</script>
+
+<style lang="scss">
+page,
+.content {
+  background: $page-color-base;
+  height: 100%;
+}
+.body-view {
+  // height: calc(100vh - 44px -40px);
+  // overflow-y: auto;
+  height: 100%;
+}
+.countMoney {
+  margin-left: 7rpx;
+  color: $main-color;
+  font-size: 28rpx;
+}
+.seller-view {
+  background-color: #fff;
+  margin: 20rpx 0rpx;
+  padding: 0rpx 20rpx;
+  border-radius: 20rpx;
+  .seller-info {
+    height: 70rpx;
+    .seller-name {
+      font-size: 28rpx;
+      display: flex;
+      flex-direction: row;
+      .name {
+        margin-left: 15rpx;
+        margin-top: -2rpx;
+      }
+    }
+    .order-sn {
+      font-size: 22rpx;
+      color: #909399;
+    }
+  }
+
+  .goods-item-view {
+    display: flex;
+    flex-direction: row;
+    padding: 10rpx 10rpx;
+
+    .goods-img {
+      width: 131rpx;
+      height: 131rpx;
+    }
+
+    .goods-info {
+      padding-left: 30rpx;
+      flex: 1;
+
+      .goods-title {
+        margin-bottom: 10rpx;
+        color: #333333;
+      }
+
+      .goods-specs {
+        font-size: 24rpx;
+        margin-bottom: 10rpx;
+        color: #cccccc;
+      }
+
+      .goods-price {
+        font-size: 28rpx;
+        margin-bottom: 10rpx;
+        color: #ff5a10;
+      }
+    }
+
+    .goods-num {
+      width: 60rpx;
+      color: $main-color;
+    }
+  }
+  .btn-view {
+    padding: 16rpx 0;
+
+    .after-line {
+      display: flex;
+      line-height: 90rpx;
+    }
+  }
+}
+.description {
+  color: #909399;
+  size: 25rpx;
+}
+.cannot_apply {
+  text-align: center;
+  font-size: 22rpx;
+
+  color: #999999;
+  height: 70rpx;
+  line-height: 70rpx;
+}
+.icon {
+  margin-right: 10rpx;
+}
+.cancel-btn {
+  color: #999999;
+  border-color: #999999;
+  margin-left: 15rpx;
+  height: 60rpx;
+}
+.pay-btn {
+  background-color: #1abc9c;
+  color: #ffffff;
+  margin-left: 15rpx;
+  height: 60rpx;
+}
+.rebuy-btn {
+  background-color: #ffffff;
+  margin-left: 15rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  font-size: 24rpx;
+  border: 2rpx solid $light-color;
+  color: $light-color;
+  padding: 0 24rpx;
+  border-radius: 200px;
+}
+</style>

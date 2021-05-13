@@ -1,0 +1,118 @@
+import Foundation from "./Foundation.js";
+import storage from "@/utils/storage.js";
+/**
+ * 金钱单位置换  2999 --> 2,999.00
+ * @param val
+ * @param unit
+ * @param location
+ * @returns {*}
+ */
+export function unitPrice(val, unit, location) {
+  if (!val) val = 0;
+  let price = Foundation.formatPrice(val);
+  if (location === "before") {
+    return price.substr(0, price.length - 3);
+  }
+  if (location === "after") {
+    return price.substr(-2);
+  }
+  return (unit || "") + price;
+}
+
+/**
+ * 脱敏姓名
+ */
+
+export function noPassByName(str) {
+  if (null != str && str != undefined) {
+    if (str.length <= 3) {
+      return "*" + str.substring(1, str.length);
+    } else if (str.length > 3 && str.length <= 6) {
+      return "**" + str.substring(2, str.length);
+    } else if (str.length > 6) {
+      return str.substring(0, 2) + "****" + str.substring(6, str.length);
+    }
+  } else {
+    return "";
+  }
+}
+
+/**
+ * 处理unix时间戳，转换为可阅读时间格式
+ * @param unix
+ * @param format
+ * @returns {*|string}
+ */
+export function unixToDate(unix, format) {
+  let _format = format || "yyyy-MM-dd hh:mm:ss";
+  const d = new Date(unix * 1000);
+  const o = {
+    "M+": d.getMonth() + 1,
+    "d+": d.getDate(),
+    "h+": d.getHours(),
+    "m+": d.getMinutes(),
+    "s+": d.getSeconds(),
+    "q+": Math.floor((d.getMonth() + 3) / 3),
+    S: d.getMilliseconds(),
+  };
+  if (/(y+)/.test(_format))
+    _format = _format.replace(
+      RegExp.$1,
+      (d.getFullYear() + "").substr(4 - RegExp.$1.length)
+    );
+  for (const k in o)
+    if (new RegExp("(" + k + ")").test(_format))
+      _format = _format.replace(
+        RegExp.$1,
+        RegExp.$1.length === 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length)
+      );
+  return _format;
+}
+
+/**
+ * 13888888888 -> 138****8888
+ * @param mobile
+ * @returns {*}
+ */
+export function secrecyMobile(mobile) {
+  mobile = String(mobile);
+  if (!/\d{11}/.test(mobile)) {
+    return mobile;
+  }
+  return mobile.replace(/(\d{3})(\d{4})(\d{4})/, "$1****$3");
+}
+
+/**
+ * 清除逗号
+ *
+ */
+export function clearStrComma(str) {
+  str = str.replace(/,/g, ""); //取消字符串中出现的所有逗号
+  return str;
+}
+
+/**
+ * 判断用户是否登录
+ * @param val  如果为auth则判断是否登录
+ * 如果传入 auth 则为判断是否登录
+ */
+export function isLogin(val) {
+  let userInfo = storage.getUserInfo();
+  if (val == "auth") {
+    return userInfo.id ? true : false;
+  } else {
+    return storage.getUserInfo();
+  }
+}
+
+/**
+ * 获取当前加载的页面对象
+ * @param val
+ */
+export function getPages(val) {
+  const pages = getCurrentPages(); //获取加载的页面
+  const currentPage = pages[pages.length - 1]; //获取当前页面的对象
+  const url = currentPage.route; //当前页面url
+
+  return val ? currentPage : url;
+}

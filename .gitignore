@@ -1,0 +1,10 @@
+# OSX
+#
+.DS_Store
+
+#Intellij idea
+.idea/
+/idea/
+.vscode/
+/unpackage/
+.hbuilderx/launch.json
