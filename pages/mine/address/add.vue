@@ -6,7 +6,7 @@
           选择收货地址
         </view>
         <u-form-item class="border" label="收货人" label-width="130" prop="name">
-          <u-input v-model="form.name" placeholder="请输入收货人姓名" />
+          <u-input v-model="form.name" clearable placeholder="请输入收货人姓名" />
         </u-form-item>
 
         <u-form-item label="手机号码" label-width="130" prop="mobile">
@@ -59,7 +59,7 @@ export default {
         // ios系统
         permision.judgeIosPermission("location")
           ? (this.mapFlage = true)
-          : this.refuseMapOuther() ;
+          : this.refuseMapOuther();
       } else {
         // 安卓
         this.requestAndroidPermission(
@@ -116,6 +116,7 @@ export default {
       }
     },
 
+    // 选择地址后数据的回调
     callBackAddress(val) {
       uni.showLoading({
         title: "加载中",
@@ -132,15 +133,19 @@ export default {
         uni.hideLoading();
       }
 
-      this.mapFlage = !this.mapFlage;
+      this.mapFlage = !this.mapFlage; //关闭地图
     },
+
+    // 保存当前 地址
     save() {
       this.$refs.uForm.validate((valid) => {
         if (valid) {
           let pages = getCurrentPages(); //获取页面栈
           let beforePage = pages[pages.length - 2]; //上个页面
-          console.log(beforePage);
+
+          // 如果没有id则为新增地址
           if (!this.form.id) {
+            // 删除没有的数据
             delete this.form.___path;
             addAddress(this.form).then((res) => {
               if (res.data.success) {
@@ -156,6 +161,7 @@ export default {
               }
             });
           } else {
+            // 修改地址
             delete this.form.___path;
             delete this.form.updateBy;
             delete this.form.updateTime;
@@ -167,18 +173,20 @@ export default {
               }
             });
           }
-        } else {
-          console.log("验证失败");
         }
       });
     },
+
+    // 三级地址联动回调
     getpickerParentValue(e) {
+      // 将需要绑定的地址设置为空，并赋值
       this.form.consigneeAddressIdPath = [];
       this.form.consigneeAddressPath = [];
       let name = "";
+
       e.forEach((item, index) => {
-        console.log(item);
         if (item.id) {
+          // 遍历数据
           this.form.consigneeAddressIdPath.push(item.id);
           this.form.consigneeAddressPath.push(item.localName);
           name += item.localName;
@@ -194,8 +202,9 @@ export default {
           this.form.lon = _town[0].center.split(",")[1];
         }
       });
-    
     },
+
+    // 显示三级地址联动
     showPicker() {
       this.$refs.cityPicker.show();
     },
@@ -203,24 +212,19 @@ export default {
   mounted() {},
   data() {
     return {
-      lightColor: this.$lightColor,
-      addSyncData: "",
-      mapFlage: false,
-      longitude: "",
-      markers: [],
-      latitude: "",
+      lightColor: this.$lightColor, //高亮颜色
+      mapFlage: false, // 地图选择开
       routerVal: "",
-      show: false,
       form: {
-        detail: "",
-        name: "",
-        mobile: "",
-        consigneeAddressIdPath: [],
-        consigneeAddressPath: [],
-        ___path: "",
-        isDefault: false,
+        detail: "", //地址详情
+        name: "", //收货人姓名
+        mobile: "", //手机号码
+        consigneeAddressIdPath: [], //地址id
+        consigneeAddressPath: [], //地址名字
+        ___path: "", //所在区域
+        isDefault: false, //是否默认地址
       },
-
+      // 表单提交校验规则
       rules: {
         name: [
           {
@@ -272,6 +276,7 @@ export default {
       title: "加载中",
     });
     this.routerVal = option;
+    // 如果当前是编辑地址,则需要查询出地址详情信息
     if (option.id) {
       getAddressDetail(option.id).then((res) => {
         const params = res.data.result;
@@ -283,10 +288,7 @@ export default {
     }
     uni.hideLoading();
   },
-  onShow() {
-
-  },
-  // 必须要在onReady生命周期，因为onLoad生命周期组件可能尚未创建完毕
+  // 初始化rules必须要在onReady生命周期，因为onLoad生命周期组件可能尚未创建完毕
   onReady() {
     this.$refs.uForm.setRules(this.rules);
   },

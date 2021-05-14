@@ -2,9 +2,9 @@
   <view>
     <view class="wrap">
       <view class="u-tabs-box">
-        <u-tabs :list="list" :is-scroll="false" inactive-color="#333" :current="current" class="utabs" :active-color="$lightColor" @change="change"></u-tabs>
+        <u-tabs :list="list" :is-scroll="false" inactive-color="#333" :current="current" class="utabs" :active-color="$lightColor" @change="changeTab"></u-tabs>
       </view>
-      <swiper class="swiper-box" :current="current" @change="changeTab" duration="500">
+      <swiper class="swiper-box" :current="current" @change="changeSwiper" duration="500">
         <swiper-item v-for="(item, listIndex) in list" :key="listIndex">
           <scroll-view scroll-y style="height: 100%" @scrolltolower="renderData(listIndex)">
             <u-empty text="尚无需要评价的商品" mode="list" v-if="orderList.length == 0"></u-empty>
@@ -32,7 +32,7 @@
                         <rich-text :nodes="'评论内容：' + order.content || ''"></rich-text>
                       </u-read-more>
                     </view>
-                  
+
                     <view class="goods-imgs-view" v-if="order.image">
                       <view class="img-view" v-if="order.image" v-for="(img, imgIndex) in order.image.split(',')" :key="imgIndex">
                         <u-image v-if="order.image" @click.native="
@@ -47,7 +47,7 @@
                 </view>
                 <view v-if="current == 0 && sku.commentStatus == 'UNFINISHED'">
                   <view class="evaluate">
-                    <view @click="onCommont(order)">
+                    <view @click="talkCommont(order)">
                       <u-tag text="发表评价" shape="circle" mode="plain" type="error" />
                     </view>
                   </view>
@@ -69,14 +69,7 @@ import { getComments } from "@/api/members.js";
 export default {
   data() {
     return {
-      customStyle: {
-        backgroundColor: this.$lightColor,
-        color: "#FFF",
-        height: "60rpx",
-        width: "150rpx",
-        margin: "20rpx 0",
-      },
-      list: [
+      list: [ //顶部tab
         {
           name: "待评价",
         },
@@ -84,28 +77,32 @@ export default {
           name: "已评价",
         },
       ],
-      gradeList: {
+      gradeList: {  //评论表
         GOOD: "好评",
         MODERATE: "中评",
         WORSE: "差评",
         haveImage: "有图",
       },
-      current: 0,
-      orderList: [],
+      current: 0, //当前tabIndex
+      orderList: [], //商品集合
       params: {
         pageNumber: 1,
         pageSize: 10,
-        orderStatus: "",
         loadStatus: "more",
       },
     };
   },
+
   onShow() {
     this.orderList = [];
     this.params.pageNumber = 1;
     this.current == 0 ? this.loadData() : this.loadComments();
   },
   watch: {
+    /**
+     * 切换current
+     * 更改页面并重新加载数据
+     */
     current(val) {
       this.params.pageNumber = 1;
       this.params.loadStatus = "more";
@@ -120,16 +117,16 @@ export default {
       }
     },
   },
-  mounted() {
-  },
+
   methods: {
-    // 判断当前店铺是否有可评价的商品
+    /**
+     * 判断当前店铺是否有可评价的商品
+     */
     commentStatus(val) {
       if (this.current == 1) {
         return true;
       } else {
         let show;
-
         val.orderItems &&
           val.orderItems.forEach((item) => {
             if (item.commentStatus == "UNFINISHED") {
@@ -143,6 +140,9 @@ export default {
       }
     },
 
+    /**
+     * 点击图片放大或保存
+     */
     preview(urls, index) {
       uni.previewImage({
         current: index,
@@ -155,14 +155,27 @@ export default {
       });
     },
 
-    change(index) {
+    /**
+     * 点击tab触发
+     */
+    changeTab(index) {
       this.current = index;
     },
-    changeTab(e) {
+
+    /**
+     * 点击swiper
+     */
+    changeSwiper(e) {
       this.current = e.target.current;
     },
+
+    /**
+     * 获取订单数据
+     */
     loadData() {
-      uni.showLoading({});
+      uni.showLoading({
+        title: "加载中",
+      });
       getOrderList(this.params).then((res) => {
         uni.hideLoading();
         const orderList = res.data.result.records;
@@ -175,15 +188,25 @@ export default {
         }
       });
     },
-    onCommont(order) {
+
+    /**
+     * 发表评价
+     */
+    talkCommont(order) {
       uni.navigateTo({
         url: `./releaseEvaluate?sn=${order.sn}&order=${encodeURIComponent(
           JSON.stringify(order)
         )}`,
       });
     },
+
+    /**
+     * 加载已评价数据
+     */
     loadComments() {
-      uni.showLoading({});
+      uni.showLoading({
+        title: "加载中",
+      });
       getComments(this.params).then((res) => {
         uni.hideLoading();
         let orderList = res.data.result.records;
@@ -200,19 +223,14 @@ export default {
             },
           ];
         });
-
         this.orderList = this.orderList.concat(orderList);
-
         this.params.pageNumber += 1;
       });
     },
-    onAgain(order) {
-      uni.navigateTo({
-        url: `./againEvaluate?order=${encodeURIComponent(
-          JSON.stringify(order)
-        )}`,
-      });
-    },
+
+    /**
+     * 滑到底部加载数据
+     */
     renderData(index) {
       if (this.params.loadStatus == "noMore") return;
       if (index == 0) {
@@ -224,13 +242,11 @@ export default {
         this.params.comment_status = "WAIT_CHASE";
         this.loadComments();
       }
-      if (index == 2) {
-        this.params.audit_status = "";
-        this.params.comments_type = "";
-        this.params.comment_status = "FINISHED";
-        this.loadComments();
-      }
     },
+
+    /**
+     * 评价详情
+     */
     onDetail(comment) {
       uni.navigateTo({
         url:

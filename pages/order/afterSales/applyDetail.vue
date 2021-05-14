@@ -323,6 +323,9 @@ export default {
     },
   },
   methods: {
+    /**
+     * 点击图片放大或保存
+     */
     preview(urls, index) {
       uni.previewImage({
         current: index,

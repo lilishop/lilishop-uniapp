@@ -63,6 +63,9 @@ export default {
         this.order = order;
       });
     },
+    /**
+     * 点击图片放大或保存
+     */
     preview() {
       //预览发票
       if (this.order.elec_file_list.length) {

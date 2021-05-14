@@ -1,17 +1,17 @@
 <template>
   <view class="coupon-center">
-    <swiper :current="tabIndex" class="swiper-box" @change="ontabchange">
-    
-      <swiper-item @touchmove.stop class="swiper-item" v-for="tab in categoryIndexData" :key="tab.category_id">
+    <swiper class="swiper-box">
+      <swiper-item class="swiper-item">
         <scroll-view class="scroll-v" enableBackToTop="true" scroll-y @scrolltolower="loadMore">
-         <u-empty mode="coupon" text="没有优惠券了" v-if="nomsg"></u-empty>
-          <view v-else class="coupon-item" v-for="(item, index) in list" :key="index">
+          <u-empty mode="coupon" text="没有优惠券了" v-if="whetherEmpty"></u-empty>
+          <view v-else class="coupon-item" v-for="(item, index) in couponList" :key="index">
             <view class="left">
               <view class="wave-line">
                 <view class="wave" v-for="(item, index) in 12" :key="index"></view>
               </view>
-              <view class="msg">
+              <view class="message">
                 <view>
+                  <!--判断当前优惠券类型  couponType  PRICE || DISCOUNT -->
                   <span v-if="item.couponType == 'DISCOUNT'">{{ item.couponDiscount }}折</span>
                   <span v-else>{{ item.price }}元</span>
                 </view>
@@ -22,11 +22,11 @@
             </view>
             <view class="right">
               <view>
+                <!-- 根据scopeType 判断是否是 平台、品类或店铺  -->
                 <view v-if="item.scopeType">
                   <span v-if="item.scopeType == 'ALL' && item.id == 'platform'">全平台</span>
                   <span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
                   <view v-else>{{  item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用</view>
-
                 </view>
                 <view>有效期至：{{  item.endTime.split(" ")[0] }}</view>
               </view>
@@ -47,53 +47,53 @@
 <script>
 import { receiveCoupons } from "@/api/members.js";
 import { getAllCoupons } from "@/api/promotions.js";
-import { getCategoryIndexData } from "@/api/home.js";
 export default {
   data() {
     return {
-      loadStatus: "more",
-      nomsg: false,
-      list: [],
+      loadStatus: "more", //下拉状态
+      whetherEmpty: false, //是否为空
+      couponList: [], // 优惠券列表
       params: {
         pageNumber: 1,
         pageSize: 10,
-        status: 1,
       },
-      storeId: "",
-      categoryIndexData: [],
-      currentLeft: 0,
-      tabIndex: 0,
+      storeId: "", //店铺 id
     };
   },
   onLoad(option) {
     this.storeId = option.storeId;
     this.getCoupon();
-    this.getTabbar();
   },
   onPullDownRefresh() {
     //下拉刷新
     console.log("refresh");
     this.params.pageNumber = 1;
-    this.list = [];
+    this.couponList = [];
     this.getCoupon();
   },
   methods: {
+    /**
+     * 获取当前优惠券
+     */
     getCoupon() {
-      //全部优惠券
       uni.showLoading({
         title: "加载中",
       });
-      if (this.storeId) {
-        getAllCoupons({ storeId: this.storeId ,...this.params })
+      let submitData = { ...this.params };
+      // 判断当前是否有店铺
+      this.storeId ? (submitData = { ...this.params, storeId: this.storeId }): "",
+        getAllCoupons(submitData)
           .then((res) => {
             uni.hideLoading();
             uni.stopPullDownRefresh();
-            if (res.statusCode == 200) {
+            if (res.data.code == 200) {
+              // 如果请求成功，展示数据并进行展示
               let data = res.data.result;
               if (data.total == 0) {
-                this.nomsg = true;
+                // 当本次请求数据为空展示空信息
+                this.whetherEmpty = true;
               } else {
-                this.list.push(...data.records);
+                this.couponList.push(...data.records);
                 this.loadStatus = "noMore";
               }
             }
@@ -101,33 +101,11 @@ export default {
           .catch((err) => {
             uni.hideLoading();
           });
-      } else {
-        getAllCoupons(this.params)
-          .then((res) => {
-            uni.hideLoading();
-            uni.stopPullDownRefresh();
-            if (res.statusCode == 200) {
-              console.log(res);
-              let data = res.data.result;
-              if (data.total == 0) {
-                this.nomsg = true;
-                console.log("这里");
-              } else if (data.total < 10) {
-                this.list.push(...data.records);
-                this.loadStatus = "noMore";
-              } else {
-                this.list.push(...data.records);
-                if (data.data.length < 10) this.loadStatus = "noMore";
-              }
-            }
-          })
-          .catch((err) => {
-            uni.hideLoading();
-          });
-      }
     },
+    /**
+     * 领取优惠券
+     */
     receive(item) {
-      //领取优惠券
       receiveCoupons(item.id).then((res) => {
         if (res.data.code == 200) {
           uni.showToast({
@@ -141,48 +119,15 @@ export default {
           });
         }
       });
-      // this.$set(this.list,0,this.list[0])
-      // console.log(this.list)
     },
-    getTabbar() {
-      //获取顶级分类
-      // uni.showLoading({
-      // 	title: "加载中"
-      // })
-      let tabbar = {
-        category_id: 0,
-        name: "全部",
-        parent_id: 0,
-        category_path: "|0|",
-        goods_count: 0,
-        category_order: 0,
-        list_show: 1,
-        image:
-          "https://wwwyinbeicn.oss-cn-beijing.aliyuncs.com/yinbeistore/normal/FF468285411041E1AE5C36DAD1161AE4.png",
-      };
-      getCategoryIndexData().then((res) => {
-        console.log(res);
-        this.categoryIndexData.push(tabbar, ...res.data.result);
-      });
-    },
+    /**
+     * 加载更多
+     */
     loadMore() {
       if (this.loadStatus != "noMore") {
         this.params.pageNumber++;
         this.getAllCoupons();
       }
-    },
-    setCat(type) {
-      this.tabIndex = type;
-      // this.searchStore();
-    },
-    ontabchange(e) {
-      this.tabIndex = e.detail.current;
-      if (e.detail.current > 3) {
-        this.currentLeft = (e.detail.current - 3) * 90;
-      } else {
-        this.currentLeft = 0;
-      }
-      // this.searchStore();
     },
   },
   onNavigationBarButtonTap(e) {
@@ -201,7 +146,7 @@ page {
 .coupon-center {
   height: 100%;
 
-  .list-scroll-content {
+  .couponList-scroll-content {
     position: relative;
     width: 100%;
     display: flex;
@@ -247,7 +192,7 @@ page {
         width: 260rpx;
         background-color: $light-color;
         position: relative;
-        .msg {
+        .message {
           color: $font-color-white;
           display: flex;
           justify-content: center;

@@ -2,33 +2,24 @@
   <view class="about-us">
     <view class="box flex-center">
       <image src="/static/logo.png" mode="scaleToFill"></image>
-      <view>lili商城</view>
+      <view>{{config.name}}</view>
     </view>
     <u-cell-group :border="false">
       <!--  #ifdef APP-PLUS -->
       <u-cell-item title="检查更新" @click="checkUpdate"></u-cell-item>
       <!--  #endif -->
-      <u-cell-item title="证照信息" @click="
-          navigateTo('/pages/mine/help/tips?type=message')
-        "></u-cell-item>
-      <u-cell-item title="服务协议" @click="
-          navigateTo('/pages/mine/help/tips?type=user')
-        "></u-cell-item>
-      <u-cell-item title="隐私协议" :border-bottom="false" @click="
-          navigateTo('/pages/mine/help/tips?type=privacy')
-        "></u-cell-item>
-      <u-cell-item title="关于我们" :border-bottom="false" @click="
-          navigateTo('/pages/mine/help/tips?type=about')
-        "></u-cell-item>
+      <u-cell-item title="证照信息" @click="navigateTo('/pages/mine/help/tips?type=message')"></u-cell-item>
+      <u-cell-item title="服务协议" @click="navigateTo('/pages/mine/help/tips?type=user')"></u-cell-item>
+      <u-cell-item title="隐私协议" @click="navigateTo('/pages/mine/help/tips?type=privacy')"></u-cell-item>
+      <u-cell-item title="关于我们" :border-bottom="false" @click="navigateTo('/pages/mine/help/tips?type=about')"></u-cell-item>
     </u-cell-group>
     <view class="intro flex-center c-content">
-      <view>客服热线：15810610731</view>
+      <view>客服热线：13161366885</view>
       <view>客服邮箱：lili@lili.com</view>
-
     </view>
     <view class="bottom flex-center">
       <view @click="navigateTo('/pages/help/tips?type=user')">《lili商城用户协议》</view>
-      <view>CopyRight @ lili商城 </view>
+      <view>CopyRight @ {{config.name}} </view>
     </view>
   </view>
 </template>
@@ -37,11 +28,12 @@
 // #ifdef APP-PLUS
 import APPUpdate, { getCurrentNo, getServerNo } from "@/plugins/APPUpdate";
 import { getAppVersionList } from "@/api/message.js";
-
 // #endif
+import config from "@/config/config";
 export default {
   data() {
     return {
+      config,
       showUpdate: false,
       version: "",
       currentNo: 0,
@@ -51,7 +43,10 @@ export default {
       },
     };
   },
-  onLoad(options) {
+  onLoad() {
+    /**
+     * 根据当前app系统判断
+     */
     // #ifdef APP-PLUS
     let _this = this;
     plus.runtime.getProperty(plus.runtime.appid, function (inf) {
@@ -66,6 +61,9 @@ export default {
     // #endif
   },
   methods: {
+    /**
+     * 点击查看更新
+     */
     async checkUpdate() {
       // #ifdef APP-PLUS
       let needUpdate = false;

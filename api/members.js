@@ -73,19 +73,6 @@ export function receiveCoupons(couponId) {
 }
 
 /**
- * 获取当前会员积分
- * @returns {*}
- */
-
-export function getPoints() {
-  return http.request({
-    url: 'members/points/current',
-    method: Method.GET,
-    needToken: true,
-  });
-}
-
-/**
  * 获取积分明细数据
  * @param params
  * @returns {AxiosPromise}
@@ -99,19 +86,6 @@ export function getPointsData(params) {
   });
 }
 
-/**
- * 获取积分明细数据 按月分组
- * @param params
- * @returns {AxiosPromise}
- */
-export function getPointsDataDetail(params) {
-  return http.request({
-    url: 'members/points/total',
-    method: Method.GET,
-    needToken: true,
-    params,
-  });
-}
 
 /**
  * 获取我的评论列表

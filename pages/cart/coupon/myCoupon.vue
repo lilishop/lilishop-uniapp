@@ -1,26 +1,25 @@
 <template>
   <view class="b-content">
     <view class="navbar">
-      <view v-for="(item, index) in navList" :key="index" class="nav-item" @click="tabClick(index)"><text :class="{ current: tabCurrentIndex === index }">{{
+      <!-- 循环出头部tab栏 -->
+      <view v-for="(item, index) in navList" :key="index" class="nav-item" @click="handleTabClick(index)"><text :class="{ current: tabCurrentIndex === index }">{{
           item.text
         }}</text></view>
     </view>
     <swiper :current="tabCurrentIndex" class="swiper-box" duration="300" @change="changeTab">
-      <swiper-item class="tab-content" v-for="(tabItem, tabIndex) in navList" :key="tabIndex">
+      <swiper-item class="tab-content" v-for="(navItem, navIndex) in navList" :key="navIndex">
         <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData">
           <!-- 空白页 -->
-          <empty v-if="tabItem.nomsg"></empty>
+          <u-empty mode="coupon" text="暂无优惠券了" v-if="navItem.wheterEmpty"></u-empty>
           <!-- 数据 -->
-          <view v-if="tabItem.dataList && coupon" class="coupon-item" :class="{ 'coupon-used': tabIndex != 0 }" v-for="(coupon, index) in tabItem.dataList" :key="index">
+          <view v-if="navItem.dataList && coupon" class="coupon-item" :class="{ 'coupon-used': navIndex != 0 }" v-for="(coupon, index) in navItem.dataList" :key="index">
             <view class="left">
               <view class="wave-line">
                 <view class="wave" v-for="(item, index) in 12" :key="index"></view>
               </view>
-              <view class="msg">
-                 <view class="price" v-if="coupon.couponType == 'DISCOUNT'">{{ coupon.discount }}折</view>
-                  <view class="price" v-else>{{ coupon.price }}元</view>
-                <!-- <view class="price" v-if="coupon.couponType == 'PRICE'">￥{{ coupon.price | unitPrice }}</view> -->
-                <!-- <view class="price" v-if="coupon.couponType == 'DISCOUNT'">￥{{ coupon.couponDiscount }}</view> -->
+              <view class="message">
+                <view class="price" v-if="coupon.couponType == 'DISCOUNT'">{{ coupon.discount }}折</view>
+                <view class="price" v-else>{{ coupon.price }}元</view>
                 <view class="sub-price">满{{ coupon.consumeThreshold | unitPrice }}可用</view>
               </view>
               <view class="circle circle-top"></view>
@@ -43,20 +42,20 @@
                   <u-icon style="float: right; margin-top: 10rpx" name="arrow-right"></u-icon>
                 </view>
               </view>
-              <view class="jiao-1" v-if="tabIndex == 0">
+              <view class="jiao-1" v-if="navIndex == 0">
                 <text class="text-1">新到</text>
                 <text class="text-2" v-if="coupon.used_status == 1">将过期</text>
               </view>
-              <image class="no-icon" v-if="tabIndex == 1" src="@/static/img/used.png"></image>
-              <image class="no-icon" v-if="tabIndex == 2" src="@/pages/floor/imgs/overdue.png"></image>
-              <view class="receive" v-if="tabIndex == 0" @click="nowUse(coupon)">
+              <image class="no-icon" v-if="navIndex == 1" src="@/static/img/used.png"></image>
+              <image class="no-icon" v-if="navIndex == 2" src="@/pages/floor/imgs/overdue.png"></image>
+              <view class="receive" v-if="navIndex == 0" @click="useItNow(coupon)">
                 <text>立即</text><br />
                 <text>使用</text>
               </view>
               <view class="bg-quan"> 券 </view>
             </view>
           </view>
-          <uni-load-more :status="tabItem.loadStatus"></uni-load-more>
+          <uni-load-more :status="navItem.loadStatus"></uni-load-more>
         </scroll-view>
       </swiper-item>
     </swiper>
@@ -69,8 +68,9 @@ import { getMemberCoupons } from "@/api/members.js";
 export default {
   data() {
     return {
-      tabCurrentIndex: 0,
+      tabCurrentIndex: 0, //tab栏下标默认为0 未使用
       navList: [
+        //每个tab存储的信息
         {
           text: "未使用",
           loadStatus: "more",
@@ -81,7 +81,7 @@ export default {
             pageSize: 10,
             status: 1,
           },
-          nomsg: false,
+          wheterEmpty: false,
         },
         {
           text: "已使用",
@@ -93,7 +93,7 @@ export default {
             pageSize: 10,
             status: 2,
           },
-          nomsg: false,
+          wheterEmpty: false,
         },
         {
           text: "已过期",
@@ -105,40 +105,37 @@ export default {
             pageSize: 10,
             status: 3,
           },
-          nomsg: false,
+          wheterEmpty: false,
         },
       ],
-      couponList: [],
+      couponList: [], //优惠券列表
     };
   },
-  onNavigationBarButtonTap() {
-    uni.navigateTo({
-      url: "/pages/cart/coupon/couponIntro",
-    });
-  },
+
   onLoad() {
-    // this.tabCurrentIndex = 0;
     this.getData();
   },
-  onPullDownRefresh() {
-    let index = this.tabCurrentIndex;
-    this.navList[index].params.pageNumber = 1;
-    this.navList[index].dataList = [];
-    this.getData();
-  },
+
   watch: {
+    /**
+     * 监听切换顶部tab栏实现刷新数据
+     */
     tabCurrentIndex(val) {
       if (this.navList[val].dataList.length == 0) this.getData();
     },
   },
   methods: {
-    //顶部tab点击
-    tabClick(index) {
+    /**
+     * 顶部tab点击
+     */
+    handleTabClick(index) {
       this.tabCurrentIndex = index;
-      // this.loadData();
     },
+
+    /**
+     * 读取优惠券
+     */
     getData() {
-      //读取优惠券
       uni.showLoading({
         title: "加载中",
       });
@@ -149,7 +146,7 @@ export default {
           let data = res.data.result.records;
           if (data.length == 0) {
             if (res.data.pageNumber == 1) {
-              this.navList[index].nomsg = true;
+              this.navList[index].wheterEmpty = true;
             } else {
               this.navList[index].loadStatus = "noMore";
             }
@@ -163,9 +160,17 @@ export default {
         uni.hideLoading();
       });
     },
+
+    /**
+     * 切换tab
+     */
     changeTab(e) {
       this.tabCurrentIndex = e.target.current;
     },
+
+    /**
+     * 加载数据
+     */
     loadData() {
       let index = this.tabCurrentIndex;
       if (this.navList[index].loadStatus != "noMore") {
@@ -173,10 +178,11 @@ export default {
         this.getData();
       }
     },
-    nowUse(item) {
-        console.log(item)
-      return 
-      //立即使用
+
+    /**
+     * 立即使用优惠券
+     */
+    useItNow(item) {
       if (item.storeId) {
         uni.navigateTo({
           url: `/pages/product/shopPage?id=${item.storeId}`,
@@ -186,9 +192,11 @@ export default {
           url: "/pages/tabbar/home/index",
         });
       }
-      
-
     },
+
+    /**
+     * 优惠券详情
+     */
     couponDetail(item) {
       uni.navigateTo({
         url:
@@ -199,12 +207,11 @@ export default {
   },
 };
 </script>
-<style>
+
+<style lang="scss" scoped>
 page {
   height: 100%;
 }
-</style>
-<style lang="scss">
 $item-color: #fff;
 
 .b-content {
@@ -232,7 +239,7 @@ $item-color: #fff;
       background-color: $light-color;
       position: relative;
 
-      .msg {
+      .message {
         color: $font-color-white;
         display: flex;
         justify-content: center;
@@ -367,27 +374,6 @@ $item-color: #fff;
         position: absolute;
         right: -54rpx;
         bottom: -60rpx;
-      }
-    }
-  }
-  .coupon-used {
-    .left {
-      background-color: #dddddd;
-      .wave-line {
-        background-color: #dddddd;
-      }
-    }
-    .right {
-      color: #cccccc;
-      .content {
-        color: #cccccc;
-        > view:nth-child(1) {
-          color: #cccccc;
-        }
-      }
-      .bg-quan {
-        border: 6rpx solid #cccccc;
-        color: #cccccc;
       }
     }
   }

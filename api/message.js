@@ -66,9 +66,10 @@ export function getLogisticsMessages(params) {
 
 
 /**
- * 获取版本更新信息
+ * TODO 获取版本更新信息 暂无此功能。后续会优化更新
  * @param params
  * @returns {AxiosPromise}
+ * 
  */
 export function getAppVersionList(params) {
   params = params || {};

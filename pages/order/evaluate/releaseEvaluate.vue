@@ -1,5 +1,6 @@
 <template>
   <view>
+    <!-- 遍历出评价商品 -->
     <view v-for="(sku, index) in order.orderItems" :key="index">
       <view class="after-sales-goods-detail-view">
         <view>
@@ -45,7 +46,7 @@
         </view>
       </view>
       <view class="info-evaluate-view">
-        <view class="images-view" @click="beforeUpload(index)">
+        <view class="images-view">
           <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150" @on-uploaded="onUploaded" :max-count="5" :show-progress="false"></u-upload>
         </view>
       </view>
@@ -88,47 +89,45 @@ export default {
   data() {
     return {
       storage,
-      value: "",
-      type: "textarea",
-      border: false,
-      maxlength: 500,
+      type: "textarea", //输入框状态为 textarea
+      border: false, //没有border
+      maxlength: 500, //评价最大字数为500字
       placeholder:
         "宝贝满足您的期待吗？说说它的优点和美中不足的地方吧。您的评价会帮助更多的人",
-      order: {},
+      order: {}, //订单信息
       form: {
-        content: "",
-        goodsId: "",
-        grade: "GOOD",
-        orderItemSn: "",
-        skuId: "",
-        descriptionScore: 5,
-        serviceScore: 5,
-        deliveryScore: 5,
-        // // 是否为初评价 true 默认为初评
-        // first_comment: true,
-        //content,grade: 'GOOD',skuId,images:[]
+        content: "", //评价详情
+        goodsId: "", //商品id
+        grade: "GOOD", //默认为好评
+        orderItemSn: "", //商品的sn
+        skuId: "", //商品skuId
+        descriptionScore: 5, //默认描述得分为5分
+        serviceScore: 5, //默认服务得分为5分
+        deliveryScore: 5, //默认物流得分为5分
       },
-      currentIndex: 0,
-      action: upload,
+      action: upload, //图片上传地址
     };
   },
   onLoad(options) {
+    // 获取上一级传过来的数据进行解析
     this.form.orderItemSn = options.sn;
     this.order = JSON.parse(decodeURIComponent(options.order));
-    //现在只能一个商品一个评价
-  },
-  mounted() {
     this.form.goodsId = this.order.orderItems[0].goodsId;
     this.form.orderItemSn = this.order.orderItems[0].sn;
     this.form.skuId = this.order.orderItems[0].skuId;
   },
   methods: {
-    beforeUpload(index) {
-      this.currentIndex = index;
-    },
-    onGrade(grade, index) {
+
+    /**
+     * 点击评价
+     */
+    onGrade(grade) {
       this.form.grade = grade;
     },
+
+    /**
+     * 提交评价
+     */
     onSubmit() {
       uni.showLoading({
         title: "加载中",
@@ -148,9 +147,12 @@ export default {
         });
       });
     },
+
+    /**
+     * 图片成功后回调
+     */
     onUploaded(lists) {
       let images = [];
-      console.log(lists);
       lists.forEach((item) => {
         images.push(item.response.result);
       });

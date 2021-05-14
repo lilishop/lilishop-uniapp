@@ -214,14 +214,6 @@
 					}
 				},
 				{
-					"path": "set/securityCenter/deviceManage",
-					"style": {
-						"navigationBarTitleText": "设备管理"
-					}
-				},
-			
-
-				{
 					"path": "set/securityCenter/editPassword",
 					"style": {
 						"navigationBarTitleText": "修改密码",
@@ -284,12 +276,7 @@
 						"navigationBarTitleText": "我的积分"
 					}
 				},
-				{
-					"path": "point/pointDetail",
-					"style": {
-						"navigationBarTitleText": "积分明细"
-					}
-				}, {
+				 {
 					"path": "msgTips/main",
 					"style": {
 						"navigationBarTitleText": "消息中心"
@@ -492,12 +479,7 @@
 						"navigationBarTitleText": "优惠券"
 					}
 				},
-				{
-					"path": "coupon/couponIntro",
-					"style": {
-						"navigationBarTitleText": "优惠券说明"
-					}
-				},
+				
 				{
 					"path": "coupon/couponCenter",
 					"style": {
@@ -595,23 +577,12 @@
 					}
 				},
 				{
-					"path": "evaluate/evaluateInfo",
-					"style": {
-						"navigationBarTitleText": "评价介绍"
-					}
-				},
-				{
 					"path": "evaluate/evaluateDetail",
 					"style": {
 						"navigationBarTitleText": "评价详情"
 					}
 				},
-				{
-					"path": "evaluate/againEvaluate",
-					"style": {
-						"navigationBarTitleText": "追加评价"
-					}
-				},
+			
 				{
 					"path": "evaluate/releaseEvaluate",
 					"style": {

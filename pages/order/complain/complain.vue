@@ -37,7 +37,7 @@
         <view class="cell-view"> {{ complainTopic }} </view>
         <u-icon style="margin-left: 20rpx" name="arrow-down"></u-icon>
       </view>
-    
+
       <view class="cell-item complain-content">
         <view class="cell-title title"> 投诉内容 </view>
         <view class="cell-view content">
@@ -47,7 +47,8 @@
       <view class="cell-item">
         <view class="cell-title"> 投诉凭证 </view>
         <view class="cell-view">
-          <u-upload ref="uUpload" :header=" { accessToken: storage.getAccessToken() }" upload-text=""  :show-progress="false" :action="action" width="100" @on-uploaded="onUploaded" :max-count="5"></u-upload>
+          <u-upload ref="uUpload" :header=" { accessToken: storage.getAccessToken() }" upload-text="" :show-progress="false" :action="action" width="100" @on-uploaded="onUploaded" :max-count="5">
+          </u-upload>
         </view>
       </view>
     </view>
@@ -65,8 +66,9 @@ export default {
   data() {
     return {
       storage,
-      action: upload,
+      action: upload, //上传图片地址
       orderStatusList: {
+        //订单状态列表
         UNDELIVERED: "待发货",
         UNPAID: "未付款",
         PAID: "已付款",
@@ -77,45 +79,44 @@ export default {
       },
       complainValue: "", //投诉内容
       complainShow: false, //投诉主题开关
-      complainTopic: "",
-      // 投诉列表
-      complainList: [],
-      images: [],
-      order: "",
-      orderGoodsList: "",
-      orderDetail: "",
+      complainTopic: "", //投诉抱怨话题
+      complainList: [], // 投诉列表
+      images: [], //投诉内容图片
+      order: "", //订单
+      orderGoodsList: "", //订单商品
+      orderDetail: "", //订单详情
       sn: "",
-      skuId: "",
+      skuId: "", //商品skuid
     };
   },
+  
   onLoad(option) {
-    console.log(option);
     this.loadData(option.sn);
     this.sn = option.sn;
     this.skuId = option.skuId;
-  },
-
-  mounted() {
     this.getReasion();
   },
-  methods: {
-    onUploaded(lists) {
-      console.log(lists);
-      let images = [];
 
+  methods: {
+    /**
+     * 上传完成
+     */
+    onUploaded(lists) {
+      let images = [];
       lists.forEach((item) => {
         images.push(item.response.result);
       });
-
       this.images = images;
-      console.log(this.images);
     },
-    // 提交
+    /**
+     * 提交
+     */
     handleSumit() {
+      // 循环出商品
       let goods = this.orderGoodsList.filter((item) => {
         return item.skuId == this.skuId;
       });
-
+      //数据赋值
       let data = {
         complainTopic: this.complainTopic, //投诉主题,
         content: this.complainValue, //投诉内容
@@ -124,7 +125,6 @@ export default {
         orderSn: this.sn, //订单号
         skuId: this.skuId, //skuid
       };
-
       addComplain(data).then((res) => {
         if (res.data.success) {
           uni.showToast({
@@ -142,6 +142,9 @@ export default {
       });
     },
 
+    /**
+     * 获取投诉原因
+     */
     getReasion() {
       getComplainReason().then((res) => {
         if (res.data.result.length >= 1) {
@@ -153,10 +156,13 @@ export default {
             this.complainList.push(way);
           });
           this.complainTopic = res.data.result[0].reason;
-          console.log(this.complainTopic);
         }
       });
     },
+
+    /**
+     * 加载订单详情
+     */
     loadData(sn) {
       uni.showLoading({
         title: "加载中",
@@ -166,12 +172,14 @@ export default {
         this.order = order.order;
         this.orderGoodsList = order.orderItems;
         this.orderDetail = res.data.result;
-
         uni.hideLoading();
       });
     },
+
+    /**
+     * 确认投诉
+     */
     confirmComplain(e) {
-      console.log(e);
       this.complainTopic = e[0].label;
     },
   },

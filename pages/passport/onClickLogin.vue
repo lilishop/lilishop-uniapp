@@ -2,9 +2,9 @@
   <div class="form">
     <u-form ref="validateCodeForm">
       <div class="login-list">
-
+        <!-- 循环出当前可使用的第三方登录模式 -->
         <div class="login-item" v-for="(item,index) in loginList" :key="index">
-          <u-icon :color="item.color" size="80" :name="item.icon" @click="toLogin(item)"></u-icon>
+          <u-icon :color="item.color" size="80" :name="item.icon" @click="navigateLogin(item)"></u-icon>
           <div>{{item.title}}</div>
         </div>
       </div>
@@ -15,7 +15,7 @@
 
 <script>
 import { webConnect, openIdLogin } from "@/api/connect.js";
-
+import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import { getUserInfo } from "@/api/members";
 import storage from "@/utils/storage.js";
 
@@ -48,7 +48,7 @@ export default {
   props: ["status"],
   mounted() {
     //#ifdef APP-PLUS
-    //如果是app 加载支持的登录方式
+    /**如果是app 加载支持的登录方式*/
     let _this = this;
     uni.getProvider({
       service: "oauth",
@@ -94,7 +94,11 @@ export default {
         });
       },
       fail: (error) => {
-        console.log("获取登录通道失败", error);
+        uni.showToast({
+          title: "获取登录通道失败" + error,
+          duration: 2000,
+          icon: "none",
+        });
       },
     });
     //#endif
@@ -111,21 +115,28 @@ export default {
   },
 
   methods: {
+    /** 根据参数显示登录模块 */
     methodFilter(code) {
       let way = [];
       this.loginList.forEach((item) => {
-        code.length != 0
-          ? code.forEach((val) => {
-              if (item.code == val) {
-                way.push(item);
-              }
-            })
-          : console.error("error");
+        if (code.length != 0) {
+          code.forEach((val) => {
+            if (item.code == val) {
+              way.push(item);
+            }
+          });
+        } else {
+          uni.showToast({
+            title: '配置有误请联系管理员',
+            duration: 2000,
+            icon:"none"
+          });
+        }
       });
       this.loginList = way;
     },
-
-    toLogin(connectLogin) {
+    /**跳转到登录页面 */
+    navigateLogin(connectLogin) {
       if (!this.status) {
         uni.showToast({
           title: "请您阅读并同意用户协议以及隐私政策",
@@ -148,6 +159,8 @@ export default {
       this.nonH5OpenId(connectLogin);
       // #endif
     },
+
+    // 跳转到一键登录
     clickCodeLogin() {
       this.$emit("open", "code");
     },
@@ -169,7 +182,6 @@ export default {
           // #endif
         },
         fail(e) {
-          console.log(e);
           uni.showToast({
             title: "第三方登录暂不可用！",
             icon: "none",
@@ -184,15 +196,15 @@ export default {
               //写入用户信息
               uni.setStorageSync("nickname", infoRes.userInfo.nickName);
               uni.setStorageSync("avatar", infoRes.userInfo.avatarUrl);
-              
-			  // #ifdef MP-WEIXIN
+
+              // #ifdef MP-WEIXIN
               //微信小程序获取openid 需要特殊处理 如需获取openid请参考uni-id: https://uniapp.dcloud.net.cn/uniCloud/uni-id
               _this.weixinMPOpenID(res).then((res) => {
                 //这里需要先行获得openid，再使用openid登录，小程序登录需要两步，所以这里特殊编译
                 _this.goOpenidLogin("WECHAT_MP");
-              }); 
+              });
               // #endif
-			  
+
               // #ifndef MP-WEIXIN
               _this.goOpenidLogin("APP");
               //#endif
@@ -230,23 +242,17 @@ export default {
             title: "第三方登录成功!",
             icon: "none",
           });
+          // 执行登录
           getUserInfo().then((user) => {
             storage.setUserInfo(user.data.result);
             storage.setHasLogin(true);
           });
-          getCurrentPages().length > 1
-            ? uni.navigateBack({
-                delta: getCurrentPages().length - 2,
-              })
-            : uni.switchTab({
-                url: "/pages/tabbar/home/index",
-              });
+          whetherNavigate()
         }
       });
     },
     //微信小程序获取openid
     async weixinMPOpenID(res) {
-      let openId = "";
       await miniProgramLogin(res.code).then((res) => {
         uni.setStorageSync("openid", res.data);
       });
