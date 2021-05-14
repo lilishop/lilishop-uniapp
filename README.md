@@ -20,7 +20,7 @@ Lilishop 是一款Java开发，基于SpringBoot的B2B2C多用户商城，前端�
 **产品文档**（需求、架构、使用、部署、开发）：https://docs.pickmall.cn
 
 
-### 项目链接
+### 项目链接(gitee)
 
 **Java后台**：https://gitee.com/beijing_hongye_huicheng/lilishop.git
 
@@ -29,6 +29,16 @@ Lilishop 是一款Java开发，基于SpringBoot的B2B2C多用户商城，前端�
 **Uni-app**：https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp.git
 
 **docker一键部署**：https://gitee.com/beijing_hongye_huicheng/docker.git
+
+### 项目链接(github)
+
+**Java后台**：https://github.com/hongyehuicheng/lilishop.git
+
+**Vue后台前端**： https://github.com/hongyehuicheng/lilishop-ui.git
+
+**Uni-app**：https://github.com/hongyehuicheng/lilishop-uniapp.git
+
+**docker一键部署**：https://github.com/hongyehuicheng/docker.git
 
 ### 演示地址
 
@@ -44,12 +54,18 @@ Lilishop 是一款Java开发，基于SpringBoot的B2B2C多用户商城，前端�
 
 ### 3行命令搭建本地环境
 
+温馨提示：由于服务较多，如果笔记本环境启动内存没有32g可能无法启动成功（macbookpro 2020 16g内存启动无法成功），台式机在16g内存、AMD 3700x 的ubuntu系统成功运行。
+
 ##### 下载docker脚本
 `git clone https://gitee.com/beijing_hongye_huicheng/docker.git `
 ##### 部署基础环境
 `docker-compose up -d`
 ##### 部署应用
 `docker-compose -f docker-compose-application.yml up -d`
+
+
+
+##### 各个地址
 
 | API           | 地址            |
 | -------------- | --------------- |
