@@ -36,7 +36,7 @@ export default {
   methods: {
     cashd() {
       this.price = this.price + "";
-      console.log(typeof this.price);
+    
 
       if (this.$u.test.amount(parseInt(this.price))) {
         cash({ price: this.price }).then((res) => {

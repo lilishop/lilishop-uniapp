@@ -86,7 +86,7 @@
 		},
 		onLoad(option) {
 			this.goods = JSON.parse(decodeURIComponent(option.goods))
-			console.log(this.goods)
+			
 			this.getList()
 		},
 		onReachBottom() { //触底事件，页面整个滚动使用

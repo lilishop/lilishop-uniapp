@@ -137,7 +137,7 @@ export default {
                     that.getCacheSize(); // 重新计算缓存
                   },
                   function (e) {
-                    console.log(e.message);
+                  
                   }
                 );
               } else {

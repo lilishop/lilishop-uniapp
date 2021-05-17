@@ -1,7 +1,6 @@
 <template>
   <div class="wrapper">
     <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
-    <!-- <u-navbar :is-back="false" title="首页"></u-navbar> -->
     <div v-for="(item,index) in pageData.list" :key="index">
       <u-navbar v-if="item.type == 'search'" :is-back="false">
         <search style="width:100%" :res="item.options" />

@@ -66,7 +66,6 @@ export default {
   },
   onPullDownRefresh() {
     //下拉刷新
-    console.log("refresh");
     this.params.pageNumber = 1;
     this.couponList = [];
     this.getCoupon();

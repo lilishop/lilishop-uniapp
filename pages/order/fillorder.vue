@@ -71,7 +71,7 @@
 
     <!-- 店铺商品信息 -->
     <div class="box box2" v-for="(item, index) in orderMessage.cartList" :key="index">
-      <u-row class="tab1" @click="tostore(item)">
+      <u-row class="tab1" @click="navigateToStore(item)">
         <u-col :offset="0">
           <span class="ybname">{{ item.storeName }}</span>
         </u-col>
@@ -224,14 +224,6 @@ export default {
       shippingText: "LOGISTICS",
       shippingFlag: false,
       shippingMethod: [
-        // {
-        //   value: "SELF_PICK_UP",
-        //   label: "自提",
-        // },
-        // {
-        //   value: "LOCAL_TOWN_DELIVERY",
-        //   label: "同城配送",
-        // },
         {
           value: "LOGISTICS",
           label: "物流",
@@ -260,6 +252,10 @@ export default {
     };
   },
   filters: {
+
+    /**
+     * 发票收据类型
+     */
     receiptType(type) {
       switch (type) {
         case "VATORDINARY":
@@ -281,8 +277,6 @@ export default {
     if (e.from == "backbutton") {
       let routes = getCurrentPages();
       let curRoute = routes[routes.length - 1].options;
-      console.log(routes);
-
       routes.forEach((item) => {
         if (
           item.route == "pages/tabbar/cart/cartList" ||
@@ -309,8 +303,6 @@ export default {
     uni.showLoading({
       mask: true,
     });
-    // this.checkedshipMethod([this.shippingMethod[2]]);
-
     this.getOrderList();
     uni.hideLoading();
     if (this.routerVal.way == "PINTUAN") {
@@ -327,9 +319,7 @@ export default {
     //发票回调 选择发票之后刷新购物车
     async callbackInvoice(val) {
       this.invoiceFlag = false;
-
       this.receiptList = val;
-
       if (val) {
         let submit = {
           way: this.routerVal.way,
@@ -344,29 +334,11 @@ export default {
     },
 
     // 跳转到店铺
-    tostore(val) {
+    navigateToStore(val) {
       uni.navigateTo({
         url: "/pages/product/shopPage?id=" + val.storeId,
       });
     },
-    // 点击配送方式选择
-    // checkedshipMethod(val) {
-    //   API_Order.selectedShipMethod({
-    //     shippingMethod: val[0].value,
-    //     way: this.routerVal.way,
-    //   }).then((res) => {
-    //     if (res.data.code == 200) {
-    //       this.shippingText = val[0].value;
-    //     } else {
-    //       uni.showToast({
-    //         title: res.data.message,
-    //         duration: 2000,
-    //         icon: "none",
-    //       });
-    //     }
-    //   });
-    // },
-
     // 点击跳转地址
     clickToAddress() {
       this.navigateTo(
@@ -419,12 +391,18 @@ export default {
       );
     },
 
+    /**
+     * 跳转
+     */
     navigateTo(url) {
       uni.navigateTo({
         url,
       });
     },
 
+    /**
+     * 提交订单准备支付
+     */
     submit() {
       if (!this.address.id) {
         uni.showToast({
@@ -457,6 +435,9 @@ export default {
         ? (submit.parentOrderSn = this.routerVal.parentOrder.orderSn)
         : delete submit.parentOrderSn;
 
+      /**
+       * 创建订单
+       */
       API_Trade.createTrade(submit).then((res) => {
         if (res.data.success) {
           uni.showToast({
@@ -491,6 +472,9 @@ export default {
       this.$u.debounce(this.submit(), 3000);
     },
 
+    /**
+     * 微信小程序中直接支付
+     */
     async pay(sn) {
       new LiLiWXPay({
         sn: sn,
@@ -499,7 +483,7 @@ export default {
     },
 
     /**
-     * @param id
+     * 获取用户地址
      */
     getUserAddress() {
       // 如果没有商品选择地址的话 则选择 默认地址
@@ -509,8 +493,6 @@ export default {
             ","
           );
           this.address = res.data.result;
-
-          console.log(this.address);
         }
       });
     },

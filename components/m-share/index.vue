@@ -127,7 +127,6 @@ export default {
           summary: this.goodsName,
           title: shareTitle,
           success: function (res) {
-            // console.log("success:" + JSON.stringify(res));
             uni.showToast({
               title: "分享成功!",
               duration: 2000,

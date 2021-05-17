@@ -55,7 +55,6 @@ export default {
     // #endif
 
     downLoad() {
-      console.log(this.imgUrl);
 
       uni.saveImageToPhotosAlbum({
         filePath: this.imgUrl,

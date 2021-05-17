@@ -89,12 +89,12 @@ export default {
           uni.hideLoading();
         })
         .catch((err) => {
-          console.log(err);
+        
           uni.hideLoading();
         });
     },
     radioGroupChange(e) {
-      console.log(e);
+     
     },
     radioChange(e) {
       if (this.anonymous == "YES") {
@@ -102,8 +102,6 @@ export default {
       } else {
         this.anonymous = "YES";
       }
-
-      console.log(e);
     },
   },
 };

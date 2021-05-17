@@ -23,7 +23,7 @@ export default {
   },
   onLoad(val) {
     this.routers = val;
-    console.log(val);
+ 
     getArticleDetail(val.id).then((res) => {
       if (res.data.result) {
         this.articleData = res.data.result.content;

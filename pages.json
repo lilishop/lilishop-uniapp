@@ -595,12 +595,7 @@
 						"navigationBarTitleText": "我的评价"
 					}
 				},
-				{
-					"path": "afterSales/applyCancel",
-					"style": {
-						"navigationBarTitleText": "取消订单"
-					}
-				},
+				
 				{
 					"path": "afterSales/applyProgress",
 					"style": {

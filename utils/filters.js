@@ -116,3 +116,39 @@ export function getPages(val) {
 
   return val ? currentPage : url;
 }
+
+/**
+ * 服务状态列表
+ */
+export function serviceStatusList(val) {
+  let statusList = {
+    APPLY: "申请售后",
+    PASS: "通过售后",
+    REFUSE: "拒绝售后",
+    BUYER_RETURN: "买家退货，待卖家收货",
+    SELLER_RE_DELIVERY: "商家换货/补发",
+    SELLER_CONFIRM: "卖家确认收货",
+    SELLER_TERMINATION: "卖家终止售后",
+    BUYER_CONFIRM: "买家确认收货",
+    BUYER_CANCEL: "买家取消售后",
+    WAIT_REFUND: "等待平台退款",
+    COMPLETE: "完成售后",
+  };
+  return statusList[val];
+}
+
+/**
+ * 订单状态列表
+ */
+export function orderStatusList(val) {
+  let orderStatusList = {
+    UNDELIVERED: "待发货",
+    UNPAID: "未付款",
+    PAID: "已付款",
+    DELIVERED: "已发货",
+    CANCELLED: "已取消",
+    COMPLETE: "已完成",
+    TAKE: "已完成",
+  };
+  return orderStatusList[val];
+}

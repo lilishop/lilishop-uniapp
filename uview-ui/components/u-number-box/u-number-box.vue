@@ -152,7 +152,7 @@
 					this.inputVal = v1
 					// 只有value的改变是来自外部的时候，才去同步inputVal的值，否则会造成循环错误
 					// if(!this.changeFromInner) {
-					// 	console.log('change')
+				
 					// 	this.inputVal = v1;
 					// 	// 因为inputVal变化后，会触发this.handleChange()，在其中changeFromInner会再次被设置为true，
 					// 	// 造成外面修改值，也导致被认为是内部修改的混乱，这里进行this.$nextTick延时，保证在运行周期的最后处
@@ -165,7 +165,7 @@
 				immediate: true
 			},
 			inputVal(v1, v2) {
-				// console.log(v1)
+			
 				// 为了让用户能够删除所有输入值，重新输入内容，删除所有值后，内容为空字符串
 				if (v1 == '') return;
 				let value = 0;

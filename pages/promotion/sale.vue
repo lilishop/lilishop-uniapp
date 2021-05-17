@@ -73,7 +73,7 @@
 			// 	url: '/pages/tabbar/home/index',
 			// 	success: function(res) {
 			// 		// 通过eventChannel向被打开页面传送数据
-			// 		console.log(res)
+				
 			// 	}
 			// });
 
@@ -82,7 +82,7 @@
 			// 	url: '/pages/tabbar/home/index?' + new Date().getTime(),
 			// 	success: function(res) {
 			// 		// 通过eventChannel向被打开页面传送数据
-			// 		console.log(res);
+				
 			// 	}
 			// });
 		},

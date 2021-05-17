@@ -16,11 +16,8 @@
             </view>
             <view class="goods-info">
               <view class="goods-title u-line-2">{{ sku.name }}</view>
-
               <view class="goods-price">
-                <!-- <span v-if="sku.point">￥{{ sku.subtotal }}+{{ sku.point }}积分</span> -->
                 <span>￥{{ sku.price | unitPrice }}</span>
-
                 <span class="num">购买数量: {{ sku.num }} </span>
               </view>
             </view>
@@ -36,7 +33,7 @@
             <u-input type="text" input-align="right" value="快递至第三方卖家" />
           </u-form-item>
           <u-form-item label="快递公司" :label-width="150">
-            <u-input v-model="form.courier_company" type="select" input-align="right" :select-open="companySelectShow" @click="companySelectShow = true" placeholder="请选择快递公司" />
+            <u-input v-model="form.courierCompany" type="select" input-align="right" :select-open="companySelectShow" @click="companySelectShow = true" placeholder="请选择快递公司" />
           </u-form-item>
           <u-form-item label="快递单号" :label-width="150">
             <u-input input-align="right" v-model="form.logisticsNo" placeholder="请输入快递单号" />
@@ -48,8 +45,7 @@
       </scroll-view>
 
       <view class="submit-view">
-       
-        <u-button ripple :customStyle="{'background':$lightColor,'color':'#fff' }"  shape="circle" @click="onSubmit">提交申请</u-button>
+        <u-button ripple :customStyle="{'background':$lightColor,'color':'#fff' }" shape="circle" @click="onSubmit">提交申请</u-button>
       </view>
     </u-form>
     <u-select mode="single-column" :list="companyList" v-model="companySelectShow" @confirm="companySelectConfirm"></u-select>
@@ -65,27 +61,21 @@ import { fillShipInfo } from "@/api/after-sale.js";
 export default {
   data() {
     return {
-      typeValue: 0,
-      value: "",
-      type: "textarea",
-      border: true,
       //快递公司 弹出框
       companySelectShow: false,
-      companyList: [],
-      timeshow: false,
+      companyList: [], //快递公司集合
+      timeshow: false, //发货时间
       form: {
-        courier_company: "",
+        courierCompany: "", //快递公司
         logisticsId: "", //快递公司ID
         logisticsNo: "", //快递单号
         mDeliverTime: "", //发货时间
       },
-      serviceDetail: {},
-      sku: {},
+      serviceDetail: {}, //服务详情
+      sku: {}, //sku信息
     };
   },
-  onShow(options) {},
   onLoad(options) {
-   
     this.sku = JSON.parse(decodeURIComponent(options.sku));
     let navTitle = "服务单详情";
     uni.setNavigationBarTitle({
@@ -95,12 +85,17 @@ export default {
     this.Logistics();
   },
   methods: {
-    //快递公司
+    /**
+     * 确认快递公司
+     */
     companySelectConfirm(e) {
       this.form.logisticsId = e[0].value;
-      this.form.courier_company = e[0].label;
+      this.form.courierCompany = e[0].label;
     },
-    // 获取快递公司
+
+    /**
+     * 获取快递公司
+     */
     Logistics() {
       getLogistics().then((res) => {
         if (res.data.success) {
@@ -110,19 +105,26 @@ export default {
               label: item.name,
             };
           });
-          // this.companyList= res
         }
       });
     },
+
+    /**
+     * 更改时间
+     */
     onTimeChange(e) {
       this.form.mDeliverTime = e.result;
     },
+
+    /**
+     * 点击提交
+     */
     onSubmit() {
       uni.showLoading({
         title: "加载中",
         mask: true,
       });
-      delete this.form.courier_company;
+      delete this.form.courierCompany;
       fillShipInfo(this.serviceDetail.sn, this.form).then((res) => {
         uni.hideLoading();
         if (res.statusCode === 200) {
@@ -139,15 +141,14 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 page,
 .content {
   background: $page-color-base;
   height: 100%;
 }
-.mp-iphonex-bottom{
+.mp-iphonex-bottom {
   overflow: hidden;
-  
 }
 .after-sales-goods-detail-view {
   background-color: #fff;

@@ -91,8 +91,8 @@
                 <div class="title clamp3" style="">{{ item.goodsName }}</div>
                 <view class="price-box">
                   <div class="price" v-if="item.price!=undefined">
-                    ¥<span>{{ Fixed(item.price )[0] }} </span>.{{
-                      Fixed(item.price )[1]
+                    ¥<span>{{ formatPrice(item.price )[0] }} </span>.{{
+                      formatPrice(item.price )[1]
                     }}
                   </div>
                 </view>
@@ -158,8 +158,8 @@
                 <view class="price-box">
                   <div class="price" v-if="item.price!=undefined">
 
-                    ¥<span>{{ Fixed(item.price )[0] }} </span>.{{
-                      Fixed(item.price )[1]
+                    ¥<span>{{ formatPrice(item.price )[0] }} </span>.{{
+                      formatPrice(item.price )[1]
                     }}
                   </div>
                 </view>
@@ -421,7 +421,7 @@ export default {
     },
 
     // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }
@@ -611,7 +611,7 @@ export default {
       }
       //没有更多直接返回
       let goodsList = await getGoodsList(this.params);
-      console.log(goodsList);
+      
       if (goodsList.data.result.content.length < 10) {
         this.loadingType = "noMore";
       }
@@ -662,7 +662,7 @@ export default {
         content: "确定清除历史搜索记录？",
         success: (res) => {
           if (res.confirm) {
-            console.log("用户点击确定");
+           
             this.oldKeywordList = [];
             uni.removeStorage({
               key: "OldKeys",
@@ -693,7 +693,7 @@ export default {
     },
     //保存关键字到历史记录
     saveKeyword(keyword) {
-      console.log(keyword);
+      
       if (!keyword) return false;
       uni.getStorage({
         key: "OldKeys",
@@ -714,7 +714,7 @@ export default {
             data: JSON.stringify(OldKeys),
           });
           this.oldKeywordList = OldKeys; //更新历史搜索
-          console.log(this.oldKeywordList);
+        
         },
         fail: (e) => {
           var OldKeys = [keyword];

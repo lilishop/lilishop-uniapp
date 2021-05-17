@@ -14,7 +14,7 @@ export default {
   title: "三列单行图片模块",
   props: ["res"],
   mounted() {
-    console.log(this.res);
+   
   },
   data() {
     return {

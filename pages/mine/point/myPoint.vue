@@ -87,7 +87,7 @@ export default {
     },
 
     /**
-     * 获得累计使用
+     * 获得累计积分使用
      */
     initPointData() {
       getMemberPointSum().then((res) => {
@@ -99,6 +99,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.point-list{
+  margin-top: 50rpx;
+}
 .title {
   height: 80rpx;
   text-align: center;

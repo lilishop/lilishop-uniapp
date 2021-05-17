@@ -107,7 +107,7 @@ export default {
     },
   },
   onReachBottom() {
-    console.log("触发");
+ 
     this.loadMore();
   },
   mounted() {
@@ -148,10 +148,10 @@ export default {
           res.data.result.totalElements <=
           res.data.result.number * res.data.result.size
         ) {
-          console.warn(res.data.result.totalElements);
+         
           this.loadStatus = "noMore";
         } else {
-          console.log(res.data.result.totalElements);
+         
           this.loadStatus = "loadmore";
         }
         this.goodsList.push(...res.data.result.content);

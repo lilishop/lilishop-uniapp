@@ -6,7 +6,7 @@
     <scroll-view scroll-x>
       <view class="index-navs">
         <view class="index-nav-v">
-          <view class="index-nav" :class="{ 'index-nav-active': nav == index }" @click="setNav(index)" v-for="(item, index) in timeLine" :key="index">
+          <view class="index-nav" :class="{ 'index-nav-active': nav == index }" @click="clickNavigateTime(index)" v-for="(item, index) in timeLine" :key="index">
             {{ item.timeLine }}:00
             <view class="index-nav-desc">{{ index === 0 && item.distanceStartTime === 0 ? '抢购中' : '即将开始' }}
             </view>
@@ -37,7 +37,7 @@
             <view class="sale-item-surplus-text" :style="{ width: (item.quantity / (item.quantity - item.salesNum)) * 100 + '%' }">
             </view>
           </view>
-          <view class="sale-item-btn" @click="gotoGoodsDetail(item)">
+          <view class="sale-item-btn" @click="navigateToGoodsDetail(item)">
             {{ timeLine[nav].distanceStartTime === 0 ? (item.salesNum === item.quantity ? '已售空' : '购买') : '即将开始' }}
           </view>
         </view>
@@ -59,21 +59,23 @@ import Foundation from "@/utils/Foundation.js";
 export default {
   data() {
     return {
-      nav: 0,
-      sale: "",
-      timeLine: "",
-      resTime: 0,
-      time: 0,
-      times: {},
-      onlyOne: "",
-      goodsList: [],
+      nav: 0, //默认选择第一个时间
+      timeLine: "", //获取几个点活动
+      resTime: 0, //当前时间
+      time: 0, //距离下一个活动的时间值
+      times: {}, //时间集合
+      onlyOne: "", //是否最后一个商品
+      goodsList: [], //商品集合
       params: {
         pageNumber: 1,
         pageSize: 10,
       },
-      price: "",
     };
   },
+
+  /**
+   * 显示时间活动
+   */
   async onShow() {
     await this.getTimeLine();
     if (!this.timeLine) {
@@ -82,12 +84,6 @@ export default {
         duration: 2000,
         title: "今天没有活动，明天再来吧",
       });
-      // setTimeout(() => {
-      //   uni.switchTab({
-      //     url: "/pages/index/index",
-      //   });
-      // }, 2000);
-      // return;
     }
     this._setTimeInterval = setInterval(() => {
       if (this.time <= 0) {
@@ -105,6 +101,9 @@ export default {
     this._setTimeInterval && clearInterval(this._setTimeInterval);
   },
   methods: {
+    /**
+     * 获取时间线商品
+     */
     async getTimeLine() {
       let res = await getSeckillTimeLine();
       if (res.data.success && res.data.result.length > 0) {
@@ -121,13 +120,15 @@ export default {
           (this.timeLine[this.nav + 1] &&
             this.timeLine[this.nav + 1].distanceStartTime) ||
           Foundation.theNextDayTime() - this.diffTime;
-        // || Foundation.theNextDayTime())
-
         this.times = Foundation.countTimeDown(this.time);
 
         this.getGoodsList();
       }
     },
+
+    /**
+     * 获取商品集合
+     */
     async getGoodsList() {
       this.params.timeLine = this.timeLine[this.nav].timeLine;
       let res = await getSeckillTimeGoods(this.params.timeLine);
@@ -137,7 +138,11 @@ export default {
         this.goodsList = [];
       }
     },
-    gotoGoodsDetail(item) {
+
+    /**
+     * 跳转到商品详情
+     */
+    navigateToGoodsDetail(item) {
       if (
         item.sold_num === item.quantity ||
         this.timeLine[this.nav].distanceStartTime !== 0
@@ -149,7 +154,11 @@ export default {
         });
       }
     },
-    setNav(type) {
+
+    /**
+     * 单击导航时间
+     */
+    clickNavigateTime(type) {
       this.nav = type;
       this.diffTime = parseInt(new Date().getTime() / 1000) - this.resTime;
       this.time =
@@ -165,7 +174,7 @@ export default {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .sale {
   width: 100%;
   min-height: 100vh;
@@ -194,20 +203,6 @@ export default {
   }
 }
 
-.sale-title {
-  width: 710rpx;
-  height: 310rpx;
-  margin: 0 auto;
-  font-size: 32rpx;
-  color: 666;
-  background-color: #fff;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .sale-items {
   padding-top: 20rpx;
   display: -webkit-box;
@@ -233,7 +228,6 @@ export default {
 
 .sale-item-img {
   margin-right: 20rpx;
-
   image {
     width: 186rpx;
     height: 186rpx;
@@ -386,60 +380,5 @@ export default {
   margin-top: 8rpx;
   font-size: 22rpx;
   color: #bababa;
-}
-
-.index-nav-divider {
-  height: 64rpx;
-  border-left: 1px solid #dddddd;
-}
-
-.index-items {
-  padding-left: 20rpx;
-  background-color: #f7f7f7;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.index-item {
-  width: 346rpx;
-  height: 2100rpx;
-  background-color: #fff;
-  margin: 0 18rpx 20rpx 0;
-  border-radius: 16rpx;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.index-item-img {
-  image {
-    width: 346rpx;
-    height: 320rpx;
-  }
-}
-
-.index-item-title {
-  font-size: 26rpx;
-  color: #333333;
-  height: 410rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 10rpx 0 0 20rpx;
-  box-sizing: border-box;
-}
-
-.index-item-title-desc {
-  font-size: 25rpx;
-  color: #999999;
-  margin-top: 10rpx;
-}
-
-.index-item-price {
-  font-size: 110rpx;
-  color: #ff5a10;
-  padding: 20rpx 0 0 20rpx;
 }
 </style>

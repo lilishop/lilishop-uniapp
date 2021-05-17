@@ -142,7 +142,7 @@ export default {
       this.invoiceHeader[0].active = true;
       this.goodsType[0].active = true;
     }
-    console.log(this.res);
+
   },
   methods: {
     handleClickHeader(val, index, arr) {

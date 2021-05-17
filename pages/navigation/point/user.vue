@@ -21,7 +21,7 @@ export default {
   },
   methods: {
     init() {
-      console.log(this.$options.filters.isLogin());
+  
     },
   },
 };

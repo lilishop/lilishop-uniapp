@@ -41,16 +41,15 @@ export default {
   },
   watch: {
     res: {
-      handler(val) {
-        console.log(val);
-        // if (this.res && this.res.length != 0) {
-        //   Object.keys(this.res).forEach((item) => {
-        //     if (item != "COUPON") {
-        //       let key = item.split("-")[0];
-        //       this.res[item]._key = key;
-        //     }
-        //   });
-        // }
+      handler() {
+        if (this.res && this.res.length != 0) {
+          Object.keys(this.res).forEach((item) => {
+            if (item != "COUPON") {
+              let key = item.split("-")[0];
+              this.res[item]._key = key;
+            }
+          });
+        }
       },
 
       immediate: true,

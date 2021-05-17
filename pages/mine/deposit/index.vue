@@ -73,7 +73,7 @@ export default {
   async mounted() {
     this.getWallet();
     let result = await getUserWallet(); //预存款
-    console.log(result)
+
     this.walletNum = result.data.result.memberWallet;
   },
   methods: {

@@ -9,18 +9,15 @@
         </view>
       </view>
       <view>
-        <view class="goods-item-view" v-for="(item,index) in sku.orderItems" v-if="item.sn == sn" @click="gotoGoodsDetail(sku.skuId)">
+        <view class="goods-item-view" :key="index" v-for="(item,index) in sku.orderItems" v-if="item.sn == sn" @click="navigateToGoodsDetail(sku.skuId)">
           <view class="goods-img">
             <u-image border-radius="6" width="131rpx" height="131rpx" :src="item.image"></u-image>
           </view>
           <view class="goods-info">
             <view class="goods-title u-line-2">{{ item.name }}</view>
             <view class="goods-price">
-              <!-- <span v-if="sku.point">￥{{ sku.subtotal }}+{{ sku.point }}积分</span> -->
-
               <span v-if="sku.orderItems.length <= 1">￥{{ sku.flowPrice }}</span>
               <span class="num" v-else>购买数量{{item.num}}</span>
-
               <span v-if="sku.orderItems.length <= 1" class="num">购买数量: {{ item.num }}</span>
             </view>
           </view>
@@ -65,9 +62,8 @@ export default {
   },
   data() {
     return {
-      sn: "",
-      applyInfo: {},
-      sku: {},
+      sn: "", 
+      sku: {}, //sku
     };
   },
   onLoad(options) {
@@ -77,6 +73,9 @@ export default {
     this.sku = newData;
   },
   methods: {
+    /**
+     * 选择退货流程
+     */
     onSelect(value) {
       uni.redirectTo({
         url: `./afterSalesDetail?sn=${this.sn}&sku=${encodeURIComponent(
@@ -84,7 +83,11 @@ export default {
         )}&value=${value}`,
       });
     },
-    gotoGoodsDetail(id) {
+
+    /**
+     * 跳转到商品信息
+     */
+    navigateToGoodsDetail(id) {
       uni.navigateTo({
         url: `/pages/product/goods?id=${id}&goodsId=${goodsId}`,
       });

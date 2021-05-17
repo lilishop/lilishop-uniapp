@@ -66,7 +66,6 @@ export default {
         const args = plus.runtime.arguments;
         if (args) {
           const argsStr = decodeURIComponent(args);
-          console.log(argsStr);
           const path = argsStr.split("//")[1];
           if (path.indexOf("tabbar")) {
             uni.switchTab({

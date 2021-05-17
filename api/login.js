@@ -68,7 +68,7 @@ export function smsLogin(params, clientType) {
  * 刷新token
  */
 export function refreshTokenFn(refresh_token) {
-	console.log(refresh_token)
+
 	return http.request({
 		url: `/members/refresh/${refresh_token}`,
 		method: "GET",

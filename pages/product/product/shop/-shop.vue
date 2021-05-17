@@ -32,7 +32,7 @@
             {{ item.goodsName }}
           </view>
           <view class="item-price" v-if="item.price != undefined">
-            ￥<span class="item-price-blod">{{ Fixed(item.price)[0] }}</span>.{{ Fixed(item.price)[1] }}
+            ￥<span class="item-price-blod">{{ formatPrice(item.price)[0] }}</span>.{{ formatPrice(item.price)[1] }}
           </view>
         </view>
       </view>
@@ -49,7 +49,7 @@ export default {
   mounted() {},
   methods: {
     // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }

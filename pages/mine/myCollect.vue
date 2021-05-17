@@ -133,7 +133,7 @@ export default {
      */
     clickGoodsSwiperAction(val) {
       deleteGoodsCollection(val.skuId).then((res) => {
-        console.log(res);
+      
         if (res.statusCode == 200) {
           this.storeList = [];
           this.goodList = [];
@@ -159,7 +159,7 @@ export default {
      */
     tabClick(index) {
       this.tabCurrentIndex = index;
-      console.log(this.tabCurrentIndex);
+  
     },
 
     /**

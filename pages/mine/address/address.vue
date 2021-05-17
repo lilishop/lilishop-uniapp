@@ -99,7 +99,7 @@ export default {
         this.params.pageNumber,
         this.params.pageSize
       ).then((res) => {
-        console.log("加载");
+      
         if (res.data.result.records.length == 0) {
           this.empty = true;
         } else {
@@ -109,7 +109,7 @@ export default {
 
           this.$set(this, "addressList", res.data.result.records);
 
-          console.log(this.addressList);
+         
         }
 
         uni.hideLoading();
@@ -139,7 +139,7 @@ export default {
     },
     //新建。编辑地址
     addAddress(id) {
-      console.log("点击");
+ 
       if (id) {
         uni.navigateTo({
           url:

@@ -112,7 +112,6 @@ export default {
     };
   },
   mounted() {
-    console.log("this.isFocusVal", this.isFocusVal);
     this.isFocus = this.isFocusVal;
   },
   methods: {

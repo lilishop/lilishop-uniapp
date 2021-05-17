@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import storage from "@/utils/storage";
 
 Vue.use(Vuex);
-//console.log("Vuex:",Vuex)
+
 const store = new Vuex.Store({
   state: {
     verificationKey: "", //获取key表示验证通过
@@ -48,7 +48,6 @@ const store = new Vuex.Store({
     // 登录信息
     SET_USER_INFO(state, val) {
       state.userInfo = val;
-      // console.log("SET_USER_INFO",val)
     },
 
     login(state, userInfo) {
@@ -56,7 +55,6 @@ const store = new Vuex.Store({
       state.userName =
         userInfo.Name || userInfo.Nickname || userInfo.Username || "匿名用户";
       state.hasLogin = true;
-      console.log("state:", state);
     },
     logout(state) {
       state.userName = "";

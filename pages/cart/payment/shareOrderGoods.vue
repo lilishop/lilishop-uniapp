@@ -124,9 +124,6 @@ export default {
         ...this.master,
         orderSn: this.routers.sn,
       };
-
-      console.log(this.$refs.popupGoods.parentOrder);
-
       this.$refs.popupGoods.isMask = true;
       this.$refs.popupGoods.isClose = true;
       this.$refs.popupGoods.buyType = "PINTUAN";
@@ -178,7 +175,7 @@ export default {
 
         // 获取当前商品是否已经购买
         if (storage.getUserInfo().id) {
-          console.log(storage.getUserInfo().id);
+         
           let isBuy = res.data.result.pintuanMemberVOS.filter((item) => {
             return item.memberId == storage.getUserInfo().id;
           });

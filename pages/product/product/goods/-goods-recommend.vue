@@ -25,8 +25,8 @@
             <view class="price-sales">
               <div class="item-price" v-if="item.price != undefined">
                 ￥
-                <span>{{ Fixed(item.price)[0] }}</span>
-                .{{Fixed(item.price)[1]}}
+                <span>{{ formatPrice(item.price)[0] }}</span>
+                .{{formatPrice(item.price)[1]}}
                 <!-- <text v-if="item.point != undefined">+{{ item.point }}积分</text> -->
               </div>
             </view>
@@ -48,7 +48,7 @@ export default {
       });
     },
     // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }

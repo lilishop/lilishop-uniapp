@@ -51,7 +51,7 @@ export default {
     let res = await getGoodsMessage(this.goodsId);
     if (res.data.success) {
       this.goodsDetail = res.data.result;
-      console.log(this.goodsDetail);
+     
     }
   },
 };

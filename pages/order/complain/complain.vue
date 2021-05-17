@@ -16,10 +16,8 @@
         </view>
         <view class="goods-info">
           <view class="goods-title u-line-2">{{ sku.goodsName }}</view>
-
           <view class="goods-price">
             ￥{{ sku.flowPrice | unitPrice }}
-            <!-- <span>+{{ '1' }}积分</span> -->
           </view>
         </view>
         <view class="goods-num">
@@ -89,7 +87,7 @@ export default {
       skuId: "", //商品skuid
     };
   },
-  
+
   onLoad(option) {
     this.loadData(option.sn);
     this.sn = option.sn;
