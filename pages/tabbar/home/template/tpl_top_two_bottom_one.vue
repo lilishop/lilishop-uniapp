@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <div class="view-width-100">
-      <div class="view-height-85" @click="modelnavigateTo(res.list[0])">
+      <div class="view-height-85" @click="modelNavigateTo(res.list[0])">
         <u-image
           class="image-mode"
           height="170rpx"
@@ -11,7 +11,7 @@
           ><u-loading slot="loading"></u-loading
         ></u-image>
       </div>
-      <div class="view-height-85" @click="modelnavigateTo(res.list[1])">
+      <div class="view-height-85" @click="modelNavigateTo(res.list[1])">
         <u-image
           class="image-mode"
           height="170rpx"
@@ -22,7 +22,7 @@
         ></u-image>
       </div>
     </div>
-    <div class="view-width-100"  @click="modelnavigateTo(res.list[2])">
+    <div class="view-width-100"  @click="modelNavigateTo(res.list[2])">
       <u-image
         class="image-mode"
         height="200rpx"
@@ -35,13 +35,13 @@
 </template>
 
 <script>
-import {modelnavigateTo} from './tpl'
+import {modelNavigateTo} from './tpl'
 export default {
   title: "上二下一",
   props: ["res"],
    data () {
     return {
-      modelnavigateTo,
+      modelNavigateTo,
     }
   },
   mounted() {

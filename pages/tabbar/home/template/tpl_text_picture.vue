@@ -2,13 +2,13 @@
 <template>
   <div class="layout">
     <div class="view-list">
-      <div class="view-item" @click="modelnavigateTo(res.list[0])">
+      <div class="view-item" @click="modelNavigateTo(res.list[0])">
         <div class="-item-tilte">{{res.list[0].title}}</div>
         <div class="-item-image">
           <u-image width="120rpx" mode="scaleToFill" height="120rpx" :src="res.list[0].img" alt ></u-image>
         </div>
       </div>
-      <div class="view-item" @click="modelnavigateTo(res.list[1])">
+      <div class="view-item" @click="modelNavigateTo(res.list[1])">
         <div class="-item-tilte">{{res.list[1].title}}</div>
         <div class="-item-image">
           <u-image width="120rpx" mode="scaleToFill" height="120rpx"  :src="res.list[1].img" alt ></u-image>
@@ -16,13 +16,13 @@
       </div>
     </div>
     <div class="view-list">
-      <div class="view-item" @click="modelnavigateTo(res.list[2])">
+      <div class="view-item" @click="modelNavigateTo(res.list[2])">
         <div class="-item-tilte">{{res.list[2].title}}</div>
         <div class="-item-image">
           <u-image width="120rpx" mode="scaleToFill" height="120rpx"  :src="res.list[2].img" alt ></u-image>
         </div>
       </div>
-      <div class="view-item" @click="modelnavigateTo(res.list[3])">
+      <div class="view-item" @click="modelNavigateTo(res.list[3])">
         <div class="-item-tilte">{{res.list[3].title}}</div>
         <div class="-item-image">
           <u-image width="120rpx" mode="scaleToFill" height="120rpx"  :src="res.list[3].img" alt ></u-image>
@@ -34,13 +34,13 @@
 
 <script>
 
-import {modelnavigateTo} from './tpl'
+import {modelNavigateTo} from './tpl'
 export default {
   title: "文字图片模板",
   props: ["res"],
    data () {
     return {
-      modelnavigateTo,
+      modelNavigateTo,
     }
   },
   mounted() {

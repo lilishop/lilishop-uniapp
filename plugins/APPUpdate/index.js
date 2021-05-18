@@ -10,7 +10,7 @@ import {
 
 const platform = uni.getSystemInfoSync().platform;
 // 主颜色
-const $mainColor = "1ABC9C";
+const $mainColor = "#ff6b35";
 // 弹窗图标url
 const $iconUrl = "https://lilistore-oss.oss-cn-beijing.aliyuncs.com/app/upgrade.png";
 

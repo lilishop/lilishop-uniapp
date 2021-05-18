@@ -1,5 +1,6 @@
 /** 配置楼层模块的跳转 */
-export function modelnavigateTo(item) {
+export function modelNavigateTo(item) {
+
   let val = item.url;
   switch (val.___type) {
     case "goods":

@@ -1,18 +1,18 @@
 
 <template>
   <div class="layout">
-    <div class="view-width-100" @click="modelnavigateTo(res.list[0])">
+    <div class="view-width-100" @click="modelNavigateTo(res.list[0])">
       <u-image class="image-mode" width="100%" height="200rpx" :src="res.list[0].img">
         <u-loading slot="loading"></u-loading>
       </u-image>
     </div>
-    <div class="view-width-100" @click="modelnavigateTo(res.list[1])">
+    <div class="view-width-100" @click="modelNavigateTo(res.list[1])">
       <div class="view-height-85">
         <u-image class="image-mode" width="100%" height="170rpx" :src="res.list[1].img">
           <u-loading slot="loading"></u-loading>
         </u-image>
       </div>
-      <div class="view-height-85" @click="modelnavigateTo(res.list[2])">
+      <div class="view-height-85" @click="modelNavigateTo(res.list[2])">
         <u-image class="image-mode" width="100%" height="170rpx" :src="res.list[2].img">
           <u-loading slot="loading"></u-loading>
         </u-image>
@@ -22,13 +22,13 @@
 </template>
 
 <script>
-import { modelnavigateTo } from "./tpl";
+import { modelNavigateTo } from "./tpl";
 export default {
   title: "上一下二",
   props: ["res"],
   data() {
     return {
-      modelnavigateTo,
+      modelNavigateTo,
     };
   },
   mounted() {},

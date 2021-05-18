@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { modelnavigateTo } from "./tpl";
+import { modelNavigateTo } from "./tpl";
 export default {
   title: "导航栏",
   props: ["res"],
@@ -27,7 +27,7 @@ export default {
   },
   methods: {
     clickSwiper(index) {
-      modelnavigateTo(this.res.list[index]);
+      modelNavigateTo(this.res.list[index]);
     },
   },
 };

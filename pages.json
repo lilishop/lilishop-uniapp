@@ -12,7 +12,9 @@
 				"navigationStyle": "custom", // 隐藏系统导航栏
 				"navigationBarTextStyle": "black"
 			}
-		}, {
+		}, 
+		
+		{
 			"path": "pages/tabbar/cart/cartList",
 			"style": {
 				"navigationBarTitleText": "购物车",
@@ -47,6 +49,8 @@
 				"navigationBarTitleText": "精选店铺"
 			}
 		},
+
+		
 		{
 			"path": "pages/navigation/search/searchPage",
 			"style": {
@@ -63,6 +67,13 @@
 				"navigationBarTextStyle": "white",
 				"enablePullDownRefresh": true,
 				"navigationStyle": "custom"
+			}
+		},
+		
+		{
+			"path": "pages/tabbar/home/web-view",
+			"style": {
+				
 			}
 		}
 

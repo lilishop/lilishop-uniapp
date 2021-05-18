@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <div class="menu-list">
-      <div class="menu-item" @click="modelnavigateTo(item)" v-for="(item, index) in res.list" :key="index">
+      <div class="menu-item" @click="modelNavigateTo(item)" v-for="(item, index) in res.list" :key="index">
         <div>
           <u-image
             width="88rpx"
@@ -18,12 +18,12 @@
   </div>
 </template>
 <script>
-import {modelnavigateTo} from './tpl'
+import {modelNavigateTo} from './tpl'
 export default {
   props: ["res"],
   data () {
     return {
-      modelnavigateTo,
+      modelNavigateTo,
     }
   }
 };

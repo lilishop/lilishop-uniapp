@@ -212,7 +212,7 @@
 import { getExpress } from "@/api/trade.js";
 import { cancelOrder, confirmReceipt, getOrderDetail } from "@/api/order.js";
 
-import h5Copy from "@/js_sdk/h5-copy/h5-copy.js";
+import {h5Copy} from "@/js_sdk/h5-copy/h5-copy.js";
 import shares from "@/components/m-share/index"; //分享
 
 import { getClearReason } from "@/api/after-sale.js";

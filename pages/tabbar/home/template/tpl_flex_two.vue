@@ -1,12 +1,12 @@
 <template>
   <div class="layout">
     <div class="flex-two">
-      <div class="flex-item" @click="modelnavigateTo(res.list[0])">
+      <div class="flex-item" @click="modelNavigateTo(res.list[0])">
         <u-image height="325rpx" width="100%" mode="scaleToFill" :src="res.list[0].img" alt>
           <u-loading slot="loading"></u-loading>
         </u-image>
       </div>
-      <div class="flex-item" @click="modelnavigateTo(res.list[1])">
+      <div class="flex-item" @click="modelNavigateTo(res.list[1])">
         <u-image height="325rpx" width="100%" mode="scaleToFill" :src="res.list[1].img" alt>
           <u-loading slot="loading"></u-loading>
         </u-image>
@@ -16,7 +16,7 @@
 </template>
 <script>
 import uImage from "@/uview-ui/components/u-image/u-image.vue";
-import { modelnavigateTo } from "./tpl";
+import { modelNavigateTo } from "./tpl";
 export default {
   components: { uImage },
   title: "两张横图",
@@ -26,7 +26,7 @@ export default {
   },
   data() {
     return {
-      modelnavigateTo,
+      modelNavigateTo,
     };
   },
 };

@@ -1,20 +1,20 @@
 
 <template>
   <div class="layout">
-    <u-image width="140rpx" height="140rpx" @click="modelnavigateTo(item)" class="image-mode" v-for="(item,index) in res.list" :key="index" :src="item.img" alt="">
+    <u-image width="140rpx" height="140rpx" @click="modelNavigateTo(item)" class="image-mode" v-for="(item,index) in res.list" :key="index" :src="item.img" alt="">
       <u-loading slot="loading"></u-loading>
     </u-image>
   </div>
 </template>
 
 <script>
-import { modelnavigateTo } from "./tpl";
+import { modelNavigateTo } from "./tpl";
 export default {
   title: "五列单行图片模块",
   props: ["res"],
   data() {
     return {
-      modelnavigateTo,
+      modelNavigateTo,
     };
   },
   mounted() {

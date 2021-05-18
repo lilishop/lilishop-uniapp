@@ -23,7 +23,6 @@ function getTokenDebounce() {
   return async function () {
     if (!lock) {
       lock = true;
-      console.log("dd");
       await refreshTokenFn(storage.getRefreshToken())
         .then((res) => {
           if (res.data.success) {
@@ -177,7 +176,7 @@ http.interceptors.response.use(
       // 如果当前状态码为正常但是success为不正常时
     } else if (response.statusCode == 200 && !response.data.success  || response.statusCode == 400) {
       uni.showToast({
-        title: response.data.message,
+        title: response.data.message ,
         icon: "none",
         duration: 1500,
       });
