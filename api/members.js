@@ -146,8 +146,8 @@ export function AppendCommentsOrder(params) {
   });
 }
 
-
-/**
+// TODO 第一版本暂未实现此功能
+/** 
  * 商品咨询
  * @param goods_id
  * @param ask_content

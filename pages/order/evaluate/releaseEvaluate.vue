@@ -117,7 +117,6 @@ export default {
     this.form.skuId = this.order.orderItems[0].skuId;
   },
   methods: {
-
     /**
      * 点击评价
      */
@@ -134,17 +133,18 @@ export default {
       });
       commentsMemberOrder(this.form).then((res) => {
         uni.hideLoading();
-
-        uni.showToast({
-          title: "发布评价成功",
-          duration: 2000,
-          icon: "none",
-          success: () => {
-            setTimeout(() => {
-              uni.navigateBack();
-            }, 1000);
-          },
-        });
+        if (res.data.success) {
+          uni.showToast({
+            title: "发布评价成功",
+            duration: 2000,
+            icon: "none",
+            success: () => {
+              setTimeout(() => {
+                uni.navigateBack();
+              }, 2000);
+            },
+          });
+        }
       });
     },
 

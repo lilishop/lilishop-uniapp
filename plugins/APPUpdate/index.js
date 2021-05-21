@@ -10,9 +10,9 @@ import {
 
 const platform = uni.getSystemInfoSync().platform;
 // 主颜色
-const $mainColor = "#ff6b35";
+const $mainColor = "#1ABC9C";
 // 弹窗图标url
-const $iconUrl = "https://lilistore-oss.oss-cn-beijing.aliyuncs.com/app/upgrade.png";
+const $iconUrl = "https://lilishop-oss.oss-cn-beijing.aliyuncs.com/app/upgrade.png";
 
 // 获取当前应用的版本号
 export const getCurrentNo = function (callback) {
@@ -25,72 +25,27 @@ export const getCurrentNo = function (callback) {
 	});
 }
 // 发起ajax请求获取服务端版本号
-export const getServerNo = function (version, isPrompt = false, callback) {
-	let httpData = {
-		version: version
-	};
-	let params = {
-		pageNumber: 1,
-		pageSize: 5
-	};
-	if (platform == "android") {
-		httpData.type = 1101;
-		params.type = 0;
-	} else {
-		httpData.type = 1102;
-		params.type = 1;
-	}
-	/* 接口入参说明
-	 * version: 应用当前版本号（已自动获取）
-	 * type：平台（1101是安卓，1102是IOS）
-	 */
-	/****************以下是示例*******************/
-	getAppVersionList(params).then(res => {
-		if (res.statusCode === 200) {
-			const response = res.data.data.find(ele => {
-				let versionDetail = ele.version.replace(/\./g, "");
-				if (versionDetail.length < version.length) {
-					versionDetail = versionDetail.padEnd(version.length, "0");
-				}
-				if (versionDetail > version) {
-					return ele;
-				}
-			});
-			if (response && response.download_url) {
-				let result = {};
-				result.versionCode = response.version;
-				result.versionName = response.version_name;
-				result.versionInfo = response.content;
-				result.forceUpdate = response.force_update;
-				result.downloadUrl = response.download_url;
-				callback && callback(result);
-			}
+export const getServerNo = function (callback) {
+	let type;
+	
+	platform == "android" ? type = "ANDROID" : type = "IOS"
 
+	getAppVersionList(type).then(res => {
+	
+		if(res.data.success && res.data.result.downloadUrl){
+			let response = res.data.result
+			let result ={}
+			result.versionCode = response.version;
+			result.versionName = response.versionName;
+			result.versionInfo = response.content || '暂无';
+			result.forceUpdate = response.forceUpdate;
+			result.downloadUrl = response.downloadUrl;
+		
+			console.log(result,response)
+			callback && callback(result);
 		}
 	})
-	// 可以用自己项目的请求方法
-	// http.get("api/common/v1/app_version", httpData,{
-	// 	isPrompt: isPrompt
-	// }).then(res => {
-	// 	/* res的数据说明
-	// 	 * | 参数名称	     | 一定返回 	| 类型	    | 描述
-	// 	 * | -------------|--------- | --------- | ------------- |
-	// 	 * | versionCode	 | y	    | int	    | 版本号        |
-	// 	 * | versionName	 | y	    | String	| 版本名称      |
-	// 	 * | versionInfo	 | y	    | String	| 版本信息      |
-	// 	 * | forceUpdate	 | y	    | boolean	| 是否强制更新  |
-	// 	 * | downloadUrl	 | y	    | String	| 版本下载链接（IOS安装包更新请放跳转store应用商店链接,安卓apk和wgt文件放文件下载链接）  |
-	// 	 */
-	// 	if (res && res.downloadUrl) {
-	// 		callback && callback(res);
-	// 	} else if (isPrompt) {
-	// 		uni.showToast({
-	// 			title: "暂无新版本",
-	// 			icon: "none"
-	// 		});
-	// 	}
-	// });
-	/****************以上是示例*******************/
+	
 }
 // 从服务器下载应用资源包（wgt文件）
 export const getDownload = function (data) {
@@ -180,12 +135,16 @@ export const getDownload = function (data) {
 function drawtext(text, maxWidth) {
 	let textArr = text.split("");
 	let len = textArr.length;
+
 	// 上个节点
 	let previousNode = 0;
 	// 记录节点宽度
 	let nodeWidth = 0;
 	// 文本换行数组
 	let rowText = [];
+
+	
+
 	// 如果是字母，侧保存长度
 	let letterWidth = 0;
 	// 汉字宽度
@@ -267,6 +226,7 @@ function drawtext(text, maxWidth) {
 			content: text.substring(previousNode, len)
 		});
 	}
+
 	return rowText;
 }
 // 是否更新弹窗
@@ -291,6 +251,7 @@ function updatePopup(data, callback) {
 	const viewContentWidth = parseInt(popupViewWidth - (viewContentPadding * 5));
 	// 描述的列表
 	const descriptionList = drawtext(data.versionInfo, viewContentWidth);
+	
 	// 弹窗容器高度
 	let popupViewHeight = 400;
 	let popupViewContentList = [{
@@ -337,7 +298,6 @@ function updatePopup(data, callback) {
 		text: '新版本特性：',
 		textStyles: {
 			size: '20px',
-			color: "#1ABC9C",
 			lineSpacing: "50%",
 			align: "left"
 		},
@@ -841,7 +801,7 @@ function downloadPopup(data, callback, cancelCallback, rebootCallback) {
 }
 export default function (isPrompt = false) {
 	getCurrentNo(version => {
-		getServerNo(version.versionCode, isPrompt, res => {
+		getServerNo( res => {
 			if (res.forceUpdate) {
 				if (/\.wgt$/i.test(res.downloadUrl)) {
 					getDownload(res);

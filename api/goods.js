@@ -30,12 +30,24 @@ export function getGoodsRelated(params) {
  * @param skuId 商品ID
  * @returns {AxiosPromise}
  */
-export function getGoods(skuId, goodsId, distributionId) {
+ export function getGoods(skuId, goodsId) {
   return http.request({
-    url: `/goods/sku/${goodsId}/${skuId}${distributionId ? '?distributionId='+distributionId : ''}`,
+    url: `/goods/sku/${goodsId}/${skuId}`,
     method: Method.GET,
   });
 }
+
+/**
+ * 获取商品分销
+ * @param distributionId 商品分销ID
+ */
+ export function getGoodsDistribution(distributionId) {
+  return http.request({
+    url: `/distribution/bindingDistribution/${distributionId}`,
+    method: Method.GET,
+  });
+}
+
 
 /**
  * 获取商品列表

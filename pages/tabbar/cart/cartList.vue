@@ -17,11 +17,11 @@
           <view class="store-line">
             <u-checkbox-group class="store-line-check">
               <!-- #ifndef MP-WEIXIN -->
-              <u-checkbox shape="circle" :active-color="$lightColor" v-model="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
+              <u-checkbox shape="circle" :active-color="lightColor" v-model="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
               <!-- #endif -->
               <!-- 微信小程序这里 v-model出现问题，改用:value -->
               <!-- #ifdef MP-WEIXIN -->
-              <u-checkbox shape="circle" :active-color="$lightColor" :value="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
+              <u-checkbox shape="circle" :active-color="lightColor" :value="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
               <!-- #endif -->
             </u-checkbox-group>
             <span class="storeName store-line-desc" @click.stop="navigateToStore(item)">{{
@@ -49,11 +49,11 @@
               <view>
                 <u-checkbox-group v-if="skuItem.invalid == 0">
                   <!-- #ifndef MP-WEIXIN -->
-                  <u-checkbox shape="circle" :active-color="$lightColor" class="c-left" v-model="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
+                  <u-checkbox shape="circle" :active-color="lightColor" class="c-left" v-model="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
                   <!-- #endif -->
                   <!-- 微信小程序这里 v-model出现问题，改用:value -->
                   <!-- #ifdef MP-WEIXIN -->
-                  <u-checkbox shape="circle" :active-color="$lightColor" class="c-left" :value="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
+                  <u-checkbox shape="circle" :active-color="lightColor" class="c-left" :value="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
                   <!-- #endif -->
                 </u-checkbox-group>
                 <span class="invalid" v-else style="font-size: 24rpx">失效</span>
@@ -110,7 +110,7 @@
     <!-- 结账 -->
     <div class="box box6">
       <view class="navL">
-        <u-checkbox shape="circle" :active-color="$lightColor" v-model="checkout" @change="checkOut()" label-size="24">全选</u-checkbox>
+        <u-checkbox shape="circle" :active-color="lightColor" v-model="checkout" @change="checkOut()" label-size="24">全选</u-checkbox>
         <span class="price">
           <div class="prices">
             <div class="fullPrice">

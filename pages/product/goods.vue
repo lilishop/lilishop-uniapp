@@ -223,7 +223,12 @@
 
 <script>
 /************接口API***************/
-import { getGoods, getGoodsList, getMpScene } from "@/api/goods.js";
+import {
+  getGoods,
+  getGoodsList,
+  getMpScene,
+  getGoodsDistribution,
+} from "@/api/goods.js";
 import * as API_trade from "@/api/trade.js";
 import * as API_Members from "@/api/members.js";
 import * as API_store from "@/api/store.js";
@@ -350,7 +355,7 @@ export default {
       if (val) {
         let timer = setInterval(() => {
           this.$refs.popupGoods.buyType = "PINTUAN";
-        
+
           clearInterval(timer);
         }, 100);
 
@@ -393,7 +398,8 @@ export default {
   },
   async onLoad(options) {
     this.routerVal = options;
-
+  },
+  async onShow() {
     this.goodsDetail = {};
     //如果有参数ids说明事分销短连接，需要获取参数
     if (this.routerVal.scene) {
@@ -407,11 +413,11 @@ export default {
       this.init(
         this.routerVal.id,
         this.routerVal.goodsId,
-        this.routerVal.distributionId
+        this.routerVal.distributionId,
+        this.routerVal.whetherPoint
       );
     }
   },
-  onShow() {},
   methods: {
     // 循环出当前促销是否为空
     emptyPromotion() {
@@ -432,8 +438,16 @@ export default {
         title: "加载中",
         mask: true,
       });
-      let response = await getGoods(id, goodsId, distributionId);
 
+      let response = await getGoods(id, goodsId);
+
+      // 这里是绑定分销员
+      if (distributionId || this.$store.state.distributionId) {
+        let disResult = await getGoodsDistribution(distributionId);
+        if (!disResult.data.success || disResult.statusCode == 403) {
+          this.$store.state.distributionId = distributionId;
+        }
+      }
       uni.hideLoading();
       /**商品信息以及规格信息存储 */
       this.goodsDetail = response.data.result.data;
@@ -539,16 +553,13 @@ export default {
      * 返回
      */
     back() {
-      
-      if(getCurrentPages().length ==1){
+      if (getCurrentPages().length == 1) {
         uni.switchTab({
-           url: '/pages/tabbar/home/index'
+          url: "/pages/tabbar/home/index",
         });
+      } else {
+        uni.navigateBack();
       }
-      else{
-            uni.navigateBack();
-      }
-  
     },
 
     /**

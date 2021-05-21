@@ -37,7 +37,7 @@
               <div class="content">{{ item.content }}</div>
               <view class="img">
                 <!-- 循环出用户评价的图片 -->
-                <u-image width="140rpx" height="140rpx" v-if="item.image" v-for="(img, i) in splitImg(item.image)" :src="img" :key="i" @click="preview(splitImg(item.image), i)">
+                <u-image width="140rpx" height="140rpx" v-if="item.images" v-for="(img, i) in splitImg(item.images)" :src="img" :key="i" @click="preview(splitImg(item.images), i)">
                 </u-image>
               </view>
               <view class="bot">

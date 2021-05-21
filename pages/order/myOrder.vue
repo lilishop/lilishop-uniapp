@@ -54,7 +54,7 @@
                   <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="order.allowOperationVO.showLogistics" @click="navigateToLogistics(order)">
                     查看物流
                   </u-button>
-                  <u-button ripple :customStyle="{'background':$lightColor,'color':'#fff' }" shape="circle" class="pay-btn" size="mini" v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
+                  <u-button ripple :customStyle="{'background':lightColor,'color':'#fff' }" shape="circle" class="pay-btn" size="mini" v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
                     确认收货
                   </u-button>
                   <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="
@@ -83,7 +83,7 @@
           <u-radio-group v-model="reason">
             <view class="value">
               <view class="radio-view" :key="index" v-for="(item, index) in cancelList">
-                <u-radio :active-color="$lightColor" label-size="25" shape="circle" :name="item.reason" @change="reasonChange">{{ item.reason }}</u-radio>
+                <u-radio :active-color="lightColor" label-size="25" shape="circle" :name="item.reason" @change="reasonChange">{{ item.reason }}</u-radio>
               </view>
             </view>
           </u-radio-group>
@@ -94,7 +94,7 @@
       </view>
     </u-popup>
     <u-toast ref="uToast" />
-    <u-modal v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" @confirm="confirmRog"></u-modal>
+    <u-modal :confirm-color="lightColor" v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'"  @confirm="confirmRog"></u-modal>
   </view>
 </template>
 
@@ -111,6 +111,7 @@ export default {
   },
   data() {
     return {
+      lightColor:this.$lightColor,
       tabCurrentIndex: 0, //导航栏索引
       navList: [
         //导航栏list
@@ -492,7 +493,7 @@ page,
 }
 
 .swiper-box {
-  height: calc(100% - 40px);
+  height: calc(100vh - 40px);
 }
 
 .list-scroll-content {

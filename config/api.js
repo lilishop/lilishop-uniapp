@@ -11,10 +11,11 @@ const dev = {
 const prod = {
   common: "https://common-api.pickmall.cn",
   buyer: "https://buyer-api.pickmall.cn",
+ 
 };
 
 //默认生产环境
-let api = prod;
+let api = dev;
 //如果是开发环境
 if (process.env.NODE_ENV == "development") {
   api = dev;

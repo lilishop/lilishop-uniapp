@@ -16,9 +16,9 @@
           {{ comment.content }}
         </view>
         <!-- 如果有图片则会循环显示评价的图片 -->
-        <view class="goods-imgs-view" v-if="comment.image != null && comment.image.length != 0">
-          <view class="img-view" v-for="(img, imgIndex) in comment.image.split(',')" :key="imgIndex">
-            <u-image @click.native="preview(comment.image.split(','),imgIndex)" width="160rpx" height="160rpx" :src="img"></u-image>
+        <view class="goods-imgs-view" v-if="comment.images != null && comment.images.length != 0">
+          <view class="img-view" v-for="(img, imgIndex) in comment.images.split(',')" :key="imgIndex">
+            <u-image @click.native="preview(comment.images.split(','),imgIndex)" width="160rpx" height="160rpx" :src="img"></u-image>
           </view>
         </view>
         <view class="goods-name">

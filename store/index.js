@@ -10,7 +10,10 @@ const store = new Vuex.Store({
     /**
      * 是否需要强制登录
      */
+    
     forcedLogin: false,
+
+    distributionId:"", //分销员Id 如果当前账户从未登录过时记录
     hasLogin: storage.getHasLogin(),
     userInfo: storage.getUserInfo(),
     uuid: storage.getUuid(),

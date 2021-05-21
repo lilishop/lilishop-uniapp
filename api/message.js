@@ -5,6 +5,7 @@
 import {http,Method} from '@/utils/request.js';
 const request = http.request
 
+import api from '@/config/api.js';
 
 /**
  * 获取微信消息订阅
@@ -67,16 +68,14 @@ export function getLogisticsMessages(params) {
 
 /**
  * TODO 获取版本更新信息 暂无此功能。后续会优化更新
- * @param params
+ * @param appType
  * @returns {AxiosPromise}
  * 
- */
-export function getAppVersionList(params) {
-  params = params || {};
-  params.pageSize = params.pageSize || 5;
+ */	
+export function getAppVersionList(appType) {
   return http.request({
-    url: 'members/app/version',
+    url: `/appVersion/${appType}`,
     method: Method.GET,
-    params,
+    type:"manager"
   });
 }

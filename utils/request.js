@@ -120,6 +120,7 @@ http.interceptors.request.use(
       };
       let params = config.params || {};
       params = { ...params, ..._params };
+
       config.params = params;
       config.header.accessToken = accessToken;
     }
@@ -184,7 +185,7 @@ http.interceptors.response.use(
     return response;
   },
   (error) => {
-    return response;
+    return error;
   }
 );
 
