@@ -10,7 +10,7 @@
           <view class="seller-name">
             <view class="name">{{ order.storeName }}</view>
           </view>
-          <view class="order-sn">订单编号：{{ order.sn }}</view>
+          <view class="order-sn">订单编号:{{order.sn}}</view>
         </view>
         <!-- 申请记录 选项卡 -->
         <view class="seller-info u-flex u-row-between" v-if="current != 0">
@@ -50,11 +50,11 @@
 
               <div v-if="current === 1 || current === 2">
                 <!-- 申请中 -->
-                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_GOODS'">退货处理-{{ serviceStatusList[order.serviceStatus] }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'">补发商品-{{ serviceStatusList[order.serviceStatus] }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_MONEY'">退款-{{ serviceStatusList[order.serviceStatus] }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'EXCHANGE_GOODS'">换货-{{ serviceStatusList[order.serviceStatus] }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'CANCEL'">取消订单-{{ serviceStatusList[order.serviceStatus] }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_GOODS'">退货处理-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'">补发商品-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_MONEY'">退款-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'EXCHANGE_GOODS'">换货-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'CANCEL'">取消订单-{{ order.serviceStatus | serviceStatusList  }}</view>
               </div>
               <!-- 申请记录 -->
             </view>
@@ -74,13 +74,9 @@
                 " @click="onExpress(order, sku)">
                 提交物流
               </view>
-
               <view @click="afterDetails(order, sku)" v-if="current === 1 || current === 2" class="rebuy-btn">
                 售后详情
               </view>
-
-              <!-- 申请记录 -->
-              <!-- <u-button type="info" size="mini" shape="circle" v-if="current === 2">删除记录</u-button> -->
             </view>
           </view>
         </view>
@@ -103,8 +99,7 @@
 
 <script>
 import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
-import empty from "@/components/empty";
-import { getAfterSale, getAfterSaleList } from "@/api/after-sale.js";
+import { getAfterSaleList } from "@/api/after-sale.js";
 import { getOrderList } from "@/api/order.js";
 
 export default {
@@ -113,20 +108,8 @@ export default {
   },
   data() {
     return {
-      serviceStatusList: {
-        APPLY: "申请售后",
-        PASS: "通过售后",
-        REFUSE: "拒绝售后",
-        BUYER_RETURN: "买家退货，待卖家收货",
-        SELLER_RE_DELIVERY: "商家换货/补发",
-        SELLER_CONFIRM: "卖家确认收货",
-        SELLER_TERMINATION: "卖家终止售后",
-        BUYER_CONFIRM: "买家确认收货",
-        BUYER_CANCEL: "买家取消售后",
-        WAIT_REFUND: "等待平台退款",
-        COMPLETE: "完成售后",
-      },
       list: [
+        //tab表头
         {
           name: "售后申请",
         },
@@ -137,13 +120,14 @@ export default {
           name: "申请记录",
         },
       ],
-      current: 0,
-      tipsShow: false,
-      orderList: [],
+      current: 0, //当前表头索引
+      tipsShow: false, //提示开关
+      orderList: [], //订单集合
       params: {
         pageNumber: 1,
         pageSize: 10,
       },
+
       logParams: {
         pageNumber: 1,
         pageSize: 10,
@@ -159,11 +143,10 @@ export default {
   onPullDownRefresh() {
     this.change(this.current);
   },
-  watch: {
-    current(val) {},
-  },
   methods: {
-    //切换tab页时，初始化数据
+    /**
+     * 切换tab页时，初始化数据
+     */
     change(index) {
       this.current = index;
       this.params = {
@@ -187,6 +170,10 @@ export default {
       }
       uni.stopPullDownRefresh();
     },
+
+    /**
+     * 获取订单列表
+     */
     getOrderList(index) {
       uni.showLoading({
         title: "加载中",
@@ -207,14 +194,18 @@ export default {
       });
     },
 
-    // 详情
+    /**
+     * 售后详情
+     */
     afterDetails(order) {
       uni.navigateTo({
         url: "./applyDetail?sn=" + order.sn,
       });
     },
 
-    //申请记录列表
+    /**
+     * 申请记录列表
+     */
     getAfterSaleLogList() {
       getAfterSaleList(this.logParams).then((res) => {
         let afterSaleLogList = res.data.result.records;
@@ -229,7 +220,7 @@ export default {
               price: item.flowPrice,
             },
           ];
-          console.log(item.orderItems);
+    
         });
 
         this.orderList = this.orderList.concat(afterSaleLogList);
@@ -241,7 +232,10 @@ export default {
         }
       });
     },
-    //申请售后
+
+    /**
+     * 申请售后
+     */
     applyService(sn, order, sku) {
       let data = {
         ...order,
@@ -254,7 +248,10 @@ export default {
         )}`,
       });
     },
-    //提交物流信息
+
+    /**
+     * 提交物流信息
+     */
     onExpress(order, sku) {
       sku.storeName = order.storeName;
 
@@ -265,14 +262,20 @@ export default {
       });
     },
 
+    /**
+     * 查看详情
+     */
     onDetail(sku) {
-      console.log(sku);
       if (!this.$u.test.isEmpty(sku.skuId)) {
         uni.navigateTo({
           url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId}`,
         });
       }
     },
+
+    /**
+     * 底部加载数据
+     */
     renderDate() {
       if (this.current === 0) {
         this.params.pageNumber += 1;

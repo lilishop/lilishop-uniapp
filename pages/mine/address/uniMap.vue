@@ -1,10 +1,12 @@
 <template></template>
 <script>
 import { getAddressCode } from "@/api/address";
-
+import config from '@/config/config'
 export default {
   data() {
-    return {};
+    return {
+      config
+    };
   },
   mounted() {
     this.init();
@@ -33,7 +35,7 @@ export default {
       });
     },
 
-    // 根据当前客户端判断
+    // 根据当前客户端判断展示不同类型数据
     init() {
       // #ifdef MP-WEIXIN
       this.wechatMap();
@@ -60,12 +62,14 @@ export default {
             cancelText: "取消",
             success: (res) => {
               if (res.confirm) {
+                // 打开设置好后重新刷新地图
                 uni.openSetting({
                   success: (res) => {
                     that.initMap();
                   },
                 });
               } else {
+                // 取消后关闭
                 that.$emit("close");
                 return false;
               }
@@ -75,18 +79,18 @@ export default {
         },
       });
     },
-
+    // 获取城市的数据
     posToCity(latitude, longitude) {
       return new Promise((resolve, reject) => {
         uni.request({
           url: `https://restapi.amap.com/v3/geocode/regeo`,
           method: "GET",
           data: {
-            key: "d649892b3937a5ad20b76dacb2bcb5bd", //web服务的key
+            key: config.aMapKey, //web服务的key
             location: `${longitude},${latitude}`,
           },
           success: ({ data }) => {
-            const { status, info, regeocode } = data;
+            const { status, info } = data;
             if (status === "1") {
               resolve(data);
             } else {

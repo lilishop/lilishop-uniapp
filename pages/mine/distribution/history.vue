@@ -58,7 +58,7 @@ export default {
       title: title, //这是修改后的导航栏文字
     });
     this.routers = option;
-    console.log(this.routers);
+
     option.type == 0 ? this.achievement() : this.history();
   },
   mounted() {},

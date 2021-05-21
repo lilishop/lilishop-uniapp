@@ -12,11 +12,11 @@
                 <view class="u-group-flex-left" v-if="promotion.__key == 'SECKILL' ">
 
                   <span class="u-group-flex-left-span" v-if="detail.promotionPrice!=undefined">
-                    ￥ <span class="flex-price"> {{ Fixed(detail.promotionPrice)[0]}}.{{ Fixed(detail.promotionPrice)[1]}}</span>
+                    ￥ <span class="flex-price"> {{ formatPrice(detail.promotionPrice)[0]}}.{{ formatPrice(detail.promotionPrice)[1]}}</span>
 
                   </span>
                   <view class="u-group-flex" v-if="detail.price!=undefined">
-                    <span class="old-price">￥{{ Fixed(detail.price)[0]}}.{{ Fixed(detail.price)[1]}}</span>
+                    <span class="old-price">￥{{ formatPrice(detail.price)[0]}}.{{ formatPrice(detail.price)[1]}}</span>
                     <view class="promotion">限时抢购</view>
                   </view>
                 </view>
@@ -25,12 +25,12 @@
                 <view class="u-group-flex-left" v-if="promotion.__key == 'GROUPBUY' ">
                   <span class="u-group-flex-left-span">
                     <span class="flex-price"
-                      v-if="promotion.groupbuy_goods_vo.price !=undefined">￥{{ Fixed(promotion.groupbuy_goods_vo.price )[0]}}.{{ Fixed(promotion.groupbuy_goods_vo.price )[1]}}</span>
+                      v-if="promotion.groupbuy_goods_vo.price !=undefined">￥{{ formatPrice(promotion.groupbuy_goods_vo.price )[0]}}.{{ formatPrice(promotion.groupbuy_goods_vo.price )[1]}}</span>
                     <!-- <span v-if="promotion.point">+{{promotion.point}}积分</span> -->
                   </span>
                   <view class="u-group-flex">
                     <span class="old-price"
-                      v-if="promotion.groupbuy_goods_vo.original_price!=undefined">￥{{ Fixed(promotion.groupbuy_goods_vo.original_price)[0]}}.{{ Fixed(promotion.groupbuy_goods_vo.original_price)[1]}}</span>
+                      v-if="promotion.groupbuy_goods_vo.original_price!=undefined">￥{{ formatPrice(promotion.groupbuy_goods_vo.original_price)[0]}}.{{ formatPrice(promotion.groupbuy_goods_vo.original_price)[1]}}</span>
                     <view class="promotion">团购活动</view>
                   </view>
                 </view>
@@ -38,10 +38,10 @@
                 <view class="u-group-flex-left" v-if="promotion.__key == 'PINTUAN' ">
 
                   <span class="u-group-flex-left-span" v-if="detail.promotionPrice != undefined">
-                    ￥<span class="flex-price"> {{ Fixed(detail.promotionPrice)[0]}}.</span>{{ Fixed(detail.promotionPrice)[1]}}
+                    ￥<span class="flex-price"> {{ formatPrice(detail.promotionPrice)[0]}}.</span>{{ formatPrice(detail.promotionPrice)[1]}}
                   </span>
                   <view class="u-group-flex" v-if="detail.price != undefined">
-                    <span class="old-price">￥{{ Fixed(detail.price)[0]}}.{{ Fixed(detail.price)[1]}}</span>
+                    <span class="old-price">￥{{ formatPrice(detail.price)[0]}}.{{ formatPrice(detail.price)[1]}}</span>
                     <view class="promotion">拼团活动</view>
                   </view>
                 </view>
@@ -98,7 +98,7 @@ export default {
   mounted() {},
   methods: {
     // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }
@@ -106,14 +106,12 @@ export default {
     },
     getCountDownTime(val) {
       let date = new Date(val.replace(/-/g, "/"))
-   
       let timeSimple = new Date(date).getTime() / 1000;
-      console.log(timeSimple , timeSimple - new Date().getTime() / 1000)
       return timeSimple - new Date().getTime() / 1000;
     },
     getIsTimer(val) {
       var timestamp = new Date().getTime();
-      // console.log(timestamp);
+      
 
       if (timestamp < val.start_time) {
         this.startTimer = true;

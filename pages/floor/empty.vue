@@ -14,11 +14,7 @@
 			}
 		},
 		onLoad(options) {
-			let pages = getCurrentPages();
-			if (pages.length) {
-				let route = pages[0].route;
-			}
-			this.type = options.type;
+			
 		}
 	}
 </script>

@@ -3,27 +3,25 @@
     <view class="navbar">
       <view v-for="(item, index) in navList" :key="index" class="nav-item" :class="{ current: tabCurrentIndex === index }" @click="tabClick(index)">{{ item.text }}</view>
     </view>
-
     <swiper :current="tabCurrentIndex" class="swiper-box" duration="300" @change="changeTab">
       <swiper-item class="tab-content" v-for="(tabItem, tabIndex) in navList" :key="tabIndex">
         <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData(tabIndex)">
           <!-- 空白页 -->
           <empty v-if="tabItem.loaded === true && tabItem.orderList.length === 0"></empty>
-
           <!-- 订单列表 -->
           <view class="seller-view" :key="oderIndex" v-for="(order, oderIndex) in tabItem.orderList">
             <!-- 店铺名称 -->
             <view class="seller-info u-flex u-row-between">
-              <view class="seller-name" @click="tostore(order)">
+              <view class="seller-name" @click="navigateToStore(order)">
                 <view class="name">{{ order.storeName }}</view>
               </view>
               <view class="order-sn">{{
-                orderStatusList[order.orderStatus]
+                order.orderStatus | orderStatusList
               }}</view>
             </view>
             <view>
               <view>
-                <view class="goods-item-view" @click="onDetail(order.sn)">
+                <view class="goods-item-view" @click="navigateToOrderDetail(order.sn)">
                   <view class="goods-img" v-for="(goods, goodsIndex) in order.orderItems" :key="goodsIndex">
                     <u-image border-radius="6" width="100%" height="100%" :src="goods.image"></u-image>
                   </view>
@@ -31,7 +29,6 @@
                     <view v-if="order.orderItems.length <= 1" class="goods-title u-line-2">{{ order.groupName }}</view>
                     <view v-if="order.orderItems.length <= 1" class="goods-price">
                       ￥{{ order.flowPrice | unitPrice }}
-                      <!-- <span v-if="order.point">+{{ order.point }}积分</span> -->
                     </view>
                   </view>
                   <view v-if="order.orderItems.length <= 1" class="goods-num">
@@ -41,53 +38,31 @@
               </view>
               <view class="btn-view u-flex u-row-between">
                 <view class="description">
-                  <!-- 全部 -->
                   <!-- 等待付款 -->
                   <text v-if="order.payStatus === 'PAID'">已付金额：</text>
                   <text v-else>应付金额：</text>
                   <text class="price">￥{{ order.flowPrice | unitPrice }}</text>
-
-                  <!-- 等待发货 || 等待收货 || 交易完成 || 交易关闭 -->
-                  <!-- <text>已付金额：</text>
-									<text class="price">￥12.00</text> -->
                 </view>
                 <view>
                   <!-- 全部 -->
-                  <u-button ripple  class="pay-btn" shape="circle" size="mini" v-if="order.allowOperationVO.pay" @click="waitPay(order)">立即付款</u-button>
+                  <u-button ripple class="pay-btn" shape="circle" size="mini" v-if="order.allowOperationVO.pay" @click="waitPay(order)">立即付款</u-button>
                   <!-- 取消订单 -->
                   <u-button ripple class="cancel-btn" shape="circle" size="mini" v-if="order.allowOperationVO.cancel" @click="onCancel(order.sn)">
                     取消订单
                   </u-button>
                   <!-- 等待收货 -->
-                  <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="order.allowOperationVO.showLogistics" @click="onLogistics(order)">
+                  <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="order.allowOperationVO.showLogistics" @click="navigateToLogistics(order)">
                     查看物流
                   </u-button>
-                  <u-button  ripple  :customStyle="{'background':$lightColor,'color':'#fff' }"  shape="circle" class="pay-btn" size="mini" v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
+                  <u-button ripple :customStyle="{'background':$lightColor,'color':'#fff' }" shape="circle" class="pay-btn" size="mini" v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
                     确认收货
                   </u-button>
-                  <!-- 交易完成 未评价 -->
-                  <!-- <u-button
-                    shape="circle"
-                    class="rebuy-btn"
-                    size="mini"
-                    v-if="order.orderStatus == 'COMPLETE'"
-                    @click="onComment(order.sn)"
-                  >
-                    评价商品
-                  </u-button> -->
                   <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="
                       order.orderStatus === 'CANCELLED' ||
                       order.orderStatus === 'COMPLETE'
                     " @click="reBuy(order)">
                     再次购买
                   </u-button>
-
-                  <!-- 交易完成 未追评 -->
-                  <!-- <u-button class="u-margin-left-15" size="mini"> 追加评价</u-button>
-									<u-button class="u-margin-left-15" size="mini"> 再次购买</u-button> -->
-                  <!-- 交易关闭 -->
-                  <!-- <u-button class="u-margin-left-15" size="mini"> 取消订单</u-button>
-									<u-button class="u-margin-left-15" size="mini"> 重新购买</u-button> -->
                 </view>
               </view>
             </view>
@@ -136,17 +111,9 @@ export default {
   },
   data() {
     return {
-      tabCurrentIndex: 0,
-      orderStatusList: {
-        UNDELIVERED: "待发货",
-        UNPAID: "未付款",
-        PAID: "已付款",
-        DELIVERED: "已发货",
-        CANCELLED: "已取消",
-        COMPLETED: "已完成",
-        TAKE: "已完成",
-      },
+      tabCurrentIndex: 0, //导航栏索引
       navList: [
+        //导航栏list
         {
           state: 0,
           text: "全部",
@@ -190,13 +157,14 @@ export default {
           pageNumber: 1,
         },
       ],
-      status: "",
+      status: "", //接收导航栏状态
       params: {
         pageNumber: 1,
         pageSize: 10,
         tag: "ALL",
       },
       orderStatus: [
+        //订单状态
         {
           orderStatus: "ALL", //全部
         },
@@ -216,14 +184,17 @@ export default {
           orderStatus: "CANCELLED", //已取消
         },
       ],
-      cancelShow: false,
-      orderSn: "",
+      cancelShow: false, //是否显示取消
+      orderSn: "", //ordersn
       reason: "", //取消原因
-      cancelList: "",
-
-      rogShow: false,
+      cancelList: "", //取消列表
+      rogShow: false, //显示是否收货
     };
   },
+
+  /**
+   * 跳转到个人中心
+   */
   onBackPress(e) {
     if (e.from == "backbutton") {
       uni.reLaunch({
@@ -232,9 +203,8 @@ export default {
       return true; //阻止默认返回行为
     }
   },
-  onPullDownRefresh(){
-    this.loadData(this.status)
-    //  uni.stopPullDownRefresh();
+  onPullDownRefresh() {
+    this.loadData(this.status);
   },
 
   onLoad(options) {
@@ -251,6 +221,7 @@ export default {
   },
 
   watch: {
+    /**监听更改请求数据 */
     tabCurrentIndex(val) {
       this.params.tag = this.orderStatus[val].orderStatus;
       //切换标签页将所有的页数都重置为1
@@ -264,13 +235,15 @@ export default {
   },
   methods: {
     // 店铺详情
-    tostore(val) {
+    navigateToStore(val) {
       uni.navigateTo({
         url: "/pages/product/shopPage?id=" + val.storeId,
       });
     },
 
-    //取消订单
+    /**
+     * 取消订单
+     */
     onCancel(sn) {
       this.orderSn = sn;
       this.cancelShow = true;
@@ -284,34 +257,51 @@ export default {
         uni.hideLoading();
       });
     },
+
+    /**
+     * 初始化数据
+     */
     initData(index) {
       this.navList[index].pageNumber = 1;
       this.navList[index].loadStatus = "more";
       this.navList[index].orderList = [];
       this.loadData(index);
     },
+
+    /**
+     * 等待支付
+     */
     waitPay(val) {
-      this.$u.debounce(this.pay(val), 3000)
+      this.$u.debounce(this.pay(val), 3000);
     },
-    pay(val){
-      if(val.sn){
+
+    /**
+     * 支付
+     */
+    pay(val) {
+      if (val.sn) {
         // #ifdef MP-WEIXIN
-        new LiLiWXPay({sn:val.sn,price:val.flowPrice,orderType:'ORDER'}).pay()
+        new LiLiWXPay({
+          sn: val.sn,
+          price: val.flowPrice,
+          orderType: "ORDER",
+        }).pay();
         // #endif
         // #ifndef MP-WEIXIN
         uni.navigateTo({
-            url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
-          })
+          url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
+        });
         // #endif
       }
     },
 
-
-    //获取订单列表
+    /**
+     * 获取订单列表
+     */
     loadData(index) {
       this.params.pageNumber = this.navList[index].pageNumber;
       getOrderList(this.params).then((res) => {
-       uni.stopPullDownRefresh()
+        uni.stopPullDownRefresh();
         if (!res.data.success) {
           this.navList[index].loadStatus = "noMore";
           return false;
@@ -392,17 +382,26 @@ export default {
         stateTipColor,
       };
     },
-    onDetail(sn) {
+
+    /**
+     * 跳转到订单详情
+     */
+    navigateToOrderDetail(sn) {
       uni.navigateTo({
         url: "./orderDetail?sn=" + sn,
       });
     },
 
-    //选择取消原因
+    /**
+     * 选择取消原因
+     */
     reasonChange(reason) {
       this.reason = reason;
     },
-    //提交取消订单（未付款）
+
+    /**
+     * 提交取消订单（未付款）
+     */
     submitCancel() {
       cancelOrder(this.orderSn, { reason: this.reason }).then((res) => {
         if (res.statusCode == 200) {
@@ -414,24 +413,28 @@ export default {
           this.initData(0);
 
           this.cancelShow = false;
-        }
-        else{
+        } else {
           uni.showToast({
             title: res.data.message,
             duration: 2000,
             icon: "none",
           });
-          this.cancelShow = false
+          this.cancelShow = false;
         }
       });
     },
-    //确认收货
+
+    /**
+     * 确认收货显示
+     */
     onRog(sn) {
       this.orderSn = sn;
       this.rogShow = true;
-
-      //
     },
+
+    /**
+     * 点击确认收货
+     */
     confirmRog() {
       confirmReceipt(this.orderSn).then((res) => {
         if (res.data.code == 200) {
@@ -445,28 +448,43 @@ export default {
         }
       });
     },
-    //评价商品
+
+    /**
+     * 评价商品
+     */
     onComment(sn) {
       uni.navigateTo({
         url: "./evaluate/myEvaluate",
       });
     },
+
+    /**
+     * 重新购买
+     */
     reBuy(order) {
       uni.navigateTo({
-        url: "/pages/product/goods?id=" + order.groupSkuId + "&goodsId="+ order.goodsId,
+        url:
+          "/pages/product/goods?id=" +
+          order.groupSkuId +
+          "&goodsId=" +
+          order.goodsId,
       });
     },
-    //查看物流
-    onLogistics(order) {
+
+    /**
+     * 查看物流
+     */
+    navigateToLogistics(order) {
       uni.navigateTo({
-        url: "/pages/mine/msgTips/packageMsg/logisticsDetail?order_sn=" + order.sn,
+        url:
+          "/pages/mine/msgTips/packageMsg/logisticsDetail?order_sn=" + order.sn,
       });
     },
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 page,
 .content {
   background: $page-color-base;
@@ -519,138 +537,6 @@ page,
 
 .uni-swiper-item {
   height: auto;
-}
-
-/* load-more */
-.uni-load-more {
-  display: flex;
-  flex-direction: row;
-  height: 80rpx;
-  align-items: center;
-  justify-content: center;
-}
-
-.uni-load-more__text {
-  font-size: 28rpx;
-  color: #999;
-}
-
-.uni-load-more__img {
-  height: 24px;
-  width: 24px;
-  margin-right: 10px;
-}
-
-.uni-load-more__img > view {
-  position: absolute;
-}
-
-.uni-load-more__img > view view {
-  width: 6px;
-  height: 2px;
-  border-top-left-radius: 1px;
-  border-bottom-left-radius: 1px;
-  background: #999;
-  position: absolute;
-  opacity: 0.2;
-  transform-origin: 50%;
-  animation: load 1.56s ease infinite;
-}
-
-.uni-load-more__img > view view:nth-child(1) {
-  transform: rotate(90deg);
-  top: 2px;
-  left: 9px;
-}
-
-.uni-load-more__img > view view:nth-child(2) {
-  transform: rotate(180deg);
-  top: 11px;
-  right: 0;
-}
-
-.uni-load-more__img > view view:nth-child(3) {
-  transform: rotate(270deg);
-  bottom: 2px;
-  left: 9px;
-}
-
-.uni-load-more__img > view view:nth-child(4) {
-  top: 11px;
-  left: 0;
-}
-
-.load1,
-.load2,
-.load3 {
-  height: 24px;
-  width: 24px;
-}
-
-.load2 {
-  transform: rotate(30deg);
-}
-
-.load3 {
-  transform: rotate(60deg);
-}
-
-.load1 view:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.load2 view:nth-child(1) {
-  animation-delay: 0.13s;
-}
-
-.load3 view:nth-child(1) {
-  animation-delay: 0.26s;
-}
-
-.load1 view:nth-child(2) {
-  animation-delay: 0.39s;
-}
-
-.load2 view:nth-child(2) {
-  animation-delay: 0.52s;
-}
-
-.load3 view:nth-child(2) {
-  animation-delay: 0.65s;
-}
-
-.load1 view:nth-child(3) {
-  animation-delay: 0.78s;
-}
-
-.load2 view:nth-child(3) {
-  animation-delay: 0.91s;
-}
-
-.load3 view:nth-child(3) {
-  animation-delay: 1.04s;
-}
-
-.load1 view:nth-child(4) {
-  animation-delay: 1.17s;
-}
-
-.load2 view:nth-child(4) {
-  animation-delay: 1.3s;
-}
-
-.load3 view:nth-child(4) {
-  animation-delay: 1.43s;
-}
-
-@-webkit-keyframes load {
-  0% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.2;
-  }
 }
 
 .seller-view {

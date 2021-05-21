@@ -1,17 +1,17 @@
 <template>
-  <view class="myTracks" v-if="refresh">
-    <empty v-if="nomsg"></empty>
-    <view v-else v-for="(item, index) in list" :key="index">
-      <view class="myTracks-title" @click="gostore(item)">{{item.storeName}}</view>
+  <view class="myTracks">
+    <empty v-if="whetherEmpty"></empty>
+    <view v-else v-for="(item, index) in trackList" :key="index">
+      <view class="myTracks-title" @click="navgaiteToStore(item)">{{item.storeName}}</view>
       <view class="myTracks-items">
         <view class="myTracks-item">
           <u-checkbox-group>
             <u-checkbox v-model="item.___isDel" v-if="editFlag" active-color="#ff6b35" style="margin-right: 10rpx" @change="changeChecked(item)"></u-checkbox>
           </u-checkbox-group>
-          <view class="myTracks-item-img" @click.stop="goDetail(item)">
+          <view class="myTracks-item-img" @click.stop="navgaiteToDetail(item)">
             <image :src="item.thumbnail"></image>
           </view>
-          <view class="myTracks-item-content" @click.stop="goDetail(item)">
+          <view class="myTracks-item-content" @click.stop="navgaiteToDetail(item)">
             <view class="myTracks-item-title">
               {{ item.goodsName }}
               <view class="myTracks-item-title-desc"> </view>
@@ -19,9 +19,6 @@
             <view class="myTracks-item-price">
               ￥{{ item.price | unitPrice }}
             </view>
-            <!-- <view class="myTracks-item-btn" @click.stop="goSimilar(item)">
-              找相似
-            </view> -->
           </view>
         </view>
       </view>
@@ -54,23 +51,22 @@ import { myTrackList, deleteHistoryListId } from "@/api/members.js";
 export default {
   data() {
     return {
-      editFlag: false,
-      allChecked: false,
-      loadStatus: "more",
-      nomsg: false,
+      editFlag: false, //是否编辑
+      allChecked: false, //是否全选
+      loadStatus: "more", //底部下拉加载状态
+      whetherEmpty: false, //是否数据为空
       params: {
         pageNumber: 1,
         pageSize: 10,
       },
-      refresh: true,
-      list: [],
+
+      trackList: [], //足迹列表
     };
   },
-  onPullDownRefresh() {
-    this.params.pageNumber = 1;
-    this.list = [];
-    this.getList();
-  },
+
+  /**
+   * 滑到底部加载下一页数据
+   */
   onReachBottom() {
     if (this.loadStatus != "noMore") {
       this.params.pageNumber++;
@@ -81,11 +77,18 @@ export default {
     this.getList();
   },
   methods: {
-    gostore(val) {
+    /**
+     * 导航到店铺
+     */
+    navgaiteToStore(val) {
       uni.navigateTo({
         url: "/pages/product/shopPage?id=" + val.storeId,
       });
     },
+
+    /**
+     * 设置右侧导航栏文本
+     */
     setStyle(text) {
       //导航按钮文本设置
       let pages = getCurrentPages();
@@ -95,7 +98,7 @@ export default {
       let titleNView = currentWebview.getStyle().titleNView;
       titleNView.buttons[0].text = text;
       if (text == "完成") {
-        this.list.forEach((key) => {
+        this.trackList.forEach((key) => {
           key.history.forEach((item) => {
             this.$set(item, "___isDel", false);
           });
@@ -110,20 +113,19 @@ export default {
       document.getElementsByClassName("uni-btn-icon")[1].innerText = text;
       // #endif
     },
-    goDetail(item) {
-      //跳转详情
+
+    /**
+     * 跳转详情
+     */
+    navgaiteToDetail(item) {
       uni.navigateTo({
         url: "/pages/product/goods?id=" + item.id + "&goodsId=" + item.goodsId,
       });
     },
-    goSimilar(item) {
-      //找相似
-      uni.navigateTo({
-        url:
-          "/pages/user/similaritem?item=" +
-          encodeURIComponent(JSON.stringify(item)),
-      });
-    },
+
+    /**
+     * 获取我的足迹列表
+     */
     getList() {
       uni.showLoading({
         title: "加载中",
@@ -139,35 +141,44 @@ export default {
 
           let data = res.data.result;
           if (data.total == 0) {
-            this.nomsg = true;
+            this.whetherEmpty = true;
           } else if (data.total < 10) {
             this.loadStatus = "noMore";
-            this.list.push(...data);
+            this.trackList.push(...data);
           } else {
-            this.list.push(...data);
+            this.trackList.push(...data);
             if (data.length < 10) this.loadStatus = "noMore";
           }
         }
       });
     },
+
+    /**
+     * 点击后判断是不是全选
+     */
     changeChecked(val) {
-      //点击后判断是不是全选
-      console.log(val);
-      const isCheckedAll = this.list.every((key) => {
-        console.log(key);
+      const isCheckedAll = this.trackList.every((key) => {
         return key.___isDel == val.___isDel;
       });
       this.allChecked = isCheckedAll;
     },
+
+    /**
+     * 点击全选按钮
+     */
     checkedAllitem() {
       //全选按钮
-      this.list.forEach((key) => {
+      this.trackList.forEach((key) => {
         this.$set(key, "___isDel", this.allChecked);
       });
     },
+
+    /**
+     * 删除足迹
+     */
     delAllTracks() {
       let way = [];
-      this.list.forEach((key) => {
+      this.trackList.forEach((key) => {
         if (key.___isDel) {
           way.push(key.goodsId);
         }
@@ -175,10 +186,8 @@ export default {
       if (way.length == 0) return false;
       deleteHistoryListId(way).then((res) => {
         if (res.data.code == 200) {
-          this.list = [];
- 
+          this.trackList = [];
           this.allChecked = false;
-          
           this.getList();
         } else {
           uni.showToast({
@@ -190,6 +199,10 @@ export default {
       });
     },
   },
+
+  /**
+   * 右侧标签栏切换
+   */
   onNavigationBarButtonTap(e) {
     if (!this.editFlag) {
       this.setStyle("完成");
@@ -255,9 +268,6 @@ export default {
   }
 }
 
-.myTracks-item-content {
-}
-
 .myTracks-item-title {
   font-size: 28rpx;
   color: #333;
@@ -274,36 +284,6 @@ export default {
   padding: 10rpx 0 0 0;
 }
 
-.myTracks-item-price-now {
-  font-size: 28rpx;
-  color: $light-color;
-  margin: 0 10rpx;
-}
-
-.myTracks-item-price-origin {
-  font-size: 28rpx;
-  color: #999;
-  -webkit-text-decoration-line: line-through;
-  text-decoration-line: line-through;
-  text-decoration: line-through;
-}
-
-.myTracks-item-btn {
-  position: absolute;
-  right: 20rpx;
-  bottom: 20rpx;
-  width: 120rpx;
-  height: 42rpx;
-  background-color: #fff;
-  border: 1px solid $aider-light-color;
-  border-radius: 10rpx;
-  font-size: 24rpx;
-  color: $aider-light-color;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .myTracks-action-btn {
   width: 130rpx;
   height: 60rpx;
@@ -317,21 +297,6 @@ export default {
 
 .myTracks-action-placeholder {
   height: 110rpx;
-}
-
-.myTracks-action {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 100rpx;
-  padding: 0 20rpx;
-  box-sizing: border-box;
-  background-color: #fff;
-  align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  justify-content: space-between;
 }
 
 .myTracks-action-check {

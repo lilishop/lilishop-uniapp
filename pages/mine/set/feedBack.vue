@@ -45,9 +45,9 @@ export default {
       storage,
       config,
       feedBack: {
-        type:"FUNCTION"
+        type: "FUNCTION", //默认反馈问题为 '功能相关'
       },
-      action: upload,
+      action: upload, //图片上传地址
       list: [
         { text: "功能相关", value: "FUNCTION" },
         { text: "优化反馈", value: "OPTIMIZE" },
@@ -55,8 +55,8 @@ export default {
       ],
     };
   },
-  onReady() {},
   methods: {
+    // 点击反馈内容
     handleClick(index) {
       this.$set(this.feedBack, "type", this.list[index].value);
     },
@@ -64,14 +64,15 @@ export default {
     //图片上传
     onUploaded(lists) {
       let images = [];
-
       lists.forEach((item) => {
         images.push(item.response.result);
       });
-      console.log(images);
       this.feedBack.images = images.join(",");
     },
 
+    /**
+     * 提交意见反馈
+     */
     submit() {
       if (!this.feedBack.type) {
         uni.showToast({
@@ -97,7 +98,7 @@ export default {
         });
         return false;
       }
-
+      /** 提交 */
       feedBack(this.feedBack).then((res) => {
         if (res.data.success) {
           uni.showToast({

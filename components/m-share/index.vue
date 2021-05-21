@@ -29,7 +29,7 @@
   </u-popup>
 </template>
 <script>
-import h5Copy from "@/js_sdk/h5-copy/h5-copy.js";
+import { h5Copy } from "@/js_sdk/h5-copy/h5-copy.js";
 import configs from "@/config/config";
 import mpShare from "uview-ui/libs/mixin/mpShare.js";
 
@@ -57,13 +57,7 @@ export default {
   },
   // 图片缩略图、 商品名称 、 type（goods,shop,pintuan) 拼团商品分享以及店铺分享
 
-  props: [
-    "thumbnail",
-    "goodsName",
-    "type",
-    "goodsId",
-    "link",
-  ],
+  props: ["thumbnail", "goodsName", "type", "goodsId", "link"],
   // #ifdef MP-WEIXIN
   onShareAppMessage(res) {
     return {
@@ -79,7 +73,7 @@ export default {
     // #ifdef H5
     copyLink() {
       let content =
-        this.configs.downloadLink +
+        this.configs.shareLink +
         getCurrentPages()[getCurrentPages().length - 1].__page__.fullPath;
 
       if (content === null || content === undefined) {
@@ -104,7 +98,6 @@ export default {
       if (val.type <= 1) {
         let shareTitle;
 
-       
         if (this.type == "goods") {
           shareTitle = `我发现了一个${this.goodsName}商品快来跟我一起看看吧`;
         } else if (this.type == "shops") {
@@ -112,7 +105,6 @@ export default {
         } else if (this.type == "pintuan") {
           shareTitle = `我拼了一个${this.goodsName}快来跟我一起抢购吧!`;
         }
-    
 
         let scene; //  "WXSenceTimeline 朋友圈   WXSceneSession 微信好友"
         val.type == 1
@@ -127,7 +119,6 @@ export default {
           summary: this.goodsName,
           title: shareTitle,
           success: function (res) {
-            // console.log("success:" + JSON.stringify(res));
             uni.showToast({
               title: "分享成功!",
               duration: 2000,

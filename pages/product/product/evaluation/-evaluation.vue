@@ -17,7 +17,7 @@
           </view>
           <view class="section-contant">
             <u-read-more ref="uReadMore" :color="lightColor">
-              <rich-text  @load="parseLoaded" :nodes="commItem.content " class="con"></rich-text>
+              <rich-text @load="parseLoaded" :nodes="commItem.content " class="con"></rich-text>
             </u-read-more>
             <scroll-view scroll-x class="scroll-x" v-if="commItem.image">
               <view class="img">
@@ -37,7 +37,7 @@
       </div>
     </view>
     <!-- 查看全部评价按钮 -->
-    <view v-if="commDetail && commDetail.records && commDetail.records.length > 0" class="eva-section-btn" @click="toComment(goodsDetail.goodsId, goodsDetail.grade)" >
+    <view v-if="commDetail && commDetail.records && commDetail.records.length > 0" class="eva-section-btn" @click="toComment(goodsDetail.goodsId, goodsDetail.grade)">
       <text>查看全部评价</text>
     </view>
   </view>
@@ -48,7 +48,7 @@ import * as API_Members from "@/api/members.js";
 export default {
   data() {
     return {
-      lightColor:this.$lightColor,
+      lightColor: this.$lightColor,
       // 评论集合
       commDetail: [],
       // 评论分页提交数据
@@ -81,7 +81,9 @@ export default {
         url: `/pages/product/comment?id=${id}&grade=${grade}`,
       });
     },
-    // 预览
+    /**
+     * 点击图片放大或保存
+     */
     previewImg(url, index) {
       uni.previewImage({
         urls: url,

@@ -13,16 +13,16 @@
             <view class="goods-price " v-if="goodsDetail.promotionPrice">
               <span>
                 ￥
-                <span class="goods-price-promotionShow goods-price-bigshow" v-if="goodsDetail.promotionPrice">{{ Fixed(goodsDetail.promotionPrice)[0] }}</span>
-                .{{ Fixed(goodsDetail.promotionPrice)[1] }}
+                <span class="goods-price-promotionShow goods-price-bigshow" v-if="goodsDetail.promotionPrice">{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
+                .{{ formatPrice(goodsDetail.promotionPrice)[1] }}
                 <span></span>
               </span>
               <div class="promotion-box">
                 ￥
                 <span class="goods-price-bigshow">{{
-                Fixed(goodsDetail.price)[0]
+                formatPrice(goodsDetail.price)[0]
               }}</span>
-                .{{ Fixed(goodsDetail.price)[1] }}
+                .{{ formatPrice(goodsDetail.price)[1] }}
                 <span></span>
               </div>
             </view>
@@ -30,9 +30,9 @@
             <view class="goods-price" v-else>
               ￥
               <span class="goods-price-bigshow">{{
-                Fixed(goodsDetail.price)[0]
+                formatPrice(goodsDetail.price)[0]
               }}</span>
-              .{{ Fixed(goodsDetail.price)[1] }}
+              .{{ formatPrice(goodsDetail.price)[1] }}
               <span></span>
             </view>
             <view class="goods-check-skus">
@@ -123,7 +123,7 @@ export default {
 
   methods: {
     // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }

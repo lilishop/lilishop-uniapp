@@ -1,18 +1,14 @@
 <template>
   <div class="wrapper">
-    <div class="nomore" v-if="current === 0 && couponsList.length <= 0">
-      暂无优惠券
+    <div class="empty" v-if="couponsList.length <= 0">
+      <u-empty text="暂无优惠券" mode="coupon"></u-empty>
     </div>
-    <div class="nomore" v-if="current === 1 && disabledCouponsList.length <= 0">
-      暂无优惠券
-    </div>
-
     <view class="coupon-item" v-for="(item, index) in couponsList" :key="index" v-if="item.memberCouponStatus == 'NEW'">
       <view class="left">
         <view class="wave-line">
           <view class="wave" v-for="(item, index) in 12" :key="index"></view>
         </view>
-        <view class="msg">
+        <view class="message">
           <view>
             <span v-if="item.couponType == 'DISCOUNT'">{{ item.discount }}折</span>
             <span v-else>{{ item.price }}元</span>
@@ -41,51 +37,31 @@
   </div>
 </template>
 <script>
-import {
-  useCoupon,
-  getMemberCouponList,
-  getMemberCanUse,
-} from "@/api/trade.js";
+import { useCoupon, getMemberCanUse } from "@/api/trade.js";
 
 export default {
   data() {
     return {
-      current: 0,
-      list: [
-        {
-          name: "可用优惠券",
-        },
-        {
-          name: "不可用优惠券",
-        },
-      ],
-      curNow: "",
-      couponsList: [],
-      disabledCouponsList: [],
+      couponsList: [], //优惠券集合
       params: {
-        memberCouponStatus: "NEW",
+        //传参
+        memberCouponStatus: "NEW", //优惠券状态
         pageNumber: 1,
         pageSize: 10,
-        scopeId: "",
-        storeId: "",
-        totalPrice: "",
-        // endTime: this.$u.timeFormat(new Date().getTime(),'yyyy-mm-dd hh:MM:ss')
+        scopeId: "", //商品skuid
+        storeId: "", //店铺id
+        totalPrice: "", //价格
       },
-      way: [],
-      routerVal: "",
+      routerVal: "", //上级传参
     };
   },
-  onReachBottom() {
-    this.pageNumber++;
-    this.getAllCouponsFun();
-  },
+  /**
+   * 赋值
+   */
   onLoad(val) {
     this.routerVal = val;
     this.params.scopeId = val.skuId;
     this.params.storeId = val.storeId;
-    if (val.type) {
-      this.params.endTime = new Date().getTime();
-    }
   },
   mounted() {
     uni.getStorage({
@@ -98,20 +74,21 @@ export default {
   },
 
   methods: {
-   
-    // 获取优惠券数量
+    /**
+     * 获取优惠券数量
+     */
     getCoupons() {
       getMemberCanUse(this.params).then((res) => {
         if (res.data.success) {
-         
-
           this.couponsList = res.data.result.records;
         }
       });
     },
 
-    // 领取优惠券
-    async clickWay(coupon) {
+    /**
+     * 领取优惠券
+     */
+    clickWay(coupon) {
       useCoupon({
         memberCouponId: coupon.id,
         used: true,
@@ -128,139 +105,18 @@ export default {
         }
       });
     },
-
-    submitback() {
-      uni.navigateBack();
-    },
-    // 获取商品优惠券
-    getAllCouponsFun() {},
-
-    sectionChange(index) {
-      this.curNow = index;
-    },
-
-    change(index) {
-      this.current = index;
-    },
   },
 };
 </script>
 <style scoped lang="scss">
-.nomore {
+.empty {
   margin-top: 20px;
   text-align: center;
 }
-.selectBtn {
-  position: fixed;
-  bottom: 0;
-  background: #fff;
-  text-align: center;
-  width: 100%;
-  padding: 20rpx 0;
-}
-
 .wrapper {
   background: #f9f9f9;
-
   overflow: hidden;
 }
-
-.coupon-jd {
-  margin: 40rpx auto 0 auto;
-  width: 700rpx;
-  height: auto;
-
-  background-color: #ffffff;
-  display: flex;
-  .left {
-    padding: 0 30rpx;
-    width: 200rpx;
-    background-color: $aider-light-color;
-    text-align: center;
-    font-size: 28rpx;
-    color: #ffffff;
-    .sum {
-      margin-top: 50rpx;
-      font-weight: bold;
-      font-size: 32rpx;
-      .num {
-        font-size: 60rpx;
-      }
-    }
-    .type {
-      margin-bottom: 50rpx;
-      font-size: 24rpx;
-    }
-  }
-  .right {
-    padding: 20rpx 20rpx 0;
-    font-size: 28rpx;
-    .top {
-      border-bottom: 2rpx dashed $u-border-color;
-      .title {
-        margin-right: 60rpx;
-        line-height: 40rpx;
-        .tag {
-          padding: 4rpx 20rpx;
-          background-color: $aider-light-color;
-          border-radius: 20rpx;
-          color: #ffffff;
-          font-weight: bold;
-          font-size: 24rpx;
-          margin-right: 10rpx;
-        }
-      }
-      .bottom {
-        display: flex;
-        margin-top: 20rpx;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10rpx;
-        .date {
-          font-size: 20rpx;
-          flex: 1;
-        }
-      }
-    }
-    .tips {
-      width: 100%;
-      line-height: 50rpx;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 24rpx;
-      .transpond {
-        margin-right: 10rpx;
-      }
-      .explain {
-        display: flex;
-        align-items: center;
-      }
-      .particulars {
-        width: 30rpx;
-        height: 30rpx;
-        box-sizing: border-box;
-        padding-top: 8rpx;
-        border-radius: 50%;
-        background-color: $u-type-info-disabled;
-        text-align: center;
-      }
-    }
-  }
-}
-.immediate-use {
-  height: auto;
-  padding: 0 20rpx;
-  font-size: 24rpx;
-  text-align: center;
-  width: 160rpx;
-  margin: 20rpx 0;
-  border-radius: 40rpx;
-  line-height: 40rpx;
-  color: $aider-light-color;
-  border: 2rpx solid $aider-light-color;
-}
-
 .coupon-item {
   display: flex;
   align-items: center;
@@ -272,7 +128,7 @@ export default {
     width: 260rpx;
     background-color: $light-color;
     position: relative;
-    .msg {
+    .message {
       color: $font-color-white;
       display: flex;
       justify-content: center;

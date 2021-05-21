@@ -23,10 +23,8 @@ function getTokenDebounce() {
   return async function () {
     if (!lock) {
       lock = true;
-      console.log('dd')
-     await refreshTokenFn(storage.getRefreshToken())
+      await refreshTokenFn(storage.getRefreshToken())
         .then((res) => {
-        
           if (res.data.success) {
             let { accessToken, refreshToken } = res.data.result;
             storage.setAccessToken(accessToken);
@@ -34,29 +32,25 @@ function getTokenDebounce() {
             success = true;
             lock = false;
           } else {
-            
             cleanStorage();
             success = false;
             lock = false;
           }
         })
         .catch((error) => {
-          console.log(error)
+          console.log(error);
           cleanStorage();
           success = false;
           lock = false;
         });
-
-     
     }
     return new Promise((resolve) => {
       // XXX 我只能想到通过轮询来看获取新的token是否结束，有好的方案可以说。一直看lock,直到请求失败或者成功
       const timer = setInterval(() => {
         if (!lock) {
           clearInterval(timer);
-      
+
           if (success) {
-            
             resolve("success");
           } else {
             cleanStorage();
@@ -74,7 +68,9 @@ function cleanStorage() {
     icon: "none",
     duration: 1500,
   });
-  if(uni.showLoading()){  uni.hideLoading();}
+  if (uni.showLoading()) {
+    uni.hideLoading();
+  }
 
   storage.setHasLogin(false);
   storage.setAccessToken("");
@@ -144,30 +140,23 @@ http.interceptors.response.use(
     /* 请求之后拦截器。可以使用async await 做异步操作  */
     // token存在并且token过期
     let token = storage.getAccessToken();
-   
+
     if (token && response.statusCode === 403) {
-      expireToken.includes(token) ?cleanStorage() :""
+      expireToken.includes(token) ? cleanStorage() : "";
       // jwt token 过期了
       expireToken.push(token); // 把过期token 储存
-      
       const currentToken = storage.getAccessToken();
-
       if (expireToken.includes(currentToken)) {
-        
         // 本地储存的是过期token了，重新获取
         const getTokenResult = await refreshToken();
-     
         if (getTokenResult === "success") {
           // 获取新的token成功
-
           try {
             const repeatRes = await reReqest.request(
               configHandle(response.config)
             );
             response = repeatRes;
-          } catch (err) {
-            
-          }
+          } catch (err) {}
         } else {
           cleanStorage();
         }
@@ -176,26 +165,25 @@ http.interceptors.response.use(
           const repeatRes = await reReqest.request(
             configHandle(response.config)
           );
-           
           response = repeatRes;
         } catch (err) {
           cleanStorage();
         }
       }
+      // 如果当前返回没登录
     } else if (response.statusCode === 403 || response.data.code === 403) {
       cleanStorage();
-    } else if (response.statusCode == 200 && !response.data.success) {
+      // 如果当前状态码为正常但是success为不正常时
+    } else if (response.statusCode == 200 && !response.data.success  || response.statusCode == 400) {
       uni.showToast({
-        title: response.data.message,
+        title: response.data.message ,
         icon: "none",
         duration: 1500,
       });
-  
     }
     return response;
   },
   (error) => {
-    // 请求错误做点什么。可以使用async await 做异步操作
     return response;
   }
 );

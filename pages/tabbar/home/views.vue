@@ -1,10 +1,15 @@
 <template>
   <div class="wrapper">
     <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
-    <!-- <u-navbar :is-back="false" title="首页"></u-navbar> -->
     <div v-for="(item,index) in pageData.list" :key="index">
-      <u-navbar v-if="item.type == 'search'" :is-back="false">
+      <u-navbar class="navbar" v-if="item.type == 'search'" :is-back="false">
         <search style="width:100%" :res="item.options" />
+        <!-- #ifndef H5 -->
+        <!-- 扫码功能 不兼容h5 详情文档: https://uniapp.dcloud.io/api/system/barcode?id=scancode -->
+        <div slot="right" class="navbar-right">
+          <u-icon name="scan" @click="scan()" color="#666" size="50"></u-icon>
+        </div>
+        <!-- #endif -->
       </u-navbar>
       <carousel v-if="item.type == 'carousel'" :res="item.options" />
       <titleLayout v-if="item.type == 'title'" :res="item.options" />
@@ -31,7 +36,6 @@
 
 <script>
 // 引用组件
-
 import tpl_banner from "@/pages/tabbar/home/template/tpl_banner";
 import tpl_title from "@/pages/tabbar/home/template/tpl_title";
 import tpl_left_one_right_two from "@/pages/tabbar/home/template/tpl_left_one_right_two";
@@ -50,11 +54,12 @@ import tpl_join_group from "@/pages/tabbar/home/template/tpl_join_group";
 import tpl_integral from "@/pages/tabbar/home/template/tpl_integral";
 import tpl_spike from "@/pages/tabbar/home/template/tpl_spike";
 import tpl_group from "@/pages/tabbar/home/template/tpl_group";
-import tpl_ad_list from "@/pages/tabbar/home/template/tpl_view_list";
-import tpl_activity_list from "@/pages/tabbar/home/template/tpl_view_list";
 import tpl_goods from "@/pages/tabbar/home/template/tpl_goods";
 // 结束引用组件
 import { getFloorData } from "@/api/home";
+
+import { modelNavigateTo } from "./template/tpl.js"; //跳转路径
+import permision from "@/js_sdk/wa-permission/permission.js"; //权限
 export default {
   data() {
     return {
@@ -81,11 +86,11 @@ export default {
     integral: tpl_integral,
     spike: tpl_spike,
     group: tpl_group,
-    tpl_ad_list,
-    tpl_activity_list,
   },
 
   mounted() {
+    
+     
     this.init();
   },
   methods: {
@@ -99,9 +104,42 @@ export default {
         }
       });
     },
+
+    /**
+     * 唤醒客户端扫码
+     * 没权限去申请权限，有权限获取扫码功能
+     */
+    scan() {
+     
+      if (permision.judgeIosPermission("camera")) {
+        uni.scanCode({
+          success: function (res) {
+            let path = encodeURIComponent(res.result);
+            setTimeout(() => {
+              uni.navigateTo({
+                url: "/pages/tabbar/home/web-view?src=" + path,
+              });
+            }, 100);
+          },
+        });
+      } else {
+        uni.showModal({
+          title: "提示",
+          content: "您已经关闭相机权限,去设置",
+          success: function (res) {
+            if (res.confirm) {
+              plus.runtime.openURL("app-settings:");
+            }
+          },
+        });
+      }
+    },
   },
 };
 </script>
 
-<style>
+<style scoped lang="scss">
+.navbar-right {
+  padding: 0 16rpx 0 0;
+}
 </style>

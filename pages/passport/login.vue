@@ -100,7 +100,7 @@ export default {
     //联合信息返回登录
     stateLogin(state) {
       loginCallback(state).then((res) => {
-        console.log(data);
+      
         let data = res.data;
         if (data.success) {
           storage.setAccessToken(data.result.accessToken);

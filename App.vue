@@ -5,9 +5,16 @@
  */
 import { mapMutations } from "vuex";
 import APPUpdate from "@/plugins/APPUpdate";
+import { getClipboardData } from "@/js_sdk/h5-copy/h5-copy.js";
+import config from "@/config/config";
 // 悬浮球
 
 export default {
+  data() {
+    return {
+      config,
+    };
+  },
   methods: {
     ...mapMutations(["login"]),
   },
@@ -18,6 +25,13 @@ export default {
     plus.globalEvent.addEventListener("newintent", (e) => {
       this.checkArguments(); // 检测启动参数
     });
+    // #endif
+  },
+
+  onShow() {
+    // #ifndef H5
+
+    this.getClipboard();
     // #endif
   },
 
@@ -59,16 +73,49 @@ export default {
         });
       }
     },
-    // 获取h5跳转app的链接并跳转
+
+    /**
+     * 获取粘贴板数据
+     */
+    async getClipboard() {
+      let res = await getClipboardData();
+      /**
+       * 解析粘贴板数据
+       */
+      if (res.indexOf(config.shareLink) != -1) {
+        uni.showModal({
+          title: "提示",
+          content: "检测到一个分享链接是否跳转？",
+          confirmText: "跳转",
+          success: function (callback) {
+            if (callback.confirm) {
+              const path = res.split(config.shareLink)[1];
+              if (path.indexOf("tabbar") != -1) {
+                uni.switchTab({
+                  url: path,
+                });
+              } else {
+                uni.navigateTo({
+                  url: path,
+                });
+              }
+            }
+          },
+        });
+      }
+    },
+
+    /**
+     * h5中打开app获取跳转app的链接并跳转
+     */
     checkArguments() {
       // #ifdef APP-PLUS
       setTimeout(() => {
         const args = plus.runtime.arguments;
         if (args) {
           const argsStr = decodeURIComponent(args);
-          console.log(argsStr);
           const path = argsStr.split("//")[1];
-          if (path.indexOf("tabbar")) {
+          if (path.indexOf("tabbar") != -1) {
             uni.switchTab({
               url: `/${path}`,
             });

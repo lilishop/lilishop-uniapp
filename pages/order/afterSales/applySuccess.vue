@@ -5,10 +5,10 @@
       <view class="success-text">售后申请提交成功</view>
       <view class="btn-view">
         <view class="btn-item">
-          <u-button ripple class="btn1" shape="circle" @click="toMenu()">查看记录</u-button>
+          <u-button ripple class="btn1" shape="circle" @click="navigateToAfterSales()">查看记录</u-button>
         </view>
         <view class="btn-item">
-          <u-button ripple class="btn2" shape="circle" @click="toHome()">回到主页</u-button>
+          <u-button ripple class="btn2" shape="circle" @click="navigateToHome()">回到主页</u-button>
         </view>
       </view>
     </view>
@@ -27,12 +27,19 @@ export default {
     return {};
   },
   methods: {
-    toMenu() {
+    /**
+     * 跳转到售后服务
+     */
+    navigateToAfterSales() {
       uni.redirectTo({
         url: "/pages/order/afterSales/afterSales",
       });
     },
-    toHome() {
+
+    /**
+     * 跳转到首页
+     */
+    navigateToHome() {
       uni.switchTab({
         url: "/pages/tabbar/home/index",
       });
@@ -41,7 +48,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 page {
   background: $page-color-base;
   padding-bottom: 100rpx;

@@ -12,11 +12,9 @@
         <view class="status-info">
           <view class="status-info-box">
             <view class="status-val">{{
-              serviceStatusList[serviceDetail.serviceStatus]
+            serviceDetail.serviceStatus | serviceStatusList
             }}</view>
-            <!-- <view class="status-tip" v-if="allowable.allow_ship"
-              >请您尽快将申请售后的商品退还给卖家</view
-            > -->
+
             <view class="status-tip">{{
               serviceDetail.serviceStatus | statusFilter
             }}</view>
@@ -35,7 +33,7 @@
       </view>
       <view class="goods-info">
         <view class="info-box">
-          <view class="goods-item-view" @click="gotoGoodsDetail(serviceDetail)">
+          <view class="goods-item-view" @click="navgiateToGoodsDetail(serviceDetail)">
             <view class="goods-img">
               <u-image border-radius="6" width="131rpx" height="131rpx" :src="serviceDetail.goodsImage"></u-image>
             </view>
@@ -99,21 +97,21 @@
       <view class="detail-item" v-if="serviceDetail.serviceType != 'RETURN_MONEY' && serviceDetail.serviceStatus != 'APPLY'">
         <view class="title">收货地址:</view>
         <view class="value">
-          <span v-if="change_info.salesConsigneeAddressPath">{{
-            change_info.salesConsigneeAddressPath
+          <span v-if="storeAfterSaleAddress.salesConsigneeAddressPath">{{
+            storeAfterSaleAddress.salesConsigneeAddressPath
           }}</span>
         </view>
       </view>
       <!-- 如果服务类型为退款则不显示 -->
       <view class="detail-item" v-if="serviceDetail.serviceType != 'RETURN_MONEY'  && serviceDetail.serviceStatus != 'APPLY'">
         <view class="title">联系人:</view>
-        <view class="value">{{ change_info.salesConsigneeName }}</view>
+        <view class="value">{{ storeAfterSaleAddress.salesConsigneeName }}</view>
       </view>
       <!-- 如果服务类型为退款则不显示 -->
       <view class="detail-item" v-if="serviceDetail.serviceType != 'RETURN_MONEY'  && serviceDetail.serviceStatus != 'APPLY'">
         <view class="title">联系方式:</view>
         <view class="value">{{
-          change_info.salesConsigneeMobile || "" | secrecyMobile
+          storeAfterSaleAddress.salesConsigneeMobile || "" | secrecyMobile
         }}</view>
       </view>
       <view v-if="refundShow">
@@ -189,12 +187,6 @@
         </view>
       </view>
     </view>
-
-   
-    <!-- <view class="submit-view">
-			<view>在线客服</view>
-			<view><u-button type="info" shape="circle" size="mini">撤销申请</u-button></view>
-		</view> -->
   </view>
 </template>
 
@@ -212,51 +204,21 @@ export default {
   },
   data() {
     return {
-      // 售后单状态
-      serviceStatusList: {
-        APPLY: "申请售后",
-        PASS: "通过售后",
-        REFUSE: "拒绝售后",
-        BUYER_RETURN: "买家退货，待卖家收货",
-        SELLER_RE_DELIVERY: "商家换货/补发",
-        SELLER_CONFIRM: "卖家确认收货",
-        SELLER_TERMINATION: "卖家终止售后",
-        BUYER_CONFIRM: "买家确认收货",
-        BUYER_CANCEL: "买家取消售后",
-        WAIT_REFUND: "等待平台退款",
-        COMPLETE: "完成售后",
-      },
-      // 售后类型
       serviceTypeList: {
+        // 售后类型
         CANCEL: "取消",
         RETURN_GOODS: "退货",
         EXCHANGE_GOODS: "换货",
         RETURN_MONEY: "退款",
       },
-
-      orderStatusList: {
-        UNDELIVERED: "待发货",
-        UNPAID: "未付款",
-        PAID: "已付款",
-        DELIVERED: "已发货",
-        CANCELLED: "已取消",
-        COMPLETE: "已完成",
-        TAKE: "已完成",
-      },
-      serviceDetail: {},
-      logs: [],
-      allowable: {},
-      goodsList: [],
-      change_info: {},
-      serviceDetail: {},
-      express_info: {},
-      imagesList: [],
-      refundShow: false,
-      accountShow: false,
-      bankShow: false,
-      returnAdressShow: true,
-      shipInfoShow: false,
-      sn: "",
+      serviceDetail: {}, // 售后详情
+      logs: [], //日志
+      goodsList: [], //商品列表
+      storeAfterSaleAddress: {}, //售后地址
+      refundShow: false, //退款开关
+      accountShow: false, //账户显示
+      bankShow: false, //银行显示
+      sn: "", //订单sn
     };
   },
   onLoad(options) {
@@ -269,6 +231,9 @@ export default {
     this.getLog(options.sn);
   },
   filters: {
+    /**
+     * 售后状态信息
+     */
     statusFilter(val) {
       switch (val) {
         case "APPLY":
@@ -297,6 +262,10 @@ export default {
           return "";
       }
     },
+
+    /**
+     * 退款信息
+     */
     refundWayFilter(val) {
       switch (val) {
         case "OFFLINE":
@@ -309,6 +278,9 @@ export default {
           return "";
       }
     },
+    /**
+     * 账户信息
+     */
     accountTypeFilter(val) {
       switch (val) {
         case "WEIXINPAY":
@@ -323,6 +295,9 @@ export default {
     },
   },
   methods: {
+    /**
+     * 点击图片放大或保存
+     */
     preview(urls, index) {
       uni.previewImage({
         current: index,
@@ -335,18 +310,29 @@ export default {
       });
     },
 
+    /**
+     * 获取地址信息
+     */
     getAddress() {
       getstoreAfterSaleAddress(this.sn).then((res) => {
         if (res.data.success) {
-          this.change_info = res.data.result;
+          this.storeAfterSaleAddress = res.data.result;
         }
       });
     },
+
+    /**
+     * 获取日志
+     */
     getLog(sn) {
       getAfterSaleLog(sn).then((res) => {
         this.logs = res.data.result;
       });
     },
+
+    /**
+     * 初始化详情
+     */
     loadDetail() {
       uni.showLoading({
         title: "加载中",
@@ -354,9 +340,6 @@ export default {
       getServiceDetail(this.sn).then((res) => {
         uni.hideLoading();
         this.serviceDetail = res.data.result;
-        this.allowable = this.serviceDetail.allowable;
-
-        this.express_info = this.serviceDetail.express_info;
         if (this.serviceDetail.serviceType == "RETURN_GOODS") {
           this.refundShow = true;
         }
@@ -372,11 +355,19 @@ export default {
           this.serviceDetail.accountType === "BANK_TRANSFER";
       });
     },
-    gotoGoodsDetail(item) {
+
+    /**
+     * 访问商品详情
+     */
+    navgiateToGoodsDetail(item) {
       uni.navigateTo({
         url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
       });
     },
+
+    /**
+     * 进度
+     */
     onProgress() {
       uni.navigateTo({
         url: `./applyProgress?sn=${
@@ -391,7 +382,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 page,
 .content {
   background: $page-color-base;
@@ -454,14 +445,6 @@ page,
       color: $main-color;
     }
   }
-  .after-num {
-    margin: 0rpx 30rpx;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    height: 80rpx;
-  }
 }
 .apply-detail-view {
   background-color: #f7f7f7;
@@ -484,35 +467,7 @@ page,
     }
   }
 }
-.submit-view {
-  position: fixed;
-  z-index: 999;
-  bottom: 0px;
-  left: 0px;
-  margin-top: 100rpx;
-  border: solid 2rpx #f2f2f2;
-  background-color: #ffffff;
-  height: 100rpx;
-  width: 750rpx;
-  padding: 0rpx 20rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-.addr-title {
-  height: 88rpx;
-  line-height: 88rpx;
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: bold;
-  border-bottom: 2rpx solid #d6d6d6;
-}
-.addr-info {
-  padding: 50rpx;
-  font-size: 26rpx;
-  font-weight: bold;
-}
+
 .log-box-bottom {
   height: 120rpx;
   flex-direction: column;

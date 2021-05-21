@@ -18,7 +18,6 @@ class LiLiWXPay {
       // 调用支付
       initiatePay(paymentMethod, paymentClient, submitData).then((res) => {
         let response = res.data.result;
-        console.log(res.data.result);
         uni.hideLoading();
         uni.requestPayment({
           provider: "wxpay",

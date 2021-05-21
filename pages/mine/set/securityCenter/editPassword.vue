@@ -40,10 +40,9 @@
 
 <script>
 import { sendMobile, resetByMobile, modifyPass } from "@/api/login";
-
 import storage from "@/utils/storage.js";
-import { md5 } from "@/utils/md5.js";
-import myVerification from "@/components/verification/verification.vue";
+import { md5 } from "@/utils/md5.js"; // md5
+import myVerification from "@/components/verification/verification.vue"; //验证
 import uuid from "@/utils/uuid.modified.js";
 export default {
   components: {
@@ -65,15 +64,15 @@ export default {
       ],
       step: 0, //当前验证步骤
       flage: false, //是否验证码验证
-      // 验证码登录form
+
       codeForm: {
         mobile: "", //手机号
         code: "", //验证码
       },
-      newPassword: "",//新密码
+      newPassword: "", //新密码
       password: "", //密码
-      tips: "",  //提示
-      seconds: 60,
+      tips: "", //提示
+      seconds: 60, // 60s等待时间
 
       // 验证码登录校验
       codeRules: {
@@ -174,7 +173,7 @@ export default {
         }
       });
     },
-  
+
     codeChange(text) {
       this.tips = text;
     },

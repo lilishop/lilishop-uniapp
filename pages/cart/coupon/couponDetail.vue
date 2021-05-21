@@ -21,9 +21,9 @@
                       : coupon.storeName == 'platform' ? '全平台' :coupon.storeName+''
                   }}使用</view>
         <view class="text">• 有效期至：{{coupon.endTime}}</view>
-     
+
       </view>
-      <button class="btn" @click="gostorePage" v-if="coupon.used_status==0">立即使用</button>
+
     </view>
   </view>
 </template>
@@ -32,34 +32,16 @@
 export default {
   data() {
     return {
-      customStyle: {
-        backgroundColor: this.lightColor,
-      },
-      coupon: {},
+      coupon: {}, //优惠券数据
     };
   },
   onLoad(option) {
     this.coupon = JSON.parse(decodeURIComponent(option.item));
-    console.log(this.coupon);
-  },
-  methods: {
-    gostorePage() {
-      let id = this.coupon.storeId;
-      if (id) {
-        uni.navigateTo({
-          url: `/pages/product/shopPage?id=${id}`,
-        });
-      } else {
-        uni.switchTab({
-          url: "/pages/tabbar/home/index",
-        });
-      }
-    },
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 page,
 .content {
   // background: $main-color;
@@ -139,10 +121,6 @@ page,
     margin: 0 30rpx;
     line-height: 2em;
     color: #999;
-  }
-
-  .btn {
-    margin: 140rpx 20rpx;
   }
 }
 </style>

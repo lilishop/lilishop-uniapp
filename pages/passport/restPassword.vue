@@ -115,7 +115,7 @@
 							this.form.mobile = res.data.mobile
 							this.form.uname = res.data.uname
 							this.form.uuid = res.data.uuid
-							console.log(this.form)
+						
 							this.getValidImgUrl()
 						}
 						

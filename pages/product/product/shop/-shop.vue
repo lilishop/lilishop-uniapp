@@ -20,7 +20,7 @@
       </view>
     </view>
 
-    <view class="store-recommend" id="main8">
+    <view class="store-recommend" >
       <view class="store-recommend-title">商品推荐</view>
       <view class="recommend-list">
         <view class="recommend-item" @click="clickGoods(item)" v-for="(item, index) in res" :key="index">
@@ -32,7 +32,7 @@
             {{ item.goodsName }}
           </view>
           <view class="item-price" v-if="item.price != undefined">
-            ￥<span class="item-price-blod">{{ Fixed(item.price)[0] }}</span>.{{ Fixed(item.price)[1] }}
+            ￥<span class="item-price-blod">{{ formatPrice(item.price)[0] }}</span>.{{ formatPrice(item.price)[1] }}
           </view>
         </view>
       </view>
@@ -49,7 +49,7 @@ export default {
   mounted() {},
   methods: {
     // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }

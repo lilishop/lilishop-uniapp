@@ -110,7 +110,7 @@ export default {
     return {
       storage,
       list: [{ id: "", localName: "请选择", children: [] }],
-      action: upload,
+      action: upload, //图片上传数据
       fileList: [],
       sn: "",
       sku: {},
@@ -165,6 +165,10 @@ export default {
       },
     };
   },
+
+  /**
+   * 判断当前内容并生成数据
+   */
   onLoad(options) {
     let navTitle = "申请售后";
     this.form.serviceType = "RETURN_GOODS";
@@ -222,6 +226,8 @@ export default {
     showCitySelect() {
       this.$refs.cityPicker.show();
     },
+
+    // 初始化数据
     init(sn) {
       getAfterSaleInfo(sn).then((response) => {
         if (response.data.code == 400) {
@@ -249,7 +255,7 @@ export default {
     },
     //返回方式
     returnSelectConfirm(e) {
-      console.log(e);
+     
     },
 
     //修改申请数量
@@ -258,7 +264,7 @@ export default {
     },
     //图片上传
     onUploaded(lists) {
-      console.log(lists);
+    
       let images = [];
 
       lists.forEach((item) => {
@@ -291,7 +297,10 @@ export default {
         }
       });
     },
-    // 验证银行卡号
+
+    /**
+     * 验证银行卡号
+     */
     checkBankno(bankno) {
       var lastNum = bankno.substr(bankno.length - 1, 1); //取出最后一位（与luhm进行比较）
       var first15Num = bankno.substr(0, bankno.length - 1); //前15或18位
@@ -355,7 +364,7 @@ export default {
 
     //检测提交参数
     handleCheckParams() {
-      console.log(this.form.accountType);
+     
       if (this.$u.test.isEmpty(this.form.reason)) {
         this.$refs.uToast.show({ title: "请选择 退款原因", type: "error" });
         return false;
@@ -412,27 +421,11 @@ export default {
 
       return true;
     },
-
-    showOrHide() {
-      let flag = true;
-      switch (this.form.serviceType) {
-        case "CHANGE_GOODS":
-          flag = false;
-          break;
-        case "SUPPLY_AGAIN_GOODS":
-          flag = false;
-          break;
-        default:
-          flag = true;
-          break;
-      }
-      return flag;
-    },
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 page,
 .content {
   background: $page-color-base;

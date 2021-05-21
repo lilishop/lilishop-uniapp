@@ -35,7 +35,7 @@ export function getRegionsById(id = 0) {
 }
 
 /**
- * 文件上传
+ * 文件上传地址
  * @type {string}
  */
 export const upload =api.common+'/upload/file';

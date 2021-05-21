@@ -10,15 +10,15 @@
           <view class="name">{{ storeInfo.storeName }}</view>
           <view>{{ storeInfo.goodsNum || 0 }}关注 {{ storeInfo.collectionNum || 0 }}件商品</view>
         </view>
-        <view class="follow" @click="handleCollection">
+        <view class="follow" @click="whetherCollection">
           <view>{{ isCollection == 'success' ? '已关注' : '+ 关注' }}</view>
         </view>
       </view>
       <view class="store-intro">
         <view class="title">店铺简介</view>
-        <view class="text" :class="introFlag ? 'close' : 'open'">
+        <view class="text" >
           <view v-html="storeInfo.storeDesc"></view>
-          <!-- <view class="zhankai" :class="introFlag ? 'close' : 'open'" @click="shut"></view> -->
+       
         </view>
       </view>
       <!-- 优惠券 -->
@@ -40,45 +40,21 @@
           </view>
         </view>
       </scroll-view>
-      <!-- 店铺热卖 -->
-      <!-- <view class="hot">
-        <view class="title">店铺热卖</view>
-        <scroll-view scroll-x="true" class="contant">
-          <view v-if="!hotGoods.length" class="no-goods">暂无商品信息</view>
-          <view v-else class="item-box" v-for="(item,index) in hotGoods" :key="index" @click="toGoodsDetail(item.goods_id)">
-            <view class="item">
-              <u-image width="106px" height="106px" class="item-img" :src="item.thumbnail" mode="">
-                <u-loading slot="loading"></u-loading>
-              </u-image>
-              <text class="name">{{ item.goodsName }}</text>
-              <text class="price">
-                <text>￥{{ item.price }}</text>
-                {{ item.point ? '+' + item.point + '积分' : '' }}
-              </text>
-            </view>
-          </view>
-        </scroll-view>
-      </view> -->
       <!-- 精选商品 -->
       <view class="handpick">
         <view class="title">精选商品</view>
         <view class="contant">
           <view v-if="!recommandGoods.length" class="no-goods">暂无商品信息</view>
-          <view v-else class="item" v-for="(item,index) in recommandGoods" :key="index" @click="toGoodsDetail(item)">
-            <u-image width="324rpx" height="324rpx"  mode="aspectFit" :src="item.thumbnail">
+          <view v-else class="item" v-for="(item,index) in recommandGoods" :key="index" @click="navigateToGoodsDetail(item)">
+            <u-image width="324rpx" height="324rpx" mode="aspectFit" :src="item.thumbnail">
               <u-loading slot="loading"></u-loading>
             </u-image>
             <div class="name">{{ item.goodsName }}</div>
             <div class="price">
               <div>￥{{ item.price | unitPrice }}</div>
-              <!-- {{ item.point ? '+' + item.point + '积分' : '' }} -->
-              <!-- <text class="before-price">￥{{ item.price }}</text> -->
             </div>
             <view class="buyCount">
               <div>已售 {{ item.buyCount || "0" }}</div>
-              <text>
-                <!-- 好评{{ 1111 }} -->
-              </text>
             </view>
           </view>
         </view>
@@ -98,27 +74,22 @@ import {
 } from "@/api/members.js";
 import { getGoodsList } from "@/api/goods.js";
 import { getAllCoupons } from "@/api/promotions.js";
-import storage from "@/utils/storage.js";
-
 export default {
   props: {
     storeId: {
       value: Number,
     },
-    load:{
-      value:Boolean
-    }
+    load: {
+      value: Boolean,
+    },
   },
   data() {
     return {
       // 店铺介绍按钮
-      introFlag: true,
-      storeInfo: [],
-      isCollection: false,
-      hotGoods: [],
-      recommandGoods: [],
-      couponList: [],
-      lingquFlag: true,
+      storeInfo: "", //店铺详情
+      isCollection: false, //是否关注
+      recommandGoods: [], //推荐货物
+      couponList: [], //优惠券列表
       params: {
         pageNumber: 1,
         pageSize: 50,
@@ -126,19 +97,21 @@ export default {
       },
     };
   },
-  watch: {
-   
-  },
+  watch: {},
   mounted(options) {
     if (this.$options.filters.isLogin("auth")) {
       getGoodsIsCollect("STORE", this.storeId).then((res) => {
         this.isCollection = res.data.message;
       });
     }
-    this.initstoreInfo();
+    this.initStoreInfo();
   },
   methods: {
-    initstoreInfo() {
+
+    /**
+     * 店铺信息
+     */
+    initStoreInfo() {
       uni.showLoading({
         title: "加载中",
       });
@@ -153,7 +126,6 @@ export default {
             ,
           ]).then((res) => {
             this.couponList = res[0].data.result.records;
-            this.hotGoods = res[1].data.result.content;
             this.recommandGoods = res[1].data.result.content;
           });
         } else {
@@ -163,16 +135,21 @@ export default {
         }
       });
     },
-    shut() {
-      this.introFlag = !this.introFlag;
-    },
-
-    toGoodsDetail(val) {
+  
+    
+    /**
+     * 跳转到商品详情
+     */
+    navigateToGoodsDetail(val) {
       uni.navigateTo({
         url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
       });
     },
-    handleCollection() {
+
+    /**
+     *  是否收藏
+     */
+    whetherCollection() {
       if (this.isCollection) {
         deleteGoodsCollection("STORE", this.storeId).then((res) => {
           if (res.statusCode === 200) {
@@ -197,6 +174,10 @@ export default {
         });
       }
     },
+    
+    /**
+     * 获取优惠券
+     */
     getCoupon(item) {
       if (!this.$options.filters.isLogin("auth")) {
         uni.showToast({

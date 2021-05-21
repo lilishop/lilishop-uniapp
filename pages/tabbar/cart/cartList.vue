@@ -1,13 +1,6 @@
 <template>
   <div class="wrapper">
-    <view class="status_bar">
-      <!-- 这里是状态栏 -->
-    </view>
-
-    <u-navbar :isBack="false" title="购物车">
-
-    </u-navbar>
-
+    <u-navbar :isBack="false" title="购物车"></u-navbar>
     <!-- 空白页-->
     <view v-if="cartDetail.cartList == '' || cartDetail.cartList == [] || !cartDetail" class="empty">
       <image src="/static/emptyCart.jpg" mode="aspectFit"></image>
@@ -20,31 +13,28 @@
     <!-- 店铺商品信息 -->
     <div class="content">
       <div class="box box2" :class="{ invalid: isInvalid(item) }" v-for="(item, index) in cartDetail.cartList" :key="index">
-
         <view class="tab">
           <view class="store-line">
             <u-checkbox-group class="store-line-check">
               <!-- #ifndef MP-WEIXIN -->
-              <u-checkbox shape="circle" active-color="rgb(255, 107, 53)" v-model="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
+              <u-checkbox shape="circle" :active-color="$lightColor" v-model="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
               <!-- #endif -->
               <!-- 微信小程序这里 v-model出现问题，改用:value -->
               <!-- #ifdef MP-WEIXIN -->
-              <u-checkbox shape="circle" active-color="rgb(255, 107, 53)" :value="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
+              <u-checkbox shape="circle" :active-color="$lightColor" :value="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
               <!-- #endif -->
             </u-checkbox-group>
-            <span class="ybname store-line-desc" @click.stop="tostore(item)">{{
+            <span class="storeName store-line-desc" @click.stop="navigateToStore(item)">{{
               item.storeName
             }}</span>
           </view>
-          <view class="right_Col" @click="toConpon(item)">
+          <view class="right_Col" @click="navigateToConpon(item)">
             <div class="right_Line"></div>
             <span>领劵</span>
           </view>
-
         </view>
-
         <u-swipe-action :show="skuItem.selected" @open="openAction(skuItem)" :options="options" bg-color="#fff" ref="swiperAction" class="cartItem" v-for="(skuItem, i) in item.skuList" :index="i"
-          :key="skuItem.goodsSku.id" @click="longtap(skuItem)" @longpress="longtap(skuItem)">
+          :key="skuItem.goodsSku.id" @click="changeActionTab(skuItem)" @longpress="changeActionTab(skuItem)">
           <!-- 满减活动 -->
           <div v-if="skuItem.promotions" v-for="(fullDiscount,fullDiscountIndex) in skuItem.promotions" :key="fullDiscountIndex">
             <div v-if="fullDiscount.promotionType == 'FULL_DISCOUNT'">
@@ -59,20 +49,20 @@
               <view>
                 <u-checkbox-group v-if="skuItem.invalid == 0">
                   <!-- #ifndef MP-WEIXIN -->
-                  <u-checkbox shape="circle" active-color="rgb(255, 107, 53)" class="c-left" v-model="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
+                  <u-checkbox shape="circle" :active-color="$lightColor" class="c-left" v-model="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
                   <!-- #endif -->
                   <!-- 微信小程序这里 v-model出现问题，改用:value -->
                   <!-- #ifdef MP-WEIXIN -->
-                  <u-checkbox shape="circle" active-color="rgb(255, 107, 53)" class="c-left" :value="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
+                  <u-checkbox shape="circle" :active-color="$lightColor" class="c-left" :value="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
                   <!-- #endif -->
                 </u-checkbox-group>
                 <span class="invalid" v-else style="font-size: 24rpx">失效</span>
               </view>
-              <u-image border-radius="20" :fade="true" @click.native="toProduct(skuItem)" width="200rpx" height="200rpx" :src="skuItem.goodsSku.thumbnail" @click="toProduct(skuItem)" />
+              <u-image border-radius="20" :fade="true" @click.native="navigateToGoods(skuItem)" width="200rpx" height="200rpx" :src="skuItem.goodsSku.thumbnail" @click="navigateToGoods(skuItem)" />
             </view>
             <view class="goods-content">
               <!-- 商品名称 -->
-              <p class="sp-name" @click="toProduct(skuItem)">
+              <p class="sp-name" @click="navigateToGoods(skuItem)">
                 {{ skuItem.goodsSku.goodsName }}
               </p>
               <!-- 规格 -->
@@ -80,8 +70,8 @@
               <p class="sp-number">
                 <view class="sp-price">
                   <div class="default-color" :class="{'theme-color':skuItem.promotions.length <=0  }">
-                    ￥<span>{{ Fixed(skuItem.goodsSku.price)[0] }}</span>
-                    <span>.{{ Fixed(skuItem.goodsSku.price)[1] }}</span>
+                    ￥<span>{{ formatPrice(skuItem.goodsSku.price)[0] }}</span>
+                    <span>.{{ formatPrice(skuItem.goodsSku.price)[1] }}</span>
                   </div>
                 </view>
                 <view>
@@ -106,8 +96,8 @@
               <!-- 如果有活动 并且是选中的状态,显示预估到手价格 -->
               <div class="priceDetail-flowPrice" :class="{'theme-color':skuItem.priceDetailDTO}"
                 v-if="skuItem.priceDetailDTO && skuItem.invalid == 0  && skuItem.promotions.length!=0 && skuItem.checked && skuItem.checked">
-                预估到手价 ￥<span>{{ Fixed(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
-                <span>.{{ Fixed(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
+                预估到手价 ￥<span>{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
+                <span>.{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
               </div>
 
               </p>
@@ -116,17 +106,16 @@
         </u-swipe-action>
       </div>
     </div>
-    <u-modal v-model="delshow" @confirm="confirm" show-cancel-button :content="delcontent" :async-close="true"></u-modal>
+    <u-modal v-model="deleteShow" @delectConfirm="delectConfirm" show-cancel-button :content="deleteContent" :async-close="true"></u-modal>
     <!-- 结账 -->
     <div class="box box6">
       <view class="navL">
-
-        <u-checkbox shape="circle" active-color="rgb(255, 107, 53)" v-model="checkout" @change="checkOut()" label-size="24">全选</u-checkbox>
+        <u-checkbox shape="circle" :active-color="$lightColor" v-model="checkout" @change="checkOut()" label-size="24">全选</u-checkbox>
         <span class="price">
           <div class="prices">
             <div class="fullPrice">
               <span class="number" v-if="cartDetail && cartDetail.priceDetailDTO">
-                总计: <span>¥{{ Fixed(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ Fixed(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
+                总计: <span>¥{{ formatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ formatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
               </span>
               <span class="number" v-else>总计:0.00</span>
             </div>
@@ -137,7 +126,6 @@
           </div>
         </span>
       </view>
-
       <!-- 优惠详情 -->
       <u-popup z-index="3" close mode="bottom" height="50%" closeable v-model="discountDetailsFlag" border-radius="20">
         <div class="discount-list">
@@ -151,29 +139,24 @@
             <div class="discount-item" v-if="cartDetail.priceDetailDTO">
               <span>优惠券</span>
               <span>-￥{{cartDetail.priceDetailDTO.couponPrice | unitPrice}}</span>
-
             </div>
             <div class="discount-item" v-if="cartDetail.priceDetailDTO">
-
               <span>其他优惠</span>
               <span>-￥{{cartDetail.priceDetailDTO.discountPrice | unitPrice}}</span>
-
             </div>
           </div>
         </div>
       </u-popup>
 
-      <view v-if="isEdit" @click="delGoods()">
-        <div class="navR">删除</div>
+      <view v-if="isEdit" @click="deleteGoods()">
+        <div class="settlement">删除</div>
       </view>
 
       <view v-else @click="submitOrder()">
-        <div class="navR">去结算</div>
+        <div class="settlement">去结算</div>
       </view>
     </div>
     <u-toast ref="uToast" />
-
-    <u-select :default-value="singleDefaultValue" v-model="singleFlag" @confirm="singleConfirm" value-name="activity_id" label-name="title" :list="singleList"></u-select>
   </div>
 </template>
 <script>
@@ -181,56 +164,39 @@ import * as API_Trade from "@/api/trade";
 export default {
   data() {
     return {
-      discountDetailsFlag: false,
+      lightColor:this.$lightColor,
+      discountDetailsFlag: false, //优惠明细开关
       // 商品栏右侧滑动按钮
       options: [
         {
           text: "删除",
           style: {
-            backgroundColor: this.$lightColor,
+            backgroundColor: this.$lightColor, //高亮颜色
           },
         },
       ],
-      singleList: [],
-      singleVal: "",
-      singleDefaultValue: [], //默认选择第几个
-      singleFlag: false, //选择器开关
       isInvalid(val) {
+        //是否无效商品
         if (val.invalid == 1) {
           return true;
         } else {
           return false;
         }
       },
-      delshow: false,
-      delcontent: "删除该商品？",
-      show: false,
-      empty: false, //空白页现实  true|false,
-
-      cartDetail: "",
-
-      price: 0,
-      point: 0,
-
-      goodsVal: "",
-
-      // 是否是编辑
-      isEdit: false,
-
-      checkout: true,
-      cartBackbtn: {
-        from: "",
-        id: "",
-      },
-      WEIXIN_num: "",
+      deleteShow: false, //右滑删除
+      deleteContent: "删除该商品？", //删除显示的信息
+      cartDetail: "", //购物车详情
+      goodsVal: "", //单个商品详情
+      isEdit: false, // 是否是编辑
+      checkout: true, //全选按钮
+      WEIXIN_num: "", //购物车兼容微信步进器
     };
   },
-  watch: {},
-  onReady() {
-    // this.windowChangeSize();
-  },
+  /**
+   * 初始化信息
+   */
   onShow() {
-    this.delshow ? (this.delshow = false) : true;
+    this.deleteShow ? (this.deleteShow = false) : true;
     if (this.$refs.swiperAction) {
       this.$refs.swiperAction.forEach((item, index) => {
         item.show = false;
@@ -241,162 +207,93 @@ export default {
       this.getCardData();
     }
   },
-
-  mounted() {},
   methods: {
+    /**
+     * 倒数计时
+     */
     getCountDownTime(val) {
       let date = new Date(val.replace(/-/g, "/"));
       let timeSimple = new Date(date).getTime() / 1000;
       return timeSimple - new Date().getTime() / 1000;
     },
-    isPintuan(val) {
-      val.forEach((item) => {
-        if (item.promotionType == "PINTUAN") {
-          delete val[item];
-        } else {
-          return true;
-        }
-      });
-    },
-    // 优惠明细
+
+    /**
+     * 优惠明细开关
+     */
     discountDetails() {
       this.discountDetailsFlag = true;
     },
 
-    // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    /**
+     *  格式化金钱  1999 --> [1999,00]
+     */
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }
       return val.toFixed(2).split(".");
     },
 
-    /**左滑打开删除 */
+    /**
+     * 左滑打开删除
+     */
     openAction(skuItem) {
       /**循环父级有多少个店铺 */
-      this.cartDetail.cartList.forEach((cart_item, cart_index) => {
-        if (cart_item.skuList) {
-          cart_item.skuList.forEach((sku, sku_index) => {
+      this.cartDetail.cartList.forEach((cartItem) => {
+        if (cartItem.skuList) {
+          cartItem.skuList.forEach((sku) => {
             this.$set(sku, "selected", false);
           });
         }
       });
       this.$set(skuItem, "selected", true);
-      // skuItem.selected = true
-      console.log(skuItem.selected);
     },
-    // 点击选择活动
-    singleConfirm(val) {
-      console.log("val", val);
-      if (val[0].value) {
-        this.singleList.forEach((item) => {
-          if (item.activity_id == val[0].value && item.title == val[0].label) {
-            this.singleVal.activity_id = item.activity_id;
-            this.singleVal.promotion_type = item.promotion_type;
-          }
-        });
-        API_Trade.changeActivity(this.singleVal).then((res) => {
-          if (res.statusCode == 200) {
-            this.getCardData();
-          }
-        });
-      }
-    },
-    // 选择活动框显示
-    singleClick(val, data, index) {
-      this.singleDefaultValue[0] = index;
-      this.singleFlag = true;
-      this.singleList = val;
-      this.singleVal = {
-        storeId: data.storeId,
-        skuId: data.skuId,
-      };
-    },
-    longtap(val) {
-      this.delshow = true;
+
+    /**
+     * 滑动删除
+     */
+    changeActionTab(val) {
+      this.deleteShow = true;
       this.goodsVal = val;
     },
-    pointFormat(point, num) {
-      if (num > 0) {
-        var result = (point * 1000) / num / 1000;
-        if (result && (result + "").indexOf(".") > 0) {
-          return 0;
-        }
-        return result;
-      } else {
-        return "";
-      }
-    },
-    windowChangeSize() {
-      let topWidth;
-      uni.getSystemInfo({
-        success: function (res) {
-          // res - 各种参数
-          let search = uni.createSelectorQuery().select(".u-swipe-content");
-          search
-            .boundingClientRect(function (data) {
-              //data - 各种参数
-              if (data && data.width) {
-                topWidth = data.width; // 获取元素宽度
-              }
-            })
-            .exec();
-        },
-      });
-      if (topWidth <= 100) {
-        console.log(topWidth);
-        this.reLaunch({
-          url: "./cart",
-        });
-      }
-      this.getCardData();
-    },
 
-    // 点击编辑功能
-    editCartMsg() {
-      // 点击编辑出现删除功能
-      this.isEdit = !this.isEdit;
-    },
-
-    // 点击删除
-    confirm() {
+    /**
+     * 点击删除
+     */
+    delectConfirm() {
       API_Trade.deleteSkuItem(this.goodsVal.goodsSku.id).then((res) => {
         if (res.statusCode == 200) {
           uni.showToast({
             title: "此商品删除成功",
             duration: 2000,
           });
-          this.delshow = false;
+          this.deleteShow = false;
           this.getCardData();
         }
       });
     },
-    // 判断是 1 为true 0 为 false
-    isOneOrZero(val) {
-      return val == 1 ? true : false;
-    },
 
-    // 删除商品
-    delGoods() {
-      if (this.Config()) {
-        var delData = [];
-        this.cartDetail.cartList.forEach((item, index) => {
-          item.skuList.forEach((goodsItem, index) => {
+    /**
+     * 删除商品
+     */
+    deleteGoods() {
+      if (this.whetherChecked()) {
+        var delGoodsData = [];
+        this.cartDetail.cartList.forEach((item) => {
+          item.skuList.forEach((goodsItem) => {
             if (goodsItem.checked) {
-              delData.push(goodsItem.goodsSku.id);
+              delGoodsData.push(goodsItem.goodsSku.id);
             }
           });
         });
-
-        if (delData && delData.length > 0) {
+        if (delGoodsData && delGoodsData.length > 0) {
           // 执行删除
-          API_Trade.deleteSkuItem(delData).then((res) => {
+          API_Trade.deleteSkuItem(delGoodsData).then((res) => {
             if (res.data.success) {
               uni.showToast({
                 title: "删除成功!",
                 icon: "none",
               });
-
               this.getCardData();
             }
           });
@@ -409,20 +306,28 @@ export default {
       }
     },
 
-    // 跳转到店铺
-    tostore(val) {
+    /**
+     * 跳转到店铺
+     */
+    navigateToStore(val) {
       uni.navigateTo({
         url: "../product/shopPage?id=" + val.storeId,
       });
     },
-    // 跳转到优惠券
-    toConpon(val) {
+
+    /**
+     * 跳转到优惠券
+     */
+    navigateToConpon(val) {
       uni.navigateTo({
         url: "/pages/cart/coupon/couponCenter?storeId=" + val.storeId,
       });
     },
-    // 跳转到商品
-    toProduct(val) {
+
+    /**
+     * 跳转到商品
+     */
+    navigateToGoods(val) {
       uni.navigateTo({
         url:
           "/pages/product/goods?id=" +
@@ -431,14 +336,18 @@ export default {
           val.goodsSku.goodsId,
       });
     },
-    numChange_WEIXIN(callback) {
-      console.log(callback);
-      this.WEIXIN_num = callback.value;
-      console.log(this.WEIXIN_num);
 
+    /**
+     * 点击步进器微信回调
+     */
+    numChange_WEIXIN(callback) {
+      this.WEIXIN_num = callback.value;
       this.numChange(callback.data, "3");
     },
-    // 点击
+
+    /**
+     * 点击步进器回调
+     */
     numChange(val, nums) {
       // #ifdef MP-WEIXIN
       if (nums && nums == "1") {
@@ -448,32 +357,36 @@ export default {
       } else if (nums && nums == "3") {
         val.num = this.WEIXIN_num;
       }
-
       // #endif
-
       this.updateSkuNumFun(val.goodsSku.id, val.num);
     },
 
+    /**
+     * 去结算
+     */
     submitOrder() {
-      if (this.Config()) {
+      if (this.whetherChecked()) {
         this.navigateTo("/pages/order/fillorder?way=CART");
       }
     },
 
-    Config() {
-      let can_buy = false;
+    /**
+     * 验证是否选中商品
+     */
+    whetherChecked() {
+      let canBuy = false;
       this.cartDetail.cartList.forEach((item) => {
         if (item.checked) {
-          can_buy = true;
+          canBuy = true;
         } else {
           item.skuList.forEach((skuItem) => {
             if (skuItem.checked) {
-              can_buy = true;
+              canBuy = true;
             }
           });
         }
       });
-      if (!can_buy) {
+      if (!canBuy) {
         uni.showToast({
           title: "您还没有选择商品",
           duration: 2000,
@@ -485,14 +398,18 @@ export default {
       }
     },
 
-    // 跳转
+    /**
+     * 跳转
+     */
     navigateTo(url) {
       uni.navigateTo({
         url,
       });
     },
 
-    // 全选
+    /**
+     * 全选
+     */
     checkOut() {
       API_Trade.checkAll(this.checkout).then((result) => {
         if (result.data.success) {
@@ -502,7 +419,9 @@ export default {
       });
     },
 
-    // 获取店铺选中信息
+    /**
+     * 获取店铺选中信息
+     */
     checkStoreFun(skuId, num) {
       API_Trade.checkStore(skuId, num).then((result) => {
         if (result.data.success) {
@@ -511,7 +430,9 @@ export default {
       });
     },
 
-    // 店铺点击
+    /**
+     * 店铺点击
+     */
     checkboxChangeDP(e) {
       // #ifdef MP-WEIXIN
       e.checked = !e.checked;
@@ -519,7 +440,9 @@ export default {
       this.checkStoreFun(e.storeId, e.checked);
     },
 
-    // 获取购物车选中信息
+    /**
+     * 获取购物车选中信息
+     */
     updateSkuCheckedFun(skuId, num) {
       API_Trade.updateSkuChecked(skuId, num).then((result) => {
         if (result.data.success) {
@@ -528,7 +451,9 @@ export default {
       });
     },
 
-    // 更新商品购物车数量
+    /**
+     * 更新商品购物车数量
+     */
     updateSkuNumFun(skuId, num) {
       API_Trade.updateSkuNum(skuId, num).then((result) => {
         if (result.statusCode == 200) {
@@ -542,7 +467,9 @@ export default {
       });
     },
 
-    // 获取购物车数据
+    /**
+     * 获取购物车数据
+     */
     getCardData() {
       if (this.$options.filters.isLogin("auth")) {
         uni.showLoading({
@@ -552,10 +479,10 @@ export default {
           .then((result) => {
             if (result.data.success) {
               this.cartDetail = result.data.result;
-
               this.checkout = true;
               for (let i = 0; i < this.cartDetail.cartList.length; i++) {
                 let item = this.cartDetail.cartList[i];
+                // 循环出当前商品是否全选
                 if (item.checked == 0) {
                   this.checkout = false;
                 }
@@ -568,7 +495,6 @@ export default {
                           sku.promotions.splice(proIndex, 1);
                         }
                       });
-                    console.log(sku);
                   });
               }
               uni.stopPullDownRefresh();
@@ -582,7 +508,7 @@ export default {
             }
           })
           .catch((err) => {
-            console.error(err);
+          
             uni.hideLoading();
           });
       } else {
@@ -590,7 +516,9 @@ export default {
       }
     },
 
-    // 选中某个复选框时，由checkbox时触发
+    /**
+     *  选中某个复选框时，由checkbox时触发
+     */
     checkboxChange(e) {
       // #ifdef MP-WEIXIN
       e.checked = !e.checked;
@@ -628,16 +556,6 @@ export default {
 .promotionNotice {
   font-size: 24rpx;
 }
-.sp_tag {
-  display: inline;
-  background: #f2f2f2;
-  padding: 0 20rpx 0 10rpx;
-  height: 20rpx;
-  line-height: 20rpx;
-  font-size: 24rpx;
-  color: #262626;
-  border-radius: 0.4em;
-}
 
 .goods-row {
   padding: 30rpx 0;
@@ -646,45 +564,11 @@ export default {
   align-items: center;
 }
 
-.sp_promotion {
-  margin: 4rpx 0;
-}
-
-.sp_tag_plain {
-  margin-left: 8rpx;
-  padding: 0 6rpx 0 6rpx;
-  background: #fff;
-  border: 1px solid $main-color;
-  font-size: 24rpx;
-  color: $main-color;
-  border-radius: 50px;
-}
-
-.sp_tag_plain:nth-of-type(1) {
-  margin-left: 0;
-}
-
-.sp_ingle {
-  padding: 10rpx 0;
-}
-
-.sp_ingle_icon {
-  margin-left: 4rpx;
-  font-size: 24rpx;
-}
-.ybname {
+.storeName {
   font-weight: bold;
 }
 .invalid {
   filter: grayscale(1);
-}
-
-.status_bar {
-  position: fixed;
-  height: var(--status-bar-height);
-  width: 100%;
-  background: #fff;
-  z-index: 100;
 }
 
 .cartItem {
@@ -694,47 +578,6 @@ export default {
 
 .index {
   padding-top: var(--status-bar-height);
-}
-
-.prohibition {
-  position: fixed;
-  width: 100%;
-  z-index: 2;
-  top: var(--status-bar-height);
-}
-
-.header {
-  background: #fff;
-  position: relative;
-  color: #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26rpx;
-  font-size: 34rpx;
-
-  .left,
-  .right {
-    position: absolute;
-    width: max-content;
-    height: max-content;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    font-size: 30rpx;
-  }
-
-  .left {
-    float: left;
-    top: 0;
-    bottom: 0;
-    left: 20rpx;
-  }
-
-  .right {
-    float: right;
-    right: 20rpx;
-  }
 }
 
 /* 空白页 */
@@ -784,7 +627,7 @@ export default {
   }
 }
 
-.navR {
+.settlement {
   width: 180rpx;
   height: 70rpx;
   line-height: 70rpx;

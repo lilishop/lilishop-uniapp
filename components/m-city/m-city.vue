@@ -167,8 +167,6 @@ export default {
         }
 
         if (this.tabbars.length < this.pickersize) {
-          console.log(item.id);
-
           let data = await getRegionsById(item.id);
 
           if (data.data.result.length == 0) {

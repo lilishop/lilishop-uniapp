@@ -23,31 +23,30 @@
 <script>
 import { sendMobile, smsLogin } from "@/api/login";
 import { getUserInfo } from "@/api/members";
-import storage from "@/utils/storage.js";
-
-import myVerification from "@/components/verification/verification.vue";
-import uuid from "@/utils/uuid.modified.js";
+import storage from "@/utils/storage.js"; //缓存
+import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
+import myVerification from "@/components/verification/verification.vue"; //验证码模块
+import uuid from "@/utils/uuid.modified.js"; // uuid
 export default {
   components: {
     myVerification,
   },
-  props: ["status"],
+  props: ["status"], //是否勾选 《用户隐私》和《隐私政策》
   data() {
     return {
       uuid,
       flage: false, //是否验证码验证
-      codeFlag: true,
-
-      // 验证码登录form
+      codeFlag: true, //验证开关
       codeForm: {
-        mobile: "",
-        code: "",
+        mobile: "", //手机号
+        code: "", //验证码
       },
-      tips: "",
-      clientType: "",
+      tips: "", //提示
+      clientType: "", // 客户端类型
       seconds: 60,
-      //   验证码登录校验
+
       codeRules: {
+        // 手机号验证
         mobile: [
           {
             validator: (rule, value, callback) => {
@@ -57,6 +56,7 @@ export default {
             trigger: ["blur"],
           },
         ],
+        // 验证码验证
         code: [
           {
             min: 4,
@@ -72,6 +72,9 @@ export default {
   // 必须要在onReady生命周期，因为onLoad生命周期组件可能尚未创建完毕
   mounted() {
     this.$refs.validateCodeForm.setRules(this.codeRules);
+    /**
+     * 条件编译判断当前客户端类型
+     */
     //#ifdef H5
     this.clientType = "H5";
     //#endif
@@ -115,6 +118,10 @@ export default {
     //   登录
     submit() {
       if (!this.status) {
+        /**
+         * 用户必须了解
+         * 用户协议以及隐私政策
+         */
         uni.showToast({
           title: "请您阅读并同意用户协议以及隐私政策",
           duration: 2000,
@@ -125,18 +132,30 @@ export default {
       let _this = this;
       this.$refs.validateCodeForm.validate((valid) => {
         if (valid) {
+          /**
+           * 清空当前账号信息
+           */
           storage.setHasLogin(false);
           storage.setAccessToken("");
           storage.setRefreshToken("");
           storage.setUuid(this.uuid.v1());
           storage.setUserInfo({});
+          /**
+           * 执行登录
+           */
           smsLogin(this.codeForm, _this.clientType).then((res) => {
             if (res.data.success) {
               storage.setAccessToken(res.data.result.accessToken);
               storage.setRefreshToken(res.data.result.refreshToken);
 
+              /**
+               * 登录成功后获取个人信息
+               */
               getUserInfo().then((user) => {
                 if (user.data.success) {
+                  /**
+                   * 个人信息存储到缓存userInfo中
+                   */
                   storage.setUserInfo(user.data.result);
                   storage.setHasLogin(true);
                   // 登录成功
@@ -145,34 +164,12 @@ export default {
                     icon: "none",
                   });
 
-                  if (getCurrentPages().length > 1) {
-                    if (
-                      (getCurrentPages().length - 2).route ==
-                      "pages/passport/login"
-                    ) {
-                      uni.switchTab({
-                        url: "/pages/tabbar/home/index",
-                      });
-                    } else {
-                    
-                      if (
-                        !(getCurrentPages().length - 2).route ||
-                        (getCurrentPages().length - 2).route == "undefined"
-                      ) {
-                        uni.switchTab({
-                          url: "/pages/tabbar/home/index",
-                        });
-                      } else {
-                        uni.navigateBack({
-                          delta: getCurrentPages().length - 2,
-                        });
-                      }
-                    }
-                  } else {
-                    uni.switchTab({
-                      url: "/pages/tabbar/home/index",
-                    });
-                  }
+                  /**
+                   * 计算出当前router路径
+                   * 1.如果跳转的链接为登录页面或跳转的链接为空页面。则会重新跳转到首页
+                   * 2.都不满足返回跳转页面
+                   */
+                  whetherNavigate();
                 } else {
                   uni.switchTab({
                     url: "/pages/tabbar/home/index",
@@ -184,15 +181,16 @@ export default {
         }
       });
     },
-
+    // 跳转到一键登录
     clickLogin() {
       this.$emit("open", "click");
     },
 
+    /**点击验证码*/
     codeChange(text) {
-      console.log(text);
       this.tips = text;
     },
+    /** 结束验证码后执行 */
     end() {},
     /**获取验证码 */
     getCode() {
@@ -219,6 +217,8 @@ export default {
         return false;
       }
     },
+
+    // 点击获取验证码
     start() {
       this.$u.toast("验证码已发送");
       this.flage = false;

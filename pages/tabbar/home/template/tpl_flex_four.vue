@@ -1,7 +1,7 @@
 
 <template>
   <div class="layout">
-      <u-image height="175rpx" width="175rpx" @click="modelnavigateTo(item)" class="image-mode" :src="item.img" v-for="(item,index) in res.list" :key="index"  >
+      <u-image height="175rpx" width="175rpx" @click="modelNavigateTo(item)" class="image-mode" :src="item.img" v-for="(item,index) in res.list" :key="index"  >
         <u-loading slot="loading"></u-loading>
       </u-image>
  
@@ -10,17 +10,17 @@
 
 <script>
 
-import {modelnavigateTo} from './tpl'
+import {modelNavigateTo} from './tpl'
 export default {
   title: "四列单行图片模块",
   props: ["res"],
    data () {
     return {
-      modelnavigateTo,
+      modelNavigateTo,
     }
   },
   mounted() {
-    console.log(this.res);
+ 
   }
 };
 </script>

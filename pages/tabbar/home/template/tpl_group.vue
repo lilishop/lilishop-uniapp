@@ -7,7 +7,7 @@
         <div>更多</div>
       </div>
       <div class="join-box">
-        <div class="join-item" @click="modelnavigateTo(item)" v-for="item in 4" :key="item">
+        <div class="join-item" @click="modelNavigateTo(item)" v-for="item in 4" :key="item">
           <div class="item-img-box">
            
             <img
@@ -29,12 +29,12 @@
 </template>
 <script>
 
-import {modelnavigateTo} from './tpl'
+import {modelNavigateTo} from './tpl'
 export default {
   props: ["res"],
    data () {
     return {
-      modelnavigateTo,
+      modelNavigateTo,
     }
   },
 };

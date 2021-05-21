@@ -58,7 +58,7 @@
         <u-icon size="120" style="margin: 50rpx 0" color="#ff9f28" name="checkmark"></u-icon>
         <view class="mark">
           <view>获得积分</view>
-          <text>{{ continuity_point }}</text>
+          <text>{{ continuityPoint }}</text>
         </view>
         <text class="text">连续签到可获得额外奖励哦！</text>
       </view>
@@ -71,19 +71,16 @@ import { sign, signTime } from "@/api/point.js";
 export default {
   data() {
     return {
-      continuity: 1,
-      continuity_point: 2,
-      header: {
-        top: 0,
-        height: 50,
-      },
+      continuity: 1, //本月连续签到天数
+      continuityPoint: 2, //获得的积分
       signFlag: false,
       animationData: {},
-      maskFlag: false,
-      transFlag: false,
-      weekArr: ["日", "一", "二", "三", "四", "五", "六"],
+      maskFlag: false, //
+      transFlag: false, //动画
+      weekArr: ["日", "一", "二", "三", "四", "五", "六"], //周数组
       dateArr: [], //每个月的天数
       monthArr: [
+        //实例化每个月
         "1月",
         "2月",
         "3月",
@@ -118,6 +115,10 @@ export default {
     this.getDate();
   },
   methods: {
+
+    /**
+     * 补0
+     */
     makeUp(val) {
       if (val >= 10) {
         return val;
@@ -125,18 +126,18 @@ export default {
         return "0" + val;
       }
     },
-    // 返回
-    back() {
-      uni.navigateBack();
-    },
-    // 签到
+  
+    /**
+     * 点击签到
+     */
     async signIn() {
       await sign().then((response) => {
         if (this.ifSign) return;
         if (this.signFlag) return;
         if (response.data.code != 200) {
-          uni.$showToast({
-            title: response.message,
+          uni.showToast({
+            title: response.data.message,
+            duration: 2000,
             icon: "none",
           });
 
@@ -164,41 +165,24 @@ export default {
         );
       });
     },
-    // 关闭弹窗
+
+    /**
+     * 签到成功后关闭弹窗
+     */
     close() {
       var that = this;
       this.maskFlag = false;
       this.transFlag = true;
-      setTimeout(function () {
+      setTimeout(() => {
         that.transFlag = false;
       }, 500);
     },
-    change(id) {
-      var i = this.monthArr.indexOf(this.currentMonth),
-        curDay = null;
-      if (id === "1") {
-        i++;
-        if (i > 11) {
-          this.currentYear++;
-          i = 0;
-        }
-        this.currentMonth = this.monthArr[i];
-        this.currentMonthIndex = i + 1;
-      } else {
-        i--;
-        if (i < 0) {
-          this.currentYear--;
-          i = 11;
-        }
-        this.currentMonth = this.monthArr[i];
-        this.currentMonthIndex = i + 1;
-      }
-      curDay = this.getWeekByDay(this.currentYear + "-" + (i + 1) + "-1");
-      this.getMonthDays(i, curDay);
-      this.curentSignData();
-    },
+
+    /**
+     * 获取今天时间
+     *
+     */
     getDate() {
-      //获取日子
       var date = new Date(),
         index = date.getMonth(),
         curDay = null;
@@ -206,16 +190,17 @@ export default {
       this.currentMonth = this.monthArr[index];
       this.currentMonthIndex = index + 1;
       this.currentDay = date.getDate();
-      console.log(this.currentDay);
-      console.log(this.signArr[this.signArr.length - 1]);
       if (this.currentDay == this.signArr[this.signArr.length - 1]) {
-        console.log("12");
         this.ifSign = true;
       }
       curDay = this.getWeekByDay(this.currentYear + "-" + (index + 1) + "-1");
       this.getMonthDays(index, curDay);
       this.curentSignData();
     },
+
+    /**
+     * 获取当前已经签到的时间
+     */
     curentSignData() {
       var date = new Date(),
         index = date.getMonth(),
@@ -224,15 +209,13 @@ export default {
       for (var i = 0; i < this.signAll.length; i++) {
         var item = this.signAll[i];
         item.createTime = item.createTime.split(" ")[0];
-
         var itemVal = item.createTime.split("-");
-        console.log(itemVal);
         if (
           Number(itemVal[0]) === Number(this.currentYear) &&
           Number(itemVal[1]) === Number(this.currentMonthIndex)
         ) {
           this.signArr.push(Number(itemVal[2]));
-          console.log(JSON.stringify(this.signArr));
+         
         }
         if (
           Number(itemVal[0]) === Number(date.getFullYear()) &&
@@ -243,6 +226,14 @@ export default {
         }
       }
     },
+
+    /**
+     *  循环出当前月份的时间
+     *  例子：
+     *  "","","","","","",1,
+     *  2 ,3 ,4 ,5 ,6 ,7 ,8,
+     *  ...依次向下排
+     */
     getMonthDays(index, day) {
       //day 当月1号是周几
       this.dateArr = [];
@@ -293,8 +284,11 @@ export default {
       }
       this.dataObj.push(this.dateArr);
     },
+
+    /**
+     * 获取当前月份有几周
+     */
     getWeekByDay(dayValue) {
-      //dayValue=“2014-01-01”
       var day = new Date(Date.parse(dayValue.replace(/-/g, "/"))).getDay(); //将日期值格式化
       return day;
     },

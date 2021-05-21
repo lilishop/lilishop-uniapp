@@ -212,7 +212,7 @@
 import { getExpress } from "@/api/trade.js";
 import { cancelOrder, confirmReceipt, getOrderDetail } from "@/api/order.js";
 
-import h5Copy from "@/js_sdk/h5-copy/h5-copy.js";
+import {h5Copy} from "@/js_sdk/h5-copy/h5-copy.js";
 import shares from "@/components/m-share/index"; //分享
 
 import { getClearReason } from "@/api/after-sale.js";
@@ -359,7 +359,7 @@ export default {
      * 投诉
      */
     complaint(sku) {
-      console.log(sku);
+     
       uni.navigateTo({
         url:
           "/pages/order/complain/complain?sn=" +
@@ -378,7 +378,7 @@ export default {
     },
     // 去支付
     toPay(val) {
-      console.log(val);
+    
       val.sn
         ? uni.navigateTo({
             url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
@@ -411,12 +411,7 @@ export default {
       this.cancelShow = true;
     },
 
-    //取消订单
-    toCancel(sn) {
-      uni.navigateTo({
-        url: "/pages/order/afterSales/applyCancel?sn=" + sn,
-      });
-    }, //提交取消订单（未付款）
+     //提交取消订单（未付款）
     submitCancel() {
       cancelOrder(this.orderSn, { reason: this.reason }).then((res) => {
         if (res.data.success) {

@@ -3,31 +3,22 @@
     <view class="status_bar">
       <!-- 这里是状态栏 -->
     </view>
-
     <view class="header">
       <div class="search">
-
         <u-icon @click="back" style="margin:0 10rpx 0;" name="arrow-left" size="40" color="#fff"></u-icon>
-
         <u-search :show-action="false" border-color="#fff" bg-color="#fff" v-model="keyword" @search="search" placeholder="请输入搜索" />
-        <!-- <input /> -->
-
         <u-icon @click="shareChange()" style="margin:0 10rpx 0;" name="share-fill" size="40" color="#fff"></u-icon>
-
       </div>
       <view class="tab-header">
-        <text :class="{ cur: tabIndex == 0 }" @click="setCat(0)">首页</text>
-        <text :class="{ cur: tabIndex == 1 }" @click="setCat(1)">商品</text>
-        <!-- <text :class="{ cur: tabIndex == 2 }" @click="setCat(2)">上新</text> -->
+        <text :class="{ cur: tabIndex == 0 }" @click="checkNavigation(0)">首页</text>
+        <text :class="{ cur: tabIndex == 1 }" @click="checkNavigation(1)">商品</text>
       </view>
     </view>
-
-    <swiper :current="tabIndex" class="swiper-box" @change="ontabchange">
+    <swiper :current="tabIndex" class="swiper-box" @change="tabChange">
       <swiper-item class="swiper-item" v-for="(item, index) in indexCats" :key="index">
         <scroll-view class="scroll-v" scroll-anchoring enableBackToTop="true" scroll-y @refresherrefresh="refresh()" @scroll="pageScroll">
           <storePageMain :load="load" :storeId="storeId" v-if="index == 0"></storePageMain>
-          <storePageGoods :load="load" :pageChange="pageChange" :categoryId="item" :storeId="storeId" v-if="index == 1"></storePageGoods>
-
+          <storePageGoods :load="load"  :categoryId="item" :storeId="storeId" v-if="index == 1"></storePageGoods>
         </scroll-view>
       </swiper-item>
     </swiper>
@@ -40,11 +31,8 @@
 
 <script>
 import shares from "@/components/m-share/index"; //分享
-
 import storePageMain from "./shopPageMain.vue";
 import storePageGoods from "./shopPageGoods.vue";
-
-import { getstoreBaseInfo } from "@/api/store.js";
 export default {
   components: {
     shares,
@@ -53,78 +41,77 @@ export default {
   },
   data() {
     return {
-      shareFlage: false,
-      tabIndex: 0,
-      keyword: "",
+      shareFlage: false, //分享share
+      tabIndex: 0, //默认为第一个tab
+      keyword: "", //搜索关键字
       load: false,
-      storeId: undefined,
-      indexCats: [0, 1],
-      scrollHeight: "",
+      storeId: undefined, //店铺id
+      indexCats: [0, 1],  //默认为2个tab
       loadIndex: 1, //加载的距离
-      pageChange: "",
-      storeInfo: {},
+   
     };
   },
+
+  /**
+   * 加载 
+   */
   async onLoad(options) {
     this.storeId = options.id;
-    console.log(this.storeId);
-    getstoreBaseInfo(this.storeId).then((res) => {
-      this.storeInfo = res.data;
-    });
-  },
-  mounted() {
-    const { windowWidth, windowHeight } = uni.getSystemInfoSync();
-    let tabHeader = 0;
 
-    let topHeight = 0;
-    uni.getSystemInfo({
-      success: function (res) {
-        // res - 各种参数
-        let search = uni.createSelectorQuery().select(".header");
-        search
-          .boundingClientRect(function (data) {
-            //data - 各种参数
-            topHeight = data.height; // 获取元素宽度
-          })
-          .exec();
-        let nav = uni.createSelectorQuery().select(".tab-header");
-        nav
-          .boundingClientRect(function (data) {
-            //data - 各种参数
-            tabHeader = data.height; // 获取元素宽度
-          })
-          .exec();
-      },
-    });
   },
+  mounted() {},
 
   methods: {
     // 点击分享
     async shareChange() {
       this.shareFlage = true;
     },
+
+    /**
+     * 搜索
+     */
     search() {
       uni.navigateTo({
         url: `/pages/navigation/search/searchPage?storeId=${this.storeId}&keyword=${this.keyword}`,
       });
     },
+
+    /**
+     * 下滑加载
+     */
     pageScroll(e) {
       if (e.detail.scrollTop > 300 * this.loadIndex) {
         this.loadIndex++;
         this.load = this.loadIndex;
       }
-      // this.load = false;
     },
 
+    /**
+     * 返回
+     */
     back() {
-      uni.navigateBack();
+      if (getCurrentPages().length == 1) {
+        uni.switchTab({
+          url: "/pages/tabbar/home/index",
+        });
+      } else {
+        uni.navigateBack();
+      }
     },
-    setCat(type) {
-      this.tabIndex = type;
+
+    /**
+     * 点击导航栏
+     */
+    checkNavigation(index) {
+      this.tabIndex = index;
     },
-    ontabchange(e) {
+
+    /**
+     * 滑动回调
+     */
+    tabChange(e) {
       this.tabIndex = e.detail.current;
-      this.setCat(this.tabIndex);
+      this.checkNavigation(this.tabIndex);
     },
   },
 };

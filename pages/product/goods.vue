@@ -75,12 +75,12 @@
                 <view class="-goods-flex">
                   <!-- 如果有积分显示积分 -->
                   <view class="-goods-price" v-if="goodsDetail.price != undefined">
-                    <span v-if="pointDetail.points" > <span class="price">{{pointDetail.points}}</span>
+                    <span v-if="pointDetail.points"> <span class="price">{{pointDetail.points}}</span>
                       <span>积分</span>
                     </span>
 
-                    <span v-else> <span>¥</span><span class="price">{{ Fixed(goodsDetail.price)[0] }}</span>.{{
-                      Fixed(goodsDetail.price)[1]
+                    <span v-else> <span>¥</span><span class="price">{{ formatPrice(goodsDetail.price)[0] }}</span>.{{
+                      formatPrice(goodsDetail.price)[1]
                     }} </span>
                   </view>
                   <view class="-goods-price" v-else> ¥<span class="price">0 </span>.00 </view>
@@ -158,7 +158,7 @@
 
       <view class="page-bottom mp-iphonex-bottom" id="pageBottom">
         <view class="icon-btn">
-          <view class="icon-btn-item" @click="linkstorePage(goodsDetail.storeId)">
+          <view class="icon-btn-item" @click="navigateToStore(goodsDetail.storeId)">
             <u-icon size="34" class="red" name="home-fill"></u-icon>
             <view class="red icon-btn-name">店铺</view>
           </view>
@@ -214,8 +214,8 @@
         <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id" :goodsId="goodsDetail.id" :addressFlag="addressFlag" />
 
         <!-- 商品规格  商品详情，以及默认参与活动的id-->
-        <popupGoods :addr="delivery" ref="popupGoods" @changed="changedGoods" @closeBuy="closePopupBuy" @queryCart="cartNum()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :id="productId"
-          v-if="goodsDetail.id "  :pointDetail="pointDetail"   @handleClickSku="init" :buyMask="buyMask" />
+        <popupGoods :addr="delivery" ref="popupGoods" @changed="changedGoods" @closeBuy="closePopupBuy" @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :id="productId"
+          v-if="goodsDetail.id " :pointDetail="pointDetail" @handleClickSku="init" :buyMask="buyMask" />
       </view>
     </view>
   </div>
@@ -245,7 +245,6 @@ import GoodsSwiper from "./product/goods/-goods-swiper"; //轮播图组件
 import popupGoods from "./product/popup/goods"; //购物车商品的模块
 import popupAddress from "./product/popup/address"; //地址选择模块
 import shares from "@/components/m-share/index"; //分享
-
 export default {
   components: {
     shares,
@@ -351,7 +350,7 @@ export default {
       if (val) {
         let timer = setInterval(() => {
           this.$refs.popupGoods.buyType = "PINTUAN";
-          console.log(this.$refs.popupGoods.buyType);
+        
           clearInterval(timer);
         }, 100);
 
@@ -394,8 +393,7 @@ export default {
   },
   async onLoad(options) {
     this.routerVal = options;
-  },
-  onShow() {
+
     this.goodsDetail = {};
     //如果有参数ids说明事分销短连接，需要获取参数
     if (this.routerVal.scene) {
@@ -409,15 +407,11 @@ export default {
       this.init(
         this.routerVal.id,
         this.routerVal.goodsId,
-        this.routerVal.distributionId,
-        this.routerVal.whetherPoint
+        this.routerVal.distributionId
       );
     }
   },
-  onReachBottom() {
-    this.storeParams.pageNumber++;
-    this.getOtherLikeGoods();
-  },
+  onShow() {},
   methods: {
     // 循环出当前促销是否为空
     emptyPromotion() {
@@ -430,7 +424,7 @@ export default {
       }
     },
     /**初始化信息 */
-    async init(id, goodsId, distributionId, whetherPoint) {
+    async init(id, goodsId, distributionId) {
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
@@ -456,7 +450,6 @@ export default {
           // 积分
           if (item.indexOf("POINTS_GOODS") == 0) {
             this.pointDetail = this.PromotionList[item];
-            console.log(this.pointDetail);
           }
         });
       // 轮播图
@@ -466,7 +459,7 @@ export default {
       this.getstoreBaseInfoFun(this.goodsDetail.storeId);
 
       // 获取购物车
-      this.cartNum();
+      this.cartCount();
 
       // 获取店铺推荐商品
       this.getstoreRecommend();
@@ -481,13 +474,14 @@ export default {
     },
 
     // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }
       return val.toFixed(2).split(".");
     },
 
+    /**选择商品 */
     changedGoods(val) {
       this.selectedGoods = val;
     },
@@ -516,7 +510,9 @@ export default {
       this.shutMask(4, "PINTUAN", order);
     },
 
-    // 查看购物车
+    /**
+     * 查看购物车
+     */
     reluchToCart() {
       let obj = {
         from: "product",
@@ -528,8 +524,10 @@ export default {
       });
     },
 
-    // 查询购物车总数量
-    cartNum() {
+    /**
+     * 查询购物车总数量
+     */
+    cartCount() {
       if (storage.getHasLogin()) {
         API_trade.getCartNum().then((res) => {
           this.nums = res.data.result;
@@ -537,11 +535,25 @@ export default {
       }
     },
 
+    /**
+     * 返回
+     */
     back() {
-      uni.navigateBack();
+      
+      if(getCurrentPages().length ==1){
+        uni.switchTab({
+           url: '/pages/tabbar/home/index'
+        });
+      }
+      else{
+            uni.navigateBack();
+      }
+  
     },
 
-    // 获取店铺信息
+    /**
+     * 获取店铺信息
+     */
     getstoreBaseInfoFun(id) {
       API_store.getstoreBaseInfo(id).then((res) => {
         if (res.data.success) {
@@ -550,9 +562,10 @@ export default {
       });
     },
 
-    // 删除收藏店铺
+    /**
+     * 删除收藏店铺
+     */
     deleteGoodsCollectionFun(id) {
-      // deleteStoreCollection
       API_Members.deleteGoodsCollection(id).then((res) => {
         if (res.statusCode == 200) {
           uni.showToast({
@@ -564,7 +577,9 @@ export default {
       });
     },
 
-    // 获取商品是否已被收藏
+    /**
+     * 获取商品是否已被收藏
+     */
     getGoodsCollectionFun(goodsId) {
       if (storage.getHasLogin()) {
         API_Members.getGoodsIsCollect(goodsId, "GOODS").then((res) => {
@@ -573,7 +588,9 @@ export default {
       }
     },
 
-    // 获取店铺推荐商品列表
+    /**
+     * 获取店铺推荐商品列表
+     */
     getstoreRecommend() {
       getGoodsList({
         pageNumber: 1,
@@ -585,7 +602,9 @@ export default {
       });
     },
 
-    // 获取相似商品列表
+    /**
+     * 获取相似商品列表
+     */
     getOtherLikeGoods() {
       getGoodsList({
         pageNumber: 1,
@@ -597,7 +616,9 @@ export default {
       });
     },
 
-    // 领取优惠券
+    /**
+     * 领取优惠券
+     */
     receiveCouponsFun(id) {
       API_Members.receiveCoupons(id).then((res) => {
         uni.showToast({
@@ -607,18 +628,25 @@ export default {
       });
     },
 
-    linkstorePage(store_id) {
+    /**
+     * 跳转到店铺页面
+     */
+    navigateToStore(store_id) {
       uni.navigateTo({
         url: `/pages/product/shopPage?id=` + store_id,
       });
     },
 
-    //获取优惠券按钮
+    /**
+     * 获取优惠券按钮
+     */
     getCoupon(item) {
       this.receiveCouponsFun(item.id);
     },
 
-    //规格弹窗开关
+    /**
+     * 规格弹窗开关
+     */
     shutMask(flag, buyFlag, type) {
       // type是指是否点击底部按钮
       if (flag) {
@@ -656,14 +684,15 @@ export default {
       }
     },
 
-    //收藏
+    /**
+     * 收藏
+     */
     clickFavorite(id) {
       if (this.favorite) {
         // 取消收藏
         this.deleteGoodsCollectionFun(id);
         return false;
       }
-
       API_Members.collectionGoods(id, "GOODS").then((res) => {
         if (res.data.success) {
           uni.showToast({
@@ -672,16 +701,16 @@ export default {
           });
         }
       });
-
       this.favorite = !this.favorite;
     },
 
-    // 顶部header显示或隐藏
+    /**
+     * 顶部header显示或隐藏
+     */
     pageScroll(e) {
       if (this.scrollFlag) {
         this.calcSize();
       }
-
       if (e.detail.scrollTop > 200) {
         //当距离大于200时显示回到顶部按钮
         this.headerFlag = true;
@@ -702,7 +731,10 @@ export default {
         this.scrollId = "4";
       }
     },
-    //计算每个要跳转到的模块高度信息
+
+    /**
+     * 计算每个要跳转到的模块高度信息
+     */
     calcSize() {
       let h = 0;
       let that = this;
@@ -744,7 +776,10 @@ export default {
       });
       this.scrollFlag = false;
     },
-    // 点击顶部跳转到对应位置
+
+    /**
+     * 点击顶部跳转到对应位置
+     */
     headerTab(id) {
       if (this.scrollFlag) {
         this.calcSize();
@@ -756,7 +791,9 @@ export default {
       });
     },
 
-    // 点击分享
+    /**
+     * 点击分享
+     */
     async shareChange() {
       this.shareFlage = true;
     },

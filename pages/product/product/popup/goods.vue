@@ -13,8 +13,8 @@
             <view class="goods-price " v-if="goodsDetail.promotionPrice">
               <span v-if="goodsDetail.promotionPrice && !pointDetail"> 
                 ￥
-                <span class="goods-price-promotionShow goods-price-bigshow" >{{ Fixed(goodsDetail.promotionPrice)[0] }}</span>
-                .{{ Fixed(goodsDetail.promotionPrice)[1] }}
+                <span class="goods-price-promotionShow goods-price-bigshow" >{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
+                .{{ formatPrice(goodsDetail.promotionPrice)[1] }}
               </span>
               <span v-if="pointDetail.points"> 
 
@@ -24,9 +24,9 @@
               <div class="promotion-box">
                 ￥
                 <span class="goods-price-bigshow">{{
-                Fixed(goodsDetail.price)[0]
+                formatPrice(goodsDetail.price)[0]
               }}</span>
-                .{{ Fixed(goodsDetail.price)[1] }}
+                .{{ formatPrice(goodsDetail.price)[1] }}
               
               </div>
             </view>
@@ -35,9 +35,9 @@
               <span>
               ￥
               <span class="goods-price-bigshow">{{
-                Fixed(goodsDetail.price)[0]
+                formatPrice(goodsDetail.price)[0]
               }}</span>
-              .{{ Fixed(goodsDetail.price)[1] }}
+              .{{ formatPrice(goodsDetail.price)[1] }}
             
               </span>
             </view>
@@ -129,7 +129,7 @@ export default {
 
   methods: {
     // 格式化金钱  1999 --> [1999,00]
-    Fixed(val) {
+    formatPrice(val) {
       if (typeof val == "undefined") {
         return val;
       }
@@ -301,7 +301,7 @@ export default {
   },
 
   mounted() {
-    console.log(this.pointDetail)
+   
     this.formatSku(this.goodsSpec);
   },
 };
