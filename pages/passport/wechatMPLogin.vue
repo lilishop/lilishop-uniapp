@@ -1,7 +1,6 @@
 <template>
 	<view class="container">
-		<u-modal v-model="showWxAuth" :title="projectName+'商城'" :show-confirm-button="false">
-
+		<u-modal v-model="phoneAuthPopup" :title="projectName+'商城'" :show-confirm-button="false">
 			<div class="tips">
 				为了更好地用户体验，需要您授权手机号
 			</div>
@@ -13,15 +12,14 @@
 			<div class="box">
 				<view class="logo-info">
 					<text class="title">欢迎进入{{ projectName }}商城</text>
-
 				</view>
 				<view class="small-tips">
 					<view>为您提供优质服务,{{ projectName }}需要获取以下信息</view>
-					<view>您的公开信息（昵称、头像等）</view>
+					<view>您的公开信息（昵称、头像）</view>
 				</view>
 				<view class="btns">
-					<button type="primary" open-type="getUserInfo" class="btn-auth"
-						@getuserinfo="hidenWxAuth()">确认微信授权</button>
+					<button type="primary" bindtap="getUserProfile" @click="getUserProfile()"
+						class="btn-auth">确认微信授权</button>
 				</view>
 			</div>
 		</view>
@@ -40,9 +38,8 @@
 	export default {
 		data() {
 			return {
-				show: true,
-				// 默认不显示
-				showWxAuth: false,
+				// 是否展示手机号码授权弹窗，默认第一步不展示，要先获取用户基础信息
+				phoneAuthPopup: false,
 				// 授权信息展示，商城名称
 				projectName: "LiLi",
 				//微信返回信息，用于揭秘信息，获取sessionkey
@@ -53,38 +50,52 @@
 				image: '',
 			};
 		},
-
-		components: {},
-		props: {},
-
+		//微信小程序进入页面，先获取code，否则几率出现code和后续交互数据不对应情况
+		mounted() {
+			let that = this;
+			//获取code
+			uni.login({
+				success: (res) => {
+					that.code = res.code;
+				},
+			});
+		},
 		methods: {
-			hidenWxAuth() {
-				this.showWxAuth = true;
+			//获取用户信息
+			getUserProfile(e) {
 				let that = this;
-				//------执行Login---------
-				uni.login({
+				// 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
+				uni.getUserProfile({
+					desc: '用于完善会员资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
 					success: (res) => {
-						that.code = res.code;
-						uni.getUserInfo({
-							provider: "weixin",
-							success: function(infoRes) {
-								that.nickName = infoRes.userInfo.nickName;
-								that.image = infoRes.userInfo.avatarUrl;
-							},
-						});
+						that.nickName = res.userInfo.nickName;
+						that.image = res.userInfo.avatarUrl;
+						//展示手机号获取授权
+						this.phoneAuthPopup = true;
 					},
-				});
+					fail: (res) => {
+						that.nickName = "微信用户";
+						that.image =
+							"https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132";
+						//展示手机号获取授权
+						this.phoneAuthPopup = true;
+					}
+				})
 			},
+			//获取手机号授权
 			getPhoneNumber(e) {
+
+				let that = this;
 				let iv = e.detail.iv;
 				let encryptedData = e.detail.encryptedData;
 				if (!e.detail.encryptedData) {
 					uni.showToast({
-						title: "请授予手机号码获取权限！",
+						title: "请授予手机号码权限，手机号码会和会员系统用户绑定！",
 						icon: "none",
 					});
 					return;
 				}
+
 				let code = this.code;
 				let image = this.image;
 				let nickName = this.nickName;
@@ -114,7 +125,6 @@
 					});
 
 				});
-
 
 			},
 		},
