@@ -18,6 +18,7 @@ const $iconUrl = "https://lilishop-oss.oss-cn-beijing.aliyuncs.com/app/upgrade.p
 export const getCurrentNo = function (callback) {
 	// 获取本地应用资源版本号
 	plus.runtime.getProperty(plus.runtime.appid, function (inf) {
+	
 		callback && callback({
 			versionCode: inf.version.replace(/\./g, ""),
 			version: inf.version
@@ -802,6 +803,9 @@ function downloadPopup(data, callback, cancelCallback, rebootCallback) {
 export default function (isPrompt = false) {
 	getCurrentNo(version => {
 		getServerNo( res => {
+		
+			if(	res.version.replace(/\./g, "") > version.versionCode){return false}
+
 			if (res.forceUpdate) {
 				if (/\.wgt$/i.test(res.downloadUrl)) {
 					getDownload(res);
