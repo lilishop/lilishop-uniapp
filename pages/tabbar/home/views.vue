@@ -2,7 +2,8 @@
   <div class="wrapper">
     <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
     <div v-for="(item,index) in pageData.list" :key="index">
-      <u-navbar class="navbar" v-if="item.type == 'search'" :is-back="false">
+      <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
+      <u-navbar class="navbar" v-if="item.type == 'search'" :is-back="false" :is-fixed="index ===1 ? false : true">
         <search style="width:100%" :res="item.options" />
         <!-- #ifndef H5 -->
         <!-- 扫码功能 不兼容h5 详情文档: https://uniapp.dcloud.io/api/system/barcode?id=scancode -->
@@ -23,12 +24,13 @@
       <flexTwo v-if="item.type == 'flexTwo'" :res="item.options" />
       <textPicture v-if="item.type == 'textPicture'" :res="item.options" />
       <menuLayout v-if="item.type == 'menu'" :res="item.options" />
-      <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" />
       <flexOne v-if="item.type == 'flexOne'" :res="item.options" />
       <goods v-if="item.type == 'goods'" :res="item.options" />
-      <integral v-if="item.type == 'integral'" :res="item.options" />
-      <spike v-if="item.type == 'spike'" :res="item.options" />
       <group v-if="item.type == 'group'" :res="item.options" />
+      <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
+      <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
+      <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
+
     </div>
     <u-no-network></u-no-network>
   </div>
@@ -36,34 +38,35 @@
 
 <script>
 // 引用组件
-import tpl_banner from "@/pages/tabbar/home/template/tpl_banner";
-import tpl_title from "@/pages/tabbar/home/template/tpl_title";
-import tpl_left_one_right_two from "@/pages/tabbar/home/template/tpl_left_one_right_two";
-import tpl_left_two_right_one from "@/pages/tabbar/home/template/tpl_left_two_right_one";
-import tpl_top_one_bottom_two from "@/pages/tabbar/home/template/tpl_top_one_bottom_two";
-import tpl_top_two_bottom_one from "@/pages/tabbar/home/template/tpl_top_two_bottom_one";
-import tpl_flex_one from "@/pages/tabbar/home/template/tpl_flex_one";
-import tpl_flex_two from "@/pages/tabbar/home/template/tpl_flex_two";
-import tpl_flex_three from "@/pages/tabbar/home/template/tpl_flex_three";
-import tpl_flex_five from "@/pages/tabbar/home/template/tpl_flex_five";
-import tpl_flex_four from "@/pages/tabbar/home/template/tpl_flex_four";
-import tpl_text_picture from "@/pages/tabbar/home/template/tpl_text_picture";
-import tpl_menu from "@/pages/tabbar/home/template/tpl_menu";
-import tpl_search from "@/pages/tabbar/home/template/tpl_search";
-import tpl_join_group from "@/pages/tabbar/home/template/tpl_join_group";
-import tpl_integral from "@/pages/tabbar/home/template/tpl_integral";
-import tpl_spike from "@/pages/tabbar/home/template/tpl_spike";
-import tpl_group from "@/pages/tabbar/home/template/tpl_group";
-import tpl_goods from "@/pages/tabbar/home/template/tpl_goods";
+import tpl_banner from "@/pages/tabbar/home/template/tpl_banner"; //导航栏模块
+import tpl_title from "@/pages/tabbar/home/template/tpl_title"; //标题栏模块
+import tpl_left_one_right_two from "@/pages/tabbar/home/template/tpl_left_one_right_two"; //左一右二模块
+import tpl_left_two_right_one from "@/pages/tabbar/home/template/tpl_left_two_right_one"; //左二右一模块
+import tpl_top_one_bottom_two from "@/pages/tabbar/home/template/tpl_top_one_bottom_two"; //上一下二模块
+import tpl_top_two_bottom_one from "@/pages/tabbar/home/template/tpl_top_two_bottom_one"; //上二下一模块
+import tpl_flex_one from "@/pages/tabbar/home/template/tpl_flex_one"; //单行图片模块
+import tpl_flex_two from "@/pages/tabbar/home/template/tpl_flex_two"; //两张横图模块
+import tpl_flex_three from "@/pages/tabbar/home/template/tpl_flex_three"; //三列单行图片模块
+import tpl_flex_five from "@/pages/tabbar/home/template/tpl_flex_five"; //五列单行图片模块
+import tpl_flex_four from "@/pages/tabbar/home/template/tpl_flex_four"; //四列单行图片模块
+import tpl_text_picture from "@/pages/tabbar/home/template/tpl_text_picture"; //文字图片模板
+import tpl_menu from "@/pages/tabbar/home/template/tpl_menu"; //五列菜单模块
+import tpl_search from "@/pages/tabbar/home/template/tpl_search"; //搜索栏
+import tpl_group from "@/pages/tabbar/home/template/tpl_group"; //
+import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类以及分类中的商品
 // 结束引用组件
-import { getFloorData } from "@/api/home";
+import { getFloorData } from "@/api/home"; //获取楼层装修接口
+import permision from "@/js_sdk/wa-permission/permission.js"; //权限工具类
 
-import { modelNavigateTo } from "./template/tpl.js"; //跳转路径
-import permision from "@/js_sdk/wa-permission/permission.js"; //权限
+// TODO 后续开发
+// import tpl_join_group from "@/pages/tabbar/home/template/tpl_join_group";
+// import tpl_integral from "@/pages/tabbar/home/template/tpl_integral";
+// import tpl_spike from "@/pages/tabbar/home/template/tpl_spike";
+
 export default {
   data() {
     return {
-      pageData: "",
+      pageData: "", //楼层页面数据
     };
   },
   components: {
@@ -80,17 +83,15 @@ export default {
     textPicture: tpl_text_picture,
     menuLayout: tpl_menu,
     search: tpl_search,
-    joinGroup: tpl_join_group,
     flexOne: tpl_flex_one,
     goods: tpl_goods,
-    integral: tpl_integral,
-    spike: tpl_spike,
     group: tpl_group,
+    // spike: tpl_spike,
+    // joinGroup: tpl_join_group,
+    // integral: tpl_integral,
   },
 
   mounted() {
-    
-     
     this.init();
   },
   methods: {
@@ -110,11 +111,12 @@ export default {
      * 没权限去申请权限，有权限获取扫码功能
      */
     scan() {
-     
       if (permision.judgeIosPermission("camera")) {
         uni.scanCode({
           success: function (res) {
             let path = encodeURIComponent(res.result);
+            // TODO 扫码功能后续还会后续增加
+            // 扫码成功后跳转到webview页面
             setTimeout(() => {
               uni.navigateTo({
                 url: "/pages/tabbar/home/web-view?src=" + path,
@@ -123,6 +125,7 @@ export default {
           },
         });
       } else {
+        // 没有权限提醒是否去申请权限
         uni.showModal({
           title: "提示",
           content: "您已经关闭相机权限,去设置",

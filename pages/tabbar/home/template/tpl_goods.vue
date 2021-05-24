@@ -1,31 +1,18 @@
+
 <template>
   <div class="layout">
-
     <div class="goods-cell-title">
-      <div
-        class="goods-item-title"
-        :class="{ 'selected-title': selected.index == index }"
-        @click="handleClickTitle(title, index)"
-        v-for="(title, index) in res.list[0].titleWay"
-        :key="index"
-      >
+      <div class="goods-item-title" :class="{ 'selected-title': selected.index == index }" @click="handleClickTitle(title, index)" v-for="(title, index) in res.list[0].titleWay" :key="index">
         <h4 class="h4">{{ title.title }}</h4>
         <div>{{ title.desc }}</div>
       </div>
     </div>
     <div class="goods-list">
-      <div
-        v-if="selected.val == item.type"
-        @click="handleClick(item)"
-        class="goods-item"
-        v-for="(item, item_index) in res.list[0].listWay"
-        :key="item_index"
-      >
-	
+      <div v-if="selected.val == item.type" @click="handleClick(item)" class="goods-item" v-for="(item, item_index) in res.list[0].listWay" :key="item_index">
         <div class="goods-img">
-          <u-image :src="item.img" height="350rpx"   mode="aspectFit" width="100%">
-            <u-loading slot="loading"></u-loading
-          ></u-image>
+          <u-image :src="item.img" height="350rpx" mode="aspectFit" width="100%">
+            <u-loading slot="loading"></u-loading>
+          </u-image>
         </div>
         <div class="goods-desc">
           <div class="goods-title">
@@ -42,6 +29,7 @@
 <script>
 import uImage from "@/uview-ui/components/u-image/u-image.vue";
 export default {
+  title: "商品分类以及商品",
   components: { uImage },
   data() {
     return {
@@ -55,7 +43,6 @@ export default {
   mounted() {},
   methods: {
     handleClick(item) {
-     
       uni.navigateTo({
         url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
       });
@@ -102,7 +89,6 @@ $w_94: 94%;
 
     > h4 {
       font-size: 32rpx;
-     
     }
 
     > div {
@@ -130,7 +116,7 @@ $w_94: 94%;
   margin: 0 auto;
   // width: 158px;
   width: $w_94;
- 
+
   border-top-left-radius: 20rpx;
   border-top-right-radius: 20rpx;
 

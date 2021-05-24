@@ -8,6 +8,7 @@
 </template>
 <script>
 export default {
+  title:"搜索栏",
   props: ["res"],
   methods: {
     handleSearch() {

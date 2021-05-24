@@ -9,6 +9,7 @@
 import { modelNavigateTo } from "./tpl";
 
 export default {
+  title:"单行图片模块",
   data() {
     return {
       modelNavigateTo,

@@ -17,8 +17,7 @@ export default {
       modelNavigateTo,
     };
   },
-  mounted() {
-  },
+  mounted() {},
 };
 </script>
 <style lang="scss" scoped>

@@ -3,7 +3,6 @@
   <div class="index">
     <u-modal v-model="show" :show-title="false" :show-confirm-button="false" mask-close-able>
       <view class="slot-content">
-
         <image @click="downLoad()" class="img" :src="imgUrl" />
         <div class="canvas-hide">
           <!-- #ifdef MP-WEIXIN -->
@@ -19,21 +18,20 @@
   </div>
 </template>
 <script>
+// 引入绘制插件
 import DrawPoster from "@/js_sdk/u-draw-poster";
 
 export default {
   data: () => ({
-    imgUrl: "",
-    width: "",
-    height: "",
-    show: false,
-    dp: {},
-    logo: require("@/pages/passport/static/logo-title.png"),
+    imgUrl: "", //绘制出来的图片路径
+    show: false, //是否展示模态框
+    dp: {}, //绘制的dp对象，用于存储绘制等一些方法。
+    logo: require("@/pages/passport/static/logo-title.png"), //本地logo地址
   }),
 
   props: {
     /**
-     * 封装组件
+     * 父级传参的数据
      */
     res: {
       type: null,
@@ -54,8 +52,10 @@ export default {
     st2: (size) => size,
     // #endif
 
+    /**
+     * 保存图片
+     */
     downLoad() {
-
       uni.saveImageToPhotosAlbum({
         filePath: this.imgUrl,
         success: function () {

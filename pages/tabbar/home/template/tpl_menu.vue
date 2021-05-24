@@ -20,6 +20,7 @@
 <script>
 import {modelNavigateTo} from './tpl'
 export default {
+  title:"五列菜单",
   props: ["res"],
   data () {
     return {

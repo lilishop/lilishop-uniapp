@@ -20,7 +20,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import {modelNavigateTo} from './tpl'
 export default {

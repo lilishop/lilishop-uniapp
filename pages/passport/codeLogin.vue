@@ -36,15 +36,15 @@ export default {
     return {
       uuid,
       flage: false, //是否验证码验证
-      codeFlag: true, //验证开关
+      codeFlag: true, //验证开关，用于是否展示验证码
       codeForm: {
         mobile: "", //手机号
         code: "", //验证码
       },
-      tips: "", //提示
+      tips: "", //提示，点击发送验证码和重新发送时赋值
       clientType: "", // 客户端类型
-      seconds: 60,
-
+      seconds: 60, //默认验证码等待时间
+      // 二维码登录验证规则
       codeRules: {
         // 手机号验证
         mobile: [
@@ -69,7 +69,7 @@ export default {
       },
     };
   },
-  // 必须要在onReady生命周期，因为onLoad生命周期组件可能尚未创建完毕
+  // 必须要在onReady生命周期setRules，因为onLoad生命周期组件可能尚未创建完毕
   mounted() {
     this.$refs.validateCodeForm.setRules(this.codeRules);
     /**
@@ -86,7 +86,7 @@ export default {
     flage(val) {
       if (val) {
         if (this.$refs.uCode.canGetCode) {
-          // 模拟向后端请求验证码
+          // 向后端请求验证码
           uni.showLoading({
             title: "正在获取验证码",
           });

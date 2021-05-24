@@ -395,12 +395,6 @@
 					}
 				},
 				{
-					"path": "restPassword",
-					"style": {
-						"navigationBarTitleText": "重设密码"
-					}
-				},
-				{
 					"path": "article",
 					"style": {
 						"navigationBarTitleText": "文章"

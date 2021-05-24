@@ -3,18 +3,12 @@
     <div class="join-list">
       <div class="join-title">
         <div>{{ res.list[0].title }}</div>
-
         <div>更多</div>
       </div>
       <div class="join-box">
         <div class="join-item" v-for="item in 4" :key="item">
           <div class="item-img-box">
-            <img
-              class="item-img"
-              src="https://picsum.photos/id/268/200/200"
-              alt
-            />
-           
+            <img class="item-img" src="https://picsum.photos/id/268/200/200" alt />
           </div>
           <div class="item-price">
             <span>20积分</span>
@@ -28,7 +22,9 @@
   </div>
 </template>
 <script>
+// TODO 后续版本开发此功能 尽情期待
 export default {
+  title:"积分商品",
   props: ["res"],
 };
 </script>

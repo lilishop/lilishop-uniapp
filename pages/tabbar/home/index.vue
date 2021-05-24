@@ -1,5 +1,6 @@
 <template>
   <div class="wrapper">
+    <!-- 楼层装修组件 -->
     <tpl />
   </div>
 </template>

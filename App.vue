@@ -31,19 +31,18 @@ export default {
 
   onShow() {
     // #ifndef H5
-
     this.getClipboard();
     // #endif
   },
 
   methods: {
-    // 开屏广告
+    //  TODO 开屏广告 后续优化添加
     launch() {
       try {
         // 获取本地存储中launchFlag标识 开屏广告
         const value = uni.getStorageSync("launchFlag");
         if (!value) {
-          this.$u.route("/pages/index/agreement");
+          // this.$u.route("/pages/index/agreement");
         } else {
           //app启动时打开启动广告页
           var w = plus.webview.open(

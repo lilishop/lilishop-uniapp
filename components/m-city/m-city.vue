@@ -18,8 +18,8 @@
         <view class="city-head-title">{{ headTitle }}</view>
         <icon
           type="clear"
-          v-if="rightIcon"
-          class="rightIcon"
+          v-if="clearRightIcon"
+          class="clearRightIcon"
           size="20"
           color="#cccccc"
           @click="hide"
@@ -105,17 +105,21 @@ export default {
   },
   data() {
     return {
-      rightIcon: true,
+      clearRightIcon: true, //是否显示右侧关闭icon
       scrollLeft: 500, //顶部选项卡左滑距离
-      scrollTop: 0,
-      enableScroll: true,
+      scrollTop: 0, //默认滚动顶部为0
+      enableScroll: true, //是否启用滚动
       tabCurrentIndex: 0, //当前选项卡索引
-      tabbars: this.provinceData,
-      pickersize: this.pickerSize,
-      showPicker: false,
+      tabbars: this.provinceData, //默认的省市区id
+      pickersize: this.pickerSize, //多少个tab 推荐为4级 
+      showPicker: false, //显示选取器
     };
   },
   methods: {
+
+    /**
+     * 显示选择器
+     */
     show() {
       this.showPicker = true;
       if (this.tabbars[0].children.length == 0) {
@@ -126,10 +130,17 @@ export default {
 
       windowWidth = uni.getSystemInfoSync().windowWidth;
     },
+
+    /**
+     * 关闭选择器
+     */
     hide() {
       this.showPicker = false;
     },
-    //tab切换
+    
+    /**
+     * tab切换
+     */
     changeTab(e) {
       let index = e;
       this.setScroll(index);
@@ -139,7 +150,10 @@ export default {
         this.getScroll("show" + index);
       }, 10);
     },
-    //获得元素的size
+    
+    /**
+     * 获得元素的大小
+     */
     getElSize(id) {
       return new Promise((res, rej) => {
         let el = uni
@@ -158,6 +172,10 @@ export default {
         ).exec();
       });
     },
+
+    /**
+     * 点击城市后回调
+     */
     async changCity(index, item) {
       if (this.tabbars[index].id != item.id) {
         this.tabbars[index].localName = item.name;
@@ -165,14 +183,14 @@ export default {
         if (index < this.tabbars.length - 1) {
           this.tabbars.splice(index + 1, this.tabbars.length - index - 1);
         }
-
         if (this.tabbars.length < this.pickersize) {
           let data = await getRegionsById(item.id);
-
+          // 当前选项级为最后一级时回调，将选中的数据返回
           if (data.data.result.length == 0) {
             this.$emit("funcValue", this.tabbars);
             this.hide();
           } else {
+            // 将新的数据填充进下一级
             var current = {
               localName: "请选择",
               id: "",
@@ -181,6 +199,7 @@ export default {
             this.tabbars.push(current);
             this.tabCurrentIndex++;
 
+            // 当前距离重新为最上面
             this.scrollTop = 0;
           }
         } else {
@@ -189,6 +208,10 @@ export default {
         }
       }
     },
+
+    /**
+     * 获取当前tab中滚动的距离
+     */
     async setScroll(index) {
       let width = 0;
       let nowWidth = 0;
@@ -205,6 +228,10 @@ export default {
         this.scrollLeft = 0;
       }
     },
+
+    /**
+     * 计算当前的滚动距离
+     */
     getScroll(id) {
       uni
         .createSelectorQuery()
@@ -229,7 +256,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/* 优惠券面板 */
+
 .mask {
   visibility: hidden;
   position: fixed;
@@ -275,7 +302,7 @@ export default {
   text-align: center;
   /* #endif */
 }
-.rightIcon {
+.clearRightIcon {
   position: absolute;
   right: 15px;
   top: 12px;

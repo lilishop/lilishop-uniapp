@@ -3,7 +3,6 @@
     <div class="join-list">
       <div class="join-title">
         <div>{{ res.list[0].title }}</div>
-
         <div>更多</div>
       </div>
       <div class="join-box">
@@ -28,8 +27,10 @@
   </div>
 </template>
 <script>
+// TODO 后续版本开发此功能 尽情期待
 export default {
   props: ["res"],
+  title:"团购"
 };
 </script>
 <style lang="scss" scoped>

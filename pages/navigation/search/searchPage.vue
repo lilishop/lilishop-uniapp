@@ -2,6 +2,7 @@
   <view class="content">
     <u-navbar :background="navObj" :is-back="false">
       <!-- mSearch组件 如果使用原样式，删除组件元素-->
+
       <mSearch ref="mSearch" class="mSearch-input-box" @clickLeft="back" :mode="2" :placeholder="defaultKeyword" @search="doSearch(false)" @input="inputChange" @confirm="doSearch(false)"
         @SwitchType="doSearchSwitch()" v-model="keyword" :isFocusVal="!isShowSeachGoods"></mSearch>
     </u-navbar>

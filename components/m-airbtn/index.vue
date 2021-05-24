@@ -18,9 +18,9 @@ import config from "@/config/config";
 export default {
   data() {
     return {
-      config,
-      weChat: false,
-      logo: require("@/icon.png"),
+      config, // 设置工具类
+      weChat: false,  // 是否微信浏览器，该项为true时不显示 当前整个页面
+      logo: require("@/icon.png"), //显示的圆形logo
     };
   },
   mounted() {
@@ -36,11 +36,16 @@ export default {
     // #endif
   },
   methods: {
+
+    /**
+     * 跳转到下载app页面
+     */
     downloadApp() {
       setTimeout(function () {
         window.location.href = config.downloadLink;
       }, 2000);
     },
+
     /**
      * 打开app 仅在h5生效 使用ifream唤醒app
      */

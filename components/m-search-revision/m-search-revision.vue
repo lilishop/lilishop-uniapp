@@ -1,7 +1,7 @@
 <template>
   <view class="serach">
     <view class="left-box" @tap="onClickLeft">
-      <uni-icons style="line-height:70rpx" :color="color" type="back" size="24" />
+      <uni-icons style="line-height:70rpx" type="back" size="24" />
     </view>
     <view class="content" :style="{ 'border-radius': radius + 'px' }">
       <!-- HM修改 增加进入输入状态的点击范围 -->
@@ -10,21 +10,17 @@
         <!-- HM修改 增加placeholder input confirm-type confirm-->
         <input style="width:100%; " :placeholder="placeholder" placeholder-class="placeholder-color" @input="inputChange" confirm-type="search" @confirm="triggerConfirm" class="input"
           :class="{ center: !active && mode === 2 }" :focus="isFocus" v-model="inputVal" @focus="focus" @blur="blur" />
-        <!-- <view v-if="!active && mode === 2" class="input sub" @click="getFocus">请输入搜索内容</view> -->
-        <!-- HM修改 @click换成@click.stop阻止冒泡 -->
-        <text v-if="isDelShow" class="icon icon-del" @click.stop="clear"></text>
+        <u-icon name="close" v-if="isDelShow" style="padding:0 30rpx;" @click="clear"></u-icon>
       </view>
       <view v-show="(active && show && button === 'inside') || (isDelShow && button === 'inside')" class="serachBtn" @click="search">搜索</view>
     </view>
     <view v-if="button === 'outside'" class="button" :class="{ active: show || active }">
-      <!-- @click="search" -->
       <view v-if="isShowSeachGoods !=true" class="button-item">
         <div @click="out()">取消</div>
       </view>
 
       <view v-else class="button-item">
-        <!-- {{ !show ? searchName : '搜索' }} -->
-        <u-icon name="grid-fill" size="50" @click="handelListClass()" v-if="!isListClass"></u-icon>
+        <u-icon name="grid-fill" size="50" @click="handelListClass()" v-if="!switchLayout"></u-icon>
         <u-icon v-else @click="handelListClass()" name="list-dot" size="50"></u-icon>
       </view>
     </view>
@@ -36,9 +32,6 @@ import uniStatusBar from "../uni-status-bar/uni-status-bar.vue";
 import uniIcons from "../uni-icons/uni-icons.vue";
 
 export default {
-  watch: {},
-  mounted() {},
-
   components: {
     uniStatusBar,
     uniIcons,
@@ -61,37 +54,17 @@ export default {
       value: String,
       default: "outside",
     },
+    //
     show: {
       value: Boolean,
       default: true,
     },
-    leftText: {
-      type: String,
-      default: "",
-    },
-    color: {
-      type: String,
-    },
-    statusBar: {
-      type: [Boolean, String],
-      default: false,
-    },
-    rightText: {
-      type: String,
-      default: "",
-    },
-    leftIcon: {
-      type: String,
-      default: "",
-    },
-    rightIcon: {
-      type: String,
-      default: "",
-    },
+    // 默认半径为60
     radius: {
       value: String,
       default: 60,
     },
+    // 是否获取焦点
     isFocusVal: {
       value: Boolean,
       default: true,
@@ -99,46 +72,36 @@ export default {
   },
   data() {
     return {
-      isShowSeachGoods: false,
-      // 点击左侧按钮
-      nums: 0,
-      iconParams: false,
-      active: false,
-      inputVal: "",
-      searchName: "取消",
-      isDelShow: false,
-      isFocus: false,
-      isListClass: true,
+      isShowSeachGoods: false, //是否显示查询的商品
+      active: false, //是否选中
+      inputVal: "", //Input中内容
+      isDelShow: false, //是否显示右侧删除icon
+      isFocus: false, //是否获取焦点
+      switchLayout: true, //切换当前商品的布局，默认为两列
     };
   },
   mounted() {
     this.isFocus = this.isFocusVal;
   },
   methods: {
-    ddType() {
-      this.isShowSeachGoods = true;
-    },
-
+    //
     out() {
       uni.reLaunch({
-        url: "/pages/tabbar/home/index"
+        url: "/pages/tabbar/home/index",
       });
     },
     // 切换排列顺序
     handelListClass() {
-      this.isListClass = !this.isListClass;
+      this.switchLayout = !this.switchLayout;
       this.$emit("SwitchType");
     },
     //HM修改 触发组件confirm事件
     triggerConfirm() {
-      this.nums++;
       this.$emit("confirm", false);
       uni.hideKeyboard();
-      this.isShowSeachGoods = true;
     },
     //HM修改 触发组件input事件
     inputChange(event) {
-      this.nums++;
       var keyword = event.detail.value;
       this.$emit("input", keyword);
       if (this.inputVal) {
@@ -168,17 +131,19 @@ export default {
       this.$emit("input", "");
       //this.$emit('search', '');//HM修改 清空内容时候不进行搜索
     },
-    getFocus() {
-      if (!this.isFocus) {
-        this.isFocus = true;
-      }
-    },
+  
+
+    /**
+     * 回退到上一级
+     */
     onClickLeft() {
       uni.navigateBack();
     },
+
+    /**
+     * 内容为空时，输入默认关键字
+     */
     search() {
-      this.nums++;
-      //HM修改 增加点击取消时候退出输入状态，内容为空时，输入默认关键字
       if (!this.inputVal) {
         if (!this.show && this.searchName == "取消") {
           uni.hideKeyboard();
@@ -191,24 +156,17 @@ export default {
     },
   },
   watch: {
+    /**
+     * 监听当前是否有值 是否显示清除图标
+     */
     inputVal(newVal) {
-      if (newVal) {
-        this.searchName = "搜索";
-        //this.isDelShow = true; //HM修改 直接点击页面预设关键字样式异常，注销
-      } else {
-        this.searchName = "取消";
-        this.isDelShow = false;
-      }
-    },
-    //HM修改 双向绑定
-    value(val) {
-      this.inputVal = val;
+      newVal ? (this.isDelShow = true) : (this.isDelShow = false);
     },
   },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .serach {
   display: flex;
   width: 100%;
@@ -233,28 +191,16 @@ export default {
     background: #eee;
     overflow: hidden;
     transition: all 0.2s linear;
-
-    // border-radius: 30px;
-
     .content-box {
       width: 100%;
       display: flex;
       align-items: center;
-
       &.center {
         justify-content: center;
       }
 
       .icon {
         padding: 0 15rpx;
-
-        &.icon-del {
-          font-size: 38rpx;
-
-          &:before {
-            content: "\e644";
-          }
-        }
 
         &.icon-serach:before {
           content: "\e61c";
