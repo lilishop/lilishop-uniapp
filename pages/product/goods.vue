@@ -162,10 +162,10 @@
             <u-icon size="34" class="red" name="home-fill"></u-icon>
             <view class="red icon-btn-name">店铺</view>
           </view>
-          <!-- <view class="icon-btn-item" @click="linkMsgDetail()">
+          <view class="icon-btn-item" @click="linkMsgDetail()">
             <u-icon size="34" name="kefu-ermai"></u-icon>
             <view class="icon-btn-name">客服</view>
-          </view> -->
+          </view>
           <view class="icon-btn-item" @click="reluchToCart()">
             <u-icon size="34" name="storeping-cart"></u-icon>
             <view class="icon-btn-name">购物车</view>
@@ -486,7 +486,11 @@ export default {
         this.getGoodsCollectionFun(this.goodsDetail.id);
       }
     },
-
+	linkMsgDetail () {
+		uni.navigateTo({
+			url: '/pages/product/customerservice/index'
+		})
+	},
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
       if (typeof val == "undefined") {
