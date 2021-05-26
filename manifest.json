@@ -178,7 +178,7 @@
     "mp-weixin" : {
         /* 小程序特有相关 */
         "usingComponents" : true,
-        "appid" : "wx6f10f29075dc1b0b",
+        "appid" : "",
         "optimization" : {
             "subPackages" : true
         },
@@ -192,7 +192,13 @@
             "scope.userLocation" : {
                 "desc" : "位置信息将用于高德地图的效果展示"
             }
-        }
+        },
+		"plugins" : {
+			"myPlugin" : {
+				"version" : "1.1.0",
+				"provider" : "wx738958e0f4c894f9"
+			}
+		}
     },
     "h5" : {
         "devServer" : {
