@@ -364,6 +364,17 @@
 						//app页面不显示滚动条
 						"scrollIndicator": "none"
 					}
+				},
+				{ // 客服
+					"path": "customerservice/index",
+					"style": {
+						"navigationBarTitleText": "客服",
+						"usingComponents": {
+							// #ifdef MP-WEIXIN
+							"chat": "plugin://myPlugin/chat"
+							// #endif
+						}
+					}
 				}
 			]
 
