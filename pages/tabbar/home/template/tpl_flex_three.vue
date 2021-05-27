@@ -26,7 +26,8 @@ export default {
 <style lang="scss" scoped>
 @import "./tpl.scss";
 .layout {
-  height: 110px;
+  padding: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;

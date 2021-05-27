@@ -1,7 +1,7 @@
 
 <template>
   <div class="layout">
-    <u-image height="175rpx" width="175rpx" @click="modelNavigateTo(item)" class="image-mode" :src="item.img" v-for="(item,index) in res.list" :key="index">
+    <u-image height="175rpx" mode="aspectFit" width="175rpx" @click="modelNavigateTo(item)" class="image-mode" :src="item.img" v-for="(item,index) in res.list" :key="index">
       <u-loading slot="loading"></u-loading>
     </u-image>
   </div>
@@ -23,7 +23,7 @@ export default {
 <style lang="scss" scoped>
 @import "./tpl.scss";
 .layout {
-  height: 84px;
+ 
   display: flex;
   align-items: center;
   justify-content: center;

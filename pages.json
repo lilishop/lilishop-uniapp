@@ -447,6 +447,13 @@
 						"navigationStyle": "custom"
 
 					}
+				},{
+					"path": "lives",
+					"style": {
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "white"
+
+					}
 				}
 
 			]
