@@ -472,7 +472,7 @@ export default {
       // 获取店铺基本信息
       this.getstoreBaseInfoFun(this.goodsDetail.storeId);
 
-      // 获取购物车
+      // 获取购物车数量
       this.cartCount();
 
       // 获取店铺推荐商品
@@ -486,9 +486,21 @@ export default {
         this.getGoodsCollectionFun(this.goodsDetail.id);
       }
     },
-	linkMsgDetail () {
+	linkMsgDetail () { // 客服
+		const params = {
+			storeName: this.storeDetail.storeName,
+			goodsName: this.goodsDetail.goodsName,
+			goodsId: this.goodsDetail.goodsId,
+			goodsImg: this.goodsDetail.thumbnail,
+			price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
+			// originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+			uuid: storage.getUuid(),
+			token: storage.getAccessToken(),
+			sign: this.storeDetail.yzfSign || '37ef9b97807d03c6741298ed4eb5b536d2d238e08a3c00fb01fe48f03a569974c99ad767e72c04b3165ef29aca2c488b505fe4ca',
+			mpSign: this.storeDetail.yzfMpSign || '32b8ff6f8d1c240be8d7fe51bdd6d44a6776ea86930afbe5c3c342825e942c914fc6126b6be1f003ab04aee1af9f442d2c33e1427529300671588866edaa4b12'
+		}
 		uni.navigateTo({
-			url: '/pages/product/customerservice/index'
+			url: '/pages/product/customerservice/index?params=' + encodeURIComponent(JSON.stringify(params))
 		})
 	},
     // 格式化金钱  1999 --> [1999,00]
