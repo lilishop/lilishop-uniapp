@@ -487,6 +487,7 @@ export default {
       }
     },
 	linkMsgDetail () { // 客服
+		// #ifdef MP-WEIXIN
 		const params = {
 			storeName: this.storeDetail.storeName,
 			goodsName: this.goodsDetail.goodsName,
@@ -502,6 +503,13 @@ export default {
 		uni.navigateTo({
 			url: '/pages/product/customerservice/index?params=' + encodeURIComponent(JSON.stringify(params))
 		})
+		// #endif
+		// #ifndef MP-WEIXIN
+		const sign = this.storeDetail.yzfSign || '37ef9b97807d03c6741298ed4eb5b536d2d238e08a3c00fb01fe48f03a569974c99ad767e72c04b3165ef29aca2c488b505fe4ca'
+		uni.navigateTo({
+			url: '/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=' + sign
+		})
+		// #endif
 	},
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
