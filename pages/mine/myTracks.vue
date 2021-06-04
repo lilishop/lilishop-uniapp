@@ -1,30 +1,33 @@
 <template>
   <view class="myTracks">
-    <empty v-if="whetherEmpty"></empty>
-    <view v-else v-for="(item, index) in trackList" :key="index">
-      <view class="myTracks-title" @click="navgaiteToStore(item)">{{item.storeName}}</view>
-      <view class="myTracks-items">
-        <view class="myTracks-item">
-          <u-checkbox-group>
-            <u-checkbox v-model="item.___isDel" v-if="editFlag" active-color="#ff6b35" style="margin-right: 10rpx" @change="changeChecked(item)"></u-checkbox>
-          </u-checkbox-group>
-          <view class="myTracks-item-img" @click.stop="navgaiteToDetail(item)">
-            <image :src="item.thumbnail"></image>
-          </view>
-          <view class="myTracks-item-content" @click.stop="navgaiteToDetail(item)">
-            <view class="myTracks-item-title">
-              {{ item.goodsName }}
-              <view class="myTracks-item-title-desc"> </view>
+    <u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
+    <div v-else>
+      <view  v-for="(item, index) in trackList" :key="index">
+        <view class="myTracks-title" @click="navgaiteToStore(item)">{{item.storeName}}</view>
+        <view class="myTracks-items">
+          <view class="myTracks-item">
+            <u-checkbox-group>
+              <u-checkbox v-model="item.___isDel" v-if="editFlag" active-color="#ff6b35" style="margin-right: 10rpx" @change="changeChecked(item)"></u-checkbox>
+            </u-checkbox-group>
+            <view class="myTracks-item-img" @click.stop="navgaiteToDetail(item)">
+              <image :src="item.thumbnail"></image>
             </view>
-            <view class="myTracks-item-price">
-              ￥{{ item.price | unitPrice }}
+            <view class="myTracks-item-content" @click.stop="navgaiteToDetail(item)">
+              <view class="myTracks-item-title">
+                {{ item.goodsName }}
+                <view class="myTracks-item-title-desc"> </view>
+              </view>
+              <view class="myTracks-item-price">
+                ￥{{ item.price | unitPrice }}
+              </view>
             </view>
           </view>
         </view>
+        <view class="myTracks-divider"></view>
+
       </view>
-      <view class="myTracks-divider"></view>
-    </view>
-    <uni-load-more :status="loadStatus"></uni-load-more>
+      <uni-load-more :status="loadStatus"></uni-load-more>
+    </div>
     <view v-if="editFlag">
       <view class="myTracks-action-placeholder"></view>
       <view class="myTracks-action">

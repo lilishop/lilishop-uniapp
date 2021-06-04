@@ -6,7 +6,9 @@
 </template>
 <script>
 import tpl from "@/pages/tabbar/home/views.vue";
+
 export default {
+  
   data() {
     return {
       background: {

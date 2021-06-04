@@ -143,7 +143,7 @@
           </view>
 
           <!-- 评价 -->
-          <Evaluation id="main5" :goodsDetail="goodsDetail" v-if="goodsDetail.id" />
+          <Evaluation id="main5" :goodsDetail="goodsDetail"  />
 
           <!-- 店铺推荐 -->
           <storeLayout id="main7" :storeDetail="storeDetail" :goodsDetail="goodsDetail" :res="recommendList" />

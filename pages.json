@@ -42,15 +42,7 @@
 				"navigationBarTitleText": "积分商城",
 				"enablePullDownRefresh": true
 			}
-		},
-		{
-			"path": "pages/navigation/selectShops",
-			"style": {
-				"navigationBarTitleText": "精选店铺"
-			}
-		},
-
-		
+		},		
 		{
 			"path": "pages/navigation/search/searchPage",
 			"style": {
@@ -435,7 +427,9 @@
 					"style": {
 						"navigationBarTitleText": "限时抢购",
 						"app-plus": {
-							"titleNView": {}
+							"titleNView": {
+								"homeButton":true
+							}
 						}
 					}
 				},
@@ -462,7 +456,7 @@
 					"path": "lives",
 					"style": {
 						"navigationStyle": "custom",
-						"navigationBarTextStyle": "white"
+						"navigationBarTextStyle": "black"
 
 					}
 				}
@@ -584,6 +578,7 @@
 						"enablePullDownRefresh": true,
 						"app-plus": {
 							"bounce": "none"
+						
 						}
 					}
 				},
@@ -712,12 +707,12 @@
 				"text": "分类"
 			},
 			
-			// {
-			// 	"pagePath": "pages/navigation/point/point-mall",
-			// 	"iconPath": "static/tabbar/point-mall.png",
-			// 	"selectedIconPath": "static/tabbar/point-mall-s.png",
-			// 	"text": "积分商城"
-			// },
+			{
+				"pagePath": "pages/navigation/point/point-mall",
+				"iconPath": "static/tabbar/point-mall.png",
+				"selectedIconPath": "static/tabbar/point-mall-s.png",
+				"text": "积分商城"
+			},
 			{
 				"pagePath": "pages/tabbar/cart/cartList",
 				"iconPath": "static/tabbar/cart.png",

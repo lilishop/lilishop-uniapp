@@ -97,7 +97,7 @@ export default {
       }
     },
   },
-  async mounted() {
+  async onShow() {
     //获取顶级分类
     let response = await getPointsCategory();
     if (response.data.success) {

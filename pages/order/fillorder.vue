@@ -252,7 +252,6 @@ export default {
     };
   },
   filters: {
-
     /**
      * 发票收据类型
      */
@@ -403,73 +402,72 @@ export default {
     /**
      * 提交订单准备支付
      */
-    submit() {
-      if (!this.address.id) {
-        uni.showToast({
-          title: "请选择地址",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      //  创建订单
-      let client;
-      // #ifdef H5
-      client = "H5";
-      // #endif
-      // #ifdef MP-WEIXIN
-      client = "WECHAT_MP";
-      // #endif
-      // #ifdef APP-PLUS
-      client = "APP";
-      // #endif
-
-      let submit = {
-        client,
-        way: this.routerVal.way,
-        remark: this.remarkVal,
-        parentOrderSn: "",
-      };
-      // 如果是拼团并且当前用户不是团长
-      this.routerVal.parentOrder && this.routerVal.parentOrder.orderSn
-        ? (submit.parentOrderSn = this.routerVal.parentOrder.orderSn)
-        : delete submit.parentOrderSn;
-
-      /**
-       * 创建订单
-       */
-      API_Trade.createTrade(submit).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "创建订单成功!",
-            duration: 2000,
-            icon: "none",
-          });
-
-          // #ifdef MP-WEIXIN
-          // 微信小程序中点击创建订单直接开始支付
-          this.pay(res.data.result.sn);
-          // #endif
-
-          // #ifndef MP-WEIXIN
-          this.navigateTo(
-            `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
-          );
-          // #endif
-        } else {
-          uni.showToast({
-            title: "创建订单有误!请稍后重试",
-            duration: 2000,
-            icon: "none",
-          });
-        }
-      });
-    },
 
     // 创建订单
     createTradeFun() {
       // 防抖
-      this.$u.debounce(this.submit(), 3000);
+      this.$u.throttle(() => {
+        if (!this.address.id) {
+          uni.showToast({
+            title: "请选择地址",
+            duration: 2000,
+            icon: "none",
+          });
+          return false;
+        }
+        //  创建订单
+        let client;
+        // #ifdef H5
+        client = "H5";
+        // #endif
+        // #ifdef MP-WEIXIN
+        client = "WECHAT_MP";
+        // #endif
+        // #ifdef APP-PLUS
+        client = "APP";
+        // #endif
+
+        let submit = {
+          client,
+          way: this.routerVal.way,
+          remark: this.remarkVal,
+          parentOrderSn: "",
+        };
+        // 如果是拼团并且当前用户不是团长
+        this.routerVal.parentOrder && this.routerVal.parentOrder.orderSn
+          ? (submit.parentOrderSn = this.routerVal.parentOrder.orderSn)
+          : delete submit.parentOrderSn;
+
+        /**
+         * 创建订单
+         */
+        API_Trade.createTrade(submit).then((res) => {
+          if (res.data.success) {
+            uni.showToast({
+              title: "创建订单成功!",
+              duration: 2000,
+              icon: "none",
+            });
+
+            // #ifdef MP-WEIXIN
+            // 微信小程序中点击创建订单直接开始支付
+            this.pay(res.data.result.sn);
+            // #endif
+
+            // #ifndef MP-WEIXIN
+            this.navigateTo(
+              `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
+            );
+            // #endif
+          } else {
+            uni.showToast({
+              title: "创建订单有误!请稍后重试",
+              duration: 2000,
+              icon: "none",
+            });
+          }
+        });
+      }, 3000);
     },
 
     /**

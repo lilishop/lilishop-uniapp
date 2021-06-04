@@ -1,8 +1,20 @@
 /**
  * 促销相关API
  */
-import {http, Method} from '@/utils/request.js';
+import { http, Method } from "@/utils/request.js";
 
+/**
+ * 获取当前直播列表
+ *
+ * @param {*}
+ * @returns
+ */
+export function getLiveList() {
+  return http.request({
+    url: `broadcast/studio`,
+    method: Method.GET,
+  });
+}
 
 /**
  * 获取当前拼团活动的未成团的会员
@@ -14,24 +26,22 @@ export function getPromotionGroupMember(pintuanId) {
   });
 }
 
-
 /** 获取拼团列表 */
 export function getAssembleList(params) {
   return http.request({
-    url: 'promotion/pintuan',
+    url: "promotion/pintuan",
     method: Method.GET,
     loading: false,
-    params
-  })
+    params,
+  });
 }
-
 
 /**
  * 获取积分商城分类
  */
 export function getPointsCategory() {
   return http.request({
-    url: '/promotion/pointsGoods/category',
+    url: "/promotion/pointsGoods/category",
     method: Method.GET,
   });
 }
@@ -42,7 +52,7 @@ export function getPointsCategory() {
  */
 export function getPointsGoods(params) {
   return http.request({
-    url: '/promotion/pointsGoods',
+    url: "/promotion/pointsGoods",
     method: Method.GET,
     params,
   });
@@ -53,7 +63,7 @@ export function getPointsGoods(params) {
  */
 export function getSeckillTimeLine() {
   return http.request({
-    url: 'promotion/seckill',
+    url: "promotion/seckill",
     method: Method.GET,
   });
 }
@@ -75,7 +85,7 @@ export function getSeckillTimeGoods(timeline) {
  */
 export function getAllCoupons(params) {
   return http.request({
-    url: '/promotion/coupon',
+    url: "/promotion/coupon",
     method: Method.GET,
     params,
   });

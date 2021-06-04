@@ -49,31 +49,7 @@
         </view>
       </view>
     </view>
-    <!-- <view
-      @click="hide"
-      v-show="flage"
-      class="flex-row-around"
-      style="border-radius: 10rpx; background-color: #ebebeb"
-      :style="{
-        width: width,
-        height: height,
-        'margin-left': left,
-        'margin-top': top,
-      }"
-      :class="vsr ? 'border-index' : ''"
-    >
-      <view class="flex-row-center" style="width: 45rpx; height: 45rpx">
-        <view v-show="!vsr" class="dh-wt"> </view>
-        <view
-          v-show="vsr"
-          class="cuIcon-roundcheck"
-          style="font-size: 45rpx; color: #07c160"
-        >
-        </view>
-      </view>
-      <text :class="vsr ? 'ttcl' : ''" style="color: #5a5a5a">{{ vsrtx }}</text>
-      <view class="cuIcon-safe text-gray"> </view>
-    </view> -->
+
   </view>
 </template>
 
@@ -209,13 +185,12 @@ export default {
         },
         success: (res) => {
           this.endLoad = true;
-
           res.data.result == false
             ? (res.data.result = false)
             : (res.data.result = true);
 
           if (res.data && res.data.result) {
-            // // 验证成功后把key发送出去,后端会把验证信息存在缓存里
+            //验证成功后把key发送出去,后端会把验证信息存在缓存里
             this.$emit("send", this.key);
             this.hide();
             this.vsr = true;
@@ -389,33 +364,6 @@ export default {
   margin-top: -35rpx;
 }
 
-.lk-tag {
-  height: 50rpx;
-  padding: 0 10rpx;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 2rpx solid #24bd9f;
-  border-radius: 6rpx;
-  color: #1c947a;
-  font-weight: 500;
-}
-
-.tb-tag-my {
-  border-radius: 15rpx;
-  font-size: 16rpx;
-  margin-left: 5rpx;
-}
-
-.my-green {
-  color: #29c7a5;
-}
-
-.my-hui {
-  color: #585858;
-  font-size: 22rpx;
-}
-
 .flex-column-center {
   display: flex;
   flex-direction: column;
@@ -524,75 +472,15 @@ export default {
   bottom: 70rpx;
 }
 
-.white-box {
-  padding: 0 20rpx;
-  margin-bottom: 15rpx;
-  margin-top: 5rpx;
-  width: 715rpx;
-  background-color: #ffffff;
-  border-radius: 30rpx;
-}
 
-.green-box {
-  padding: 0 20rpx;
-  margin-bottom: 15rpx;
-  margin-top: 5rpx;
-  width: 715rpx;
-  background-color: #ffffff;
-  border-radius: 30rpx;
-  background-image: linear-gradient(#1faf97, #29c7a5);
-}
 
-.yuan-sm {
-  width: 13rpx;
-  height: 13rpx;
-  border-radius: 50%;
-  background-color: #1fc189;
-  margin-left: 10rpx;
-}
 
-.yuan-normal {
-  width: 14rpx;
-  height: 14rpx;
-  border-radius: 50%;
-  background-color: #159f3c;
-  margin-left: 10rpx;
-}
-
-.yuan-normal-red {
-  width: 14rpx;
-  height: 14rpx;
-  border-radius: 50%;
-  background-color: #bc3c11;
-  margin-left: 10rpx;
-}
-
-.yuan-sm-red {
-  width: 13rpx;
-  height: 13rpx;
-  border-radius: 50%;
-  background-color: #de410d;
-  margin-left: 10rpx;
-}
-
-.white-box-all {
-  margin-top: 5rpx;
-  width: 750rpx;
-  background-color: #ffffff;
-  border-radius: 13px;
-}
 
 .moneycolor {
   color: #ea5002;
 }
 
-.text-bold-sm {
-  font-weight: 425;
-}
 
-.sm-moneycolor {
-  color: #e3793b;
-}
 
 .margin-top {
   margin-top: 20rpx;
@@ -610,71 +498,13 @@ export default {
   margin-left: 20rpx;
 }
 
-.margin-left-top {
-  margin-left: 20rpx;
-  margin-top: 20rpx;
-}
+
 
 .margin-right {
   margin-right: 20rpx;
 }
 
-.my-absolute {
-  position: absolute;
-}
 
-.my-fixed {
-  position: fixed;
-}
-
-.my-seach {
-  width: 450rpx;
-  height: 55rpx;
-  background-color: #f8f8f8;
-  border-radius: 30rpx;
-  padding-left: 20rpx;
-}
-
-.move-view {
-  width: 48rpx;
-  height: 10rpx;
-  background-color: #28ba91;
-  border-radius: 4rpx;
-  margin-left: 100rpx;
-}
-
-.move-view-p {
-  width: 45rpx;
-  height: 10rpx;
-  background-color: #28ba91;
-  border-radius: 4rpx;
-}
-
-.header-dh {
-  position: fixed;
-  padding-top: 20rpx;
-  padding-bottom: 15rpx;
-  height: 70rpx;
-  width: 750rpx;
-  background-color: #f1f1f1;
-  z-index: 20;
-}
-
-.tp-normal {
-  width: 60rpx;
-  height: 60rpx;
-}
-
-.tp-sm {
-  width: 45rpx;
-  height: 45rpx;
-}
-
-.tp-big {
-  width: 70rpx;
-  height: 70rpx;
-  border-radius: 50%;
-}
 
 .main-color {
   color: #07d188;

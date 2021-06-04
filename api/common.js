@@ -1,25 +1,9 @@
 /**
  * 公共API
  */
-import storage from "@/utils/storage.js"
 import {http, Method} from '@/utils/request.js';
 import api from '@/config/api.js';
 
-/**
- * 获取图片验证码URL
- * @param type
- * @param uuid
- * @returns {string}
- */
-export function getValidateCodeUrl(type, uuid) {
-  if (!type) {
-    return '';
-  }
-  if (!uuid) {
-    uuid = storage.getUuid()
-  }
-  return `${api.base}/captchas/${uuid}/${type}?r=${new Date().getTime()}`;
-}
 
 
 /**

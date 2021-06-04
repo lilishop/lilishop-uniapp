@@ -69,22 +69,7 @@
 			this.goods = response.data;
 		},
 		onBackPress() {
-			// uni.preloadPage({
-			// 	url: '/pages/tabbar/home/index',
-			// 	success: function(res) {
-			// 		// 通过eventChannel向被打开页面传送数据
-				
-			// 	}
-			// });
-
-			// //莫名其妙的，无法后退，尝试追加参数解决缓存问题
-			// uni.switchTab({
-			// 	url: '/pages/tabbar/home/index?' + new Date().getTime(),
-			// 	success: function(res) {
-			// 		// 通过eventChannel向被打开页面传送数据
-				
-			// 	}
-			// });
+		
 		},
 		methods: {
 			// 跳转

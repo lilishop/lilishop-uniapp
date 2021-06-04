@@ -13,33 +13,32 @@
 
     <div class="wrapper">
       <!-- 直播中 全部 直播回放 -->
-      <div class="live-list">
+      <div class="live-item" :class="{'invalid':item.status == 'END'}" v-for="(item,index) in liveList" :key="index" @click="handleLivePlayer(item)">
         <div class="live-cover-img">
           <div class="tips">
             <div class="live-box">
               <image class="live-gif" src="./static/live.gif"></image>
             </div>
-            <span> 直播中</span>
+            <span>{{item.status == 'END' ? '已结束' : item.status =='NEW' ? '未开始' : '直播中'}}</span>
           </div>
           <div class="bg"></div>
-          <image class="zan" src="./static/zan.gif" mode="" />
-          <u-image width="326" height="354" src="https://lilishop-oss.oss-cn-beijing.aliyuncs.com/fe5b8167b0264c53836d08a6a7003cf0.jpeg" />
+          <u-image width="326" height="354" :src="item.shareImg" />
         </div>
         <div class="live-goods">
-          <image src="./static/live.png" class="live-icon" mode="" />
           <div class="live-goods-name">
-            甄选家电好物，尽在超值5月
+            {{item.name}}
           </div>
           <div class="live-store">
-            <u-image shape="circle" width="50" height="50" src="https://gfs14.gomein.net.cn/T11wElB7Cv1RCvBVdK_360.jpg?v=1" />
+
             <span class="wes">lilishop</span>
           </div>
+        
           <div class="live-goods-list">
             <div class="live-goods-item">
-              <u-image border-radius="20" height="140"></u-image>
+              <u-image border-radius="20" :src="item.roomGoodsList.length !=0 ? item.roomGoodsList[0] : ''" height="140"></u-image>
             </div>
             <div class="live-goods-item">
-              <u-image border-radius="20" height="140"></u-image>
+              <u-image border-radius="20" :src="item.roomGoodsList.length !=0 ? item.roomGoodsList[1] : ''" height="140"></u-image>
             </div>
 
           </div>
@@ -50,11 +49,12 @@
 </template>
 
 <script>
+import { getLiveList } from "@/api/promotions.js";
 export default {
   data() {
     return {
       activeColor: this.$lightColor,
-
+      keyword: "",
       // 标签栏
       tabs: [
         {
@@ -72,6 +72,8 @@ export default {
       background: {
         background: "#ff9f28",
       },
+      // 直播间列表
+      liveList: "",
       //轮播图滚动的图片
       swiperImg: [
         {
@@ -89,6 +91,46 @@ export default {
       ],
     };
   },
+  mounted() {
+    this.getLives();
+  },
+  methods: {
+    /**
+     *
+     */
+    async getLives() {
+      let res = await getLiveList();
+      if (res.data.success) {
+        this.liveList = res.data.result.records;
+
+        this.liveList.forEach((item) => {
+          console.log();
+        });
+      }
+    },
+
+    /**
+     * 推荐直播间
+     */
+    async getStarLive() {},
+
+    /**
+     * 进入直播间
+     */
+    handleLivePlayer(val) {
+      let roomId = val.roomId; // 填写具体的房间号，可通过下面【获取直播房间列表】 API 获取
+      let customParams = encodeURIComponent(
+        JSON.stringify({ path: "pages/index/index", pid: 1 })
+      ); // 开发者在直播间页面路径上携带自定义参数，后续可以在分享卡片链接和跳转至商详页时获取，详见【获取自定义参数】、【直播间到商详页面携带参数】章节（上限600个字符，超过部分会被截断）
+      uni.navigateTo({
+        url:
+          "plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=" +
+          roomId +
+          "&custom_params=" +
+          customParams,
+      });
+    },
+  },
 };
 </script>
 
@@ -96,16 +138,18 @@ export default {
 .slot-wrap {
   display: flex;
   align-items: center;
-
   /* 如果您想让slot内容占满整个导航栏的宽度 */
   flex: 1;
   /* 如果您想让slot内容与导航栏左右有空隙 */
   /* padding: 0 30rpx; */
 }
+.invalid {
+  filter: grayscale(1);
+}
 .wrapper {
   padding: 0 24rpx;
 }
-.live-list {
+.live-item {
   display: flex;
   overflow: hidden;
   border-radius: 20rpx;
@@ -138,10 +182,6 @@ export default {
   margin: 20rpx 0;
   overflow: hidden;
   width: calc(100% - 50rpx);
-  > span {
-    color: #999;
-    margin-left: 20rpx;
-  }
 }
 .live-gif {
   width: 20rpx;
@@ -168,6 +208,7 @@ export default {
     padding-right: 38rpx;
   }
 }
+
 .live-icon,
 .zan {
   position: absolute;

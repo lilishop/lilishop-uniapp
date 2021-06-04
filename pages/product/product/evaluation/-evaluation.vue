@@ -5,7 +5,7 @@
 
         <view class="evaluate-title">评价</view>
         <text class="evaluate-num">{{ commDetail.total || '0' }}+</text>
-        <text class="tip">好评率 {{ goodsDetail.grade || '100' }}%</text>
+        <text class="tip">好评率 {{ grade || '100' }}%</text>
       </view>
       <div v-if="commDetail && commDetail.records && commDetail.records.length > 0">
         <view class="eva-box" v-for="(commItem,commIndex) in commDetail.records.slice(0,2)" :key="commIndex">
@@ -51,6 +51,7 @@ export default {
       lightColor: this.$lightColor,
       // 评论集合
       commDetail: [],
+      grade: "",
       // 评论分页提交数据
       params: {
         pageNumber: 1,
@@ -59,9 +60,25 @@ export default {
       },
     };
   },
-  props: ["goodsDetail"],
+  props: {
+    goodsDetail: {
+      default: {},
+      type: Object,
+    },
+  },
+
+  watch: {
+    goodsDetail: {
+      handler(val) {
+        this.grade = val.grade;
+        this.getGoodsComments();
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
   mounted() {
-    this.getGoodsComments();
+    // this.getGoodsComments();
   },
   methods: {
     parseLoaded() {

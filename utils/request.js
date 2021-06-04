@@ -38,7 +38,6 @@ function getTokenDebounce() {
           }
         })
         .catch((error) => {
-          console.log(error);
           cleanStorage();
           success = false;
           lock = false;

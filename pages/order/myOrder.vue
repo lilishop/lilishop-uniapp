@@ -7,7 +7,7 @@
       <swiper-item class="tab-content" v-for="(tabItem, tabIndex) in navList" :key="tabIndex">
         <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData(tabIndex)">
           <!-- 空白页 -->
-          <empty v-if="tabItem.loaded === true && tabItem.orderList.length === 0"></empty>
+          <u-empty text="暂无订单" mode="list" v-if="tabItem.loaded === true && tabItem.orderList.length === 0"></u-empty>
           <!-- 订单列表 -->
           <view class="seller-view" :key="oderIndex" v-for="(order, oderIndex) in tabItem.orderList">
             <!-- 店铺名称 -->
@@ -67,10 +67,6 @@
               </view>
             </view>
           </view>
-          <view class="nodata" v-if="tabItem.loadStatus === 'noMore'">
-
-          </view>
-
           <uni-load-more :status="tabItem.loadStatus"></uni-load-more>
         </scroll-view>
       </swiper-item>
@@ -100,14 +96,12 @@
 
 <script>
 import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
-import empty from "@/components/empty";
 import { getOrderList, cancelOrder, confirmReceipt } from "@/api/order.js";
 import { getClearReason } from "@/api/after-sale.js";
 import LiLiWXPay from "@/js_sdk/lili-pay/wx-pay.js";
 export default {
   components: {
     uniLoadMore,
-    empty,
   },
   data() {
     return {

@@ -1,4 +1,5 @@
 
+
 <script>
 /**
  * vuex管理登录状态，具体可以参考官方登录模板示例
@@ -14,6 +15,35 @@ export default {
     return {
       config,
     };
+  },
+
+  /**
+   * 监听返回
+   */
+  onBackPress(e) {
+    if (e.from == "backbutton") {
+      let routes = getCurrentPages();
+      let curRoute = routes[routes.length - 1].options;
+      routes.forEach((item) => {
+        if (
+          item.route == "pages/tabbar/cart/cartList" ||
+          item.route.indexOf("pages/product/goods") != -1
+        ) {
+          uni.redirectTo({
+            url: item.route,
+          });
+        }
+      });
+
+      if (curRoute.addId) {
+        uni.reLaunch({
+          url: "/pages/tabbar/cart/cartList",
+        });
+      } else {
+        uni.navigateBack();
+      }
+      return true; //阻止默认返回行为
+    }
   },
   methods: {
     ...mapMutations(["login"]),
