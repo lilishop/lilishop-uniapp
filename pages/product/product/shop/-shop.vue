@@ -7,13 +7,17 @@
       </view>
       <view class="name-star star-con">
         <text class="name">{{ storeDetail.storeName }}</text>
-        <view>
+        <!-- <view>
           <text :class="{ star: storeDetail.store_service_credit > 0 }"></text>
           <text :class="{ star: storeDetail.store_service_credit > 1 }"></text>
           <text :class="{ star: storeDetail.store_service_credit > 2 }"></text>
           <text :class="{ star: storeDetail.store_service_credit > 3 }"></text>
           <text :class="{ star: storeDetail.store_service_credit > 4 }"></text>
-        </view>
+        </view> -->
+		<view class="desc">
+			<text>{{storeDetail.goodsNum || 0}}商品</text>
+			<text>{{storeDetail.collectionNum || 0}}关注</text>
+		</view>
       </view>
       <view class="to-store-btn" @click="tostorePage(goodsDetail)">
         <view>进店逛逛</view>
@@ -139,7 +143,16 @@ export default {
       font-weight: 700;
       font-size: 28rpx;
       line-height: 24px;
+	  margin-left: 10px;
     }
+	.desc {
+		font-size: 12px;
+		color: #999;
+		margin-left: 10px;
+		text{
+			margin-right: 10px;
+		}
+	}
   }
 
   .to-store-btn {

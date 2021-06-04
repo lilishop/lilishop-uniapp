@@ -130,12 +130,22 @@ page{
     display: flex;
     width: 100%;
     background: #fff !important;
-    > div {
-        flex: 1;
+    > div:nth-child(1) {
+        width: 50rpx;
     }
-    > .headerList {
-        flex: 8;
-    }
+	> div:nth-child(2) {
+	    flex: 1;
+		.headerList{
+			display: flex;
+			div{
+				flex: 1;
+			}
+		}
+	}
+	> div:nth-child(3) {
+	    width: 100rpx;
+	}
+    
     justify-content: space-between;
 }
 
@@ -366,4 +376,20 @@ page {
 .status_bar{
     background: #fff;
     height: var(--status-bar-height);
+}
+// 快捷导航
+
+.fast-icon{
+	background-color: #999;
+	border-radius: 50rpx;
+	font-size: 40rpx;
+	padding: 4rpx;
+	color: #FFFFFF;
+}
+.ml-20{
+	margin-left: 20rpx;
+}
+.fast-icon-dark {
+	color: #999;
+	background-color: #fff;
 }
