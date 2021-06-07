@@ -107,23 +107,31 @@ export default {
     },
 
     /**
+     * 扫码
+     */
+    seacnCode() {
+      uni.scanCode({
+        success: function (res) {
+          let path = encodeURIComponent(res.result);
+          // TODO 扫码功能后续还会后续增加
+          // 扫码成功后跳转到webview页面
+          setTimeout(() => {
+            uni.navigateTo({
+              url: "/pages/tabbar/home/web-view?src=" + path,
+            });
+          }, 100);
+        },
+      });
+    },
+
+    /**
      * 唤醒客户端扫码
      * 没权限去申请权限，有权限获取扫码功能
      */
     scan() {
+      // #ifdef APP-PLUS
       if (permision.judgeIosPermission("camera")) {
-        uni.scanCode({
-          success: function (res) {
-            let path = encodeURIComponent(res.result);
-            // TODO 扫码功能后续还会后续增加
-            // 扫码成功后跳转到webview页面
-            setTimeout(() => {
-              uni.navigateTo({
-                url: "/pages/tabbar/home/web-view?src=" + path,
-              });
-            }, 100);
-          },
-        });
+        this.seacnCode();
       } else {
         // 没有权限提醒是否去申请权限
         uni.showModal({
@@ -136,6 +144,11 @@ export default {
           },
         });
       }
+      // #endif
+
+      // #ifdef MP-WEIXIN
+      this.seacnCode();
+      // #endif
     },
   },
 };
