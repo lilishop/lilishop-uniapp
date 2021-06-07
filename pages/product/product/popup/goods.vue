@@ -197,13 +197,6 @@ export default {
 
             this.$emit("queryCart");
             this.closeMask();
-          } else {
-            uni.showToast({
-              title: res.data.message,
-              duration: 2000,
-              icon: "none",
-            });
-            return false;
           }
         });
       } else {
@@ -226,13 +219,7 @@ export default {
               )}`,
             });
           }
-          else{
-             uni.showToast({
-              title: res.data.message,
-              duration: 2000,
-              icon: "none",
-            });
-          }
+        
         });
       }
     },

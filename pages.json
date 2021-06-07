@@ -707,12 +707,12 @@
 				"text": "分类"
 			},
 			
-			{
-				"pagePath": "pages/navigation/point/point-mall",
-				"iconPath": "static/tabbar/point-mall.png",
-				"selectedIconPath": "static/tabbar/point-mall-s.png",
-				"text": "积分商城"
-			},
+			// {
+			// 	"pagePath": "pages/navigation/point/point-mall",
+			// 	"iconPath": "static/tabbar/point-mall.png",
+			// 	"selectedIconPath": "static/tabbar/point-mall-s.png",
+			// 	"text": "积分商城"
+			// },
 			{
 				"pagePath": "pages/tabbar/cart/cartList",
 				"iconPath": "static/tabbar/cart.png",

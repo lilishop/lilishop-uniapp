@@ -1,5 +1,4 @@
 import Request from "@/lib/request/index.js";
-import { configHandle } from "@/utils/tools.js";
 import { refreshTokenFn } from "@/api/login.js";
 import storage from "@/utils/storage.js";
 import { md5 } from "@/utils/md5.js";
@@ -84,7 +83,6 @@ function cleanStorage() {
 
 let http = new Request();
 const refreshToken = getTokenDebounce();
-const reReqest = new Request();
 
 http.setConfig((config) => {
   // 没有uuid创建
@@ -141,7 +139,10 @@ http.interceptors.response.use(
     // token存在并且token过期
     let token = storage.getAccessToken();
 
-    if (token && response.statusCode === 403) {
+    if (
+      (token && response.statusCode === 403) ||
+      response.data.status === 403
+    ) {
       expireToken.includes(token) ? cleanStorage() : "";
       // jwt token 过期了
       expireToken.push(token); // 把过期token 储存
@@ -150,36 +151,44 @@ http.interceptors.response.use(
         // 本地储存的是过期token了，重新获取
         const getTokenResult = await refreshToken();
         if (getTokenResult === "success") {
-          // 获取新的token成功
-          try {
-            const repeatRes = await reReqest.request(
-              configHandle(response.config)
-            );
-            response = repeatRes;
-          } catch (err) {}
+          // 获取新的token成功 刷新当前页面
+
+          let routes = getCurrentPages(); // 获取当前打开过的页面路由数组
+          let curRoute = routes[routes.length - 1].route; //获取当前页面路由
+          let curParam = routes[routes.length - 1].options; //获取路由参数
+          // 拼接参数
+          let param = "";
+          for (let key in curParam) {
+            param += "&" + key + "=" + curParam[key];
+          }
+
+          uni.redirectTo({
+            url: "/" + curRoute + param.replace("&", "?"),
+          });
         } else {
           cleanStorage();
         }
       } else {
-        try {
-          const repeatRes = await reReqest.request(
-            configHandle(response.config)
-          );
-          response = repeatRes;
-        } catch (err) {
-          cleanStorage();
-        }
+        cleanStorage();
       }
       // 如果当前返回没登录
-    } else if (response.statusCode === 403 || response.data.code === 403) {
+    } else if (
+      (!token && response.statusCode === 403) ||
+      response.data.code === 403
+    ) {
       cleanStorage();
       // 如果当前状态码为正常但是success为不正常时
-    } else if (response.statusCode == 200 && !response.data.success  || response.statusCode == 400) {
-      uni.showToast({
-        title: response.data.message ,
-        icon: "none",
-        duration: 1500,
-      });
+    } else if (
+      (response.statusCode == 200 && !response.data.success) ||
+      response.statusCode == 400
+    ) {
+      if (response.data.message) {
+        uni.showToast({
+          title: response.data.message,
+          icon: "none",
+          duration: 1500,
+        });
+      }
     }
     return response;
   },

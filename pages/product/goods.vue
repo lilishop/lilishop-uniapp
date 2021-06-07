@@ -367,6 +367,7 @@ export default {
     },
   },
   mounted() {
+
     const { windowHeight } = uni.getSystemInfoSync();
     let bottomHeight = 0;
     let topHeight = 0;
