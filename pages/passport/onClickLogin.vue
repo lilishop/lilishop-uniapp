@@ -18,6 +18,7 @@ import { webConnect, openIdLogin } from "@/api/connect.js";
 import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import { getUserInfo } from "@/api/members";
 import storage from "@/utils/storage.js";
+import api from "@/config/api.js";
 
 export default {
   data() {
@@ -148,12 +149,8 @@ export default {
 
       // #ifdef H5
       let code = connectLogin.code;
-      webConnect(code).then((res) => {
-        let data = res.data;
-        if (data.success) {
-          window.location = data.result;
-        }
-      });
+	  let buyer = api.buyer;
+      window.open(buyer+`/connect/login/web/`+code, "_self");
       // #endif
       // #ifdef APP-PLUS
       this.nonH5OpenId(connectLogin);
