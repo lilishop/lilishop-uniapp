@@ -448,17 +448,23 @@ export default {
               duration: 2000,
               icon: "none",
             });
+            // 如果当前价格为0跳转到订单列表
+            if (this.orderMessage.priceDetailDTO.billPrice == 0) {
+              uni.redirectTo({
+                url: "/pages/order/myOrder?status=0",
+              });
+            } else {
+              // #ifdef MP-WEIXIN
+              // 微信小程序中点击创建订单直接开始支付
+              this.pay(res.data.result.sn);
+              // #endif
 
-            // #ifdef MP-WEIXIN
-            // 微信小程序中点击创建订单直接开始支付
-            this.pay(res.data.result.sn);
-            // #endif
-
-            // #ifndef MP-WEIXIN
-            this.navigateTo(
-              `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
-            );
-            // #endif
+              // #ifndef MP-WEIXIN
+              this.navigateTo(
+                `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
+              );
+              // #endif
+            }
           } else {
             uni.showToast({
               title: "创建订单有误!请稍后重试",

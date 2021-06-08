@@ -164,7 +164,7 @@ import * as API_Trade from "@/api/trade";
 export default {
   data() {
     return {
-      lightColor:this.$lightColor,
+      lightColor: this.$lightColor,
       discountDetailsFlag: false, //优惠明细开关
       // 商品栏右侧滑动按钮
       options: [
@@ -499,16 +499,9 @@ export default {
               }
               uni.stopPullDownRefresh();
               uni.hideLoading();
-            } else {
-              uni.showToast({
-                title: result.data.message,
-                duration: 2000,
-                icon: "none",
-              });
             }
           })
           .catch((err) => {
-          
             uni.hideLoading();
           });
       } else {
