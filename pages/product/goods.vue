@@ -9,42 +9,40 @@
     <!-- 分享 -->
     <shares v-if="shareFlage && goodsDetail.id" :skuId="this.routerVal.id" :goodsId="this.routerVal.goodsId" :link="'/pages/product/goods?id='+this.routerVal.id+'&goodsId='+this.routerVal.goodsId"
       :thumbnail="goodsDetail.thumbnail" :goodsName="goodsDetail.goodsName" type="goods" @close="shareFlage = false" />
+    <popups v-model="popupsSwitch" @tapPopup="handleNavbarList" :popData="navbarListData" :x="navbarListX" :y="navbarListY" placement="top-start" />
     <view class="index">
-      <u-navbar :background="navbar" :is-back="false" :class="headerFlag ? 'header' : 'header bg-none scoll-hide'">
+
+      <!-- topBar -->
+      <u-navbar :background="navbar" :is-back="false" :class="headerFlag ? 'header' : 'header bg-none scroll-hide'">
         <div class="headerRow">
-          <div class="backs" @click="back()">
-            <u-icon name="arrow-left" color="#8e8e8e"></u-icon>
+          <div class="backs">
+            <u-icon @click="back()" name="arrow-left" class="icon-back"></u-icon>
+
+            <u-icon name="list" @click="popupsSwitch = !popupsSwitch" class="icon-list"></u-icon>
           </div>
-          <div class="headerList" :class="headerFlag ? 'tab-bar' : 'tab-bar scoll-hide'">
+          <div class="headerList" :class="headerFlag ? 'tab-bar' : 'tab-bar scroll-hide'">
             <div class="headerRow">
-              <div style="text-align: center" :span="3" v-for="header in headerList" :key="header.id" :class="{ cur: scrollId === header.id }" @click="headerTab(header.id)">
+              <div class="nav-item" v-for="header in headerList" :key="header.id" :class="{ cur: scrollId === header.id }" @click="headerTab(header.id)">
                 {{ header.text }}
               </div>
             </div>
           </div>
-          <div class="share" @click="shareChange()">
-            <image class="shareImg" src="/static/share.png" alt=""></image>
-          </div>
         </div>
       </u-navbar>
 
-      <view class="showBack" v-show="!headerFlag">
-        <u-row>
-          <u-col :span="2" @click="back()">
-            <div class="iconBag" style="text-align: center">
-              <image class="headerImg" src="/static/bagBack.png" alt=""></image>
-            </div>
-          </u-col>
-          <u-col :span="8"></u-col>
+      <u-navbar :border-bottom="false" v-show="!headerFlag" class="header-only-back" :background="navbarOnlyBack" :is-back="false">
+        <div>
+          <div class="bg-back">
+            <u-icon size="40" @click="back()" name="arrow-left" class="icon-back"></u-icon>
+            <u-icon size="40" @click="popupsSwitch = !popupsSwitch" name="list" class="icon-list"></u-icon>
 
-          <u-col :span="2" class="share" style="text-align: center" @click="shareChange()">
-            <image class="headerImg" src="/static/bagShare.png" alt=""></image>
-          </u-col>
-        </u-row>
-      </view>
+          </div>
+        </div>
+      </u-navbar>
     </view>
+
     <view class="product-container" :style="{ height: productRefHeight }" ref="productRef" id="productRef">
-      <scroll-view scroll-anchoring enableBackToTop="true" scroll-with-animation scroll-y class="scoll-page" :scroll-top="tabScrollTop" @scroll="pageScroll">
+      <scroll-view scroll-anchoring enableBackToTop="true" scroll-with-animation scroll-y class="scroll-page" :scroll-top="tabScrollTop" @scroll="pageScroll">
         <view>
           <!-- 轮播图 -->
           <GoodsSwiper id="main1" :res="imgList" />
@@ -54,9 +52,9 @@
 
           <view class="card-box top-radius-0" id="main2">
             <!-- 活动不显示价钱 -->
-            <view v-if="!is_promotion" class="desc-blod -goods-msg">
+            <view v-if="!isPromotion" class="desc-bold -goods-msg">
               <view class="-goods-flex">
-                <view class="desc-blod">
+                <view class="desc-bold">
                   {{ goodsDetail.goodsName || "" }}
                 </view>
                 <view class="favorite" @click="clickFavorite(goodsDetail.id)">
@@ -84,12 +82,17 @@
                     }} </span>
                   </view>
                   <view class="-goods-price" v-else> ¥<span class="price">0 </span>.00 </view>
-                  <view class="favorite" @click="clickFavorite(goodsDetail.id)">
+
+                  <view class="icons share" @click="shareChange()">
+                    <u-icon size="30" name="share-fill"></u-icon>
+                    <view>分享</view>
+                  </view>
+                  <view class="icons" @click="clickFavorite(goodsDetail.id)">
                     <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'" :name="favorite ? 'heart-fill' : 'heart'"></u-icon>
                     <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{ favorite ? "已收藏" : "收藏" }}</view>
                   </view>
                 </view>
-                <view class="-goods-name desc-blod">
+                <view class="-goods-name desc-bold">
                   {{ goodsDetail.goodsName || "" }}
                 </view>
                 <view class="-goods-desc">
@@ -143,7 +146,7 @@
           </view>
 
           <!-- 评价 -->
-          <Evaluation id="main5" :goodsDetail="goodsDetail"  />
+          <Evaluation id="main5" :goodsDetail="goodsDetail" />
 
           <!-- 店铺推荐 -->
           <storeLayout id="main7" :storeDetail="storeDetail" :goodsDetail="goodsDetail" :res="recommendList" />
@@ -232,7 +235,7 @@ import {
 import * as API_trade from "@/api/trade.js";
 import * as API_Members from "@/api/members.js";
 import * as API_store from "@/api/store.js";
-
+import { modelNavigateTo } from "@/pages/tabbar/home/template/tpl.js";
 /************请求存储***************/
 import storage from "@/utils/storage.js";
 
@@ -250,8 +253,10 @@ import GoodsSwiper from "./product/goods/-goods-swiper"; //轮播图组件
 import popupGoods from "./product/popup/goods"; //购物车商品的模块
 import popupAddress from "./product/popup/address"; //地址选择模块
 import shares from "@/components/m-share/index"; //分享
+import popups from "@/components/popups/popups"; //气泡框
 export default {
   components: {
+    popups,
     shares,
     PromotionLayout,
     PromotionDetailsLayout,
@@ -268,13 +273,51 @@ export default {
   },
   data() {
     return {
+      // #ifdef H5
+      navbarListX: 110, //导航栏列表栏x轴
+      navbarListY: 80, //导航栏列表栏y轴
+      // #endif
+      // #ifdef MP-WEIXIN
+      navbarListX: 100, //导航栏列表栏x轴
+      navbarListY: 140, //导航栏列表栏y轴
+      // #endif
+      // #ifdef APP-PLUS
+      navbarListX: 120, //导航栏列表栏x轴
+      navbarListY: 170, //导航栏列表栏y轴
+      // #endif
+      navbarListData: [
+        //导航栏列表栏数据
+        {
+          title: "首页",
+          icon: "home-fill",
+          ___type: "other",
+        },
+        {
+          title: "购物车",
+          icon: "bag-fill",
+          ___type: "other",
+        },
+        {
+          title: "搜索",
+          icon: "search",
+          ___type: "category",
+        },
+        {
+          title: "个人中心",
+          icon: "account-fill",
+          ___type: "other",
+        },
+      ],
+      popupsSwitch: false, //导航栏列表栏开关
       shareFlage: false,
       selectedGoods: "", //选择的商品规格昵称
-      is_promotion: true, //判断显示拼团活动文字
+      isPromotion: true, //判断显示拼团活动文字
       isGroup: false, // 是否是拼团活动
       pointDetail: "", // 是否是积分商品
       assemble: "", //拼团的sku
-      scroll_mask_height: 0, //促销活动的高度
+      navbarOnlyBack: {
+        background: "transparent",
+      },
       navbar: {
         background: "#fff",
       },
@@ -286,7 +329,7 @@ export default {
       },
       headerFlag: false, //顶部导航显示与否
       headerList: [
-        //顶部导航文字
+        //顶部导航文字按照规则来 详情全局搜索
         {
           text: "商品",
           id: "1",
@@ -359,15 +402,14 @@ export default {
           clearInterval(timer);
         }, 100);
 
-        this.is_promotion = false;
+        this.isPromotion = false;
       } else {
-        this.is_promotion = true;
+        this.isPromotion = true;
         this.$refs.popupGoods.buyType = "";
       }
     },
   },
   mounted() {
-
     const { windowHeight } = uni.getSystemInfoSync();
     let bottomHeight = 0;
     let topHeight = 0;
@@ -420,7 +462,16 @@ export default {
     }
   },
   methods: {
-    // 循环出当前促销是否为空
+    /**
+     * 导航栏列表栏
+     */
+    handleNavbarList(val) {
+      modelNavigateTo({ url: val });
+    },
+
+    /**
+     * 循环出当前促销是否为空
+     */
     emptyPromotion() {
       if (
         this.PromotionList == "" ||
@@ -430,7 +481,10 @@ export default {
         return true;
       }
     },
-    /**初始化信息 */
+
+    /**
+     * 初始化信息
+     */
     async init(id, goodsId, distributionId) {
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
@@ -487,11 +541,11 @@ export default {
         this.getGoodsCollectionFun(this.goodsDetail.id);
       }
     },
-	linkMsgDetail () {
-		uni.navigateTo({
-			url: '/pages/product/customerservice/index'
-		})
-	},
+    linkMsgDetail() {
+      uni.navigateTo({
+        url: "/pages/product/customerservice/index",
+      });
+    },
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
       if (typeof val == "undefined") {

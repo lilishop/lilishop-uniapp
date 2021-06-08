@@ -1,6 +1,5 @@
 /** 配置楼层模块的跳转 */
 export function modelNavigateTo(item) {
-
   let val = item.url;
   switch (val.___type) {
     case "goods":
@@ -9,9 +8,15 @@ export function modelNavigateTo(item) {
       });
       break;
     case "category":
-      uni.navigateTo({
-        url: `/pages/navigation/search/searchPage?category=${val.id}`,
-      });
+      if (val.id) {
+        uni.navigateTo({
+          url: `/pages/navigation/search/searchPage?category=${val.id}`,
+        });
+      } else {
+        uni.navigateTo({
+          url: `/pages/navigation/search/searchPage`,
+        });
+      }
       break;
     case "stores":
       uni.navigateTo({
@@ -33,7 +38,7 @@ export function modelNavigateTo(item) {
       switch (val.title) {
         case "首页":
           uni.switchTab({
-            url: `/`,
+            url: `/pages/tabbar/home/index`,
           });
           break;
         case "购物车":
