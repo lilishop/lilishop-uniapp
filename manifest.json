@@ -82,7 +82,7 @@
                     "weixin" : {
                         "__platform__" : [ "ios", "android" ],
                         "appid" : "wx6cfbe6e0ace12ce8",
-                        "UniversalLinks" : "https://m-b2b2c.pickmall.cn/"
+                        "UniversalLinks" : "https://m-b2b2c.pickmall.cn/app/"
                     },
                     "alipay" : {
                         "__platform__" : [ "ios", "android" ]
@@ -92,14 +92,14 @@
                 "share" : {
                     "weixin" : {
                         "appid" : "wx6cfbe6e0ace12ce8",
-                        "UniversalLinks" : "https://m-b2b2c.pickmall.cn/"
+                        "UniversalLinks" : "https://m-b2b2c.pickmall.cn/app/"
                     }
                 },
                 "oauth" : {
                     "weixin" : {
                         "appid" : "wx6cfbe6e0ace12ce8",
                         "appsecret" : "6dfbe0c72380dce5d49d65b3c91059b1",
-                        "UniversalLinks" : "https://m-b2b2c.pickmall.cn/"
+                        "UniversalLinks" : "https://m-b2b2c.pickmall.cn/app/"
                     },
                     "apple" : {},
                     "qq" : {
