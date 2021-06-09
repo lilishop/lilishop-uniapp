@@ -18,7 +18,7 @@
       <view>客服邮箱：lili@lili.com</view>
     </view>
     <view class="bottom flex-center">
-      <view @click="navigateTo('/pages/help/tips?type=user')">《lili商城用户协议》</view>
+      <view @click="navigateTo('/pages/mine/help/tips?type=user')">《lili商城用户协议》</view>
       <view>CopyRight @ {{config.name}} </view>
     </view>
   </view>

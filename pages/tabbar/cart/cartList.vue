@@ -473,7 +473,7 @@ export default {
     getCardData() {
       if (this.$options.filters.isLogin("auth")) {
         uni.showLoading({
-          mask: true,
+          title: "加载中",
         });
         API_Trade.getCarts()
           .then((result) => {
@@ -498,12 +498,10 @@ export default {
                   });
               }
               uni.stopPullDownRefresh();
-              uni.hideLoading();
             }
           })
-          .catch((err) => {
-            uni.hideLoading();
-          });
+          .catch((err) => {});
+        uni.hideLoading();
       } else {
         uni.hideLoading();
       }

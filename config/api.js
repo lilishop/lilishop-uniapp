@@ -4,6 +4,8 @@
  */
 // 开发环境
 const dev = {
+  // common: 'http://192.168.0.109:8890',
+  // buyer: 'http://192.168.0.109:8888',
   common: "https://common-api.pickmall.cn",
   buyer: "https://buyer-api.pickmall.cn",
 };
@@ -11,7 +13,6 @@ const dev = {
 const prod = {
   common: "https://common-api.pickmall.cn",
   buyer: "https://buyer-api.pickmall.cn",
- 
 };
 
 //默认生产环境
@@ -22,7 +23,7 @@ if (process.env.NODE_ENV == "development") {
 } else {
   api = prod;
 }
-//微信小程序，app的打包方式只能是生产环境，所以这块直接条件编译赋值
+//微信小程序，app的打包方式建议为生产环境，所以这块直接条件编译赋值
 // #ifdef MP-WEIXIN || APP-PLUS
 api = prod;
 // #endif

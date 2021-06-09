@@ -1,8 +1,8 @@
 .image-mode {
-    max-width: 100%;
-    height: auto;
+   width: 100%;
+   height: 100%;
     display: block;
-  
+    padding: 2rpx;
 }
 .layout {
     padding: 16rpx;
@@ -18,10 +18,10 @@
     width: 100%;
 }
 .view-height-75 {
-    height: 150rpx;
+    // height: 150rpx;
 }
 .view-height-150 {
-    height: 300rpx;
+    // height: 300rpx;
     flex: 1;
 }
 
@@ -29,3 +29,4 @@
     height: 170rpx;
     flex: 1;
 }
+

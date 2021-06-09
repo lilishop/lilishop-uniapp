@@ -2,12 +2,12 @@
   <div class="layout">
     <div class="flex-two">
       <div class="flex-item" @click="modelNavigateTo(res.list[0])">
-        <u-image height="325rpx" width="100%" mode="scaleToFill" :src="res.list[0].img" alt>
+        <u-image height="250rpx" width="100%" mode="scaleToFill" :src="res.list[0].img" alt>
           <u-loading slot="loading"></u-loading>
         </u-image>
       </div>
       <div class="flex-item" @click="modelNavigateTo(res.list[1])">
-        <u-image height="325rpx" width="100%" mode="scaleToFill" :src="res.list[1].img" alt>
+        <u-image height="250rpx" width="100%" mode="scaleToFill" :src="res.list[1].img" alt>
           <u-loading slot="loading"></u-loading>
         </u-image>
       </div>

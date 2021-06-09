@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <div class="flex-one" @click="modelNavigateTo(res.list[0])">
-      <u-image  width="100%" height="280rpx" :src="res.list[0].img" alt=""></u-image>
+      <u-image width="100%" mode="aspectFit" height="280rpx" :src="res.list[0].img" alt=""></u-image>
     </div>
   </div>
 </template>
@@ -9,7 +9,7 @@
 import { modelNavigateTo } from "./tpl";
 
 export default {
-  title:"单行图片模块",
+  title: "单行图片模块",
   data() {
     return {
       modelNavigateTo,

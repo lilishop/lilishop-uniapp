@@ -11,14 +11,14 @@
 
             <!-- 有活动商品价格 -->
             <view class="goods-price " v-if="goodsDetail.promotionPrice">
-              <span v-if="goodsDetail.promotionPrice && !pointDetail"> 
+              <span v-if="goodsDetail.promotionPrice && !pointDetail">
                 ￥
-                <span class="goods-price-promotionShow goods-price-bigshow" >{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
+                <span class="goods-price-promotionShow goods-price-bigshow">{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
                 .{{ formatPrice(goodsDetail.promotionPrice)[1] }}
               </span>
-              <span v-if="pointDetail.points"> 
+              <span v-if="pointDetail.points">
 
-                <span class="goods-price-promotionShow goods-price-bigshow" >{{ pointDetail.points }}</span>
+                <span class="goods-price-promotionShow goods-price-bigshow">{{ pointDetail.points }}</span>
                 积分
               </span>
               <div class="promotion-box">
@@ -27,18 +27,18 @@
                 formatPrice(goodsDetail.price)[0]
               }}</span>
                 .{{ formatPrice(goodsDetail.price)[1] }}
-              
+
               </div>
             </view>
             <!-- 正常商品的价格 -->
             <view class="goods-price" v-else>
               <span>
-              ￥
-              <span class="goods-price-bigshow">{{
+                ￥
+                <span class="goods-price-bigshow">{{
                 formatPrice(goodsDetail.price)[0]
               }}</span>
-              .{{ formatPrice(goodsDetail.price)[1] }}
-            
+                .{{ formatPrice(goodsDetail.price)[1] }}
+
               </span>
             </view>
             <view class="goods-check-skus">
@@ -69,7 +69,8 @@
         </view>
         <!-- 按钮 -->
         <view class="btns">
-          <view class="box-btn card" v-if="buyType !='PINTUAN'" @click="addToCartOrBuy('cart')">加入购物车</view>
+
+          <view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType!='VIRTUAL_GOODS'" @click="addToCartOrBuy('cart')">加入购物车</view>
           <view class="box-btn buy" @click="addToCartOrBuy('buy')">立即购买</view>
         </view>
       </view>
@@ -100,8 +101,8 @@ export default {
       formatList: [],
       currentSelceted: [],
       skuList: "",
-      isMask:false, //是否显示遮罩层
-      isClose:false, //是否可以点击遮罩关闭
+      isMask: false, //是否显示遮罩层
+      isClose: false, //是否可以点击遮罩关闭
     };
   },
   props: [
@@ -110,7 +111,7 @@ export default {
     "selectedSku",
     "goodsSpec",
     "addr",
-    "pointDetail" // 积分详情
+    "pointDetail", // 积分详情
   ],
   watch: {
     buyType: {
@@ -128,6 +129,8 @@ export default {
   },
 
   methods: {
+  
+
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
       if (typeof val == "undefined") {
@@ -168,7 +171,7 @@ export default {
       };
       this.selectName = specValue.value;
 
-      this.$emit("handleClickSku", selectedSkuId.skuId,this.goodsDetail.id);
+      this.$emit("handleClickSku", selectedSkuId.skuId, this.goodsDetail.id);
     },
 
     /**
@@ -207,19 +210,16 @@ export default {
           data.cartType = "BUY_NOW";
         }
 
-       
-
         API_trade.addToCart(data).then((res) => {
           if (res.data.code == 200) {
             uni.navigateTo({
               url: `/pages/order/fillorder?way=${data.cartType}&addr=${
-                this.addr.id || ''
+                this.addr.id || ""
               }&parentOrder=${encodeURIComponent(
                 JSON.stringify(this.parentOrder)
               )}`,
             });
           }
-        
         });
       }
     },
@@ -288,8 +288,9 @@ export default {
   },
 
   mounted() {
-   
     this.formatSku(this.goodsSpec);
+
+    console.log(this.goodsDetail);
   },
 };
 </script>

@@ -52,6 +52,7 @@ export default {
     // #ifdef APP-PLUS
     this.checkArguments(); // 检测启动参数
     APPUpdate();
+	
     // 重点是以下： 一定要监听后台恢复 ！一定要
     plus.globalEvent.addEventListener("newintent", (e) => {
       this.checkArguments(); // 检测启动参数
