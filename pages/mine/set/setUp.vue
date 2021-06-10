@@ -3,7 +3,8 @@
     <view class="person" @click="checkUserInfo()">
       <u-image width=140 height="140" shape="circle" :src="userInfo.face || '/static/missing-face.png'" mode=""></u-image>
       <view class="user-name">
-        <view>{{ userInfo.id ? userInfo.username || '' : '暂未登录'  }}</view>
+       
+        {{ userInfo.id ? userInfo.nickName || '' : '暂未登录'  }}
       </view>
       <u-icon color="#ccc" name="arrow-right"></u-icon>
     </view>
@@ -49,7 +50,7 @@ export default {
         url: url,
       });
     },
-    
+
     /**
      * 确认退出
      * 清除缓存重新登录
@@ -136,9 +137,7 @@ export default {
                     });
                     that.getCacheSize(); // 重新计算缓存
                   },
-                  function (e) {
-                  
-                  }
+                  function (e) {}
                 );
               } else {
                 entry.remove();
@@ -195,7 +194,12 @@ export default {
   align-items: center;
   margin-bottom: 20rpx;
   .user-name {
-    flex: 1;
+    width: 500rpx;
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
     margin-left: 30rpx;
     line-height: 2em;
     font-size: 34rpx;

@@ -252,7 +252,7 @@ export default {
           value: "订单已完成,祝您生活愉快",
         },
         TAKE: {
-          title: "带核验",
+          title: "待核验",
         },
       },
       order: {},
