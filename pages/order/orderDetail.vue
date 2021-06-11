@@ -20,8 +20,11 @@
       </view>
 
       <view class="logi-List" v-else>
-        <view class="logi-List-title">
-          暂无物流信息
+        <view class="verificationCode" v-if="order.verificationCode ">
+          券码： {{order.verificationCode}}
+        </view>
+        <view v-else class="logi-List-title">
+          {{'暂无物流信息'}}
         </view>
       </view>
 
@@ -101,7 +104,8 @@
       </view>
     </view>
     <!-- 客户服务， 售后，取消订单，查看物流，投诉等 -->
-    <view class="info-view" v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true || order.orderStatus == 'DELIVERED' || order.orderStatus != 'UNPAID' && order.orderType =='PINTUAN'">
+    <view class="info-view"
+      v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true || order.orderStatus == 'DELIVERED' || order.orderStatus != 'UNPAID' && order.orderType =='PINTUAN'">
       <view style="width: 100%">
         <view class="order-info-view">
           <view class="title">服务</view>
@@ -212,7 +216,7 @@
 import { getExpress } from "@/api/trade.js";
 import { cancelOrder, confirmReceipt, getOrderDetail } from "@/api/order.js";
 
-import {h5Copy} from "@/js_sdk/h5-copy/h5-copy.js";
+import { h5Copy } from "@/js_sdk/h5-copy/h5-copy.js";
 import shares from "@/components/m-share/index"; //分享
 
 import { getClearReason } from "@/api/after-sale.js";
@@ -359,7 +363,6 @@ export default {
      * 投诉
      */
     complaint(sku) {
-     
       uni.navigateTo({
         url:
           "/pages/order/complain/complain?sn=" +
@@ -378,7 +381,6 @@ export default {
     },
     // 去支付
     toPay(val) {
-    
       val.sn
         ? uni.navigateTo({
             url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
@@ -411,7 +413,7 @@ export default {
       this.cancelShow = true;
     },
 
-     //提交取消订单（未付款）
+    //提交取消订单（未付款）
     submitCancel() {
       cancelOrder(this.orderSn, { reason: this.reason }).then((res) => {
         if (res.data.success) {
@@ -612,7 +614,7 @@ page,
     flex-direction: row;
     width: 100%;
     margin: 10rpx 0rpx;
-    
+
     .title {
       color: #666;
       width: 140rpx;
@@ -651,7 +653,10 @@ page,
     }
   }
 }
-
+.verificationCode{
+  font-weight: bold;
+  letter-spacing: 2rpx;
+}
 .bottom_view {
   width: 100%;
   height: 100rpx;

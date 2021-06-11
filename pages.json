@@ -180,12 +180,7 @@
 
 				}
 			},
-				{
-					"path": "aboutUs",
-					"style": {
-						"navigationBarTitleText": "关于我们"
-					}
-				}, {
+				 {
 					"path": "address/address",
 					"style": {
 						"enablePullDownRefresh": true,
@@ -243,7 +238,7 @@
 				{
 					"path": "set/editionIntro",
 					"style": {
-						"navigationBarTitleText": "版本说明"
+						"navigationBarTitleText": "关于我们"
 					}
 				},
 				{

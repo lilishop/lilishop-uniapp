@@ -73,6 +73,7 @@ function cleanStorage() {
   storage.setHasLogin(false);
   storage.setAccessToken("");
   storage.setRefreshToken("");
+  console.log("清空token")
   storage.setUuid("");
   storage.setUserInfo({});
 
@@ -120,22 +121,26 @@ http.interceptors.request.use(
 
       config.params = params;
       config.header.accessToken = accessToken;
-      console.log(accessToken);
+      console.warn(accessToken);
       /**
        * jwt 因为安卓以及ios没有window的属性
        * window.atob（）这个函数 base64编码的使用方法就是btoa（），而用于解码的使用方法是atob（），
        * 所以使用手写 base-64 编码的字符串数据。
        */
-      //
       const atob = (str) => Buffer.from(str, "base64").toString("binary");
       // 判断如果过期时间小于我的当前时间，在请求上重新刷新token
       if (accessToken.split(".").length <= 1) {
         refresh();
       } else {
+        console.log(
+          JSON.parse(atob(accessToken.split(".")[1])).exp,
+          Math.round(new Date() / 1000)
+        );
         if (
           JSON.parse(atob(accessToken.split(".")[1])).exp <
-          new Date().getTime() / 1000
+          Math.round(new Date() / 1000)
         ) {
+          console.log("过期时间小于当前时间刷新token");
           refresh();
         }
       }
@@ -154,28 +159,28 @@ http.interceptors.request.use(
 async function refresh() {
   // 本地储存的是过期token了，重新获取
   const getTokenResult = await refreshToken();
-  // if (getTokenResult === "success") {
-  //   // 获取新的token成功 刷新当前页面
+  if (getTokenResult === "success") {
+    // 获取新的token成功 刷新当前页面
 
-  //   let routes = getCurrentPages(); // 获取当前打开过的页面路由数组
-  //   let curRoute = routes[routes.length - 1].route; //获取当前页面路由
-  //   let curParam = routes[routes.length - 1].options; //获取路由参数
-  //   // 拼接参数
-  //   let param = "";
-  //   for (let key in curParam) {
-  //     param += "&" + key + "=" + curParam[key];
-  //   }
-  //   // 判断当前路径
-  //   if (curRoute.indexOf("pages/tabbar") == 1) {
-  //     uni.switchTab({
-  //       url: "/" + curRoute + param.replace("&", "?"),
-  //     });
-  //   }
+    let routes = getCurrentPages(); // 获取当前打开过的页面路由数组
+    let curRoute = routes[routes.length - 1].route; //获取当前页面路由
+    let curParam = routes[routes.length - 1].options; //获取路由参数
+    // 拼接参数
+    let param = "";
+    for (let key in curParam) {
+      param += "&" + key + "=" + curParam[key];
+    }
+    // 判断当前路径
+    if (curRoute.indexOf("pages/tabbar") == 1) {
+      uni.switchTab({
+        url: "/" + curRoute + param.replace("&", "?"),
+      });
+    }
 
-  //   uni.redirectTo({
-  //     url: "/" + curRoute + param.replace("&", "?"),
-  //   });
-  // }
+    uni.redirectTo({
+      url: "/" + curRoute + param.replace("&", "?"),
+    });
+  }
 }
 
 // 必须使用异步函数，注意
@@ -184,7 +189,7 @@ http.interceptors.response.use(
     /* 请求之后拦截器。可以使用async await 做异步操作  */
     // token存在并且token过期
     let token = storage.getAccessToken();
-
+    console.warn(token)
     if (
       (token && response.statusCode === 403) ||
       response.data.status === 403

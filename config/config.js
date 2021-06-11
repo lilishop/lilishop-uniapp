@@ -7,4 +7,6 @@ export default {
   appid: "wx6f10f29075dc1b0b", //小程序唯一凭证，即 AppID，可在「微信公众平台 - 设置 - 开发设置」页中获得。（需要已经成为开发者，且帐号没有异常状态）
   appSecret: "6dfbe0c72380dce5d49d65b3c91059b1", //可在 manifest.json 查看
   aMapKey: "d649892b3937a5ad20b76dacb2bcb5bd", //在高德中申请web端key
-};
+  scanAuthNavigation:['https://m-b2b2c.pickmall.cn'], //扫码认证跳转域名配置 会根据此处配置的路由进行跳转
+  iosAppId:"id1564638363" //AppStore的应用地址id 具体在分享->拷贝链接中查看
+}; 

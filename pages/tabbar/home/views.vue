@@ -93,7 +93,6 @@ export default {
 
   mounted() {
     this.init();
-  
   },
   methods: {
     /**
@@ -108,13 +107,17 @@ export default {
     },
 
     /**
-     * 扫码
+     * TODO 扫码功能后续还会后续增加
+     * 应该实现的功能目前计划有：
+     * 扫描商品跳转商品页面
+     * 扫描活动跳转活动页面
+     * 扫描二维码登录
+     * 扫描其他站信息 弹出提示，返回首页。
      */
     seacnCode() {
       uni.scanCode({
         success: function (res) {
           let path = encodeURIComponent(res.result);
-          // TODO 扫码功能后续还会后续增加
           // 扫码成功后跳转到webview页面
           setTimeout(() => {
             uni.navigateTo({
@@ -126,25 +129,59 @@ export default {
     },
 
     /**
+     * 提示获取权限
+     */
+    tipsGetSettings() {
+      uni.showModal({
+        title: "提示",
+        content: "您已经关闭相机权限,去设置",
+        success: function (res) {
+          if (res.confirm) {
+            let isIos = plus.os.name == "iOS";
+
+            if (isIos) {
+              plus.runtime.openURL("app-settings:");
+            } else {
+              permision.gotoAppPermissionSetting()
+            }
+          }
+        },
+      });
+    },
+
+    /**
      * 唤醒客户端扫码
      * 没权限去申请权限，有权限获取扫码功能
      */
-    scan() {
+    async scan() {
       // #ifdef APP-PLUS
-      if (permision.judgeIosPermission("camera")) {
-        this.seacnCode();
+      let isIos = plus.os.name == "iOS";
+      // 判断是否是Ios
+      if (isIos) {
+        if (permision.judgeIosPermission("camera")) {
+          this.seacnCode();
+        } else {
+          // 没有权限提醒是否去申请权限
+          uni.showModal({
+            title: "提示",
+            content: "您已经关闭相机权限,去设置",
+            success: function (res) {
+              if (res.confirm) {
+                plus.runtime.openURL("app-settings:");
+              }
+            },
+          });
+        }
       } else {
-        // 没有权限提醒是否去申请权限
-        uni.showModal({
-          title: "提示",
-          content: "您已经关闭相机权限,去设置",
-          success: function (res) {
-            if (res.confirm) {
-              plus.runtime.openURL("app-settings:");
-            }
-          },
-        });
+        // 安卓
+        const result = await permision.requestAndroidPermission("CAMERA");
+        if (result == 1 || result == 0) {
+          this.seacnCode();
+        } else {
+          this.tipsGetSettings();
+        }
       }
+
       // #endif
 
       // #ifdef MP-WEIXIN

@@ -3,7 +3,7 @@
     <view class="person" @click="checkUserInfo()">
       <u-image width=140 height="140" shape="circle" :src="userInfo.face || '/static/missing-face.png'" mode=""></u-image>
       <view class="user-name">
-       
+
         {{ userInfo.id ? userInfo.nickName || '' : '暂未登录'  }}
       </view>
       <u-icon color="#ccc" name="arrow-right"></u-icon>
@@ -18,10 +18,8 @@
       <u-cell-item title="安全中心" @click="navigateTo('/pages/mine/set/securityCenter/securityCenter')"></u-cell-item>
       <u-cell-item title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell-item>
       <!-- #ifndef H5 -->
-      <u-cell-item title="版本说明" @click="navigateTo('/pages/mine/set/editionIntro')"></u-cell-item>
       <!-- #endif -->
-      <!-- <u-cell-item title="好评鼓励"></u-cell-item> -->
-      <u-cell-item title="关于我们" @click="navigateTo('/pages/mine/aboutUs')"></u-cell-item>
+      <u-cell-item :title="`关于${config.name}`" @click="navigateTo('/pages/mine/set/editionIntro')"></u-cell-item>
     </u-cell-group>
     <view class="submit" @click="showModalDialog">{{userInfo.id ?'退出登录':'返回登录'}}</view>
     <u-modal show-cancel-button v-model="quitShow" @confirm="confirm" :confirm-color="lightColor" :async-close="true" :content="userInfo.id ? '确定要退出登录么？' : '确定要返回登录么？'"></u-modal>
@@ -30,9 +28,11 @@
 
 <script>
 import storage from "@/utils/storage.js";
+import config from "@/config/config";
 export default {
   data() {
     return {
+      config,
       lightColor: this.$lightColor,
       quitShow: false,
       isCertificate: false,

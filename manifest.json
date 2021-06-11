@@ -2,8 +2,8 @@
     "name" : "lili商城",
     "appid" : "__UNI__C100675",
     "description" : "",
-    "versionName" : "4.0.16",
-    "versionCode" : 4000016,
+    "versionName" : "4.0.18",
+    "versionCode" : 4000018,
     "transformPx" : false,
     "app-plus" : {
         "compatible" : {
@@ -82,7 +82,7 @@
                     "weixin" : {
                         "__platform__" : [ "ios", "android" ],
                         "appid" : "wx32788b91bdb614c0",
-                        "UniversalLinks" : "gapp/"
+                        "UniversalLinks" : "https://m-b2b2c.pickmall.cn/app/"
                     },
                     "alipay" : {
                         "__platform__" : [ "ios", "android" ]

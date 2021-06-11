@@ -1,27 +1,47 @@
 // TODO 第一版本暂无此功能 后续优化以及更新
 <template>
   <view class="edition-intro">
-    <view class="logo c-content">
-      <view>
-        <image src="/static/img/edition.png" mode=""></image>
-      </view>
-      <view>版本不息&nbsp;优化不止</view>
+    <h1> {{config.name}}</h1>
+
+    <view class='vesion'>
+      Version
     </view>
-    <view class="edition c-content" v-for="(item,index) in editionHistory" :key="index">
-      <view class="level">
-        <text style="color: #1ABC9C;">{{item.version}}</text>
-        <text>{{$u.timeFormat(item.update_time, 'yyyy-mm-dd')}}</text>
+
+    <u-cell-group class="cell">
+      <!--  #ifdef APP-PLUS -->
+      <u-cell-item v-if="IosWhetherStar" @click="()=>{window.location.href = `itms-apps://itunes.apple.com/app/${config.iosAppId}?action=write-review`}" title="去评分"></u-cell-item>
+      <!--  #endif -->
+      <u-cell-item title="功能介绍"></u-cell-item>
+      <!--  #ifdef APP-PLUS -->
+      <u-cell-item title="检查更新" @click="checkUpdate"></u-cell-item>
+      <!--  #endif -->
+      <u-cell-item title="证照信息" @click="navigateTo('/pages/mine/help/tips?type=message')"></u-cell-item>
+      <u-cell-item title="服务协议" @click="navigateTo('/pages/mine/help/tips?type=user')"></u-cell-item>
+      <u-cell-item title="隐私协议" @click="navigateTo('/pages/mine/help/tips?type=privacy')"></u-cell-item>
+      <u-cell-item title="关于我们" :border-bottom="false" @click="navigateTo('/pages/mine/help/tips?type=about')"></u-cell-item>
+
+    </u-cell-group>
+
+    <view class="intro">
+      <view>客服热线：13161366885</view>
+      <view style="margin:20rpx 0 0 0;">客服邮箱：lili@lili.com</view>
+
+      <view>
+        <view style="margin:20rpx 0; color:#003a8c;" @click="navigateTo('/pages/mine/help/tips?type=user')">《lili商城用户协议》</view>
+        <view>CopyRight @ {{config.name}} </view>
       </view>
-      <view class="detail" v-html="item.content"></view>
     </view>
   </view>
 </template>
 
 <script>
+import config from "@/config/config";
 import * as API_Message from "@/api/message.js";
 export default {
   data() {
     return {
+      config,
+      IosWhetherStar: false,
       editionHistory: [], //版本历史
       params: {
         pageNumber: 1,
@@ -34,6 +54,7 @@ export default {
     if (uni.getSystemInfoSync().platform === "android") {
       this.params.type = 0;
     } else {
+      this.IosWhetherStar = true;
       this.params.type = 1;
     }
     this.GET_AppVersionList(true);
@@ -45,6 +66,11 @@ export default {
     }
   },
   methods: {
+    navigateTo(url) {
+      uni.navigateTo({
+        url,
+      });
+    },
     GET_AppVersionList(reset) {
       if (reset) {
         this.params.pageNumber = 1;
@@ -68,55 +94,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+page {
+  background: #fff;
+}
+.cell {
+  width: 90%;
+  margin: 0 auto;
+}
 .edition-intro {
-  .logo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    font-size: $font-lg;
-    color: $font-color-light;
-    height: 330rpx;
-    margin-bottom: 20rpx;
-    > view:nth-child(1) {
-      width: 144rpx;
-      height: 144rpx;
-      border: 1px solid #ffc71c;
-      border-radius: 50%;
-      position: relative;
-      margin-bottom: 30rpx;
-      image {
-        width: 80rpx;
-        height: 113rpx;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        margin: auto;
-      }
-    }
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  > h1 {
+    margin: 150rpx 0 20rpx 0;
+    letter-spacing: 2rpx;
   }
-  .edition {
-    margin-bottom: 20rpx;
-    color: $font-color-light;
-    font-size: $font-sm;
-    .level {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20rpx 30rpx;
-      border-bottom: 2rpx solid $border-color-light;
-      text:nth-child(1) {
-        font-size: $font-base;
-        font-weight: 700;
-      }
-    }
-    .detail {
-      margin-left: 20rpx;
-      line-height: 2em;
-      padding: 20rpx 0;
-    }
+  > .vesion {
+    font-size: 30rpx;
+    margin-bottom: 150rpx;
   }
+}
+.intro {
+  margin-top: 150rpx;
+  font-size: 24rpx;
+  letter-spacing: 2rpx;
 }
 </style>

@@ -146,11 +146,9 @@ export default {
     /**点击规格 */
     handleClickSpec(val, index, specValue) {
       this.$set(this.currentSelceted, index, specValue.id);
-
       let selectedSkuId = this.goodsSpec.find((i) => {
         let matched = true;
         let specValues = i.specValues.filter((j) => j.specName !== "images");
-
         for (let n = 0; n < specValues.length; n++) {
           if (specValues[n].specValueId !== this.currentSelceted[n]) {
             matched = false;
@@ -206,7 +204,11 @@ export default {
         // 判断是否拼团商品
         if (this.buyType) {
           data.cartType = "PINTUAN";
-        } else {
+        }
+        else if(this.goodsDetail.goodsType == 'VIRTUAL_GOODS'){
+            data.cartType = "VIRTUAL";
+        }
+        else {
           data.cartType = "BUY_NOW";
         }
 
