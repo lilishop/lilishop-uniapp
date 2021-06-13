@@ -189,7 +189,6 @@ http.interceptors.response.use(
     /* 请求之后拦截器。可以使用async await 做异步操作  */
     // token存在并且token过期
     let token = storage.getAccessToken();
-    console.warn(token)
     if (
       (token && response.statusCode === 403) ||
       response.data.status === 403

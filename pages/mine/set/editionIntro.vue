@@ -1,17 +1,20 @@
-// TODO 第一版本暂无此功能 后续优化以及更新
+
 <template>
   <view class="edition-intro">
+    <image src="https://lilishop-oss.oss-cn-beijing.aliyuncs.com/4c864e133c2944efad1f7282ac8a3b9e.png" class="logo" />
     <h1> {{config.name}}</h1>
-
-    <view class='vesion'>
-      Version
+    <view class='version'>
+      <!-- #ifdef APP-PLUS -->
+      Version {{localVersion.version}}
+      <!-- #endif -->
     </view>
 
-    <u-cell-group class="cell">
+    <!-- {{localVersion}} -->
+    <u-cell-group class="cell" :border="false">
       <!--  #ifdef APP-PLUS -->
-      <u-cell-item v-if="IosWhetherStar" @click="()=>{window.location.href = `itms-apps://itunes.apple.com/app/${config.iosAppId}?action=write-review`}" title="去评分"></u-cell-item>
+      <u-cell-item v-if="IosWhether" @click="checkStar" title="去评分"></u-cell-item>
       <!--  #endif -->
-      <u-cell-item title="功能介绍"></u-cell-item>
+      <u-cell-item title="功能介绍" @click="navigateTo('/pages/mine/set/versionFunctionList')"></u-cell-item>
       <!--  #ifdef APP-PLUS -->
       <u-cell-item title="检查更新" @click="checkUpdate"></u-cell-item>
       <!--  #endif -->
@@ -28,66 +31,93 @@
 
       <view>
         <view style="margin:20rpx 0; color:#003a8c;" @click="navigateTo('/pages/mine/help/tips?type=user')">《lili商城用户协议》</view>
-        <view>CopyRight @ {{config.name}} </view>
+        <view>CopyRight @{{config.name}} </view>
       </view>
     </view>
   </view>
 </template>
 
 <script>
+import APPUpdate from "@/plugins/APPUpdate";
 import config from "@/config/config";
-import * as API_Message from "@/api/message.js";
+import { getAppVersion } from "@/api/message.js";
 export default {
   data() {
     return {
       config,
-      IosWhetherStar: false,
+      IosWhether: false, //是否是ios
       editionHistory: [], //版本历史
+      versionData: {}, //版本信息
+      localVersion: "", //当前版本信息
       params: {
         pageNumber: 1,
         pageSize: 5,
       },
-      loadStatus: "more",
     };
   },
   onLoad() {
-    if (uni.getSystemInfoSync().platform === "android") {
+    const platform = uni.getSystemInfoSync().platform;
+    /**
+     * 获取是否是安卓
+     */
+    if (platform === "android") {
       this.params.type = 0;
     } else {
-      this.IosWhetherStar = true;
+      this.IosWhether = true;
       this.params.type = 1;
     }
-    this.GET_AppVersionList(true);
+    this.getVersion(platform);
+
+    plus.runtime.getProperty(plus.runtime.appid, (inf) => {
+      this.localVersion = {
+        versionCode: inf.version.replace(/\./g, ""),
+        version: inf.version,
+      };
+    });
   },
-  onReachBottom() {
-    if (this.loadStatus != "noMore") {
-      this.params.pageNumber++;
-      this.GET_AppVersionList(false);
-    }
-  },
+
   methods: {
+    async getVersion(platform) {
+      let type;
+      platform == "android" ? (type = "ANDROID") : (type = "IOS");
+
+      let res = await getAppVersion(type);
+      if (res.data.success) {
+        this.versionData = res.data.result;
+      }
+    },
+
     navigateTo(url) {
       uni.navigateTo({
         url,
       });
     },
-    GET_AppVersionList(reset) {
-      if (reset) {
-        this.params.pageNumber = 1;
+
+    /**
+     * ios点击评分
+     */
+    checkStar() {
+      plus.runtime.launchApplication({
+        action: `itms-apps://itunes.apple.com/app/${config.iosAppId}?action=write-review`,
+      });
+    },
+
+    /**
+     * 检查更新
+     */
+    checkUpdate() {
+      if (
+        this.versionData.version.replace(/\./g, "") <
+        this.localVersion.versionCode
+      ) {
+        APPUpdate();
+      } else {
+        uni.showToast({
+          title: "当前版本已是最新版",
+          duration: 2000,
+          icon: "none",
+        });
       }
-      uni.showLoading({
-        title: "加载中",
-      });
-      API_Message.getAppVersionList(this.params).then((response) => {
-        uni.hideLoading();
-        if (response.statusCode == 200) {
-          const { data } = response;
-          if (data.data.length < 10) {
-            this.loadStatus = "noMore";
-          }
-          this.editionHistory.push(...data.data);
-        }
-      });
     },
   },
 };
@@ -95,30 +125,36 @@ export default {
 
 <style lang="scss" scoped>
 page {
-  background: #fff;
+  background: #fff !important;
 }
 .cell {
   width: 90%;
   margin: 0 auto;
 }
 .edition-intro {
+  min-height: 100vh;
+  background: #fff;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 
   > h1 {
-    margin: 150rpx 0 20rpx 0;
+    margin: 20rpx 0 20rpx 0;
     letter-spacing: 2rpx;
   }
-  > .vesion {
+  > .version {
     font-size: 30rpx;
-    margin-bottom: 150rpx;
+    margin-bottom: 100rpx;
   }
 }
 .intro {
-  margin-top: 150rpx;
+  margin-top: 100rpx;
   font-size: 24rpx;
   letter-spacing: 2rpx;
+}
+.logo {
+  width: 200rpx;
+  height: 200rpx;
 }
 </style>

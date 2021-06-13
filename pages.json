@@ -200,6 +200,13 @@
 					}
 				},
 				{
+					"path": "set/versionFunctionList",
+					"style": {
+						"navigationBarTitleText": "功能介绍"
+					}
+				},
+
+				{
 					"path": "set/securityCenter/fingerLogin",
 					"style": {
 						"navigationBarTitleText": "指纹登录"

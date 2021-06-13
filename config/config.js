@@ -8,5 +8,6 @@ export default {
   appSecret: "6dfbe0c72380dce5d49d65b3c91059b1", //可在 manifest.json 查看
   aMapKey: "d649892b3937a5ad20b76dacb2bcb5bd", //在高德中申请web端key
   scanAuthNavigation:['https://m-b2b2c.pickmall.cn'], //扫码认证跳转域名配置 会根据此处配置的路由进行跳转
-  iosAppId:"id1564638363" //AppStore的应用地址id 具体在分享->拷贝链接中查看
+  iosAppId:"id1564638363", //AppStore的应用地址id 具体在分享->拷贝链接中查看
+  logo:"https://lilishop-oss.oss-cn-beijing.aliyuncs.com/4c864e133c2944efad1f7282ac8a3b9e.png" //logo地址
 }; 

@@ -67,15 +67,28 @@ export function getLogisticsMessages(params) {
 
 
 /**
- * TODO 获取版本更新信息 暂无此功能。后续会优化更新
  * @param appType
  * @returns {AxiosPromise}
  * 
  */	
-export function getAppVersionList(appType) {
+ export function getAppVersion(appType) {
   return http.request({
     url: `/appVersion/${appType}`,
     method: Method.GET,
     type:"manager"
+  });
+}
+
+/**
+ * @param appType
+ * @returns {AxiosPromise}
+ * 
+ */	
+ export function getAppVersionList(type,data) {
+  return http.request({
+    url: `/appVersion/appVersion/${type}`,
+    method: Method.GET,
+    type:"manager",
+    data
   });
 }
