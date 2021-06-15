@@ -303,7 +303,8 @@ function updatePopup(data, callback) {
     },
   ];
   const textHeight = 18;
-  let contentTop = popupViewHeight / 2 + 8;
+  let contentTop = popupViewHeight / 2 + 16;
+
   popupViewContentList.push({
     tag: "font",
     id: "content-title",
@@ -325,18 +326,18 @@ function updatePopup(data, callback) {
       popupViewHeight += textHeight;
       contentTop += textHeight;
     }
-    let content = item.content.replace("<p>", "<font>");
-    content = content.replace("</p>", "</font>");
-
     popupViewContentList.push({
-      tag: "richtext",
+      tag: "font",
       id: "content" + index + 1,
-      text: content,
+      text: item.content,
 
-      richTextStyles: {
+      textStyles: {
+        size: "14px",
+        color: "#666",
+        lineSpacing: "50%",
         align: "left",
-        color: "#333",
       },
+
       position: {
         top: contentTop + "px",
         left: viewContentPadding + "px",

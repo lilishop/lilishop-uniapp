@@ -8,7 +8,7 @@
       </u-collapse-item>
 
     </u-collapse>
-    <u-empty style="margin-top:100rpx;" v-else text="暂无版本信息" mode="list"></u-empty>
+    <u-empty class="empty" v-else text="暂无版本信息" mode="list"></u-empty>
   </div>
 </template>
 
@@ -54,4 +54,5 @@ export default {
     padding: 10rpx;
     background: #fff;
 }
+
 </style>
