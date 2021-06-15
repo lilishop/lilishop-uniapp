@@ -13,9 +13,7 @@
     <u-cell-group class="cell" :border="false">
       <!--  #ifdef APP-PLUS -->
       <u-cell-item v-if="IosWhether" @click="checkStar" title="去评分"></u-cell-item>
-      <!--  #endif -->
       <u-cell-item title="功能介绍" @click="navigateTo('/pages/mine/set/versionFunctionList')"></u-cell-item>
-      <!--  #ifdef APP-PLUS -->
       <u-cell-item title="检查更新" @click="checkUpdate"></u-cell-item>
       <!--  #endif -->
       <u-cell-item title="证照信息" @click="navigateTo('/pages/mine/help/tips?type=message')"></u-cell-item>

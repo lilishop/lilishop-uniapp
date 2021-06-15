@@ -359,26 +359,7 @@ page {
           color: $font-color-light;
           margin-top: 20rpx;
 
-          .good {
-            color: #333;
-            position: relative;
-
-            &:before {
-              content: "";
-              width: 40rpx;
-              height: 40rpx;
-              background: url(/static/search/delete.png);
-              background-size: 100%;
-              position: absolute;
-              left: -50rpx;
-              top: -6rpx;
-            }
-
-            &.cur:before {
-              background: url(/static/global/selected.png);
-              background-size: 100%;
-            }
-          }
+       
         }
       }
     }

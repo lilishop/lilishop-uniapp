@@ -671,14 +671,4 @@ page,
   height: 60rpx;
 }
 
-.nodata {
-  // padding-top: 300rpx;
-  color: #999999;
-  text-align: center;
-
-  img {
-    width: 346rpx;
-    height: 304rpx;
-  }
-}
 </style>

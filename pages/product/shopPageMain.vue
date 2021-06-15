@@ -221,36 +221,6 @@ export default {
     line-height: 90rpx;
     font-size: 30rpx;
     z-index: 9999;
-
-    .back {
-      width: 90rpx;
-      height: 90rpx;
-      background: url(/static/global/select.png) center no-repeat;
-      background-size: 50%;
-    }
-
-    .input-wrap {
-      width: 600rpx;
-      height: 58rpx;
-      padding: 10rpx 30rpx 10rpx 100rpx;
-      box-sizing: border-box;
-      background-color: #fff;
-      border-radius: 50rpx;
-      position: relative;
-      border: 1px solid #29bb9c;
-      background: url(/static/global/select.png) center left no-repeat;
-      background-position: 40rpx;
-      input {
-        font-size: 26rpx;
-      }
-    }
-
-    .share {
-      width: 90rpx;
-      height: 90rpx;
-      background: url(/static/global/select.png) center no-repeat;
-      background-size: 50%;
-    }
   }
   .tab-header {
     position: fixed;
