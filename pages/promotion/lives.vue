@@ -2,14 +2,14 @@
   <div class="box">
     <u-navbar class="navbar">
       <view class="slot-wrap">
-        <u-search placeholder="搜索直播间" v-model="keyword"></u-search>
+        <u-search placeholder="搜索直播间" @custom="searchLive" @clear="clear" @search="searchLive" v-model="keyword"></u-search>
       </view>
     </u-navbar>
     <!-- 轮播图 -->
-    <u-swiper class="swiper" :effect3d="true" :list="swiperImg">
+    <u-swiper @click="clickSwiper" class="swiper" :effect3d="true" :list="swiperImg">
 
     </u-swiper>
-    <u-tabs :is-scroll="false" :active-color="activeColor" inactive-color="#606266" ref="tabs" :list="tabs"></u-tabs>
+    <u-tabs :is-scroll="false" @change="changeTabs" :current="current" :active-color="activeColor" inactive-color="#606266" ref="tabs" :list="tabs"></u-tabs>
 
     <div class="wrapper">
       <!-- 直播中 全部 直播回放 -->
@@ -29,21 +29,19 @@
             {{item.name}}
           </div>
           <div class="live-store">
-
             <span class="wes">lilishop</span>
           </div>
-        
           <div class="live-goods-list">
             <div class="live-goods-item">
-              <u-image border-radius="20" :src="item.roomGoodsList.length !=0 ? item.roomGoodsList[0] : ''" height="140"></u-image>
+              <u-image border-radius="20" :src="item.roomGoodsList ? item.roomGoodsList[0] : ''" height="140"></u-image>
             </div>
             <div class="live-goods-item">
-              <u-image border-radius="20" :src="item.roomGoodsList.length !=0 ? item.roomGoodsList[1] : ''" height="140"></u-image>
+              <u-image border-radius="20" :src="item.roomGoodsList ? item.roomGoodsList[1] : ''" height="140"></u-image>
             </div>
-
           </div>
         </div>
       </div>
+      <u-loadmore bg-color="transparent" :status="status" />
     </div>
   </div>
 </template>
@@ -53,8 +51,10 @@ import { getLiveList } from "@/api/promotions.js";
 export default {
   data() {
     return {
+      status: "loadmore",
       activeColor: this.$lightColor,
-      keyword: "",
+      current: 0, // 当前tabs索引
+      keyword: "", //搜索直播间
       // 标签栏
       tabs: [
         {
@@ -63,27 +63,36 @@ export default {
         {
           name: "全部",
         },
-
-        {
-          name: "回放",
-        },
       ],
       // 导航栏的配置
       background: {
         background: "#ff9f28",
       },
+      // 直播间params
+      params: [
+        {
+          pageNumber: 1,
+          pageSize: 10,
+          status: "START",
+        },
+        {
+          pageNumber: 1,
+          pageSize: 4,
+        },
+      ],
+      // 推荐直播间Params
+      recommendParams: {
+        pageNumber: 1,
+        pageSize: 3,
+        recommend: 0,
+      },
       // 直播间列表
-      liveList: "",
+      liveList: [],
+      // 推荐直播间列表
+      recommendLiveList: [],
+
       //轮播图滚动的图片
       swiperImg: [
-        {
-          image:
-            "https://lilishop-oss.oss-cn-beijing.aliyuncs.com/8e33ab68ef734558bdc158d6b1b1451f.png",
-        },
-        {
-          image:
-            "https://lilishop-oss.oss-cn-beijing.aliyuncs.com/5ec999c942374e849d085071b4d20a19.jpeg",
-        },
         {
           image:
             "https://lilishop-oss.oss-cn-beijing.aliyuncs.com/48d789cb9c864b7b87c1c0f70996c3e8.jpeg",
@@ -91,28 +100,122 @@ export default {
       ],
     };
   },
-  mounted() {
+  onShow() {
+    this.getLives();
+    this.getRecommendLives();
+  },
+  onReachBottom() {
+    this.params[this.current].pageNumber++;
     this.getLives();
   },
   methods: {
     /**
-     *
+     * 点击标签栏切换
      */
-    async getLives() {
-      let res = await getLiveList();
-      if (res.data.success) {
-        this.liveList = res.data.result.records;
+    changeTabs(index) {
+      this.current = index;
+      this.init();
+    },
 
-        this.liveList.forEach((item) => {
-          console.log();
-        });
+    /**
+     * 初始化直播间
+     */
+    init() {
+      this.liveList = [];
+      this.status = "loadmore";
+      this.getLives();
+    },
+
+    /**
+     * 清除搜索内容
+     */
+    clear() {
+      delete this.params[this.current].name;
+      this.init();
+    },
+    /**
+     * 点击顶部推荐直播间
+     */
+    clickSwiper(val) {
+      console.log(this.swiperImg[val])
+      this.handleLivePlayer(this.swiperImg[val]);
+    },
+
+    /**
+     * 搜索直播间
+     */
+    searchLive(val) {
+      this.params[this.current].name = val;
+      this.init();
+    },
+    /**
+     * 获取推荐直播间
+     */
+    async getRecommendLives() {
+      this.status = "loading";
+      let recommendLives = await getLiveList(this.recommendParams);
+      if (recommendLives.data.success) {
+        // 推荐直播间
+        if (recommendLives.data.result.records.length != 0) {
+          this.status = "loadmore";
+          this.recommendLives = recommendLives.data.result.records;
+        } else {
+          this.status = "noMore";
+        }
+
+        /**
+         * 如果推荐直播间没有的情况下
+         * 1.获取直播间第一个图片
+         * 2.如果没有直播间设置一个默认图片
+         */
+
+        if (this.recommendLives.length == 0) {
+          if (this.liveList[0].shareImg) {
+            this.$set(this, "swiperImg", [
+              {
+                image: this.liveList[0].shareImg,
+                roomId: this.liveList[0].roomId,
+              },
+            ]);
+          }
+        } else {
+          this.recommendLives.forEach((item) => {
+            this.$set(this, "swiperImg", [
+              { image: item.shareImg, roomId: item.roomId },
+            ]);
+          });
+        }
       }
     },
 
     /**
-     * 推荐直播间
+     * 获取直播间
      */
-    async getStarLive() {},
+    async getLives() {
+      this.status = "loading";
+      let res = await getLiveList(this.params[this.current]);
+      // 直播间
+      if (res.data.success) {
+        if (res.data.result.records.length != 0) {
+          this.status = "loadmore";
+          this.liveList.push(...res.data.result.records);
+        } else {
+          this.status = "noMore";
+        }
+        res.data.result.total >
+        this.params[this.current].pageNumber *
+          this.params[this.current].pageSize
+          ? (this.status = "loadmore")
+          : (this.status = "noMore");
+
+        console.log(this.status);
+        this.liveList.forEach((item) => {
+          if (item.roomGoodsList) {
+            item.roomGoodsList = JSON.parse(item.roomGoodsList);
+          }
+        });
+      }
+    },
 
     /**
      * 进入直播间
