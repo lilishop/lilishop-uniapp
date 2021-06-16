@@ -148,7 +148,7 @@
 
 			awaitPay(payment){
 
-				 this.$u.debounce(this.pay(payment), 3000)
+				 this.pay(payment)
 			
 			},
 
@@ -225,16 +225,17 @@
 				await API_Trade.initiatePay(paymentMethod, paymentClient, params).then(
 					(res) => {
 						let response = res.data;
-						//如果支付异常
-						if (!response.success) {
-
-							uni.showModal({
-								content: response.message,
-								showCancel: false,
-							})
-							return;
+						//如果非支付宝支付才需要进行判定，因为支付宝h5支付是直接输出的，没有返回所谓的消息状态
+						if(paymentMethod !== "ALIPAY"){
+							//如果支付异常
+							if (!response.success) {
+								uni.showModal({
+									content: response.message,
+									showCancel: false,
+								})
+								return;
+							}
 						}
-
 						if (paymentMethod === "ALIPAY") {
 							document.write(response);
 						} else if (paymentMethod === "WECHAT") {
