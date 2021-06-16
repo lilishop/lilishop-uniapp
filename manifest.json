@@ -220,6 +220,7 @@
                 "enable" : true
             }
         },
-        "title" : "lilishop"
+        "title" : "lilishop",
+        "template" : "/pages/passport/appleLogin.html"
     }
 }

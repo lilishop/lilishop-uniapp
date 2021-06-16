@@ -1,6 +1,9 @@
 <template>
   <div class="form">
     <u-form ref="validateCodeForm">
+      <div class="login-apple">
+        <image class="apple" src="/static/signIn.png" mode="" />
+      </div>
       <div class="login-list">
         <!-- 循环出当前可使用的第三方登录模式 -->
         <div class="login-item" v-for="(item,index) in loginList" :key="index">
@@ -8,11 +11,12 @@
           <div>{{item.title}}</div>
         </div>
       </div>
+
       <view class="text-tips cell" @click="clickCodeLogin">账号密码登录</view>
     </u-form>
   </div>
 </template>
-
+ 
 <script>
 import { webConnect, openIdLogin } from "@/api/connect.js";
 import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
@@ -128,9 +132,9 @@ export default {
           });
         } else {
           uni.showToast({
-            title: '配置有误请联系管理员',
+            title: "配置有误请联系管理员",
             duration: 2000,
-            icon:"none"
+            icon: "none",
           });
         }
       });
@@ -149,8 +153,8 @@ export default {
 
       // #ifdef H5
       let code = connectLogin.code;
-	  let buyer = api.buyer;
-      window.open(buyer+`/connect/login/web/`+code, "_self");
+      let buyer = api.buyer;
+      window.open(buyer + `/connect/login/web/` + code, "_self");
       // #endif
       // #ifdef APP-PLUS
       this.nonH5OpenId(connectLogin);
@@ -244,7 +248,7 @@ export default {
             storage.setUserInfo(user.data.result);
             storage.setHasLogin(true);
           });
-          whetherNavigate()
+          whetherNavigate();
         }
       });
     },
@@ -263,7 +267,10 @@ export default {
 .submit {
   margin: 80rpx 0 40rpx 0;
 }
-
+.apple {
+  width: 500rpx;
+  height: 80rpx;
+}
 .login-list {
   display: flex;
   padding: 40rpx 0;
@@ -277,5 +284,13 @@ export default {
       margin: 4rpx 0;
     }
   }
+}
+
+.login-apple{
+  margin: 80rpx 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
