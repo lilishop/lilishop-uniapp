@@ -5,7 +5,6 @@
         <!-- 循环出当前可使用的第三方登录模式 -->
         <div class="login-item" v-for="(item,index) in loginList" :key="index">
           <u-icon :color="item.color" size="80" :name="item.icon" @click="navigateLogin(item)"></u-icon>
-          <div>{{item.title}}</div>
         </div>
       </div>
       <view class="text-tips cell" @click="clickCodeLogin">账号密码登录</view>
@@ -118,23 +117,23 @@ export default {
   methods: {
     /** 根据参数显示登录模块 */
     methodFilter(code) {
-      let way = [];
-      this.loginList.forEach((item) => {
-        if (code.length != 0) {
-          code.forEach((val) => {
-            if (item.code == val) {
-              way.push(item);
-            }
-          });
-        } else {
-          uni.showToast({
-            title: '配置有误请联系管理员',
-            duration: 2000,
-            icon:"none"
-          });
-        }
-      });
-      this.loginList = way;
+      // let way = [];
+      // this.loginList.forEach((item) => {
+      //   if (code.length != 0) {
+      //     code.forEach((val) => {
+      //       if (item.code == val) {
+      //         way.push(item);
+      //       }
+      //     });
+      //   } else {
+      //     uni.showToast({
+      //       title: '配置有误请联系管理员',
+      //       duration: 2000,
+      //       icon:"none"
+      //     });
+      //   }
+      // });
+      // this.loginList = way;
     },
     /**跳转到登录页面 */
     navigateLogin(connectLogin) {
