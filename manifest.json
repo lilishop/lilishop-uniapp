@@ -185,7 +185,7 @@
         "setting" : {
             "urlCheck" : false,
             "minified" : true,
-            "postcss" : true,
+            "postcss" : false,
             "es6" : true
         },
         "permission" : {
@@ -221,6 +221,6 @@
             }
         },
         "title" : "lilishop",
-        "template" : "/pages/passport/appleLogin.html"
+        "template" : ""
     }
 }

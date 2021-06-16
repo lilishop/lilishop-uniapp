@@ -9,10 +9,11 @@ import { http, Method } from "@/utils/request.js";
  * @param {*}
  * @returns
  */
-export function getLiveList() {
+export function getLiveList(params) {
   return http.request({
     url: `broadcast/studio`,
     method: Method.GET,
+    params
   });
 }
 

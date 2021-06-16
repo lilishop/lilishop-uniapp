@@ -11,8 +11,8 @@ const dev = {
 };
 // 生产环境
 const prod = {
-  common: "https://common-api.pickmall.cn",
-  buyer: "https://buyer-api.pickmall.cn",
+  common: 'http://192.168.0.109:8890',
+  buyer: 'http://192.168.0.109:8888',
 };
 
 //默认生产环境
