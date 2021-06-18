@@ -113,7 +113,7 @@ export default {
         uni.share({
           provider: "weixin",
           scene: scene,
-          href: configs.downloadLink + this.link,
+          href: configs.shareLink + this.link,
           imageUrl: this.thumbnail,
           type: 0,
           summary: this.goodsName,
