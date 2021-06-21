@@ -57,7 +57,7 @@ import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类�
 // 结束引用组件
 import { getFloorData } from "@/api/home"; //获取楼层装修接口
 import permision from "@/js_sdk/wa-permission/permission.js"; //权限工具类
-
+import config from "@/config/config";
 // TODO 后续开发
 // import tpl_join_group from "@/pages/tabbar/home/template/tpl_join_group";
 // import tpl_integral from "@/pages/tabbar/home/template/tpl_integral";
@@ -66,6 +66,7 @@ import permision from "@/js_sdk/wa-permission/permission.js"; //权限工具类
 export default {
   data() {
     return {
+      config,
       pageData: "", //楼层页面数据
     };
   },
@@ -118,12 +119,22 @@ export default {
       uni.scanCode({
         success: function (res) {
           let path = encodeURIComponent(res.result);
+          config.scanAuthNavigation.forEach((src) => {
+            if (res.result.indexOf(src) != -1) {
+                uni.navigateTo({
+                  url: `/${res.result.substring(src.length)}`,
+                });
+            } else {
+              setTimeout(() => {
+                uni.navigateTo({
+                  url: "/pages/tabbar/home/web-view?src=" + path,
+                });
+              }, 100);
+            }
+          });
+
+          // let
           // 扫码成功后跳转到webview页面
-          setTimeout(() => {
-            uni.navigateTo({
-              url: "/pages/tabbar/home/web-view?src=" + path,
-            });
-          }, 100);
         },
       });
     },
@@ -142,7 +153,7 @@ export default {
             if (isIos) {
               plus.runtime.openURL("app-settings:");
             } else {
-              permision.gotoAppPermissionSetting()
+              permision.gotoAppPermissionSetting();
             }
           }
         },

@@ -81,6 +81,11 @@ export function modelNavigateTo(item) {
             url: `/pages/promotion/joinGroup`,
           });
           break;
+        case "小程序直播":
+          uni.navigateTo({
+            url: `/pages/promotion/lives`,
+          });
+          break;
         case "积分商城":
           uni.switchTab({
             url: `/pages/navigation/point/point-mall`,

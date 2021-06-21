@@ -32,7 +32,7 @@ export default {
 <style lang="scss" scoped>
 .carousel {
   // #ifdef MP-WEIXIN
-  margin-top: var(--status-bar-height);
+  margin-top: 44px;
   // #endif
   width: 750rpx;
   height: 750rpx;

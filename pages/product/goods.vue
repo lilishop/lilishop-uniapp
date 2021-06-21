@@ -118,7 +118,6 @@
           <!-- 拼团用户列表 -->
           <PromotionAssembleListLayout v-if="isGroup" @to-assemble-buy-now="toAssembleBuyNow" :res="PromotionList" />
 
-
           <!-- 配置地址 如果是虚拟产品的时候不展示 -->
           <view class="card-box" v-if="goodsDetail.goodsType !='VIRTUAL_GOODS'">
             <view class="card-flex" @click="shutMask(4)">
@@ -179,7 +178,7 @@
         </view>
         <!-- 正常结算页面 -->
         <view class="detail-btn" v-if="!isGroup">
-          <view class="to-store-car to-store-btn" v-if="goodsDetail.goodsType!='VIRTUAL_GOODS'"  @click="shutMask(4)">加入购物车</view>
+          <view class="to-store-car to-store-btn" v-if="goodsDetail.goodsType!='VIRTUAL_GOODS'" @click="shutMask(4)">加入购物车</view>
           <view class="to-buy to-store-btn" @click="shutMask(4, 'buy')">立即购买</view>
           <view class="to-store-car to-store-btn" v-if="startTimer">暂未开始</view>
         </view>
@@ -584,7 +583,6 @@ export default {
     toAssembleBuyNow(order) {
       this.shutMask(4, "PINTUAN", order);
     },
-
     /**
      * 查看购物车
      */
@@ -685,6 +683,7 @@ export default {
         keyword: this.goodsDetail.name,
       }).then((res) => {
         this.likeGoodsList = res.data.result.content;
+        console.warn(this.likeGoodsList);
       });
     },
 
