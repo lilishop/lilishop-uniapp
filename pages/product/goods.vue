@@ -442,6 +442,11 @@ export default {
   },
   async onLoad(options) {
     this.routerVal = options;
+
+    // #ifdef MP-WEIXIN
+    // 小程序默认分享
+    uni.showShareMenu({ withShareTicket: true });
+    // #endif
   },
   async onShow() {
     this.goodsDetail = {};

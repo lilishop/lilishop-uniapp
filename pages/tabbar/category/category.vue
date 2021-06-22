@@ -5,7 +5,7 @@
       <u-search class="nav-search" disabled @click.native="search" placeholder="搜索商品" :show-action="false"></u-search>
     </u-navbar>
     <view class="content">
-      <scroll-view scroll-y  scroll-with-animation class="left-aside">
+      <scroll-view scroll-y scroll-with-animation class="left-aside">
         <view v-for="(item, index) in tabList" :key="item.id" class="f-item b-b" :class="{ active: item.id === currentId }" @click="tabtap(item, index)">
           {{ item.name }}
         </view>
@@ -47,6 +47,10 @@ export default {
   },
   onLoad() {
     this.loadData();
+    // #ifdef MP-WEIXIN
+    // 小程序默认分享
+    uni.showShareMenu({ withShareTicket: true });
+    // #endif
   },
   methods: {
     /**
@@ -112,8 +116,8 @@ uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
   display: none;
 }
 /* #endif */
-.s-list{
-   box-shadow: 0 4rpx 12rpx 0 rgba(0, 0, 0, 0.05);
+.s-list {
+  box-shadow: 0 4rpx 12rpx 0 rgba(0, 0, 0, 0.05);
 }
 .nav-search {
   padding-left: 30rpx !important;

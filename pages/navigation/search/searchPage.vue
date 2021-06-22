@@ -179,7 +179,7 @@
                 </div>
                 <div class="storeSellerName">
                   <div class="textHidden">
-                    <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated == 1" text="自营" type="error" />
+                    <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营" type="error" />
                     <span>{{ item.storeName || "暂无" }}</span>
                   </div>
                   <span>
@@ -314,7 +314,7 @@ export default {
       isSWitch: false,
 
       params: {
-        pageNumber: 0,
+        pageNumber: 1,
         pageSize: 10,
         // sort: 'grade_asc',
         sort: "releaseTime",
@@ -324,7 +324,7 @@ export default {
       minPrice: "",
       maxPrice: "",
       sortParams: {
-        pageNumber: 0,
+        pageNumber: 1,
         pageSize: 10,
 
         // price: "", //价格,示例值(10_30)
@@ -474,7 +474,7 @@ export default {
       this.minPrice = "";
       this.maxPrice = "";
       this.params = {
-        pageNumber: 0,
+        pageNumber: 1,
         pageSize: 10,
       };
       this.loadData();
@@ -545,7 +545,7 @@ export default {
     },
 
     tabClick(index, type) {
-      this.params.pageNumber = 0;
+      this.params.pageNumber = 1;
       this.params.pageSize = 10;
       // this.params.order = "desc";
       if (this.params.sort == type) {
@@ -687,7 +687,7 @@ export default {
       this.isShowSeachGoods = true;
       this.$refs.mSearch.isShowSeachGoods = true;
       this.params.keyword = keyword;
-      this.params.pageNumber = 0;
+      this.params.pageNumber = 1;
       this.$set(this.sortParams, "keyword", keyword);
 
       this.loadData("refresh", 1);

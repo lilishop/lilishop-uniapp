@@ -192,6 +192,12 @@ export default {
       WEIXIN_num: "", //购物车兼容微信步进器
     };
   },
+  mounted() {
+    // #ifdef MP-WEIXIN
+    // 小程序默认分享
+    uni.showShareMenu({ withShareTicket: true });
+    // #endif
+  },
   /**
    * 初始化信息
    */

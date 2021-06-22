@@ -408,7 +408,9 @@
 				{
 					"path": "wechatMPLogin",
 					"style": {
-						"navigationBarTitleText": "小程序登录"
+						"navigationBarTitleText": "小程序登录",
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "black"
 					}
 				}
 			]

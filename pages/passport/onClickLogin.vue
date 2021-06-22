@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { webConnect, openIdLogin } from "@/api/connect.js";
+import {  openIdLogin } from "@/api/connect.js";
 import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import { getUserInfo } from "@/api/members";
 import storage from "@/utils/storage.js";

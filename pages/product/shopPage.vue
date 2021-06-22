@@ -59,7 +59,12 @@ export default {
     this.storeId = options.id;
 
   },
-  mounted() {},
+  mounted() {
+    // #ifdef MP-WEIXIN
+    // 小程序默认分享
+    uni.showShareMenu({ withShareTicket: true });
+    // #endif
+  },
 
   methods: {
     // 点击分享

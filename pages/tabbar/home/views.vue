@@ -94,6 +94,10 @@ export default {
 
   mounted() {
     this.init();
+    // #ifdef MP-WEIXIN
+    // 小程序默认分享
+    uni.showShareMenu({ withShareTicket: true });
+    // #endif
   },
   methods: {
     /**
@@ -121,9 +125,9 @@ export default {
           let path = encodeURIComponent(res.result);
           config.scanAuthNavigation.forEach((src) => {
             if (res.result.indexOf(src) != -1) {
-                uni.navigateTo({
-                  url: `/${res.result.substring(src.length)}`,
-                });
+              uni.navigateTo({
+                url: `/${res.result.substring(src.length)}`,
+              });
             } else {
               setTimeout(() => {
                 uni.navigateTo({

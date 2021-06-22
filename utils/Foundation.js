@@ -14,21 +14,19 @@
  * 计算出当前router路径
  * 1.如果跳转的链接为登录页面或跳转的链接为空页面。则会重新跳转到首页
  * 2.都不满足返回跳转页面
+ * @param type  'default' || 'wx'  //返回地址会做判断默认为default
  */
-export function whetherNavigate() {
+
+export function whetherNavigate(type = "default") {
   if (getCurrentPages().length > 1) {
     if ((getCurrentPages().length - 2).route == "pages/passport/login") {
-      uni.switchTab({
-        url: "/pages/tabbar/home/index",
-      });
+      navigationToBack(type);
     } else {
       if (
         !(getCurrentPages().length - 2).route ||
         (getCurrentPages().length - 2).route == "undefined"
       ) {
-        uni.switchTab({
-          url: "/pages/tabbar/home/index",
-        });
+        navigationToBack(type);
       } else {
         uni.navigateBack({
           delta: getCurrentPages().length - 2,
@@ -156,6 +154,20 @@ export function countTimeDown(seconds) {
   };
 }
 
+
+function navigationToBack(type) {
+  if (type == "wx") {
+    // console.log(getCurrentPages().length - 3)
+    uni.navigateBack({
+      delta: getCurrentPages().length ,
+    });
+  } else {
+    uni.switchTab({
+      url: "/pages/tabbar/home/index",
+    });
+  }
+}
+
 /**
  * 计算当前时间到第二天0点的倒计时[秒]
  * @returns {number}
@@ -181,5 +193,5 @@ module.exports = {
   randomString,
   countTimeDown,
   theNextDayTime,
-  whetherNavigate
+  whetherNavigate,
 };

@@ -1,26 +1,26 @@
 <template>
   <view v-if="storeDetail">
     <!-- 商店信息  -->
-    <view class="store-info"  >
+    <view class="store-info">
       <view class="logo">
         <u-image width="120rpx" mode="aspectFit" height="120rpx" :src="storeDetail.storeLogo"></u-image>
       </view>
       <view class="name-star star-con">
-        <text class="name">{{ storeDetail.storeName }}</text>
-        <view>
-          <text :class="{ star: storeDetail.store_service_credit > 0 }"></text>
-          <text :class="{ star: storeDetail.store_service_credit > 1 }"></text>
-          <text :class="{ star: storeDetail.store_service_credit > 2 }"></text>
-          <text :class="{ star: storeDetail.store_service_credit > 3 }"></text>
-          <text :class="{ star: storeDetail.store_service_credit > 4 }"></text>
-        </view>
+        <div class="name">
+          {{ storeDetail.storeName }}
+          <span v-if="storeDetail.selfOperated == 1" class="shopTag">自营</span>
+        </div>
+        <div class="store-row">
+          <div class="collectionNum">{{ storeDetail.collectionNum || 0 }}人关注</div>
+          <div class="goodsNum">{{ storeDetail.goodsNum || 0 }}件商品</div>
+        </div>
       </view>
       <view class="to-store-btn" @click="tostorePage(goodsDetail)">
         <view>进店逛逛</view>
       </view>
     </view>
 
-    <view class="store-recommend" >
+    <view class="store-recommend">
       <view class="store-recommend-title">商品推荐</view>
       <view class="recommend-list">
         <view class="recommend-item" @click="clickGoods(item)" v-for="(item, index) in res" :key="index">
@@ -57,10 +57,9 @@ export default {
     },
     // 点击商品
     clickGoods(val) {
-       uni.navigateTo({
-        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`
+      uni.navigateTo({
+        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
       });
-     
     },
 
     tostorePage(val) {
@@ -73,7 +72,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 @import "../product.scss";
 .recommend-item-name {
   height: 70rpx;
@@ -108,6 +106,16 @@ export default {
   }
 }
 
+.shopTag{
+  background: $main-color;
+  font-size: 24rpx;
+  padding: 0 12rpx;
+  margin-left: 10rpx;
+  font-weight: normal;
+  border-radius: 10rpx;
+  color: #fff;
+}
+
 .recommend-list-view {
   width: 100%;
 }
@@ -135,6 +143,7 @@ export default {
     font-size: 30rpx;
 
     .name {
+      display: flex;
       width: 100%;
       font-weight: 700;
       font-size: 28rpx;
@@ -143,7 +152,8 @@ export default {
   }
 
   .to-store-btn {
-    padding: 20rpx 0;
+    display: flex;
+    align-items: center;
 
     > view {
       font-size: 24rpx;
@@ -164,7 +174,6 @@ export default {
   flex-direction: column;
 
   view {
-    flex: 1;
     display: flex;
     align-items: center;
 
@@ -214,5 +223,17 @@ export default {
   background: #fff;
 
   margin: 20rpx 0 0 0;
+}
+.goodsNum,
+.collectionNum {
+  font-size: 24rpx;
+  color: #999;
+}
+.store-row {
+  display: flex;
+  margin: 10rpx 0;
+  > div {
+    margin-right: 20rpx;
+  }
 }
 </style>
