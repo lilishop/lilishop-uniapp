@@ -126,16 +126,16 @@
                 <span v-if="selectedGoods.spec">{{ selectedGoods.spec.specName }}-{{
                     selectedGoods.spec.specValue
                   }}</span>
-                <span v-else>默认</span>
-              </view>
-              <view class="card-bottom">
-                <u-icon name="more-dot-fill"></u-icon>
-              </view>
-            </view>
-            <view class="card-flex" @click="shutMask(3)">
-              <view class="card-title"> 送至 </view>
-              <view class="card-content">
-                <span v-if="delivery">{{
+								<span v-else>默认</span>
+							</view>
+							<view class="card-bottom">
+								<u-icon name="more-dot-fill"></u-icon>
+							</view>
+						</view>
+						<view class="card-flex" @click="shutMask(3)">
+							<view class="card-title"> 送至 </view>
+							<view class="card-content">
+								<span v-if="delivery">{{
                   delivery.consigneeAddressPath | clearStrComma
                 }}</span>
                 <span v-else>暂无地址信息</span>
@@ -878,10 +878,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// #ifdef MP-WEIXIN
-@import "./product/mp-goods.scss";
-// #endif
+	// #ifdef MP-WEIXIN
+	@import "./product/mp-goods.scss";
+	// #endif
 
-@import "./product/style.scss";
-@import "./product/product.scss";
+	@import "./product/style.scss";
+	@import "./product/product.scss";
 </style>
