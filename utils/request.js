@@ -121,7 +121,7 @@ http.interceptors.request.use(
 
       config.params = params;
       config.header.accessToken = accessToken;
-      console.warn(accessToken);
+     
       /**
        * jwt 因为安卓以及ios没有window的属性
        * window.atob（）这个函数 base64编码的使用方法就是btoa（），而用于解码的使用方法是atob（），
@@ -132,15 +132,10 @@ http.interceptors.request.use(
       if (accessToken.split(".").length <= 1) {
         refresh();
       } else {
-        console.log(
-          JSON.parse(atob(accessToken.split(".")[1])).exp,
-          Math.round(new Date() / 1000)
-        );
         if (
-          JSON.parse(atob(accessToken.split(".")[1])).exp <
+          JSON.parse(atob(accessToken.split(".")[1].replace(/-/g, '+').replace(/_/g, '/'))).exp <
           Math.round(new Date() / 1000)
         ) {
-          console.log("过期时间小于当前时间刷新token");
           refresh();
         }
       }
@@ -155,6 +150,7 @@ http.interceptors.request.use(
     return Promise.reject(config);
   }
 );
+
 
 async function refresh() {
   // 本地储存的是过期token了，重新获取

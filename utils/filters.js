@@ -148,7 +148,7 @@ export function orderStatusList(val) {
     DELIVERED: "已发货",
     CANCELLED: "已取消",
     COMPLETE: "已完成",
-    TAKE: "已完成",
+    TAKE: "待核验",
   };
   return orderStatusList[val];
 }

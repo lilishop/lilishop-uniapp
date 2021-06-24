@@ -166,10 +166,10 @@
             <u-icon size="34" class="red" name="home-fill"></u-icon>
             <view class="red icon-btn-name">店铺</view>
           </view>
-          <!-- <view class="icon-btn-item" @click="linkMsgDetail()">
+          <view class="icon-btn-item" @click="linkMsgDetail()">
             <u-icon size="34" name="kefu-ermai"></u-icon>
             <view class="icon-btn-name">客服</view>
-          </view> -->
+          </view>
           <view class="icon-btn-item" @click="reluchToCart()">
             <u-icon size="34" name="storeping-cart"></u-icon>
             <view class="icon-btn-name">购物车</view>
