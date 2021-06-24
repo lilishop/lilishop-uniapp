@@ -126,16 +126,16 @@
                 <span v-if="selectedGoods.spec">{{ selectedGoods.spec.specName }}-{{
                     selectedGoods.spec.specValue
                   }}</span>
-								<span v-else>默认</span>
-							</view>
-							<view class="card-bottom">
-								<u-icon name="more-dot-fill"></u-icon>
-							</view>
-						</view>
-						<view class="card-flex" @click="shutMask(3)">
-							<view class="card-title"> 送至 </view>
-							<view class="card-content">
-								<span v-if="delivery">{{
+                <span v-else>默认</span>
+              </view>
+              <view class="card-bottom">
+                <u-icon name="more-dot-fill"></u-icon>
+              </view>
+            </view>
+            <view class="card-flex" @click="shutMask(3)">
+              <view class="card-title"> 送至 </view>
+              <view class="card-content">
+                <span v-if="delivery">{{
                   delivery.consigneeAddressPath | clearStrComma
                 }}</span>
                 <span v-else>暂无地址信息</span>
@@ -548,9 +548,35 @@ export default {
       }
     },
     linkMsgDetail() {
+      // 客服
+      // #ifdef MP-WEIXIN
+
+      const params = {
+        storeName: this.storeDetail.storeName,
+        goodsName: this.goodsDetail.goodsName,
+        goodsId: this.goodsDetail.goodsId,
+        goodsImg: this.goodsDetail.thumbnail,
+        price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
+        // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+        uuid: storage.getUuid(),
+        token: storage.getAccessToken(),
+        sign: this.storeDetail.yzfSign,
+        mpSign: this.storeDetail.yzfMpSign,
+      };
       uni.navigateTo({
-        url: "/pages/product/customerservice/index",
+        url:
+          "/pages/product/customerservice/index?params=" +
+          encodeURIComponent(JSON.stringify(params)),
       });
+      // #endif
+      // #ifndef MP-WEIXIN
+      const sign = this.storeDetail.yzfSign;
+      uni.navigateTo({
+        url:
+          "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+          sign,
+      });
+      // #endif
     },
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
@@ -878,10 +904,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-	// #ifdef MP-WEIXIN
-	@import "./product/mp-goods.scss";
-	// #endif
+// #ifdef MP-WEIXIN
+@import "./product/mp-goods.scss";
+// #endif
 
-	@import "./product/style.scss";
-	@import "./product/product.scss";
+@import "./product/style.scss";
+@import "./product/product.scss";
 </style>
