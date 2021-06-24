@@ -148,7 +148,16 @@ export default {
       font-weight: 700;
       font-size: 28rpx;
       line-height: 24px;
+	  margin-left: 10px;
     }
+	.desc {
+		font-size: 12px;
+		color: #999;
+		margin-left: 10px;
+		text{
+			margin-right: 10px;
+		}
+	}
   }
 
   .to-store-btn {

@@ -136,6 +136,19 @@ page {
     > .headerList {
         flex: 8;
     }
+	> div:nth-child(2) {
+	    flex: 1;
+		.headerList{
+			display: flex;
+			div{
+				flex: 1;
+			}
+		}
+	}
+	> div:nth-child(3) {
+	    width: 100rpx;
+	}
+    
     justify-content: space-between;
 }
 
