@@ -114,7 +114,7 @@
 
     <!-- 发票信息 -->
     <invoices :res="receiptList" @callbackInvoice="callbackInvoice" v-if="invoiceFlag" />
-    <u-select v-model="shippingFlag" :list="shippingMethod" @confirm="checkedshipMethod"></u-select>
+    <u-select v-model="shippingFlag" :list="shippingMethod" ></u-select>
 
     <!-- 优惠券 -->
     <div class="box box4">

@@ -147,9 +147,9 @@
 
 
 			awaitPay(payment){
-
-				 this.pay(payment)
-			
+				this.$u.throttle(()=>{
+					this.pay(payment)
+				}, 2000)
 			},
 
 			//订单支付
@@ -179,10 +179,10 @@
 
 						//如果支付异常
 						if (!signXml.data.success) {
-							uni.showModal({
-								content: signXml.data.message,
-								showCancel: false,
-							})
+							uni.showToast({
+								title: signXml.data.message,
+								duration: 2000
+							});
 							return;
 						}
 
@@ -229,10 +229,11 @@
 						if(paymentMethod !== "ALIPAY"){
 							//如果支付异常
 							if (!response.success) {
-								uni.showModal({
-									content: response.message,
-									showCancel: false,
-								})
+								uni.showToast({
+									title: response.message,
+									duration: 2000,
+									icon:"none"
+								});
 								return;
 							}
 						}

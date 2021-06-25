@@ -57,12 +57,13 @@
                   <u-button ripple :customStyle="{'background':lightColor,'color':'#fff' }" shape="circle" class="pay-btn" size="mini" v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
                     确认收货
                   </u-button>
-                  <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="
+                  <!-- TODO 后续完善 -->
+                  <!-- <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="
                       order.orderStatus === 'CANCELLED' ||
                       order.orderStatus === 'COMPLETE'
                     " @click="reBuy(order)">
                     再次购买
-                  </u-button>
+                  </u-button> -->
                 </view>
               </view>
             </view>
@@ -457,10 +458,12 @@ export default {
      * 重新购买
      */
     reBuy(order) {
+      console.log(order)
+      return 
       uni.navigateTo({
         url:
           "/pages/product/goods?id=" +
-          order.groupSkuId +
+          order.id +
           "&goodsId=" +
           order.goodsId,
       });

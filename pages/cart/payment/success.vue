@@ -51,7 +51,6 @@
     </div>
   </div>
 
-  </div>
 </template>
 <script>
 import { getGoodsList } from "@/api/goods.js";
@@ -65,10 +64,10 @@ export default {
       from: "",
       payPrice: 0,
       goodsList: [],
-	  activeColor:this.$mainColor,
+      activeColor: this.$mainColor,
       params: {
         pageSize: 12,
-        pageNumber: 0,
+        pageNumber: 1,
       },
     };
   },
@@ -112,12 +111,11 @@ export default {
         uni.requestSubscribeMessage({
           tmplIds: templateid,
           success: (res) => {
-			  for(let key in res){
-				  if(res[key] == "reject"){
-					  this.checked = false;
-				  }
-			  }
-           
+            for (let key in res) {
+              if (res[key] == "reject") {
+                this.checked = false;
+              }
+            }
           },
           fail: (res) => {
             uni.removeStorageSync("acceptSubscribeMessage");
@@ -155,7 +153,6 @@ export default {
   margin: 0 auto 40rpx auto;
   padding: 0 20rpx 20rpx;
   width: 80%;
-   
 }
 .pay-btns {
   display: flex;

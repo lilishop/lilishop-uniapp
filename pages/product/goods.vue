@@ -394,12 +394,22 @@ export default {
       routerVal: "",
     };
   },
+  // #ifdef MP-WEIXNI
+  shareAppMessage() {
+    return {
+      title: this.goodsDetail.goodsName,
+      type: 0,
+      query:`id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`,
+      path: `/pages/product/goods`,
+      imageUrl:this.goodsDetail.goodsGalleryList[0],
+    };
+  },
+  // #endif
   watch: {
     isGroup(val) {
       if (val) {
         let timer = setInterval(() => {
           this.$refs.popupGoods.buyType = "PINTUAN";
-
           clearInterval(timer);
         }, 100);
 
@@ -442,10 +452,12 @@ export default {
   },
   async onLoad(options) {
     this.routerVal = options;
-
     // #ifdef MP-WEIXIN
     // 小程序默认分享
-    uni.showShareMenu({ withShareTicket: true });
+    uni.showShareMenu({
+      withShareTicket: true,
+      menus: ["shareAppMessage", "shareTimeline"],
+    });
     // #endif
   },
   async onShow() {
@@ -501,6 +513,12 @@ export default {
       });
 
       let response = await getGoods(id, goodsId);
+      if (!response.data.success) {
+        uni.navigateBack({
+          delta: 2,
+        });
+        return false;
+      }
 
       // 这里是绑定分销员
       if (distributionId || this.$store.state.distributionId) {

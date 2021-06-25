@@ -96,9 +96,10 @@ export default {
     this.init();
     // #ifdef MP-WEIXIN
     // 小程序默认分享
-    uni.showShareMenu({ withShareTicket: true });
+    uni.showShareMenu({ withShareTicket: true, });
     // #endif
   },
+ 
   methods: {
     /**
      * 实例化首页数据楼层
