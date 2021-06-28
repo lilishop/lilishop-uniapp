@@ -1,28 +1,55 @@
-import storage from "@/utils/storage"
-import {http, Method} from '@/utils/request.js';
-
-
+import storage from "@/utils/storage";
+import { http, Method } from "@/utils/request.js";
 
 /**
  * 意见反馈
  */
- export function feedBack(params) {
+export function feedBack(params) {
   return http.request({
-    url: '/feedback',
+    url: "/feedback",
     method: Method.POST,
     needToken: true,
     params,
   });
 }
 
+// 提现
+export function withdrawalApply(params) {
+  return http.request({
+    url: "/members/wallet/withdrawal",
+    method: Method.POST,
+    needToken: true,
+    params,
+  });
+}
 
+/**
+ * 支付结果查询
+ * @param orderType 交易类型,可用值:TRADE,ORDER,RECHARGE
+ * @param sn   订单编号
+ */
+export function payCallback(params) {
+  return http.request({
+    url: `/cashier/result`,
+    method: Method.GET,
+    params,
+  });
+}
 
+// 在线充值
+export function recharge(params) {
+  return http.request({
+    url: "/trade/recharge",
+    method: Method.POST,
+    params,
+  });
+}
 
 /**
  * 分页获取预存款充值记录
  * @param params
  */
- export function getUserRecharge(params) {
+export function getUserRecharge(params) {
   return http.request({
     url: "/member/recharge",
     method: Method.GET,
@@ -35,7 +62,7 @@ import {http, Method} from '@/utils/request.js';
  * 分页获取预存款充值记录
  * @param params
  */
- export function getWalletLog(params) {
+export function getWalletLog(params) {
   return http.request({
     url: "/wallet/log",
     method: Method.GET,
@@ -44,16 +71,13 @@ import {http, Method} from '@/utils/request.js';
   });
 }
 
-
-
-
 /**
  * 获取优惠券列表
  * @param params
  */
 export function getCoupons(params) {
   return http.request({
-    url: '/promotion/coupon/getCoupons',
+    url: "/promotion/coupon/getCoupons",
     method: Method.GET,
     needToken: true,
     params,
@@ -79,13 +103,12 @@ export function receiveCoupons(couponId) {
  */
 export function getPointsData(params) {
   return http.request({
-    url: 'member/memberPointsHistory/getByPage',
+    url: "member/memberPointsHistory/getByPage",
     method: Method.GET,
     needToken: true,
     params,
   });
 }
-
 
 /**
  * 获取我的评论列表
@@ -94,7 +117,7 @@ export function getPointsData(params) {
  */
 export function getComments(params) {
   return http.request({
-    url: '/memberEvaluation',
+    url: "/memberEvaluation",
     method: Method.GET,
     needToken: true,
     params,
@@ -108,15 +131,12 @@ export function getComments(params) {
  */
 export function getFootprintNum(params) {
   return http.request({
-    url: '/footprint/getFootprintNum',
+    url: "/footprint/getFootprintNum",
     method: Method.GET,
     needToken: true,
     params,
   });
 }
-
-
-
 
 /**
  * 订单评论
@@ -124,10 +144,10 @@ export function getFootprintNum(params) {
  */
 export function commentsMemberOrder(params) {
   return http.request({
-    url: '/memberEvaluation',
+    url: "/memberEvaluation",
     method: Method.POST,
     needToken: true,
-	  header:{'content-type':"application/x-www-form-urlencoded"},
+    header: { "content-type": "application/x-www-form-urlencoded" },
     data: params,
   });
 }
@@ -138,30 +158,30 @@ export function commentsMemberOrder(params) {
  */
 export function AppendCommentsOrder(params) {
   return http.request({
-    url: 'members/comments/additional',
+    url: "members/comments/additional",
     method: Method.POST,
     needToken: true,
-	  header:{'content-type':"application/x-www-form-urlencoded"},
+    header: { "content-type": "application/x-www-form-urlencoded" },
     data: params,
   });
 }
 
 // TODO 第一版本暂未实现此功能
-/** 
+/**
  * 商品咨询
  * @param goods_id
  * @param ask_content
  */
-export function consultating(goods_id, ask_content,anonymous) {
+export function consultating(goods_id, ask_content, anonymous) {
   return http.request({
-    url: 'members/asks',
+    url: "members/asks",
     method: Method.POST,
-	  header:{'content-type':"application/x-www-form-urlencoded"},
+    header: { "content-type": "application/x-www-form-urlencoded" },
     needToken: true,
     data: {
       goods_id,
       ask_content,
-      anonymous
+      anonymous,
     },
   });
 }
@@ -171,7 +191,7 @@ export function consultating(goods_id, ask_content,anonymous) {
  * @param params
  * @returns {AxiosPromise}
  */
-export function getGoodsCollection(params,type) {
+export function getGoodsCollection(params, type) {
   return http.request({
     url: `/member/collection/${type}`,
     method: Method.GET,
@@ -182,22 +202,17 @@ export function getGoodsCollection(params,type) {
   });
 }
 
-
-
 /**
  * 收藏商品
  * @returns {AxiosPromise}
  */
-export function collectionGoods(id,type) {
+export function collectionGoods(id, type) {
   return http.request({
     url: `/member/collection/add/${type}/${id}`,
     method: Method.POST,
     needToken: true,
- 
   });
 }
-
-
 
 /**
  * 删除商品收藏
@@ -206,7 +221,7 @@ export function collectionGoods(id,type) {
  */
 export function deleteGoodsCollection(ids) {
   if (Array.isArray(ids)) {
-    ids = ids.join(',');
+    ids = ids.join(",");
   }
   return http.request({
     url: `/member/collection/delete/GOODS/${ids}`,
@@ -219,7 +234,7 @@ export function deleteGoodsCollection(ids) {
  * 获取商品是否被收藏
  * @param good_id
  */
-export function getGoodsIsCollect(good_id,type) {
+export function getGoodsIsCollect(good_id, type) {
   return http.request({
     url: `/member/collection/isCollection/${type}/${good_id}`,
     method: Method.GET,
@@ -228,7 +243,6 @@ export function getGoodsIsCollect(good_id,type) {
   });
 }
 
-
 /**
  * 收藏店铺
  * @param store_id 店铺ID
@@ -236,10 +250,10 @@ export function getGoodsIsCollect(good_id,type) {
  */
 export function collectionStore(store_id) {
   return http.request({
-    url: 'members/collection/store',
-    header:{'content-type':"application/x-www-form-urlencoded"},
+    url: "members/collection/store",
+    header: { "content-type": "application/x-www-form-urlencoded" },
     method: Method.POST,
-    data: {store_id},
+    data: { store_id },
   });
 }
 
@@ -255,14 +269,13 @@ export function deleteStoreCollection(store_id) {
   });
 }
 
-
 /**
  * 获取当前登录的用户信息
  * @returns {AxiosPromise}
  */
- export function getUserInfo() {
+export function getUserInfo() {
   return http.request({
-    url: '/members',
+    url: "/members",
     method: Method.GET,
     needToken: true,
   });
@@ -274,7 +287,7 @@ export function deleteStoreCollection(store_id) {
  */
 export function getUserWallet() {
   return http.request({
-    url: '/members/wallet',
+    url: "/members/wallet",
     method: Method.GET,
     needToken: true,
   });
@@ -287,14 +300,13 @@ export function getUserWallet() {
  */
 export function saveUserInfo(params) {
   return http.request({
-    url: '/members/editOwn',
+    url: "/members/editOwn",
     method: Method.PUT,
-	header:{'content-type':"application/x-www-form-urlencoded"},
+    header: { "content-type": "application/x-www-form-urlencoded" },
     needToken: true,
     data: params,
   });
 }
-
 
 /**
  * 添加发票
@@ -302,14 +314,12 @@ export function saveUserInfo(params) {
  */
 export function addReceipt(params) {
   return http.request({
-    url: '/trade/receipt',
+    url: "/trade/receipt",
     method: Method.POST,
     needToken: true,
     params,
   });
 }
-
-
 
 /**
  * 获取商品评论列表
@@ -337,7 +347,6 @@ export function getGoodsCommentsCount(goodsId) {
   });
 }
 
-
 /**
  * 获取未读消息数量信息
  */
@@ -345,21 +354,21 @@ export function getNoReadMessageNum() {
   return http.request({
     url: `members/member-nocice-logs/number`,
     method: Method.GET,
-    needToken: true
-  })
+    needToken: true,
+  });
 }
 
 /**
  * 我的足迹列表
  * @param pageNumber  pageSize
- * 
+ *
  */
 export function myTrackList(params) {
   return http.request({
     url: `/footprint`,
     method: Method.GET,
     needToken: true,
-	params
+    params,
   });
 }
 
@@ -371,42 +380,42 @@ export function deleteHistoryListId(ids) {
   return http.request({
     url: `/footprint/delByIds/${ids}`,
     method: Method.DELETE,
-    needToken: true
-  })
+    needToken: true,
+  });
 }
 
 /**
  * 获取当前会员优惠券列表
- * @param 
+ * @param
  */
 export function getMemberCoupons(data) {
   return http.request({
     url: `/promotion/coupon/getCoupons`,
     method: Method.GET,
     needToken: true,
-    params:data
-  })
+    params: data,
+  });
 }
 
 /**
  * 获取当前会员可使用的优惠券数量
- * 
+ *
  */
 export function getCouponsNum() {
   return http.request({
     url: `/promotion/coupon/getCouponsNum`,
     method: Method.GET,
-    needToken: true
-  })
+    needToken: true,
+  });
 }
 
 /**
  * 获取会员积分VO
- * @param 
+ * @param
  */
 export function getMemberPointSum() {
   return http.request({
     url: `member/memberPointsHistory/getMemberPointsHistoryVO`,
-    method: Method.GET
-  })
+    method: Method.GET,
+  });
 }

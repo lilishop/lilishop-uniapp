@@ -168,7 +168,28 @@
 				{
 					"path": "deposit/index",
 					"style": {
-						"navigationBarTitleText": "预存款列表"
+						"navigationStyle": "custom"
+
+					}
+				},
+				{
+					"path": "deposit/operation",
+					"style": {
+						"navigationStyle": "custom"
+
+					}
+				},
+				{
+					"path": "deposit/recharge",
+					"style": {
+						"navigationBarTitleText": "充值金额"
+
+					}
+				},
+				{
+					"path": "deposit/withdrawal",
+					"style": {
+						"navigationBarTitleText": "提现金额"
 
 					}
 				},

@@ -20,7 +20,7 @@
     <!-- 积分，优惠券，关注， -->
     <div class="pointBox">
       <u-row text-align="center" gutter="16" class="point">
-        <u-col text-align="center" span="4" @click="navigateTo('/pages/mine/deposit/index')">
+        <u-col text-align="center" span="4" @click="navigateTo('/pages/mine/deposit/operation')">
           <view>预存款</view>
           <view class="money">{{ walletNum | unitPrice}}</view>
         </u-col>

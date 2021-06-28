@@ -2,10 +2,10 @@
   <div class="wrapper">
     <div class="pay-wrapper">
       <div class="pay-money">
-        ￥{{ payPrice | unitPrice }}
+        ￥{{ Number(payPrice) | unitPrice }}
       </div>
       <div class="pay-btns">
-        <div v-show="!from" @click="navigateTo('/pages/order/myOrder?status=0')">查看订单</div>
+        <div v-show="!from" @click="checkOrder">查看{{this.orderType == "RECHARGE" ? '余额' : '订单'}}</div>
         <div @click="navigateTo('/pages/tabbar/home/index', 'switch')">回到首页</div>
 
       </div>
@@ -88,11 +88,26 @@ export default {
   onLoad(options) {
     this.paymentMethod = options.paymentMethod || "";
     this.from = options.from || "";
-    this.payPrice = parseInt(options.payPrice) || 0;
+    this.payPrice = options.payPrice || 0;
+    this.orderType = options.orderType;
     //搜索商品
     this.initGoods();
   },
   methods: {
+    checkOrder() {
+      /**
+       * 查看订单
+       * 1.充值跳转到明细里面
+       * 2.支付跳转到订单详情
+       */
+      if (this.orderType == "RECHARGE") {
+        uni.reLaunch({
+           url: `/pages/mine/deposit/operation`
+        })
+      } else {
+        this.navigateTo("/pages/order/myOrder?status=0");
+      }
+    },
     changeStatus(val) {
       if (val) {
         this.sendMessage();

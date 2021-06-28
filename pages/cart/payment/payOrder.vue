@@ -45,7 +45,7 @@
 </template>
 <script>
 	import * as API_Trade from "@/api/trade";
-
+	import {payCallback} from '@/api/members'
 	export default {
 		data() {
 			return {
@@ -71,6 +71,7 @@
 				walletValue: 0.0,
 				// 支付倒计时
 				autoCancel: 0,
+			
 			};
 		},
 		onLoad(val) {
@@ -91,12 +92,23 @@
 			// 区别是：h5是通过浏览器外部调用微信app进行支付，而JSAPI则是 在微信浏览器内部，或者小程序 调用微信支付
 			this.paymentClient = this.isWeiXin() ? "JSAPI" : "H5";
 			//#endif
+
+
+
+			// 
 		},
 		onBackPress(e) {
 			if (e.from == "backbutton") {
+				if(this.routerVal.recharge_sn){
+					uni.switchTab({
+						 url: '/pages/tabbar/user/my'
+					});
+				}
+				else{
 				uni.redirectTo({
 					url: "/pages/order/myOrder?status=0",
 				});
+				}
 				return true; //阻止默认返回行为
 			}
 		},
@@ -104,16 +116,28 @@
 			this.cashierData();
 		},
 		methods: {
-			navigateTo(url) {
+
+			/**
+			 * 支付成功后跳转
+			 */
+			callback(paymentMethod){
 				uni.navigateTo({
-					url,
+					url: "/pages/cart/payment/success?paymentMethod=" +
+					paymentMethod +
+					"&payPrice=" +
+					this.cashierParams.price+
+					"&orderType="+this.orderType 
 				});
 			},
-			// 获取收银详情
+			
+			/**
+			 * 获取收银详情
+			 */
 			cashierData() {
 				let parms = {};
 
 				if (this.routerVal.recharge_sn) {
+					// 判断当前是否是充值
 					this.sn = this.routerVal.recharge_sn;
 					this.orderType = "RECHARGE";
 				} else if (this.routerVal.trade_sn) {
@@ -136,8 +160,18 @@
 					});
 					// #endif
 
+				
+
 					// #ifndef MP-WEIXIN
-					this.payList = res.data.result.support;
+				    if(this.routerVal.recharge_sn){
+					 this.payList = res.data.result.support.filter((item) => {
+						return item != "WALLET";
+					 })
+					}
+					 else{
+						this.payList = res.data.result.support;
+					}
+					
 					// #endif
 					this.walletValue = res.data.result.walletValue;
 					this.autoCancel =
@@ -154,6 +188,7 @@
 
 			//订单支付
 			async pay(payment) {
+				
 				// 支付编号
 				const sn = this.sn;
 				// 交易类型【交易号|订单号】
@@ -188,7 +223,6 @@
 
 						let payForm = signXml.data.result;
 
-						console.log(payForm)
 						let paymentType = paymentMethod === "WECHAT" ? "wxpay" : "alipay";
 						uni.requestPayment({
 							provider: paymentType,
@@ -199,12 +233,10 @@
 									icon: "none",
 									title: "支付成功!",
 								});
-								uni.navigateTo({
-									url: "/pages/payment/success?paymentType=" +
-										paymentType +
-										"&payPrice=" +
-										this.cashierParams.price,
-								});
+
+								this.callback(paymentMethod)
+								
+								 
 							},
 							fail: (e) => {
 								console.log(e);
@@ -253,12 +285,8 @@
 												icon: "none",
 												title: "支付成功!",
 											});
-											uni.navigateTo({
-												url: "/pages/cart/payment/success?paymentMethod=" +
-													paymentMethod +
-													"&payPrice=" +
-													this.cashierParams.price,
-											});
+											this.callback(paymentMethod)
+											 
 										} else {
 											uni.showModal({
 												content: "支付失败,如果您已支付，请勿反复支付",
@@ -276,12 +304,7 @@
 								icon: "none",
 							});
 							if (response.success) {
-								uni.navigateTo({
-									url: "/pages/cart/payment/success?paymentMethod=" +
-										paymentMethod +
-										"&payPrice=" +
-										this.cashierParams.price,
-								});
+								this.callback(paymentMethod)
 							}
 						}
 					}
@@ -317,12 +340,8 @@
 										icon: "none",
 										title: "支付成功!",
 									});
-									uni.navigateTo({
-										url: "/pages/cart/payment/success?paymentMethod=" +
-											paymentType +
-											"&payPrice=" +
-											this.cashierParams.price,
-									});
+									this.callback(paymentMethod)
+									 
 								},
 								fail: (e) => {
 									console.log(e);
@@ -338,12 +357,8 @@
 								icon: "none",
 								title: "支付成功!",
 							});
-							uni.navigateTo({
-								url: "/pages/cart/payment/success?paymentMethod=" +
-									paymentMethod +
-									"&payPrice=" +
-									this.cashierParams.price,
-							});
+							this.callback(paymentMethod)
+							 
 						}
 					}
 				);
