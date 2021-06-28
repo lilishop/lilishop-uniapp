@@ -26,7 +26,7 @@
     </view>
 
     <view class="select-view">
-      <view class="select-cell" @click="onSelect(1)">
+      <view class="select-cell"  v-if="applyInfo.returnGoods"  @click="onSelect(1)">
         <view class="select-image">
           <image style="height: 51rpx; width: 51rpx" src="/static/order/t1.png"></image>
         </view>
@@ -38,7 +38,7 @@
           </view>
         </view>
       </view>
-      <view class="select-cell" @click="onSelect(3)">
+      <view class="select-cell" v-if="applyInfo.returnMoney"  @click="onSelect(3)">
         <view class="select-image">
           <image style="height: 51rpx; width: 51rpx" src="/static/order/t3.png"></image>
         </view>
@@ -56,14 +56,17 @@
 
 <script>
 import UniIcons from "@/components/uni-icons/uni-icons.vue";
+
+import { getAfterSaleInfo } from "@/api/after-sale";
 export default {
   components: {
     UniIcons,
   },
   data() {
     return {
-      sn: "", 
+      sn: "",
       sku: {}, //sku
+      applyInfo:""
     };
   },
   onLoad(options) {
@@ -71,8 +74,20 @@ export default {
     let dData = decodeURIComponent(options.sku);
     let newData = JSON.parse(dData);
     this.sku = newData;
+
+    // 查看当前商品是否支持退款退货
+    this.init()
   },
   methods: {
+    // 初始化数据
+    init() {
+      getAfterSaleInfo(this.sn).then((response) => {
+        if (response.data.success) {
+          this.applyInfo = response.data.result;
+        }
+      });
+    },
+
     /**
      * 选择退货流程
      */

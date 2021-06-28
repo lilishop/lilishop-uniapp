@@ -149,7 +149,7 @@ export default {
       customStyle: {
         backgroundColor: this.$lightColor,
       },
-      applyInfo: {},
+      applyInfo: {}, 
       form: {
         orderItemSn: "", // 订单sn
         skuId: "",

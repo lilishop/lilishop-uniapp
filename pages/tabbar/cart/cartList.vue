@@ -3,7 +3,7 @@
     <u-navbar :isBack="false" title="购物车"></u-navbar>
     <!-- 空白页-->
     <view v-if="cartDetail.cartList == '' || cartDetail.cartList == [] || !cartDetail" class="empty">
-      <image src="/static/emptyCart.jpg" mode="aspectFit"></image>
+      <image src="/static/emptyCart.png" mode="aspectFit"></image>
       <view class="empty-tips">
         空空如也
         <navigator class="navigator" url="/pages/tabbar/home/index" open-type="switchTab">随便逛逛></navigator>

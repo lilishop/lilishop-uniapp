@@ -156,9 +156,7 @@ export default {
     this.routers = options;
   },
   watch: {
-    showFlag(val) {
-   
-    },
+    showFlag(val) {},
   },
   onShow() {
     this.goodsList = [];
@@ -172,27 +170,34 @@ export default {
     },
 
     async handleLink(goods) {
+      uni.showToast({
+        title: "请请按住保存图片",
+        duration: 2000,
+        icon: "none",
+      });
       let page = `pages/product/goods`;
       let scene = `${goods.skuId},${goods.id},${this.routers.id}`;
       let result = await getMpCode({ page, scene });
-      if(result.data.success){
-      let callback = result.data.result;
-      this.res.container.title = `${goods.goodsName}`;
-      this.res.bottom.code = `data:image/png;base64,${callback}`;
-      this.res.bottom.price = this.$options.filters.unitPrice(goods.price, "￥");
-      this.res.bottom.desc = `${goods.goodsName}`;
-      this.res.bottom.img = `${goods.thumbnail}`;
+      if (result.data.success) {
+        let callback = result.data.result;
+        this.res.container.title = `${goods.goodsName}`;
+        this.res.bottom.code = `data:image/png;base64,${callback}`;
+        this.res.bottom.price = this.$options.filters.unitPrice(
+          goods.price,
+          "￥"
+        );
+        this.res.bottom.desc = `${goods.goodsName}`;
+        this.res.bottom.img = `${goods.thumbnail}`;
 
-      if (this.showFlag) {
-        this.$refs.drawCanvas.init();
-      }
-      this.showFlag = true;
-      }
-      else{
+        if (this.showFlag) {
+          this.$refs.drawCanvas.init();
+        }
+        this.showFlag = true;
+      } else {
         uni.showToast({
           title: `制作二维码失败！请稍后重试`,
           duration: 2000,
-          icon:"none"
+          icon: "none",
         });
       }
     },
