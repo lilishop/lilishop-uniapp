@@ -9,6 +9,7 @@ const FACE_LOGIN = isDev ? "face_login_dev" : "face_login";
 const FINGER_LOGIN = isDev ? "finger_login_dev" : "finger_login";
 const CART_BACKBTN = isDev ? "cart_backbtn_dev" : "cart_backbtn";
 export default {
+
   // 获取face id登录
   getFaceLogin() {
     return uni.getStorageSync(FACE_LOGIN);

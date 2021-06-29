@@ -68,6 +68,7 @@ export default {
     return {
       config,
       pageData: "", //楼层页面数据
+      isIos: "",
     };
   },
   components: {
@@ -96,10 +97,10 @@ export default {
     this.init();
     // #ifdef MP-WEIXIN
     // 小程序默认分享
-    uni.showShareMenu({ withShareTicket: true, });
+    uni.showShareMenu({ withShareTicket: true });
     // #endif
   },
- 
+
   methods: {
     /**
      * 实例化首页数据楼层
@@ -137,9 +138,6 @@ export default {
               }, 100);
             }
           });
-
-          // let
-          // 扫码成功后跳转到webview页面
         },
       });
     },
@@ -153,9 +151,7 @@ export default {
         content: "您已经关闭相机权限,去设置",
         success: function (res) {
           if (res.confirm) {
-            let isIos = plus.os.name == "iOS";
-
-            if (isIos) {
+            if (this.isIos) {
               plus.runtime.openURL("app-settings:");
             } else {
               permision.gotoAppPermissionSetting();
@@ -171,31 +167,27 @@ export default {
      */
     async scan() {
       // #ifdef APP-PLUS
-      let isIos = plus.os.name == "iOS";
+      this.isIos = plus.os.name == "iOS";
       // 判断是否是Ios
-      if (isIos) {
-        if (permision.judgeIosPermission("camera")) {
+      if (this.isIos) {
+        const iosFirstCamera = uni.getStorageSync("iosFirstCamera"); //是不是第一次开启相机
+        if (iosFirstCamera !== "false") {
+          uni.setStorageSync("iosFirstCamera", "false"); //设为false就代表不是第一次开启相机
           this.seacnCode();
         } else {
-          // 没有权限提醒是否去申请权限
-          uni.showModal({
-            title: "提示",
-            content: "您已经关闭相机权限,去设置",
-            success: function (res) {
-              if (res.confirm) {
-                plus.runtime.openURL("app-settings:");
-              }
-            },
-          });
+          if (permision.judgeIosPermission("camera")) {
+            this.seacnCode();
+          } else {
+            // 没有权限提醒是否去申请权限
+            this.tipsGetSettings();
+          }
         }
       } else {
-        // 安卓
-        const result = await permision.requestAndroidPermission("CAMERA");
-        if (result == 1 || result == 0) {
-          this.seacnCode();
-        } else {
-          this.tipsGetSettings();
-        }
+        /**
+         * TODO 安卓 权限已经授权了，调用api总是显示用户已永久拒绝申请。人傻了
+         * TODO 如果xdm有更好的办法请在 https://gitee.com/beijing_hongye_huicheng/lilishop/issues 提下谢谢
+         */
+        this.seacnCode();
       }
 
       // #endif

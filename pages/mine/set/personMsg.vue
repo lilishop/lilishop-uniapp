@@ -98,23 +98,14 @@ export default {
      * 提交保存
      */
     submit() {
-      if (this.form.regionId.length != 0 && this.birthday) {
-        delete this.form.___path;
-        let params = JSON.parse(JSON.stringify(this.form));
-        saveUserInfo(params).then((res) => {
-       
-          if (res.statusCode == 200) {
-            storage.setUserInfo(res.data.result);
-            uni.navigateBack();
-          }
-        });
-      } else {
-        uni.showToast({
-          title: "请填写生日和城市!",
-          duration: 2000,
-          icon: "none",
-        });
-      }
+      delete this.form.___path;
+      let params = JSON.parse(JSON.stringify(this.form));
+      saveUserInfo(params).then((res) => {
+        if (res.statusCode == 200) {
+          storage.setUserInfo(res.data.result);
+          uni.navigateBack();
+        }
+      });
     },
 
     /**

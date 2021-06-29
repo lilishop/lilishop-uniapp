@@ -104,7 +104,6 @@ export default {
     this.params[this.current].pageNumber = 1;
     this.liveList = [];
     this.getLives();
-
     this.getRecommendLives();
   },
   onReachBottom() {
@@ -225,6 +224,7 @@ export default {
      * 进入直播间
      */
     handleLivePlayer(val) {
+      // #ifdef MP-WEIXIN
       let roomId = val.roomId; // 填写具体的房间号，可通过下面【获取直播房间列表】 API 获取
       let customParams = encodeURIComponent(
         JSON.stringify({ path: "pages/index/index", pid: 1 })
@@ -236,6 +236,15 @@ export default {
           "&custom_params=" +
           customParams,
       });
+      // #endif
+
+      // #ifndef MP-WEIXIN
+      uni.showToast({
+        title: "请从微信小程序中预览直播功能",
+        duration: 2000,
+        icon: "none",
+      });
+      // #endif
     },
   },
 };
