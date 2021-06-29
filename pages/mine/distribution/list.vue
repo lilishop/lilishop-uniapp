@@ -176,7 +176,7 @@ export default {
         icon: "none",
       });
       let page = `pages/product/goods`;
-      let scene = `${goods.skuId},${goods.id},${this.routers.id}`;
+      let scene = `${goods.skuId},${goods.goodsId},${this.routers.id}`;
       let result = await getMpCode({ page, scene });
       if (result.data.success) {
         let callback = result.data.result;

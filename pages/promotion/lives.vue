@@ -41,7 +41,7 @@
           </div>
         </div>
       </div>
-      <u-loadmore bg-color="transparent" :status="status" />
+      <u-loadmore v-if="liveList.length > 10" bg-color="#f8f8f8" :status="status" />
     </div>
   </div>
 </template>
@@ -101,7 +101,10 @@ export default {
     };
   },
   onShow() {
+    this.params[this.current].pageNumber = 1;
+    this.liveList = [];
     this.getLives();
+
     this.getRecommendLives();
   },
   onReachBottom() {
@@ -137,7 +140,7 @@ export default {
      * 点击顶部推荐直播间
      */
     clickSwiper(val) {
-      console.log(this.swiperImg[val])
+      console.log(this.swiperImg[val]);
       this.handleLivePlayer(this.swiperImg[val]);
     },
 
@@ -145,6 +148,7 @@ export default {
      * 搜索直播间
      */
     searchLive(val) {
+      this.params[this.current].pageNumber = 1;
       this.params[this.current].name = val;
       this.init();
     },
@@ -263,6 +267,9 @@ export default {
 }
 .live-cover-img {
   position: relative;
+}
+.swiper {
+  margin: 20rpx 0;
 }
 
 .live-goods {

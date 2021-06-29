@@ -514,9 +514,7 @@ export default {
 
       let response = await getGoods(id, goodsId);
       if (!response.data.success) {
-        uni.navigateBack({
-          delta: 2,
-        });
+        uni.navigateBack();
         return false;
       }
 

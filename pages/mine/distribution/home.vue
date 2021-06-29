@@ -40,10 +40,7 @@
         <view>提现</view>
       </view>
   
-      <view class="nav-item" @click="handleClick('/pages/mine/distribution/list')">
-        <u-icon size="50" color="#1e9ff2" name="home-fill"></u-icon>
-        <view>选品库</view>
-      </view>
+     
     </view>
 
   </view>
