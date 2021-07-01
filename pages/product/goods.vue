@@ -219,7 +219,7 @@
 
         <!-- 商品规格  商品详情，以及默认参与活动的id-->
         <popupGoods :addr="delivery" ref="popupGoods" @changed="changedGoods" @closeBuy="closePopupBuy" @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :id="productId"
-          v-if="goodsDetail.id " :pointDetail="pointDetail" @handleClickSku="init" :buyMask="buyMask" />
+          v-if="goodsDetail.id " :pointDetail="pointDetail" @handleClickSku="selectSku" :buyMask="buyMask" />
       </view>
     </view>
   </div>
@@ -499,11 +499,15 @@ export default {
         return true;
       }
     },
-
+	selectSku (idObj) {
+		console.log(idObj)
+		this.init(idObj.skuId,idObj.goodsId)
+	},
     /**
      * 初始化信息
      */
     async init(id, goodsId, distributionId) {
+		console.log(id, goodsId)
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
