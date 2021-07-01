@@ -182,7 +182,7 @@
 
     <!-- 配送地区没有提示 -->
     <div class="notSupportFreight">
-      <u-notice-bar :volume-icon="false" mode="horizontal" :list="notSupportFreightGoodsList"></u-notice-bar>
+      <u-notice-bar style="width:100%" :volume-icon="false" mode="horizontal" :list="notSupportFreightGoodsList"></u-notice-bar>
     </div>
 
     <!-- 结账 -->
@@ -255,7 +255,7 @@ export default {
       masterWay: "", //团长信息
       pintuanFlage: true, //是开团还是拼团
       notSupportFreight: [], //不支持运费
-      notSupportFreightGoodsList:['以下商品超出配送范围：'],
+      notSupportFreightGoodsList: ["以下商品超出配送范围："],
     };
   },
   filters: {
@@ -532,11 +532,10 @@ export default {
 
         if (res.data.result.notSupportFreight.length != 0) {
           this.notSupportFreight = res.data.result.notSupportFreight;
-           
-           res.data.result.notSupportFreight.forEach(item=>{
-             this.notSupportFreightGoodsList[0]+=(item.goodsSku.goodsName)
-           })
-       
+
+          res.data.result.notSupportFreight.forEach((item) => {
+            this.notSupportFreightGoodsList[0] += item.goodsSku.goodsName;
+          });
         }
       });
     },
@@ -676,7 +675,11 @@ export default {
 }
 .notSupportFreight {
   position: fixed;
+
+  bottom: calc(100rpx + env(safe-area-inset-bottom)) ;
+  // #ifdef H5
   bottom: 100rpx;
+  // #endif
   display: flex;
   align-items: center;
   left: 0;
@@ -684,13 +687,13 @@ export default {
   height: 100rpx;
   width: 100%;
   transition: 0.35s;
- 
+
   > .tips {
     margin: 0 32rpx;
   }
 }
-/deep/ .u-notice-bar-wrap{
-  width: 100%;
+/deep/ .u-notice-bar-wrap {
+  width: 100% !important;
 }
 
 .userClass {

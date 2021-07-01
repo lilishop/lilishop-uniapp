@@ -102,8 +102,7 @@ export default {
                   duration: 2000,
                   icon: "none",
                 });
-                this.flage = false;
-                 this.codeFlag = true;
+                uni.navigateBack();
               }
             })
             .catch((e) => {
@@ -212,7 +211,7 @@ export default {
           uni.hideLoading();
         }, 2000);
       }
-     
+
       if (!this.$u.test.mobile(this.codeForm.mobile)) {
         uni.showToast({
           title: "请输入正确手机号",
