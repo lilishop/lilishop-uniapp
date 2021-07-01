@@ -114,7 +114,7 @@
 
     <!-- 发票信息 -->
     <invoices :res="receiptList" @callbackInvoice="callbackInvoice" v-if="invoiceFlag" />
-    <u-select v-model="shippingFlag" :list="shippingMethod" ></u-select>
+    <u-select v-model="shippingFlag" :list="shippingMethod"></u-select>
 
     <!-- 优惠券 -->
     <div class="box box4">
@@ -180,9 +180,14 @@
       </div>
     </div>
 
+    <!-- 配送地区没有提示 -->
+    <div class="notSupportFreight">
+      <u-notice-bar :volume-icon="false" mode="horizontal" :list="notSupportFreightGoodsList"></u-notice-bar>
+    </div>
+
     <!-- 结账 -->
-    <div class="box box6 mp-iphonex-bottom" v-if="orderMessage.priceDetailDTO">
-      <div class="navL">
+    <div class="box6 mp-iphonex-bottom" v-if="orderMessage.priceDetailDTO">
+      <div class="tabbar-left">
         合计：
         <span class="number">
           ¥
@@ -191,10 +196,10 @@
       </div>
       <div class="navRiv" @click="createTradeFun()">
         <!-- #ifndef MP-WEIXIN -->
-        <div class="navR">提交订单</div>
+        <div class="tabbar-right">提交订单</div>
         <!-- #endif -->
         <!-- #ifdef MP-WEIXIN -->
-        <div class="navR">微信支付</div>
+        <div class="tabbar-right">微信支付</div>
         <!-- #endif -->
 
       </div>
@@ -249,6 +254,8 @@ export default {
       endWay: "", //最后一个参团人
       masterWay: "", //团长信息
       pintuanFlage: true, //是开团还是拼团
+      notSupportFreight: [], //不支持运费
+      notSupportFreightGoodsList:['以下商品超出配送范围：'],
     };
   },
   filters: {
@@ -467,7 +474,7 @@ export default {
             }
           } else {
             uni.showToast({
-              title: "创建订单有误!请稍后重试",
+              title: res.data.message,
               duration: 2000,
               icon: "none",
             });
@@ -493,9 +500,8 @@ export default {
       // 如果没有商品选择地址的话 则选择 默认地址
       API_Address.getAddressDefault().then((res) => {
         if (res.data.result) {
-          res.data.result.consigneeAddressPath = res.data.result.consigneeAddressPath.split(
-            ","
-          );
+          res.data.result.consigneeAddressPath =
+            res.data.result.consigneeAddressPath.split(",");
           this.address = res.data.result;
         }
       });
@@ -520,9 +526,17 @@ export default {
           this.getUserAddress();
         } else {
           this.address = res.data.result.memberAddress;
-          res.data.result.memberAddress.consigneeAddressPath = res.data.result.memberAddress.consigneeAddressPath.split(
-            ","
-          );
+          res.data.result.memberAddress.consigneeAddressPath =
+            res.data.result.memberAddress.consigneeAddressPath.split(",");
+        }
+
+        if (res.data.result.notSupportFreight.length != 0) {
+          this.notSupportFreight = res.data.result.notSupportFreight;
+           
+           res.data.result.notSupportFreight.forEach(item=>{
+             this.notSupportFreightGoodsList[0]+=(item.goodsSku.goodsName)
+           })
+       
         }
       });
     },
@@ -573,6 +587,9 @@ export default {
   margin-bottom: 50rpx;
   width: 143rpx;
   border-bottom: 2px dotted #999;
+}
+.tabbar-left {
+  margin-left: 32rpx;
 }
 
 .btn-one,
@@ -649,15 +666,31 @@ export default {
 .tabC {
   > p {
     overflow: hidden;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
   }
 }
 
 .box2 {
   margin-top: 20rpx;
+}
+.notSupportFreight {
+  position: fixed;
+  bottom: 100rpx;
+  display: flex;
+  align-items: center;
+  left: 0;
+  background: #fdf6ec;
+  height: 100rpx;
+  width: 100%;
+  transition: 0.35s;
+ 
+  > .tips {
+    margin: 0 32rpx;
+  }
+}
+/deep/ .u-notice-bar-wrap{
+  width: 100%;
 }
 
 .userClass {
@@ -679,26 +712,18 @@ export default {
   position: fixed;
   bottom: 0;
   left: 0;
-
-  margin: 0;
+  width: 100%;
   height: 100rpx;
   overflow: hidden;
   line-height: 100rpx;
   margin-bottom: 0px !important;
   background: #fff;
   color: #333;
-  width: 100%;
-
-  > .navL {
-    width: 65%;
-  }
-
-  > .navRiv {
-    float: left;
-  }
+  display: flex;
+  justify-content: space-between;
 }
 
-.navR {
+.tabbar-right {
   margin-top: 10rpx;
   height: 80rpx;
   color: #fff;
@@ -707,6 +732,7 @@ export default {
   padding: 0 44rpx;
   text-align: center;
   border-radius: 400px;
+  margin-right: 32rpx;
 }
 
 .sp_tag {
@@ -792,19 +818,11 @@ export default {
   padding: 0 32rpx;
 }
 
-.navL,
-.navR {
-  float: left;
-}
-
 .wrapper {
   background: #f9f9f9;
   height: auto;
   padding-bottom: 200rpx;
   overflow: auto !important;
-}
-
-.tab1 {
 }
 
 .ybname {

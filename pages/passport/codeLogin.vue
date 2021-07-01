@@ -103,6 +103,7 @@ export default {
                   icon: "none",
                 });
                 this.flage = false;
+                 this.codeFlag = true;
               }
             })
             .catch((e) => {
