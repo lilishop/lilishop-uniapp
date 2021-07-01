@@ -57,6 +57,9 @@
                   <u-button ripple :customStyle="{'background':lightColor,'color':'#fff' }" shape="circle" class="pay-btn" size="mini" v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
                     确认收货
                   </u-button>
+                  <u-button ripple shape="circle" class="cancel-btn" size="mini" v-if="order.groupAfterSaleStatus=='NOT_APPLIED'" @click="applyService(order)">
+                    退款/售后
+                  </u-button>
                   <!-- TODO 后续完善 -->
                   <!-- <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="
                       order.orderStatus === 'CANCELLED' ||
@@ -91,7 +94,7 @@
       </view>
     </u-popup>
     <u-toast ref="uToast" />
-    <u-modal :confirm-color="lightColor" v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'"  @confirm="confirmRog"></u-modal>
+    <u-modal :confirm-color="lightColor" v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" @confirm="confirmRog"></u-modal>
   </view>
 </template>
 
@@ -106,7 +109,7 @@ export default {
   },
   data() {
     return {
-      lightColor:this.$lightColor,
+      lightColor: this.$lightColor,
       tabCurrentIndex: 0, //导航栏索引
       navList: [
         //导航栏list
@@ -203,6 +206,8 @@ export default {
     this.loadData(this.status);
   },
 
+  
+
   onLoad(options) {
     /**
      * 修复app端点击除全部订单外的按钮进入时不加载数据的问题
@@ -230,6 +235,18 @@ export default {
     },
   },
   methods: {
+
+
+    // 售后
+    applyService(order){
+      
+      
+      uni.navigateTo({
+         url: `/pages/order/afterSales/afterSales?orderSn=${order.sn}`
+      });
+
+    },
+
     // 店铺详情
     navigateToStore(val) {
       uni.navigateTo({
@@ -309,9 +326,8 @@ export default {
           this.navList[index].loadStatus = "noMore";
         }
         if (orderList.length > 0) {
-          this.navList[index].orderList = this.navList[index].orderList.concat(
-            orderList
-          );
+          this.navList[index].orderList =
+            this.navList[index].orderList.concat(orderList);
           this.navList[index].pageNumber += 1;
         }
       });
@@ -458,14 +474,11 @@ export default {
      * 重新购买
      */
     reBuy(order) {
-      console.log(order)
-      return 
+      console.log(order);
+      return;
       uni.navigateTo({
         url:
-          "/pages/product/goods?id=" +
-          order.id +
-          "&goodsId=" +
-          order.goodsId,
+          "/pages/product/goods?id=" + order.id + "&goodsId=" + order.goodsId,
       });
     },
 
@@ -673,5 +686,4 @@ page,
   margin-left: 15rpx;
   height: 60rpx;
 }
-
 </style>

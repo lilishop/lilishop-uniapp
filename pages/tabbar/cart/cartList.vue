@@ -100,13 +100,12 @@
                 <span>.{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
               </div>
 
-              </p>
             </view>
           </view>
         </u-swipe-action>
       </div>
     </div>
-    <u-modal v-model="deleteShow" @delectConfirm="delectConfirm" show-cancel-button :content="deleteContent" :async-close="true"></u-modal>
+    <u-modal v-model="deleteShow" :confirm-style="{'color':lightColor}" @confirm="delectConfirm" show-cancel-button :content="deleteContent" :async-close="true"></u-modal>
     <!-- 结账 -->
     <div class="box box6">
       <view class="navL">

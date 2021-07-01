@@ -197,10 +197,11 @@ export function distributionGoods(params) {
 /**
  * 选择分销商品 分销商品id
  */
-export function checkedDistributionGoods(id) {
+export function checkedDistributionGoods(params) {
   return http.request({
-    url: `/distributionGoods/checked/${id}`,
+    url: `/distributionGoods/checked/${params.id}`,
     method: Method.GET,
+    params
   });
 }
 

@@ -102,10 +102,12 @@ export default {
                   duration: 2000,
                   icon: "none",
                 });
+                this.flage = false;
               }
             })
             .catch((e) => {
-              this.$refs.uCode.start();
+              this.flage = false;
+              this.codeFlag = true;
             });
         } else {
           this.$u.toast("请倒计时结束后再发送");
@@ -209,6 +211,7 @@ export default {
           uni.hideLoading();
         }, 2000);
       }
+     
       if (!this.$u.test.mobile(this.codeForm.mobile)) {
         uni.showToast({
           title: "请输入正确手机号",

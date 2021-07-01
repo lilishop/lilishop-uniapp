@@ -3,6 +3,9 @@
     <view class="u-tabs-box">
       <u-tabs bg-color="#fff" :list="list" :is-scroll="false" :current="current" @change="change" :active-color="$lightColor"></u-tabs>
     </view>
+    <div class="u-tabs-search">
+      <u-search placeholder="请输入订单编号" @search="handleGetOrderList(current)" @clear="handleGetOrderList(current)" @custom="handleGetOrderList(current)" v-model="params.orderSn"></u-search>
+    </div>
     <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
       <view class="seller-view" v-for="(order, orderIndex) in orderList" :key="orderIndex">
         <!-- 店铺名称 -->
@@ -135,15 +138,20 @@ export default {
       status: "loadmore",
     };
   },
-  onLoad() {
+  onLoad(options) {
     this.orderList = [];
     this.params.pageNumber = 1;
+    if (options.orderSn) this.params.orderSn = options.orderSn;
     this.getOrderList(this.current);
   },
   onPullDownRefresh() {
     this.change(this.current);
   },
   methods: {
+    handleGetOrderList(current) {
+      this.orderList = [];
+      this.getOrderList(current);
+    },
     /**
      * 切换tab页时，初始化数据
      */
@@ -220,7 +228,6 @@ export default {
               price: item.flowPrice,
             },
           ];
-    
         });
 
         this.orderList = this.orderList.concat(afterSaleLogList);
@@ -296,9 +303,12 @@ page,
   height: 100%;
 }
 .body-view {
-  // height: calc(100vh - 44px -40px);
-  // overflow-y: auto;
-  height: 100%;
+  overflow-y: auto;
+  height: calc(100vh - 44px - 80rpx - 104rpx);
+}
+.u-tabs-search {
+  padding: 20rpx;
+  background: #fff;
 }
 .countMoney {
   margin-left: 7rpx;

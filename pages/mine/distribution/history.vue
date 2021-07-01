@@ -1,6 +1,7 @@
 <template>
   <view class="log-list">
-    <view class="log-way" v-for="(item, index) in datas" :key="index">
+    <!-- 提现记录 -->
+    <view class="log-way" v-if="cashLogData.length != 0" v-for="(item, index) in cashLogData" :key="index">
       <view class="log-item">
         <view class="log-item-view">
           <view class="title">{{
@@ -18,10 +19,22 @@
         </view>
       </view>
     </view>
+    <!-- 分销业绩 -->
+    <view class="log-way" v-if="achievementData.length != 0" v-for="(item, index) in achievementData" :key="index">
+      <view class="log-item">
+        <view class="log-item-view">
+          <view class="title">{{item.goodsName}}</view>
+          <view class="price">+{{ item.rebate | unitPrice }}</view>
+        </view>
+        <view class="log-item-view">
+          <view>{{ item.createTime }}</view>
+          <view>{{item.storeName}}</view>
+        </view>
+      </view>
+    </view>
     <view class="empty" v-if="empty">
       <u-loadmore :status="status" :icon-type="iconType" bg-color="#f7f7f7" />
 
-      <!-- <u-empty   text="暂无更多提现历史" mode="order"></u-empty> -->
     </view>
   </view>
 </template>
@@ -30,7 +43,8 @@ import { cashLog, distributionOrderList } from "@/api/goods";
 export default {
   data() {
     return {
-      datas: "", //数据集合
+      cashLogData: [], //提现记录数据集合
+      achievementData: [], //分销业绩数据合集,
       status: "loadmore",
       iconType: "flower",
       empty: false,
@@ -71,7 +85,18 @@ export default {
   methods: {
     // 业绩
     achievement() {
-      distributionOrderList(this.achParams).then((res) => {});
+      uni.showLoading({
+        title: "加载中",
+      });
+      distributionOrderList(this.achParams).then((res) => {
+        if (res.data.success && res.data.result.records.length >= 1) {
+          this.achievementData = res.data.result.records;
+        } else {
+          this.status = "nomore";
+          this.empty = true;
+        }
+        uni.hideLoading();
+      });
     },
     // 初始化提现历史
     history() {
@@ -80,7 +105,7 @@ export default {
       });
       cashLog(this.params).then((res) => {
         if (res.data.success && res.data.result.records.length >= 1) {
-          this.datas = res.data.result.records;
+          this.cashLogData = res.data.result.records;
         } else {
           this.status = "nomore";
           this.empty = true;

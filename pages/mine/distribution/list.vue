@@ -1,7 +1,7 @@
 <template>
   <view class="wrapper">
-    <!-- 筛选弹出层 -->
-    <u-popup width="90%" v-model="popup" mode="right">
+    <!-- 筛选弹出层 TODO后续版本更新 -->
+    <!-- <u-popup width="90%" v-model="popup" mode="right">
       <view class="screen-title">商品筛选</view>
 
       <view class="screen-view">
@@ -54,7 +54,7 @@
         <view class="screen-clear"> 重置 </view>
         <view class="screen-submit"> 确定 </view>
       </view>
-    </u-popup>
+    </u-popup> -->
 
     <!-- 导航栏 -->
     <view class="nav">
@@ -66,44 +66,50 @@
     <!-- 商品列表 -->
 
     <view class="goods-list">
-      <view class="goods-item" v-for="(item, index) in goodsList" :key="index">
-        <view class="goods-item-img" @click="handleNavgationGoods(item)">
-          <u-image width="176rpx" height="176rpx" :src="item.thumbnail"></u-image>
-        </view>
-        <view class="goods-item-desc">
-          <!-- 商品描述 -->
-          <view class="-item-title" @click="handleNavgationGoods(item)">
-            {{ item.goodsName }}
+      <u-swipe-action v-for="(item, index) in goodsList" :disabled="!params.checked" :show="item.___selected" @open="openAction(item)" :index="index" :options="options" bg-color="#fff"
+        ref="swiperAction" :key="item.id" @click="changeActionTab(item)">
+
+        <div class="goods-item">
+          <view class="goods-item-img" @click="handleNavgationGoods(item)">
+            <u-image width="176rpx" height="176rpx" :src="item.thumbnail"></u-image>
           </view>
-          <!-- 商品金额 -->
-          <view class="-item-price" @click="handleNavgationGoods(item)">
-            佣金:
-            <span> ￥{{ item.commission | unitPrice }}</span>
-          </view>
-          <!-- 比率佣金 -->
-          <view class="-item-bottom">
-            <view class="-item-bootom-money" @click="handleNavgationGoods(item)">
-              <!-- <view class="-item-bl">
+          <view class="goods-item-desc">
+            <!-- 商品描述 -->
+            <view class="-item-title" @click="handleNavgationGoods(item)">
+              {{ item.goodsName }}
+            </view>
+            <!-- 商品金额 -->
+            <view class="-item-price" @click="handleNavgationGoods(item)">
+              佣金:
+              <span> ￥{{ item.commission | unitPrice }}</span>
+            </view>
+            <!-- 比率佣金 -->
+            <view class="-item-bottom">
+              <view class="-item-bootom-money" @click="handleNavgationGoods(item)">
+                <!-- <view class="-item-bl">
                 比率:
                 <span>{{ "5.00%" }}</span>
               </view> -->
-              <view class="-item-yj">
-                <span>￥{{ item.price | unitPrice }}</span>
+                <view class="-item-yj">
+                  <span>￥{{ item.price | unitPrice }}</span>
+                </view>
+              </view>
+              <view>
+                <view class="click" v-if="!params.checked" @click="handleClickGoods(item)">立即选取</view>
+                <view class="click" v-if="params.checked" @click="handleLink(item)">分销商品</view>
               </view>
             </view>
-            <view>
-              <view class="click" v-if="!params.checked" @click="handleClickGoods(item)">立即选取</view>
-              <view class="click" v-if="params.checked" @click="handleLink(item)">分销商品</view>
-            </view>
           </view>
-        </view>
-      </view>
+        </div>
+      </u-swipe-action>
+
       <view class="empty">
         <!-- <u-empty v-if="empty" text="没有分销商品了" mode="list"></u-empty> -->
       </view>
     </view>
     <canvas class="canvas-hide" canvas-id="qrcode" />
     <drawCanvas ref="drawCanvas" v-if="showFlag" :res="res" />
+    <u-modal v-model="deleteShow" :confirm-style="{'color':lightColor}" @confirm="delectConfirm" show-cancel-button :content="deleteContent" :async-close="true"></u-modal>
 
   </view>
 </template>
@@ -118,6 +124,17 @@ import drawCanvas from "@/components/m-canvas";
 export default {
   data() {
     return {
+      lightColor: this.$lightColor,
+      deleteContent: "解绑该商品？", //删除显示的信息
+      // 商品栏右侧滑动按钮
+      options: [
+        {
+          text: "解绑",
+          style: {
+            backgroundColor: this.$lightColor, //高亮颜色
+          },
+        },
+      ],
       showFlag: false, //分销分享开关
       empty: false,
       popup: false, //弹出层开关
@@ -147,6 +164,8 @@ export default {
       },
 
       routers: "",
+      deleteShow: false, //删除模态框
+      goodsVal: false, //分销商铺信息
     };
   },
   components: {
@@ -163,6 +182,46 @@ export default {
     this.init();
   },
   methods: {
+    /**
+     * 滑动删除
+     */
+    changeActionTab(val) {
+      this.deleteShow = true;
+      this.goodsVal = val;
+    },
+
+    /**
+     * 点击解绑商品
+     */
+    delectConfirm() {
+      checkedDistributionGoods({ id: this.goodsVal.id, checked: false }).then(
+        (res) => {
+          if (res.data.success) {
+            uni.showToast({
+              title: "此商品解绑成功",
+              duration: 2000,
+            });
+            this.deleteShow = false;
+            this.goodsList = [];
+            this.init();
+          }
+        }
+      );
+    },
+
+    /**
+     * 左滑打开删除
+     */
+    openAction(val) {
+      this.goodsList.forEach((item) => {
+        this.$set(item, "___selected", false);
+      });
+      this.$set(val, "___selected", true);
+    },
+
+    /**
+     * 查看图片
+     */
     handleNavgationGoods(val) {
       uni.navigateTo({
         url: `/pages/product/goods?id=${val.skuId}&goodsId=${val.id}`,
@@ -218,7 +277,7 @@ export default {
         title: "加载中",
         mask: true,
       });
-      checkedDistributionGoods(val.id).then((res) => {
+      checkedDistributionGoods({ id: val.id, checked: true }).then((res) => {
         uni.hideLoading();
         if (res.data.success) {
           uni.showToast({
@@ -243,6 +302,9 @@ export default {
         uni.hideLoading();
 
         if (res.data.success && res.data.result.records.length >= 1) {
+          res.data.result.records.forEach((item) => {
+            this.$set(item, "___selected", false);
+          });
           this.goodsList.push(...res.data.result.records);
         }
         if (this.goodsList.length == 0) {

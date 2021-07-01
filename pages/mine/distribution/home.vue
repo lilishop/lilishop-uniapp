@@ -82,7 +82,7 @@ export default {
       });
     },
   },
-  mounted() {
+  onShow() {
     this.init();
   },
 };
@@ -90,21 +90,15 @@ export default {
 
 <style lang="scss" scoped>
 .nav {
-  //   height: 176rpx;
   background: #fff;
   align-items: center;
   display: flex;
-  //   border-radius: 20rpx;
-  //   transform: translateY(-20rpx);
-  //   box-shadow: 4rpx 10rpx 22rpx rgba(0, 0, 0, 0.1);
   flex-wrap: wrap;
 }
 .nav-list {
   color: #fff;
   padding: 40rpx 0;
   background: $aider-light-color;
-  //   border-bottom-left-radius: 100rpx;
-  //   border-bottom-right-radius: 100rpx;
 }
 .total {
   padding: 10rpx 0;
