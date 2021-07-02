@@ -153,7 +153,7 @@
           <storeLayout id="main7" :storeDetail="storeDetail" :goodsDetail="goodsDetail" :res="recommendList" />
 
           <!-- 宝贝详情 -->
-          <GoodsIntro id="main9" :res="goodsDetail" :goodsId="goodsDetail.goodsId" v-if="goodsDetail.id" />
+          <GoodsIntro id="main9" :res="goodsDetail" :goodsParams="goodsParams" :goodsId="goodsDetail.goodsId" v-if="goodsDetail.id" />
 
           <!-- 宝贝推荐 -->
           <GoodsRecommend id="main11" :res="likeGoodsList" />
@@ -328,6 +328,7 @@ export default {
         top: 0,
         height: 50,
       },
+	  goodsParams: [], // 商品参数
       headerFlag: false, //顶部导航显示与否
       headerList: [
         //顶部导航文字按照规则来 详情全局搜索
@@ -499,15 +500,13 @@ export default {
         return true;
       }
     },
-	selectSku (idObj) {
-		console.log(idObj)
+	selectSku (idObj) { // 选择sku的回调
 		this.init(idObj.skuId,idObj.goodsId)
 	},
     /**
      * 初始化信息
      */
     async init(id, goodsId, distributionId) {
-		console.log(id, goodsId)
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
@@ -534,6 +533,7 @@ export default {
       this.goodsDetail = response.data.result.data;
       this.goodsSpec = response.data.result.specs;
       this.PromotionList = response.data.result.promotionMap;
+	  this.goodsParams = response.data.result.goodsParamsDTOList || []
 
       // 判断是否拼团活动或者积分商品 如果有则显示拼团活动信息
       this.PromotionList &&
