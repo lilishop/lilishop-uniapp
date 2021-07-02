@@ -8,10 +8,16 @@
             <u-input v-model="ruleForm.name" placeholder="请输入您的真实姓名" />
           </u-form-item>
           <u-form-item label="身份证" prop="idNumber">
-            <u-input
-              v-model="ruleForm.idNumber"
-              placeholder="请输入身份证号码"
-            />
+            <u-input v-model="ruleForm.idNumber" placeholder="请输入身份证号码" />
+          </u-form-item>
+          <u-form-item label="银行开户行" prop="settlementBankBranchName">
+            <u-input v-model="ruleForm.settlementBankBranchName" type="text" placeholder="请输入银行开户行" />
+          </u-form-item>
+          <u-form-item label="银行开户名" prop="settlementBankAccountName">
+            <u-input v-model="ruleForm.settlementBankAccountName" type="text" placeholder="请输入银行开户名" />
+          </u-form-item>
+          <u-form-item label="银行账号" prop="settlementBankAccountNum">
+            <u-input v-model="ruleForm.settlementBankAccountNum" type="text" placeholder="请输入银行账号" />
           </u-form-item>
           <!-- <u-form-item label="身份证正面照" prop="name">
             <u-upload></u-upload>
@@ -23,7 +29,7 @@
             <u-upload></u-upload>
           </u-form-item> -->
         </u-form>
-        <u-button  :customStyle="{'background':$lightColor,'color':'#fff' }"  @click="submit">提交</u-button>
+        <u-button :customStyle="{'background':$lightColor,'color':'#fff' }" @click="submit">提交</u-button>
       </view>
     </view>
 
@@ -35,12 +41,16 @@
 </template>
 <script>
 import { applyDistribution } from "@/api/goods";
+import { checkBankno } from "@/utils/Foundation";
 export default {
   data() {
     return {
       ruleForm: {
         name: "",
         idNumber: "",
+        settlementBankBranchName: "", // 银行开户行
+        settlementBankAccountName: "", //银行开户名
+        settlementBankAccountNum: "", //银行账号
       },
       rules: {
         name: [
@@ -60,6 +70,50 @@ export default {
             message: "姓名输入不正确",
             // 触发器可以同时用blur和change
             trigger: ["change", "blur"],
+          },
+        ],
+        // 银行开户行
+        settlementBankBranchName: [
+          {
+            required: true,
+            message: "银行开户行",
+            // 可以单个或者同时写两个触发验证方式
+            trigger: "blur",
+          },
+          {
+            validator: (rule, value, callback) => {
+              // 上面有说，返回true表示校验通过，返回false表示不通过
+              // this.$u.test.mobile()就是返回true或者false的
+              return this.$u.test.chinese(value);
+            },
+            message: "银行开户行不正确",
+            // 触发器可以同时用blur和change
+            trigger: ["change", "blur"],
+          },
+        ], //银行开户名
+        settlementBankAccountName: [
+          {
+            required: true,
+            message: "银行开户名",
+            // 可以单个或者同时写两个触发验证方式
+            trigger: "blur",
+          },
+        ],
+        //银行账号
+        settlementBankAccountNum: [
+          {
+            required: true,
+            message: "银行账号不正确",
+            // 可以单个或者同时写两个触发验证方式
+            trigger: "blur",
+          },
+          {
+            validator: (rule, value, callback) => {
+              // 上面有说，返回true表示校验通过，返回false表示不通过
+              // this.$u.test.mobile()就是返回true或者false的
+              return checkBankno(value);
+            },
+            message: "银行账号不正确",
           },
         ],
         idNumber: [
@@ -96,16 +150,14 @@ export default {
                 icon: "none",
               });
 
-              setTimeout(()=>{
-                 uni.navigateBack();
-              },500)
-             
-            }
-            else{
+              setTimeout(() => {
+                uni.navigateBack();
+              }, 500);
+            } else {
               uni.showToast({
                 title: res.data.message,
                 duration: 2000,
-                icon:"none"
+                icon: "none",
               });
             }
           });
