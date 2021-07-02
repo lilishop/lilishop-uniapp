@@ -73,17 +73,19 @@ export default {
       distribution().then((res) => {
         if (res.data.result) {
           let type = res.data.result.distributionStatus;
-          uni.navigateTo({
-            url: "/pages/mine/distribution/auth",
-          });
-          return
           if (type == "PASS") {
             uni.navigateTo({
               url: "/pages/mine/distribution/home",
             });
-          } else if (type == "RETREAT" || type == "REFUSE") {
+          } else if (type == "REFUSE") {
             uni.navigateTo({
               url: "/pages/mine/distribution/auth",
+            });
+          } else if (type == "RETREAT") {
+            uni.showToast({
+              title: "您的分销资格已被清退。请联系管理员！",
+              duration: 2000,
+              icon: "none",
             });
           } else {
             uni.showToast({

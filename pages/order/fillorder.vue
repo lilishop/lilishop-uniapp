@@ -119,8 +119,8 @@
     <!-- 优惠券 -->
     <div class="box box4">
       <u-row>
-        <u-col :offset="0" :span="9" @click="shippingFlag = true">配送方式</u-col>
-        <u-col :span="3" textAlign="right" @click="shippingFlag = true">
+        <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :offset="0" :span="9" @click="shippingFlag = true">配送方式</u-col>
+        <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="3" textAlign="right" @click="shippingFlag = true">
           {{   shippingMethod.find(e=>{  return e.value == shippingText; }).label }}
         </u-col>
       </u-row>
@@ -150,8 +150,8 @@
       </div>
       <div>
         <u-row>
-          <u-col :span="7">运费</u-col>
-          <u-col :span="5" class="tr tipsColor" textAlign="right">
+          <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="7">运费</u-col>
+          <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="5" class="tr tipsColor" textAlign="right">
             <u-tag v-if="orderMessage.priceDetailDTO.freightPrice == 0" style="margin-right: 20rpx" color="#FF6262" text="包邮" type="warning" size="mini" mode="plain" shape="circle" />
             <span>￥{{
                 orderMessage.priceDetailDTO.freightPrice | unitPrice
@@ -181,7 +181,7 @@
     </div>
 
     <!-- 配送地区没有提示 -->
-    <div class="notSupportFreight">
+    <div class="notSupportFreight" v-if="notSupportFreight.length !=0">
       <u-notice-bar style="width:100%" :volume-icon="false" mode="horizontal" :list="notSupportFreightGoodsList"></u-notice-bar>
     </div>
 
@@ -530,7 +530,10 @@ export default {
             res.data.result.memberAddress.consigneeAddressPath.split(",");
         }
 
-        if (res.data.result.notSupportFreight.length != 0) {
+        if (
+          res.data.result.notSupportFreight &&
+          res.data.result.notSupportFreight.length != 0
+        ) {
           this.notSupportFreight = res.data.result.notSupportFreight;
 
           res.data.result.notSupportFreight.forEach((item) => {
@@ -676,7 +679,7 @@ export default {
 .notSupportFreight {
   position: fixed;
 
-  bottom: calc(100rpx + env(safe-area-inset-bottom)) ;
+  bottom: calc(100rpx + env(safe-area-inset-bottom));
   // #ifdef H5
   bottom: 100rpx;
   // #endif

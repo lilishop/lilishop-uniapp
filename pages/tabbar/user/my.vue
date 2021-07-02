@@ -15,7 +15,9 @@
         <view class="user-name">登录/注册</view>
       </view>
 
-      <u-icon name="arrow-right"></u-icon>
+      <u-icon style="display: flex;
+      align-items: flex-start;" name="arrow-right"></u-icon>
+
     </view>
     <!-- 积分，优惠券，关注， -->
     <div class="pointBox">
@@ -247,11 +249,12 @@ body {
     justify-content: space-between;
     .head-1 {
       text-align: center;
-      width: 144rpx;
+      width: 152rpx;
       position: relative;
-      margin-top: 40rpx;
+      display: flex;
+      align-items: center;
       image {
-        width: 144rpx;
+        width: 152rpx;
         height: 144rpx;
         border-radius: 50%;
         margin-bottom: 30rpx;
@@ -282,11 +285,12 @@ body {
     .head-2 {
       flex: 1;
       margin-left: 30rpx;
-      line-height: 2em;
-      margin-top: 60rpx;
+      margin-top: 100rpx;
+      line-height: 1;
     }
+    /deep/ .u-icon,
     .u-icon {
-      margin-top: -120rpx;
+      margin-top: 106rpx;
     }
   }
   .pointBox {
