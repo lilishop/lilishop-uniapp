@@ -399,9 +399,9 @@ export default {
     return {
       title: this.goodsDetail.goodsName,
       type: 0,
-      query:`id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`,
+      query: `id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`,
       path: `/pages/product/goods`,
-      imageUrl:this.goodsDetail.goodsGalleryList[0],
+      imageUrl: this.goodsDetail.goodsGalleryList[0],
     };
   },
   // #endif
@@ -499,15 +499,14 @@ export default {
         return true;
       }
     },
-	selectSku (idObj) {
-		console.log(idObj)
-		this.init(idObj.skuId,idObj.goodsId)
-	},
+    selectSku(idObj) {
+      this.init(idObj.skuId, idObj.goodsId);
+    },
     /**
      * 初始化信息
      */
     async init(id, goodsId, distributionId) {
-		console.log(id, goodsId)
+      console.log(id, goodsId);
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
