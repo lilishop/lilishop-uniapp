@@ -73,7 +73,10 @@ export default {
       distribution().then((res) => {
         if (res.data.result) {
           let type = res.data.result.distributionStatus;
-
+          uni.navigateTo({
+            url: "/pages/mine/distribution/auth",
+          });
+          return
           if (type == "PASS") {
             uni.navigateTo({
               url: "/pages/mine/distribution/home",
@@ -91,7 +94,7 @@ export default {
           }
         } else if (!res.data.success && res.data.code == 22000) {
           uni.showToast({
-            title: '分销功能暂未开启',
+            title: "分销功能暂未开启",
             duration: 2000,
             icon: "none",
           });

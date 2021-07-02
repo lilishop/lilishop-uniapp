@@ -27,10 +27,8 @@
   </div>
 </template>
 <script>
-import uImage from "@/uview-ui/components/u-image/u-image.vue";
 export default {
   title: "商品分类以及商品",
-  components: { uImage },
   data() {
     return {
       selected: {
@@ -116,12 +114,9 @@ $w_94: 94%;
   margin: 0 auto;
   // width: 158px;
   width: $w_94;
-
   border-top-left-radius: 20rpx;
   border-top-right-radius: 20rpx;
-
   overflow: hidden;
-
   > img {
     width: 100%;
     height: 100%;
@@ -135,23 +130,19 @@ $w_94: 94%;
   background: #fff;
   padding: 8rpx 0 8rpx 8rpx;
   margin: 0 auto;
-
   > .goods-title {
     font-size: 24rpx;
     height: 70rpx;
     display: -webkit-box;
     font-weight: 500;
     -webkit-box-orient: vertical;
-
     -webkit-line-clamp: 2;
-
     overflow: hidden;
   }
 
   > .goods-bottom {
     display: flex;
     font-weight: bold;
-
     > .goods-price {
       line-height: 2;
       color: $main-color;
