@@ -2,7 +2,7 @@
   <view>
     <!-- 常用工具 -->
     <view class="interact-tools" style="margin-bottom: 15px">
-      <view class="interact-title">常用工具</view>
+
       <div class="paddingBox">
         <view class="interact-container">
           <view class="interact-item" @click="navigateTo('/pages/mine/signIn')">
@@ -117,24 +117,15 @@ export default {
   border-left: none;
   border-right: none;
   margin-top: 30rpx;
-  .interact-title {
-    background: #f2f2f2;
-    height: 96rpx;
-    line-height: 96rpx;
-    font-size: 28rpx;
-    color: #333;
-    font-weight: bold;
-    padding-left: 30rpx;
-    margin: 0 20rpx;
-    border-radius: 14rpx 14rpx 0 0;
-  }
+
   .interactBox {
     height: 156rpx;
   }
   .interact-container {
     margin: 0 20rpx;
     background: #fff;
-    border-radius: 0 0 14rpx 14rpx;
+    border-radius: 20rpx;
+    box-shadow: 0 4rpx 24rpx 0 rgba($color: #f6f6f6, $alpha: 1);
     .interact-item-img {
       width: 52rpx !important;
       height: 52rpx !important;

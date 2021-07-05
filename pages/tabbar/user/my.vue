@@ -14,13 +14,10 @@
       <view class="head-2" v-else>
         <view class="user-name">登录/注册</view>
       </view>
-
-      <u-icon style="display: flex;
-      align-items: flex-start;" name="arrow-right"></u-icon>
-
+      <u-icon style="display: flex;align-items: flex-start;" name="arrow-right"></u-icon>
     </view>
     <!-- 积分，优惠券，关注， -->
-    <div class="pointBox">
+    <div class="pointBox box">
       <u-row text-align="center" gutter="16" class="point">
         <u-col text-align="center" span="4" @click="navigateTo('/pages/mine/deposit/operation')">
           <view>预存款</view>
@@ -37,57 +34,51 @@
           <view>{{ footNum || 0 }}</view>
         </u-col>
       </u-row>
+      <!-- 我的订单，代付款 -->
+      <view class="order">
+        <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=0')">
+          <div class="bag bag1">
+            <u-icon name="order" size="35" color="#fff"></u-icon>
+          </div>
+          <view>我的订单</view>
+        </view>
+        <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=1')">
+          <div class="bag bag2">
+            <u-icon name="bag-fill" size="35" color="#fff"></u-icon>
+          </div>
+          <view>待付款</view>
+        </view>
+        <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=3')">
+          <div class="bag bag3">
+            <u-icon name="car-fill" size="35" color="#fff"></u-icon>
+          </div>
+          <view>待收货</view>
+        </view>
+        <view class="order-item" @click="navigateTo('/pages/order/evaluate/myEvaluate')">
+          <div class="bag bag4">
+            <u-icon name="star-fill" size="35" color="#fff"></u-icon>
+          </div>
+          <view>待评价</view>
+        </view>
+        <view class="order-item" @click="navigateTo('/pages/order/afterSales/afterSales')">
+          <div class="bag bag5">
+            <u-icon name="server-fill" size="35" color="#fff"></u-icon>
+          </div>
+          <view>售后服务</view>
+        </view>
+      </view>
     </div>
-    <!-- 我的订单，代付款 -->
-    <view class="order">
-      <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=0')">
-        <div class="bag bag1">
-          <u-icon name="order" size="35" color="#fff"></u-icon>
-        </div>
-        <view>我的订单</view>
-      </view>
-      <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=1')">
-        <div class="bag bag2">
-          <u-icon name="bag-fill" size="35" color="#fff"></u-icon>
-        </div>
-
-        <view>待付款</view>
-        <!-- <view class="corner" v-if="cornerForm.stay_pay_order > 0">{{ cornerForm.stay_pay_order}}</view> -->
-      </view>
-      <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=3')">
-        <div class="bag bag3">
-          <u-icon name="car-fill" size="35" color="#fff"></u-icon>
-        </div>
-        <view>待收货</view>
-        <!-- <view class="corner" v-if="cornerForm.stay_receiving_order > 0">{{ cornerForm.stay_receiving_order}}</view> -->
-      </view>
-      <view class="order-item" @click="navigateTo('/pages/order/evaluate/myEvaluate')">
-        <div class="bag bag4">
-          <u-icon name="star-fill" size="35" color="#fff"></u-icon>
-        </div>
-        <view>待评价</view>
-        <!-- <view class="corner" v-if="cornerForm.pending_comment_count > 0">{{ cornerForm.pending_comment_count}}</view> -->
-      </view>
-      <view class="order-item" @click="navigateTo('/pages/order/afterSales/afterSales')">
-        <div class="bag bag5">
-          <u-icon name="server-fill" size="35" color="#fff"></u-icon>
-        </div>
-        <view>售后服务</view>
-        <!-- <view class="corner" v-if="cornerForm.after_order > 0">{{ cornerForm.after_order}}</view> -->
-      </view>
-    </view>
 
     <!-- 常用工具 -->
 
-    <tool />
+    <tool class="box" />
 
   </view>
 </template>
 <script>
-import storage from "@/utils/storage.js";
 import tool from "@/pages/tabbar/user/utils/tool.vue";
 import { getCouponsNum, getFootprintNum } from "@/api/members.js";
-import { getUserInfo, getUserWallet } from "@/api/members";
+import { getUserWallet } from "@/api/members";
 let startY = 0,
   moveY = 0,
   pageAtTop = true;
@@ -205,42 +196,19 @@ body {
 }
 .money {
   overflow: hidden;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.uiconRed {
-  position: relative;
-  &::before {
-    content: "";
-    background: red;
-    width: 10rpx;
-    height: 10rpx;
-    border-radius: 50%;
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
-}
+
 .user {
-  .status_WEIXIN {
-    background: $light-color;
-    overflow: hidden;
-    > .status_WEIXIN_R {
-      float: right;
-      margin-right: 20rpx;
-    }
-    > .status_WEIXIN_L {
-      float: left;
-      margin-left: 20rpx;
-    }
-  }
   .header {
     max-width: 100%;
-    padding: calc(50rpx + var(--status-bar-height)) 30rpx 0 115rpx;
+    padding: calc(50rpx + var(--status-bar-height)) 30rpx 0 6%;
     height: calc(var(--status-bar-height) + 360rpx);
     background-size: cover;
-    border-bottom-left-radius: 20rpx;
-    border-bottom-right-radius: 20rpx;
+    border-bottom-left-radius: 30rpx;
+    border-bottom-right-radius: 30rpx;
     background-image: url("/static/img/main-bg.png");
     background-position: bottom;
     background-repeat: no-repeat;
@@ -273,14 +241,6 @@ body {
           height: 100%;
         }
       }
-
-      .certificate {
-        font-size: 20rpx;
-        border: 1px solid #ffffff;
-        border-radius: 1em;
-        width: 91rpx;
-        margin: 0 auto;
-      }
     }
     .head-2 {
       flex: 1;
@@ -294,25 +254,22 @@ body {
     }
   }
   .pointBox {
-    transform: translateY(-30rpx);
     width: 94%;
     margin: 0 3%;
     background: #fff;
-    border-radius: 0.4em;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-    height: 160rpx;
+    border-radius: 20rpx;
+    box-shadow: 0 4rpx 24rpx 0 rgba($color: #f6f6f6, $alpha: 1);
   }
   .point {
     text-align: center;
     height: 160rpx;
-    border-bottom: 1px solid $border-color-light;
-    color: #999;
+
     font-size: $font-sm;
     // #ifdef MP-WEIXIN
     padding: 24rpx;
     // #endif
     .u-col {
-      line-height: 1.5em view {
+      view {
         color: $u-main-color;
         font-size: 28rpx;
       }
@@ -340,27 +297,15 @@ body {
         font-size: 48rpx;
         margin-bottom: 10rpx;
       }
-      .corner {
-        position: absolute;
-        right: 14rpx;
-        top: -6rpx;
-        width: 30rpx;
-        height: 30rpx;
-        background-color: red;
-        color: #fff;
-        border-radius: 50%;
-        line-height: 30rpx;
-      }
     }
   }
 }
 
+.box {
+  transform: translateY(-30rpx);
+}
 .user-name {
   font-size: 34rpx;
-}
-
-.nickname {
-  font-size: 24rpx;
 }
 
 .bag {
