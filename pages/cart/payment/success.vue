@@ -31,45 +31,28 @@
       </div>
       <!-- #endif -->
     </div>
-    <div class="goods-recommend">--商品推荐--</div>
-    <div class="goods-list">
-      <div @click="handleClick(item)" class="goods-item" v-for="(item, item_index) in goodsList" :key="item_index">
-        <div class="goods-img">
-          <u-image :src="item.thumbnail" mode="aspectFill" height="350rpx" width="100%">
-            <u-loading slot="loading"></u-loading>
-          </u-image>
-        </div>
-        <div class="goods-desc">
-          <div class="goods-title">
-            {{ item.goodsName }}
-          </div>
-          <div class="goods-bottom">
-            <div class="goods-price">￥{{ item.price | unitPrice }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <goodsRecommend />
   </div>
 
 </template>
 <script>
-import { getGoodsList } from "@/api/goods.js";
 import { getWeChatMpMessage } from "@/api/message.js";
-
+import goodsRecommend from "@/components/m-goods-recommend";
 export default {
   data() {
     return {
       checked: false,
       paymentMethod: "",
+
       from: "",
       payPrice: 0,
       goodsList: [],
       activeColor: this.$mainColor,
-      params: {
-        pageSize: 12,
-        pageNumber: 1,
-      },
+     
     };
+  },
+  components: {
+    goodsRecommend,
   },
   filters: {
     paymentTypeFilter(val) {
@@ -90,8 +73,6 @@ export default {
     this.from = options.from || "";
     this.payPrice = options.payPrice || 0;
     this.orderType = options.orderType;
-    //搜索商品
-    this.initGoods();
   },
   methods: {
     checkOrder() {
@@ -102,8 +83,8 @@ export default {
        */
       if (this.orderType == "RECHARGE") {
         uni.reLaunch({
-           url: `/pages/mine/deposit/operation`
-        })
+          url: `/pages/mine/deposit/operation`,
+        });
       } else {
         this.navigateTo("/pages/order/myOrder?status=0");
       }
@@ -113,10 +94,7 @@ export default {
         this.sendMessage();
       }
     },
-    async initGoods() {
-      let goodsList = await getGoodsList(this.params);
-      this.goodsList.push(...goodsList.data.result.content);
-    },
+
     sendMessage() {
       //订阅消息
       //#ifdef MP-WEIXIN
@@ -139,12 +117,6 @@ export default {
         });
       });
       //#endif
-    },
-
-    handleClick(item) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
-      });
     },
 
     navigateTo(url, type) {
@@ -232,85 +204,5 @@ export default {
   width: 100%;
   background: #fff;
   border-top-right-radius: 100rpx;
-}
-
-/**商品代码 */
-$w_94: 94%;
-
-.goods-recommend {
-  background: #f7f7f7;
-  height: 100rpx;
-  line-height: 100rpx;
-  text-align: center;
-  font-size: 30rpx;
-  font-weight: bold;
-}
-
-.goods-list {
-  display: flex;
-
-  flex-wrap: wrap;
-  background: #f7f7f7;
-}
-
-.goods-item {
-  width: 50%;
-  margin-bottom: 10px;
-  border-radius: 0.4em;
-  overflow: hidden;
-}
-
-.goods-img {
-  position: relative;
-  margin: 0 auto;
-  // width: 158px;
-  width: $w_94;
-  height: 350rpx;
-  border-top-left-radius: 20rpx;
-  border-top-right-radius: 20rpx;
-
-  overflow: hidden;
-
-  > img {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.goods-desc {
-  border-bottom-left-radius: 20rpx;
-  border-bottom-right-radius: 20rpx;
-  width: $w_94;
-  background: #fff;
-  padding: 8rpx 0 8rpx 8rpx;
-  margin: 0 auto;
-
-  > .goods-title {
-    font-size: 12px;
-    height: 70rpx;
-    display: -webkit-box;
-    font-weight: 500;
-    -webkit-box-orient: vertical;
-
-    -webkit-line-clamp: 2;
-
-    overflow: hidden;
-  }
-
-  > .goods-bottom {
-    display: flex;
-    font-weight: bold;
-
-    > .goods-price {
-      line-height: 2;
-      color: $main-color;
-    }
-  }
-}
-
-.goods-icon {
-  right: 10rpx;
-  top: 10rpx;
-  position: absolute;
 }
 </style>
