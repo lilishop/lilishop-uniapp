@@ -71,7 +71,7 @@
 
     <!-- 常用工具 -->
 
-    <tool class="box" />
+    <tool  />
 
   </view>
 </template>

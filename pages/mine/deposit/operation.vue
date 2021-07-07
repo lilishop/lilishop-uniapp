@@ -27,8 +27,19 @@ export default {
     };
   },
   async mounted() {
-    let result = await getUserWallet(); //预存款
-    this.walletNum = result.data.result.memberWallet;
+    if (this.$options.filters.isLogin("auth")) {
+      let result = await getUserWallet(); //预存款
+      this.walletNum = result.data.result.memberWallet;
+    } else {
+      uni.showToast({
+        icon: "none",
+        duration: 3000,
+        title: "请先登录！",
+      });
+      uni.redirectTo({
+        url: "/pages/passport/login",
+      });
+    }
   },
   methods: {
     back() {

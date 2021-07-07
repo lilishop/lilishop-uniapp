@@ -23,7 +23,7 @@
     <!-- 商品栏 -->
     <div class="swiper">
 
- 
+      <div v-if="groupBuy.length !=0">
         <view class="view-item" v-for="(groupItem, groupIndex) in groupBuy" :key="groupIndex">
           <view class="view-left">
             <u-image border-radius="10" shape="square" :src="groupItem.goodsImage" width="186rpx" height="186rpx">
@@ -54,7 +54,8 @@
           </view>
         </view>
         <u-loadmore bg-color='#f8f8f8' :status="status" />
-  
+      </div>
+      <u-empty v-else style="margin-top:20%" text="暂无拼团活动" mode="data"></u-empty>
 
     </div>
 
@@ -91,8 +92,8 @@ export default {
       val ? (this.title = "") : (this.title = "拼团活动");
     },
   },
-  onReachBottom(){
-    this.loadMore()
+  onReachBottom() {
+    this.loadMore();
   },
   // 点击搜索按钮
   onNavigationBarButtonTap(e) {
@@ -151,5 +152,4 @@ export default {
 
 <style lang="scss" scoped>
 @import "./style.scss";
-
 </style>

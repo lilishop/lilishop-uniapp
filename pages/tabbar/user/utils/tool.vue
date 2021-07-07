@@ -116,7 +116,7 @@ export default {
 .interact-tools {
   border-left: none;
   border-right: none;
-  margin-top: 30rpx;
+
 
   .interactBox {
     height: 156rpx;
