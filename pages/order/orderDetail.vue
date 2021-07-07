@@ -105,7 +105,7 @@
     </view>
     <!-- 客户服务， 售后，取消订单，查看物流，投诉等 -->
     <view class="info-view"
-      v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true || order.orderStatus == 'DELIVERED' || order.orderStatus != 'UNPAID' && order.orderType =='PINTUAN'">
+      v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true || order.orderStatus == 'DELIVERED' || order.orderStatus != 'UNPAID' && order.orderPromotionType =='PINTUAN'">
       <view style="width: 100%">
         <view class="order-info-view">
           <view class="title">服务</view>
@@ -113,7 +113,7 @@
         <view class="customer-list">
           <view class="customer-service" v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true" @click="onCancel(order.sn)">取消订单</view>
           <view class="customer-service" v-if="order.orderStatus == 'DELIVERED'" @click="onLogistics(order)">查看物流</view>
-          <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderType =='PINTUAN' " @click="ByUserMessage(order)">查看拼团信息</view>
+          <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderPromotionType =='PINTUAN' " @click="ByUserMessage(order)">查看拼团信息</view>
         </view>
       </view>
     </view>
