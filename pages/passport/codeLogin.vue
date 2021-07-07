@@ -71,6 +71,7 @@ export default {
   },
   // 必须要在onReady生命周期setRules，因为onLoad生命周期组件可能尚未创建完毕
   mounted() {
+    // whetherNavigate();
     this.$refs.validateCodeForm.setRules(this.codeRules);
     /**
      * 条件编译判断当前客户端类型
@@ -83,35 +84,33 @@ export default {
     //#endif
   },
   watch: {
-    flage(val) {
+    async flage(val) {
       if (val) {
         if (this.$refs.uCode.canGetCode) {
           // 向后端请求验证码
           uni.showLoading({
             title: "正在获取验证码",
           });
-          sendMobile(this.codeForm.mobile)
-            .then((res) => {
-              uni.hideLoading();
-              // 这里此提示会被this.start()方法中的提示覆盖
-              if (res.data.success) {
-                this.$refs.uCode.start();
-              } else {
-                uni.showToast({
-                  title: res.data.message,
-                  duration: 2000,
-                  icon: "none",
-                });
-                uni.navigateBack();
-              }
-            })
-            .catch((e) => {
-              this.flage = false;
-              this.codeFlag = true;
+
+          let res = await sendMobile(this.codeForm.mobile);
+
+          uni.hideLoading();
+          // 这里此提示会被this.start()方法中的提示覆盖
+          if (res.data.success) {
+            this.$refs.uCode.start();
+          } else {
+            uni.showToast({
+              title: res.data.message,
+              duration: 2000,
+              icon: "none",
             });
+            this.flage = false;
+          }
         } else {
           this.$u.toast("请倒计时结束后再发送");
         }
+      } else {
+        this.$refs.verification.hide();
       }
     },
   },
@@ -217,10 +216,11 @@ export default {
           title: "请输入正确手机号",
           icon: "none",
         });
+
         return false;
       }
       if (!this.flage) {
-        this.$refs.verification.hide();
+        this.$refs.verification.error();
         return false;
       }
     },

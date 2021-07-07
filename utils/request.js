@@ -73,7 +73,7 @@ function cleanStorage() {
   storage.setHasLogin(false);
   storage.setAccessToken("");
   storage.setRefreshToken("");
-  console.log("清空token")
+  console.log("清空token");
   storage.setUuid("");
   storage.setUserInfo({});
 
@@ -121,7 +121,7 @@ http.interceptors.request.use(
 
       config.params = params;
       config.header.accessToken = accessToken;
-     
+
       /**
        * jwt 因为安卓以及ios没有window的属性
        * window.atob（）这个函数 base64编码的使用方法就是btoa（），而用于解码的使用方法是atob（），
@@ -133,8 +133,11 @@ http.interceptors.request.use(
         refresh();
       } else {
         if (
-          JSON.parse(atob(accessToken.split(".")[1].replace(/-/g, '+').replace(/_/g, '/'))).exp <
-          Math.round(new Date() / 1000)
+          JSON.parse(
+            atob(
+              accessToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")
+            )
+          ).exp < Math.round(new Date() / 1000)
         ) {
           refresh();
         }
@@ -144,13 +147,13 @@ http.interceptors.request.use(
       ...config.header,
       uuid: storage.getUuid() || uuid.v1(),
     };
+    console.log(config.header);
     return config;
   },
   (config) => {
     return Promise.reject(config);
   }
 );
-
 
 async function refresh() {
   // 本地储存的是过期token了，重新获取

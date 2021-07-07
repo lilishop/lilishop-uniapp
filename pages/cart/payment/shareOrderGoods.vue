@@ -1,5 +1,5 @@
 <template>
-  <view class="wrapper">
+  <view class="wrapper" v-if="flage">
     <div class='goods' v-if="selectedGoods">
       <image class="goods-image" :src="selectedGoods.thumbnail" alt="">
         <p class="goodsName">{{selectedGoods.goodsName}}</p>
@@ -72,6 +72,7 @@ import popupGoods from "./popup/goods"; //购物车商品的模块
 export default {
   data() {
     return {
+      flage:false, //判断接口是否正常请求
       addr: {
         id: "",
       },
@@ -138,7 +139,8 @@ export default {
     // 实例化本页面
     async init(sn, sku) {
       let res = await getPinTuanShare(sn, sku);
-      if (res.data.success) {
+      if (res.data.success && res.data.result.promotionGoods) {
+        this.flage = true
         this.data = res.data.result;
         this.selectedGoods = res.data.result.promotionGoods;
         let endTime = Date.parse(
@@ -175,12 +177,17 @@ export default {
 
         // 获取当前商品是否已经购买
         if (storage.getUserInfo().id) {
-         
           let isBuy = res.data.result.pintuanMemberVOS.filter((item) => {
             return item.memberId == storage.getUserInfo().id;
           });
           isBuy.length != 0 ? (this.isBuy = true) : (this.isBuy = false);
         }
+      } else {
+          uni.showToast({
+            title: '当前拼团单有误！请联系管理员重试',
+            duration: 2000,
+            icon:"none"
+          });
       }
     },
     // 获取商品详情

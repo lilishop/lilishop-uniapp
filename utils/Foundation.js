@@ -81,18 +81,17 @@ export function checkBankno(bankno) {
  */
 
 export function whetherNavigate(type = "default") {
+  let navigation = getCurrentPages()[getCurrentPages().length - (getCurrentPages().length ) ];
   if (getCurrentPages().length > 1) {
-    if ((getCurrentPages().length - 2).route == "pages/passport/login") {
+    console.log(navigation, getCurrentPages());
+    if (navigation.route == "pages/passport/login") {
       navigationToBack(type);
     } else {
-      if (
-        !(getCurrentPages().length - 2).route ||
-        (getCurrentPages().length - 2).route == "undefined"
-      ) {
+      if (!navigation.route || navigation.route == "undefined") {
         navigationToBack(type);
       } else {
         uni.navigateBack({
-          delta: getCurrentPages().length - 2,
+          delta: getCurrentPages().length,
         });
       }
     }

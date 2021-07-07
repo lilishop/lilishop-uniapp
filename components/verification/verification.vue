@@ -56,7 +56,7 @@
 <script>
 import api from "@/config/api.js";
 import storage from "@/utils/storage.js";
-
+import uuid from "@/utils/uuid.modified.js";
 const phone = uni.getSystemInfoSync();
 const l = phone.screenWidth / 750;
 export default {
@@ -65,12 +65,7 @@ export default {
     // 可自行调整
     this.scHight = phone.screenHeight / 2 - 200 + "px";
     this.getCode();
-    // 监听是否要重新验证
-    uni.$on("vert", (data) => {
-      this.vsr = data;
-      this.vsrtx = "点击进行验证";
-      this.getCode();
-    });
+   
   },
   props: {
     height: {
@@ -136,10 +131,19 @@ export default {
         this.hid = !this.hid;
       }
     },
+    error() {
+      this.vsr = false;
+      this.hid = false;
+      this.moveX = 0;
+      this.moveCode = 0;
+    },
     // 获取验证图片
     getCode() {
       this.col = "#b3afae";
       this.hasImg = "图片加载中...";
+      if (!storage.getUuid()) {
+        storage.setUuid(uuid.v1());
+      }
       uni.request({
         url: api.common + "/slider/" + this.business,
         header: {
@@ -472,15 +476,9 @@ export default {
   bottom: 70rpx;
 }
 
-
-
-
-
 .moneycolor {
   color: #ea5002;
 }
-
-
 
 .margin-top {
   margin-top: 20rpx;
@@ -498,13 +496,9 @@ export default {
   margin-left: 20rpx;
 }
 
-
-
 .margin-right {
   margin-right: 20rpx;
 }
-
-
 
 .main-color {
   color: #07d188;
