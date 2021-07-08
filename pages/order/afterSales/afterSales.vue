@@ -129,6 +129,8 @@ export default {
       params: {
         pageNumber: 1,
         pageSize: 10,
+		sort: 'createTime',
+		order: 'desc'
       },
 
       logParams: {
