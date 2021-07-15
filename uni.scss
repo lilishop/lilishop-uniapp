@@ -174,3 +174,11 @@ $font-weight: 400;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
+
+.wes-2 {
+	/* 适用于webkit内核和移动端 */
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+  }

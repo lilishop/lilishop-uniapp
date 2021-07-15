@@ -57,7 +57,9 @@
                 applyInfo.refundWay == 'ORIGINAL' ? '原路退回' : '账号退款'
               " type="text" input-align="right" :disabled="true" />
           </u-form-item>
-          <view >
+          <view v-if="
+              applyInfo.accountType === 'BANK_TRANSFER' &&
+              applyInfo.applyRefundPrice != 0">
             <u-form-item label="银行开户行" :label-width="150">
               <u-input v-model="form.bankDepositName" type="text" input-align="right" placeholder="请输入银行开户行" />
             </u-form-item>
@@ -97,7 +99,7 @@ import {
 
 import city from "@/components/m-city/m-city";
 import { upload } from "@/api/common.js";
-import {checkBankno} from '@/utils/Foundation'
+import { checkBankno } from "@/utils/Foundation";
 import storage from "@/utils/storage.js";
 export default {
   component: {
@@ -146,7 +148,7 @@ export default {
       customStyle: {
         backgroundColor: this.$lightColor,
       },
-      applyInfo: {}, 
+      applyInfo: {},
       form: {
         orderItemSn: "", // 订单sn
         skuId: "",
@@ -188,8 +190,8 @@ export default {
     this.sn = options.sn;
     let dsku = decodeURIComponent(options.sku);
     let newSku = JSON.parse(dsku);
-    this.sku = newSku
- 
+    this.sku = newSku;
+
     this.form.orderItemSn = options.sn;
     this.form.skuId = this.sku.skuId;
     this.form.num = this.sku.num;
@@ -251,9 +253,7 @@ export default {
       this.form.accountType_label = e[0].label;
     },
     //返回方式
-    returnSelectConfirm(e) {
-     
-    },
+    returnSelectConfirm(e) {},
 
     //修改申请数量
     valChange(e) {
@@ -261,7 +261,6 @@ export default {
     },
     //图片上传
     onUploaded(lists) {
-    
       let images = [];
 
       lists.forEach((item) => {
@@ -297,7 +296,6 @@ export default {
     },
     //检测提交参数
     handleCheckParams() {
-     
       if (this.$u.test.isEmpty(this.form.reason)) {
         this.$refs.uToast.show({ title: "请选择 退款原因", type: "error" });
         return false;

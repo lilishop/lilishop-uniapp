@@ -39,9 +39,9 @@
               <view class="btn-view u-flex u-row-between">
                 <view class="description">
                   <!-- 等待付款 -->
-                  <text v-if="order.payStatus === 'PAID'">已付金额：</text>
-                  <text v-else>应付金额：</text>
-                  <text class="price">￥{{ order.flowPrice | unitPrice }}</text>
+                  <div v-if="order.payStatus === 'PAID'">已付金额:</div>
+                  <div v-else>应付金额:</div>
+                  <div class="price">￥{{ order.flowPrice | unitPrice }}</div>
                 </view>
                 <view>
                   <!-- 全部 -->
@@ -623,9 +623,10 @@ page,
     font-size: 26rpx;
 
     .description {
+      display: flex;
       color: #909399;
-      size: 25rpx;
-
+      size: 24rpx;
+      flex: 1;
       .price {
         color: $main-color;
       }

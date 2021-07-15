@@ -94,6 +94,8 @@ export default {
   },
 
   mounted() {
+ 
+
     this.init();
     // #ifdef MP-WEIXIN
     // 小程序默认分享

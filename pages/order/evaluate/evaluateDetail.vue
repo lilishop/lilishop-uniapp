@@ -25,7 +25,16 @@
           {{ comment.goodsName }}
         </view>
         <view class="goods-subtitle"></view>
-
+        <view class="commentStyle" v-if="comment.reply">
+          商家回复：
+          <span class="addCommentSpan">{{ comment.reply }}</span>
+          <view class="img">
+            <!-- 循环出商家回复评价的图片 -->
+            <u-image width="140rpx" height="140rpx" v-if="comment.replyImage" v-for="(replyImg, replyIndex) in splitImg(comment.replyImage)" :src="replyImg" :key="replyIndex"
+              @click="preview(splitImg( comment.replyImage), index)">
+            </u-image>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -50,6 +59,18 @@ export default {
   },
   methods: {
     /**
+     * 切割图像
+     */
+    splitImg(val) {
+      if (val && val.split(",")) {
+        return val.split(",");
+      } else if (val) {
+        return val;
+      } else {
+        return false;
+      }
+    },
+    /**
      * 点击图片放大或保存
      */
     preview(urls, index) {
@@ -68,6 +89,38 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.commentStyle {
+  margin-top: 16rpx;
+  padding: 14rpx 26rpx;
+  background: #f5f5f5;
+  border-radius: 6px;
+  font-size: 22rpx;
+  font-weight: 700;
+  text-align: left;
+  line-height: 40rpx;
+}
+.img {
+  display: flex;
+  flex-wrap: wrap;
+  /* height: 140rpx; */
+  overflow: hidden;
+  margin: 10rpx 0;
+
+  image {
+    width: 166rpx;
+    height: 166rpx;
+    margin: 0 15rpx 15rpx 0;
+
+    &:nth-of-type(3n + 0) {
+      margin: 0 0 15rpx 0;
+    }
+  }
+}
+
+.addCommentSpan {
+  color: $u-tips-color !important;
+  padding-left: 20rpx;
+}
 .memName {
   font-size: 28rpx;
 }

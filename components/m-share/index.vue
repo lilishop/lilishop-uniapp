@@ -72,10 +72,14 @@ export default {
     // h5复制链接
     // #ifdef H5
     copyLink() {
-      let content =
-        this.configs.shareLink +
-        getCurrentPages()[getCurrentPages().length - 1].__page__.fullPath;
-
+      let content;
+      if (this.link) {
+        content = this.configs.shareLink + this.link;
+      } else {
+        content =
+          this.configs.shareLink +
+          getCurrentPages()[getCurrentPages().length - 1].__page__.fullPath;
+      }
       if (content === null || content === undefined) {
         content = "";
       } else content = content + "";
@@ -104,6 +108,8 @@ export default {
           shareTitle = `我发现了一个${this.goodsName}店铺快来跟我一起看看吧`;
         } else if (this.type == "pintuan") {
           shareTitle = `我拼了一个${this.goodsName}快来跟我一起抢购吧!`;
+        } else if (this.type == "kanjia") {
+          shareTitle = `请快来帮我砍一刀${this.goodsName}`;
         }
 
         let scene; //  "WXSenceTimeline 朋友圈   WXSceneSession 微信好友"

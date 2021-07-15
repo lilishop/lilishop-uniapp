@@ -94,18 +94,11 @@ export default {
       formatList: [],
       currentSelceted: [],
       skuList: "",
-      isMask:false, //是否显示遮罩层
-      isClose:false, //是否可以点击遮罩关闭
+      isMask: false, //是否显示遮罩层
+      isClose: false, //是否可以点击遮罩关闭
     };
   },
-  props: [
-    
-    "goodsDetail",
-    "buyMask",
-    "selectedSku",
-    "goodsSpec",
-    "addr",
-  ],
+  props: ["goodsDetail", "buyMask", "selectedSku", "goodsSpec", "addr"],
   watch: {
     buyType: {
       handler(val) {
@@ -162,7 +155,25 @@ export default {
       };
       this.selectName = specValue.value;
 
-      this.$emit("handleClickSku", selectedSkuId.skuId,this.goodsDetail.id);
+      this.$emit("handleClickSku", selectedSkuId.skuId, this.goodsDetail.id);
+    },
+
+    /**
+     * 直接购买
+     */
+    buy(data) {
+      
+      API_trade.addToCart(data).then((res) => {
+        if (res.data.code == 200) {
+          uni.navigateTo({
+            url: `/pages/order/fillorder?way=${data.cartType}&addr=${
+              this.addr.id || ""
+            }&parentOrder=${encodeURIComponent(
+              JSON.stringify(this.parentOrder)
+            )}`,
+          });
+        }
+      });
     },
 
     /**
@@ -208,19 +219,7 @@ export default {
           data.cartType = "BUY_NOW";
         }
 
-       
-
-        API_trade.addToCart(data).then((res) => {
-          if (res.data.code == 200) {
-            uni.navigateTo({
-              url: `/pages/order/fillorder?way=${data.cartType}&addr=${
-                this.addr.id || ''
-              }&parentOrder=${encodeURIComponent(
-                JSON.stringify(this.parentOrder)
-              )}`,
-            });
-          }
-        });
+        this.buy(data);
       }
     },
     formatSku(list) {

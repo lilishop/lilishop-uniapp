@@ -484,6 +484,20 @@
 						"navigationBarTextStyle": "black"
 
 					}
+				},{
+					"path": "bargain/list",
+					"style": {
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "white"
+
+					}
+				},{
+					"path": "bargain/detail",
+					"style": {
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "white"
+
+					}
 				}
 
 			]

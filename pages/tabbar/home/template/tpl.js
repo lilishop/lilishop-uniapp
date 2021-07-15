@@ -86,6 +86,11 @@ export function modelNavigateTo(item) {
             url: `/pages/promotion/lives`,
           });
           break;
+        case "砍价":
+          uni.navigateTo({
+            url: `/pages/promotion/bargain/list`,
+          });
+          break;
         case "积分商城":
           uni.switchTab({
             url: `/pages/navigation/point/point-mall`,

@@ -13,7 +13,7 @@ export function getLiveList(params) {
   return http.request({
     url: `broadcast/studio`,
     method: Method.GET,
-    params
+    params,
   });
 }
 
@@ -89,5 +89,74 @@ export function getAllCoupons(params) {
     url: "/promotion/coupon",
     method: Method.GET,
     params,
+  });
+}
+
+/**
+ * 分页获取砍价商品
+ * @param params
+ */
+export function getBargainList(params) {
+  return http.request({
+    url: "/promotion/kanjiaGoods",
+    method: Method.GET,
+    params,
+  });
+}
+
+/**
+ * 分页获取砍价商品
+ * @param params
+ */
+export function getBargainDetail(id) {
+  return http.request({
+    url: `/promotion/kanjiaGoods/${id}`,
+    method: Method.GET,
+  });
+}
+
+/**
+ * 获取砍价活动
+ * @param params
+ */
+export function getBargainActivity(params) {
+  return http.request({
+    url: `/promotion/kanjiaGoods/getKanjiaActivity`,
+    method: Method.POST,
+    params,
+  });
+}
+
+/**
+ * 发起砍价活动
+ * @param params
+ */
+export function openBargain(params) {
+  return http.request({
+    url: `/promotion/kanjiaGoods`,
+    method: Method.POST,
+    header: { "content-type": "application/x-www-form-urlencoded" },
+    data: params,
+  });
+}
+
+/**
+ * 分页获取砍价活动-帮砍记录
+ */
+export function getBargainLog(params) {
+  return http.request({
+    url: `/promotion/kanjiaGoods/getKanjiaActivity/logs`,
+    method: Method.GET,
+    data: params,
+  });
+}
+
+/**
+ * 分页获取砍价活动-帮砍记录
+ */
+export function helpBargain(kanJiaActivityId) {
+  return http.request({
+    url: `promotion/kanjiaGoods/help/${kanJiaActivityId}`,
+    method: Method.POST,
   });
 }

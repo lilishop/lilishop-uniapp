@@ -147,7 +147,6 @@ http.interceptors.request.use(
       ...config.header,
       uuid: storage.getUuid() || uuid.v1(),
     };
-    console.log(config.header);
     return config;
   },
   (config) => {

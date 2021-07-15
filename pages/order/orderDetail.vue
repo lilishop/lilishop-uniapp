@@ -204,7 +204,7 @@
       </view>
     </u-popup>
     <u-toast ref="uToast" />
-    <u-modal v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" @confirm="confirmRog"></u-modal>
+    <u-modal v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" :confirm-color="lightColor" @confirm="confirmRog"></u-modal>
 
     <!-- 分享 -->
     <shares v-if="shareFlage " :thumbnail="orderDetail.orderItems[0].image" :goodsName="orderDetail.orderItems[0].goodsName" @close="shareFlage = false" />
@@ -447,12 +447,13 @@ export default {
     confirmRog() {
       confirmReceipt(this.orderSn).then((res) => {
         if (res.data.success) {
-          this.$refs.uToast.show({
+          uni.showToast({
             title: "已确认收货",
-            type: "success",
+            duration: 2000,
+            icon: "none",
           });
           this.rogShow = false;
-          this.loadData(options.sn);
+          this.loadData(this.sn);
         }
       });
     },
@@ -653,7 +654,7 @@ page,
     }
   }
 }
-.verificationCode{
+.verificationCode {
   font-weight: bold;
   letter-spacing: 2rpx;
 }
