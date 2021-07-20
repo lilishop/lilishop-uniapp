@@ -476,7 +476,6 @@ export default {
         this.routerVal.id,
         this.routerVal.goodsId,
         this.routerVal.distributionId,
-        this.routerVal.whetherPoint
       );
     }
   },

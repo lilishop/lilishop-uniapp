@@ -51,13 +51,25 @@ export function getPointsCategory() {
  * 获取积分商城商品
  * @param params
  */
-export function getPointsGoods(params) {
+ export function getPointsGoods(params) {
   return http.request({
     url: "/promotion/pointsGoods",
     method: Method.GET,
     params,
   });
 }
+/**
+ * 获取积分商城商品详情
+ * @param params
+ */
+export function getPointsGoodsDetail(id) {
+  return http.request({
+    url: "/promotion/pointsGoods/"+id,
+    method: Method.GET,
+  });
+}
+
+
 
 /**
  * 获取限时抢购时间线 当天限时抢购信息

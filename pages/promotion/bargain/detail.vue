@@ -93,7 +93,7 @@
 
       <!-- 购买 -->
 
-      <popupGoods :addr="addr" ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail" :goodsSpec="goodsSpec" v-if="bargainDetail.id "
+      <popupGoods  ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail" :goodsSpec="goodsSpec" v-if="bargainDetail.id "
         @handleClickSku="getGoodsDetail" />
 
       <!-- 产品详情 -->
@@ -218,22 +218,11 @@ export default {
         title: "加载中",
         mask: true,
       });
-
       this.$refs.popupGoods.buy({
         skuId: this.bargainDetail.id,
         num: 1,
         cartType: "KANJIA",
       });
-      // getGoods(this.bargainDetail.id, this.bargainDetail.goodsId).then(
-      //   (response) => {
-      //     this.goodsDetail = response.data.result.data;
-      //     this.selectedGoods = response.data.result.data;
-      //     this.goodsSpec = response.data.result.specs;
-      //     uni.hideLoading();
-
-      //     // this.maskFlag = true;
-      //   }
-      // );
     },
 
     // 初始化商品以及砍价活动
@@ -257,7 +246,7 @@ export default {
       let res = await getBargainActivity(this.params);
       // 判断当前是否是第一次进入，如果是第一次进入默认砍一刀
       res.data.success
-        ? res.data.result
+        ? res.data.result.launch
           ? (this.activityData = res.data.result)
           : this.openActivity()
         : "";

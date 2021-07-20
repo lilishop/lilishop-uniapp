@@ -498,6 +498,13 @@
 						"navigationBarTextStyle": "white"
 
 					}
+				},{
+					"path": "point/detail",
+					"style": {
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "white"
+
+					}
 				}
 
 			]
@@ -745,7 +752,6 @@
 				"selectedIconPath": "static/tabbar/category-s.png",
 				"text": "分类"
 			},
-			
 			// {
 			// 	"pagePath": "pages/navigation/point/point-mall",
 			// 	"iconPath": "static/tabbar/point-mall.png",

@@ -162,13 +162,12 @@ export default {
      * 直接购买
      */
     buy(data) {
-      
       API_trade.addToCart(data).then((res) => {
         if (res.data.code == 200) {
           uni.navigateTo({
-            url: `/pages/order/fillorder?way=${data.cartType}&addr=${
-              this.addr.id || ""
-            }&parentOrder=${encodeURIComponent(
+            url: `/pages/order/fillorder?way=${
+              data.cartType
+            }&addr=${""}&parentOrder=${encodeURIComponent(
               JSON.stringify(this.parentOrder)
             )}`,
           });
@@ -213,8 +212,10 @@ export default {
         });
       } else {
         // 判断是否拼团商品
-        if (this.buyType) {
+        if (this.buyType == "PINTUAN") {
           data.cartType = "PINTUAN";
+        } else if (this.buyType == "POINTS") {
+          data.cartType = "POINTS";
         } else {
           data.cartType = "BUY_NOW";
         }
@@ -224,7 +225,7 @@ export default {
     },
     formatSku(list) {
       // 格式化数据
-
+      if (typeof list != Array) return false;
       let arr = [{}];
       list.forEach((item, index) => {
         item.specValues.forEach((spec, specIndex) => {

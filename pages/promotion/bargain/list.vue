@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <u-navbar  back-icon-color="#fff" :background="background" :border-bottom="false" title=""></u-navbar>
+    <u-navbar back-icon-color="#fff" :background="background" :border-bottom="false" title=""></u-navbar>
     <div class="wrapper">
       <!-- 砍价列表 -->
       <div class="box">
@@ -34,7 +34,7 @@ export default {
   data() {
     return {
       background: {
-					backgroundColor: 'transparent',
+        backgroundColor: "transparent",
       },
       params: {
         promotionStatus: "START", //开始/上架
@@ -45,6 +45,12 @@ export default {
     };
   },
   onShow() {
+    this.params.pageNumber = 1;
+    this.bargainList = [];
+    this.init();
+  },
+  onReachBottom() {
+    this.params.pageNumber++;
     this.init();
   },
   methods: {
@@ -54,7 +60,7 @@ export default {
     async init() {
       let res = await getBargainList(this.params); //砍价列表
       if (res.data.success) {
-        this.bargainList = res.data.result.records;
+        this.bargainList.push(...res.data.result.records);
       }
     },
 
@@ -68,12 +74,11 @@ export default {
 };
 </script>
 <style lang="scss">
-page{
-   background-color: $light-color !important;
+page {
+  background-color: $light-color !important;
 }
 </style>
 <style lang="scss" scoped>
-
 .wrapper {
   background: url("../static/Bargaining.png");
   background-repeat: no-repeat;

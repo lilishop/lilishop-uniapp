@@ -91,6 +91,7 @@
           </div>
 
           <p class="sp_number">￥{{ val.goodsSku.price | unitPrice }}</p>
+
         </u-col>
       </u-row>
 

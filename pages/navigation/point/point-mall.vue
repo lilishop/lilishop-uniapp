@@ -100,6 +100,7 @@ export default {
   async onShow() {
     //获取顶级分类
     let response = await getPointsCategory();
+    
     if (response.data.success) {
       let navData = response.data.result.records;
       navData.forEach((item) => {
@@ -130,7 +131,7 @@ export default {
     toGoods(item) {
       //跳转详情
       uni.navigateTo({
-        url: `/pages/product/goods?id=${item.skuId}&goodsId=${item.id}&whetherPoint=1`,
+        url: `/pages/promotion/point/detail?id=${item.id}`,
       });
     },
 
