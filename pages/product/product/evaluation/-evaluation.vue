@@ -71,14 +71,14 @@ export default {
     goodsDetail: {
       handler(val) {
         this.grade = val.grade;
-        this.getGoodsComments();
+        this.getGoodsCommentsMethods();
       },
       deep: true,
       immediate: true,
     },
   },
   mounted() {
-    // this.getGoodsComments();
+  
   },
   methods: {
     parseLoaded() {
@@ -86,7 +86,7 @@ export default {
     },
 
     // 获取商品评论
-    getGoodsComments() {
+    getGoodsCommentsMethods() {
       API_Members.getGoodsComments(this.goodsDetail.goodsId, this.params).then(
         (res) => {
           this.commDetail = res.data.result;

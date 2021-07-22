@@ -75,7 +75,7 @@
       </view>
       <view class="detail-item">
         <view class="title">申请原因:</view>
-        <view class="value">{{ serviceDetail.reason }}</view>
+        <view class="value">{{ reason }}</view>
       </view>
       <!-- <view class="detail-item" v-if="serviceDetail.apply_vouchers">
 				<view class="title">申请凭证:</view>
@@ -195,6 +195,7 @@ import {
   getServiceDetail,
   getstoreAfterSaleAddress,
   getAfterSaleLog,
+  getAfterSaleReason,
 } from "@/api/after-sale.js";
 import UniIcons from "@/components/uni-icons/uni-icons.vue";
 
@@ -204,6 +205,7 @@ export default {
   },
   data() {
     return {
+      reason: "", //申请原因
       serviceTypeList: {
         // 售后类型
         CANCEL: "取消",
@@ -331,6 +333,20 @@ export default {
     },
 
     /**
+     * 获取申请原因
+     */
+    getReasonList(serviceType) {
+      getAfterSaleReason(serviceType).then((res) => {
+        if (res.data.success) {
+          // 1357583466371219456
+          this.reason = res.data.result.filter((item) => {
+            return item.id == this.serviceDetail.reason;
+          })[0].reason;
+        }
+      });
+    },
+
+    /**
      * 初始化详情
      */
     loadDetail() {
@@ -340,7 +356,10 @@ export default {
       getServiceDetail(this.sn).then((res) => {
         uni.hideLoading();
         this.serviceDetail = res.data.result;
-        if (this.serviceDetail.serviceType == "RETURN_GOODS") {
+        if (
+          this.serviceDetail.serviceType == "RETURN_GOODS" ||
+          this.serviceDetail.serviceType === "RETURN_MONEY"
+        ) {
           this.refundShow = true;
         }
 
@@ -349,10 +368,13 @@ export default {
             this.serviceDetail.serviceType === "ORDER_CANCEL") &&
           this.serviceDetail.refundWay === "OFFLINE";
         this.bankShow =
-          (this.serviceDetail.serviceType === "RETURN_GOODS" ||
+          this.serviceDetail.serviceType === "RETURN_MONEY" ||
+          ((this.serviceDetail.serviceType === "RETURN_GOODS" ||
             this.serviceDetail.serviceType === "ORDER_CANCEL") &&
-          this.serviceDetail.refundWay === "OFFLINE" &&
-          this.serviceDetail.accountType === "BANK_TRANSFER";
+            this.serviceDetail.refundWay === "OFFLINE" &&
+            this.serviceDetail.accountType === "BANK_TRANSFER");
+
+        this.getReasonList(this.serviceDetail.serviceType);
       });
     },
 

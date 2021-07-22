@@ -129,8 +129,8 @@ export default {
       params: {
         pageNumber: 1,
         pageSize: 10,
-		sort: 'createTime',
-		order: 'desc'
+        sort: "createTime",
+        order: "desc",
       },
 
       logParams: {
@@ -171,6 +171,8 @@ export default {
         this.logParams = {
           pageNumber: 1,
           pageSize: 10,
+          sort: "createTime",
+          order: "desc",
         };
         if (index === 1) {
           this.logParams.serviceStatus = "APPLY";

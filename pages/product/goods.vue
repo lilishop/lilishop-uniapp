@@ -328,7 +328,7 @@ export default {
         top: 0,
         height: 50,
       },
-	  goodsParams: [], // 商品参数
+      goodsParams: [], // 商品参数
       headerFlag: false, //顶部导航显示与否
       headerList: [
         //顶部导航文字按照规则来 详情全局搜索
@@ -475,7 +475,7 @@ export default {
       this.init(
         this.routerVal.id,
         this.routerVal.goodsId,
-        this.routerVal.distributionId,
+        this.routerVal.distributionId
       );
     }
   },
@@ -533,7 +533,7 @@ export default {
       this.goodsDetail = response.data.result.data;
       this.goodsSpec = response.data.result.specs;
       this.PromotionList = response.data.result.promotionMap;
-	  this.goodsParams = response.data.result.goodsParamsDTOList || []
+      this.goodsParams = response.data.result.goodsParamsDTOList || [];
 
       // 判断是否拼团活动或者积分商品 如果有则显示拼团活动信息
       this.PromotionList &&

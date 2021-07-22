@@ -462,7 +462,7 @@ page,
     align-items: center;
   }
   .images-view {
-    padding: 20rpx;
+    
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -484,7 +484,12 @@ page,
   background-color: #ffffff;
   height: 100rpx;
   width: 750rpx;
+  display: flex;
   align-items: center;
-  padding: 0rpx 20rpx;
+  width: 100%;
+  /deep/ .u-btn{
+    width: 94% !important;
+
+  }
 }
 </style>
