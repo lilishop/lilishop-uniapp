@@ -1,6 +1,6 @@
 <template>
   <div class="user-point">
-    <div class="point-rule">积分规则</div>
+    <!-- <div class="point-rule">积分规则</div> -->
     <div class="point-wrapper">
       <u-image shape="circle" :lazy-load="true" width="100" height="100" :src="userInfo.face || '/static/missing-face.png'"></u-image>
       <div class="whether-point">
@@ -43,6 +43,7 @@ export default {
   padding: 20rpx 0;
 }
 .point-wrapper {
+  padding-top: 80rpx;
   display: flex;
 }
 .whether-point {

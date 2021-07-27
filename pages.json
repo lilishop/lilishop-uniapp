@@ -36,13 +36,7 @@
 				
 			}
 		},
-		{
-			"path": "pages/navigation/point/point-mall",
-			"style": {
-				"navigationBarTitleText": "积分商城",
-				"enablePullDownRefresh": true
-			}
-		},		
+				
 		{
 			"path": "pages/navigation/search/searchPage",
 			"style": {
@@ -505,6 +499,13 @@
 						"navigationBarTextStyle": "white"
 
 					}
+				},{
+					"path": "point/pointList",
+					"style": {
+						"navigationBarTitleText": "积分商城"
+						
+
+					}
 				}
 
 			]
@@ -752,12 +753,7 @@
 				"selectedIconPath": "static/tabbar/category-s.png",
 				"text": "分类"
 			},
-			// {
-			// 	"pagePath": "pages/navigation/point/point-mall",
-			// 	"iconPath": "static/tabbar/point-mall.png",
-			// 	"selectedIconPath": "static/tabbar/point-mall-s.png",
-			// 	"text": "积分商城"
-			// },
+		
 			{
 				"pagePath": "pages/tabbar/cart/cartList",
 				"iconPath": "static/tabbar/cart.png",

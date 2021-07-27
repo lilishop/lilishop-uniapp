@@ -117,23 +117,23 @@ export default {
   methods: {
     /** 根据参数显示登录模块 */
     methodFilter(code) {
-      // let way = [];
-      // this.loginList.forEach((item) => {
-      //   if (code.length != 0) {
-      //     code.forEach((val) => {
-      //       if (item.code == val) {
-      //         way.push(item);
-      //       }
-      //     });
-      //   } else {
-      //     uni.showToast({
-      //       title: '配置有误请联系管理员',
-      //       duration: 2000,
-      //       icon:"none"
-      //     });
-      //   }
-      // });
-      // this.loginList = way;
+      let way = [];
+      this.loginList.forEach((item) => {
+        if (code.length != 0) {
+          code.forEach((val) => {
+            if (item.code == val) {
+              way.push(item);
+            }
+          });
+        } else {
+          uni.showToast({
+            title: '配置有误请联系管理员',
+            duration: 2000,
+            icon:"none"
+          });
+        }
+      });
+      this.loginList = way;
     },
     /**跳转到登录页面 */
     navigateLogin(connectLogin) {

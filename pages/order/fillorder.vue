@@ -190,10 +190,11 @@
     <div class="box6 mp-iphonex-bottom" v-if="orderMessage.priceDetailDTO">
       <div class="tabbar-left">
         合计：
-        <span class="number">
+        <span v-if="!orderMessage.priceDetailDTO.payPoint" class="number">
           ¥
-          <span>{{ orderMessage.priceDetailDTO.billPrice | unitPrice }}</span>
+          <span>{{ orderMessage.priceDetailDTO.flowPrice | unitPrice }}</span>
         </span>
+        <span v-else class="number"><span style="margin-right:10rpx;">{{orderMessage.priceDetailDTO.payPoint | unitPrice }}</span>积分</span>
       </div>
       <div class="navRiv" @click="createTradeFun()">
         <!-- #ifndef MP-WEIXIN -->

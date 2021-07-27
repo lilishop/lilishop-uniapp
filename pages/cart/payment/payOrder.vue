@@ -1,47 +1,46 @@
 <template>
-	<div class="wrapper">
-		<div class="box">
-			<div class="block block-1">
-				<image class="img" src="@/pages/cart/static/pay.png" />
-				<p class="ptips">收银台</p>
+  <div class="wrapper">
+    <div class="box">
+      <div class="block block-1">
+        <image class="img" src="@/pages/cart/static/pay.png" />
+        <p class="ptips">收银台</p>
 
-				<p class="ptips">剩余支付时间：
-					<u-count-down :show-days="false" :show-border="true" font-size="28" color="#008ffa"
-						border-color="#008ffa" ref="uCountDown" :timestamp="autoCancel"></u-count-down>
-				</p>
-				<p class="ptips">
-					支付金额
-					<span>¥{{ cashierParams.price | unitPrice }}</span>
-				</p>
-			</div>
-		</div>
-		<div class="__pay_form__">
-		</div>
-		<div class="block-4" v-if="cashierParams.price > 0">
-			<div class="payItem">支付方式</div>
-			<div class="payItem" v-for="(item, index) in payList" :key="index">
-				<u-row class="row">
-					<div class="col1" @click="awaitPay(item, index)" size="100" style="text-align:left;">
-						<div v-if="item == 'ALIPAY'">
-							<u-icon class="method_icon" name="zhifubao-circle-fill" color="#008ffa" size="80"></u-icon>
-							<span class="method_name">支付宝</span>
-						</div>
-						<div v-if="item == 'WECHAT'">
-							<u-icon class="method_icon" name="weixin-circle-fill" color="#00c98b" size="80"></u-icon>
-							<span class="method_name">微信</span>
-						</div>
-						<div v-if="item == 'WALLET'">
-							<u-icon class="method_icon" name="red-packet-fill" color="#dd6161" size="80"></u-icon>
-							<span class="method_name">余额支付(当前余额：¥{{ walletValue | unitPrice }})</span>
-						</div>
-					</div>
-					<div class="col3" @click="awaitPay(item)" textAlign="right">
-						<u-icon size="26" color="#b1b1b1" name="arrow-right"></u-icon>
-					</div>
-				</u-row>
-			</div>
-		</div>
-	</div>
+        <p class="ptips">剩余支付时间：
+          <u-count-down :show-days="false" :show-border="true" font-size="28" color="#008ffa" border-color="#008ffa" ref="uCountDown" :timestamp="autoCancel"></u-count-down>
+        </p>
+        <p class="ptips">
+          支付金额
+          <span>¥{{ cashierParams.price | unitPrice }}</span>
+        </p>
+      </div>
+    </div>
+    <div class="__pay_form__">
+    </div>
+    <div class="block-4" v-if="cashierParams.price > 0">
+      <div class="payItem">支付方式</div>
+      <div class="payItem" v-for="(item, index) in payList" :key="index">
+        <u-row class="row">
+          <div class="col1" @click="awaitPay(item, index)" size="100" style="text-align:left;">
+            <div v-if="item == 'ALIPAY'">
+              <u-icon class="method_icon" name="zhifubao-circle-fill" color="#008ffa" size="80"></u-icon>
+              <span class="method_name">支付宝</span>
+            </div>
+            <div v-if="item == 'WECHAT'">
+              <u-icon class="method_icon" name="weixin-circle-fill" color="#00c98b" size="80"></u-icon>
+              <span class="method_name">微信</span>
+            </div>
+            <div v-if="item == 'WALLET'">
+              <u-icon class="method_icon" name="red-packet-fill" color="#dd6161" size="80"></u-icon>
+              <span class="method_name">余额支付(当前余额：¥{{ walletValue | unitPrice }})</span>
+            </div>
+          </div>
+          <div class="col3" @click="awaitPay(item)" textAlign="right">
+            <u-icon size="26" color="#b1b1b1" name="arrow-right"></u-icon>
+          </div>
+        </u-row>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
 	import * as API_Trade from "@/api/trade";
@@ -160,6 +159,10 @@
 					});
 					// #endif
 
+					//判断是否微信浏览器
+					var ua = window.navigator.userAgent.toLowerCase();
+					
+					
 				
 
 					// #ifndef MP-WEIXIN
@@ -173,6 +176,14 @@
 					}
 					
 					// #endif
+					if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+						console.log("微信浏览器")
+						this.payList = res.data.result.support.filter((item) => {
+							return item != "ALIPAY";
+						});
+						
+					}
+
 					this.walletValue = res.data.result.walletValue;
 					this.autoCancel =
 						(res.data.result.autoCancel - new Date().getTime()) / 1000;
@@ -376,108 +387,108 @@
 	};
 </script>
 <style scoped lang="scss">
-	.method_icon {
-		vertical-align: middle;
-	}
+.method_icon {
+  vertical-align: middle;
+}
 
-	.method_name {
-		font-size: 28rpx;
-		color: #999;
-		padding-left: 24rpx;
-	}
+.method_name {
+  font-size: 28rpx;
+  color: #999;
+  padding-left: 24rpx;
+}
 
-	.row {
-		display: flex;
-		width: 100%;
-	}
+.row {
+  display: flex;
+  width: 100%;
+}
 
-	/deep/ .u-row {
-		width: 100% !important;
-		display: flex;
-		justify-content: space-between !important;
-	}
+/deep/ .u-row {
+  width: 100% !important;
+  display: flex;
+  justify-content: space-between !important;
+}
 
-	.method_name,
-	.col1 {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
+.method_name,
+.col1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-	.col1 {
-		text-align: center;
-		flex: 99;
-	}
+.col1 {
+  text-align: center;
+  flex: 99;
+}
 
-	.col3 {
-		text-align: right;
-		flex: 1;
-	}
+.col3 {
+  text-align: right;
+  flex: 1;
+}
 
-	.payItem {
-		padding: 13px 25rpx;
-		border-top: 1px solid #f9f9f9;
+.payItem {
+  padding: 13px 25rpx;
+  border-top: 1px solid #f9f9f9;
 
-		line-height: 100rpx;
-		font-size: 36rpx;
-		color: #333;
-	}
+  line-height: 100rpx;
+  font-size: 36rpx;
+  color: #333;
+}
 
-	.ptips {
-		font-size: 32rpx;
-		margin: 20rpx 0;
-		color: #333;
+.ptips {
+  font-size: 32rpx;
+  margin: 20rpx 0;
+  color: #333;
 
-		>span {
-			font-size: 40rpx;
-			color: #df5a52;
-			margin-left: 10rpx;
-		}
-	}
+  > span {
+    font-size: 40rpx;
+    color: #df5a52;
+    margin-left: 10rpx;
+  }
+}
 
-	.img {
-		width: 392rpx !important;
-		height: 296rpx !important;
-	}
+.img {
+  width: 392rpx !important;
+  height: 296rpx !important;
+}
 
-	.wrapper {
-		min-height: 100vh;
-		height: auto;
-		background: #f9f9f9;
-	}
+.wrapper {
+  min-height: 100vh;
+  height: auto;
+  background: #f9f9f9;
+}
 
-	.block-4 {
-		background: #fff;
-		color: $u-tips-color;
+.block-4 {
+  background: #fff;
+  color: $u-tips-color;
 
-		>p {
-			padding: 8rpx;
-		}
-	}
+  > p {
+    padding: 8rpx;
+  }
+}
 
-	.box {
-		background: #fff;
-		padding: 40rpx 0;
-		//   justify-content: center; //这个是X轴居中
-		//   align-items: center; //这个是 Y轴居中
-	}
+.box {
+  background: #fff;
+  padding: 40rpx 0;
+  //   justify-content: center; //这个是X轴居中
+  //   align-items: center; //这个是 Y轴居中
+}
 
-	.block {
-		text-align: center;
-		display: block;
-		width: 100%;
+.block {
+  text-align: center;
+  display: block;
+  width: 100%;
 
-		image {
-			width: 200rpx;
-			height: 200rpx;
-		}
-	}
+  image {
+    width: 200rpx;
+    height: 200rpx;
+  }
+}
 
-	.block-1 {
-		margin-top: 80rpx;
-	}
+.block-1 {
+  margin-top: 80rpx;
+}
 
-	.btns {
-		margin: 0 20rpx;
-	}
+.btns {
+  margin: 0 20rpx;
+}
 </style>

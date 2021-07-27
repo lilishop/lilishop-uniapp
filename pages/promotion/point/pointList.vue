@@ -23,7 +23,6 @@
                 </u-image>
                 <view class="index-item-title">{{ item.goodsSku.goodsName }}</view>
                 <view class="index-item-price">
-
                   {{ item.points | unitPrice }}积分
                   <span class="tipsMkt">¥{{ item.goodsSku.price | unitPrice }}</span>
                 </view>
@@ -97,10 +96,11 @@ export default {
       }
     },
   },
-  async onShow() {
+  async mounted() {
     //获取顶级分类
+
     let response = await getPointsCategory();
-    
+
     if (response.data.success) {
       let navData = response.data.result.records;
       navData.forEach((item) => {
@@ -273,12 +273,11 @@ page {
 
 .swiper-box {
   // #ifdef H5
-  height: calc(100vh - 294px);
+  height: calc(100vh - (100rpx + 300rpx + 44px));
   // #endif
 
   // #ifndef H5
-
-  height: calc(100vh - 200px);
+  height: calc(100vh - 400rpx);
   // #endif
 
   .scroll-v {
