@@ -151,6 +151,7 @@
 				parms.clientType = this.paymentType;
 
 				API_Trade.getCashierData(parms).then((res) => {
+					if(res.data.success){
 					this.cashierParams = res.data.result;
 
 					// #ifdef MP-WEIXIN
@@ -187,6 +188,15 @@
 					this.walletValue = res.data.result.walletValue;
 					this.autoCancel =
 						(res.data.result.autoCancel - new Date().getTime()) / 1000;
+					}
+					else if(res.data.code == 32000){
+						setTimeout(()=>{
+							uni.redirectTo({
+							 url: `/pages/order/myOrder?status=0`
+						});
+						},500)
+						
+					}
 				});
 			},
 

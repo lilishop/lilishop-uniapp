@@ -96,8 +96,21 @@ export default {
       }
     },
   },
-  async mounted() {
+  async onShow() {
     //获取顶级分类
+    this.categoryIndexData = [
+      {
+        categoryId: 0,
+        name: "全部",
+        loadStatus: "more",
+        goods: [],
+        params: {
+          pageNumber: 1,
+          pageSize: 10,
+          pointsGoodsCategoryId: "",
+        },
+      },
+    ];
 
     let response = await getPointsCategory();
 

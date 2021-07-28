@@ -25,7 +25,7 @@
           <view>{{ item.content }}</view>
           <view>{{ item.createTime}}</view>
         </view>
-        <view><span>{{item.pointType == "1" ? '+' : '-'}}</span>{{ item.variablePoint }}</view>
+        <view><span>{{item.pointType == "INCREASE" ? '+' : '-'}}</span>{{ item.variablePoint }}</view>
       </view>
       <uni-load-more :status="count.loadStatus"></uni-load-more>
     </div>

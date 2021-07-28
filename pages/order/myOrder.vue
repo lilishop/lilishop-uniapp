@@ -219,6 +219,7 @@ export default {
     if (status == 0) {
       this.loadData(status);
     }
+  
   },
 
   watch: {
