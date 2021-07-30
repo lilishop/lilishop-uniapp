@@ -3,7 +3,7 @@
     <u-navbar :border-bottom="false" title=""></u-navbar>
 
     <div class="wrapper">
-      <!-- 砍价列表 -->
+      <!-- 积分商品列表 -->
       <div class="box box1">
         <div class="bargain">
           <div class="row-title">商品信息</div>
