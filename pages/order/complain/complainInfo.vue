@@ -103,7 +103,9 @@ export default {
 .row {
   display: flex;
   flex-wrap: wrap;
+  padding: 26rpx 32rpx;
 }
+
 .speak-msg {
   padding: 26rpx 32rpx;
   > span {
@@ -120,6 +122,6 @@ export default {
   padding: 16rpx;
 }
 .tips {
-  margin: 40rpx 0;
+  margin: 40rpx 32rpx;
 }
 </style>

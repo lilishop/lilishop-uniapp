@@ -9,6 +9,14 @@ const FACE_LOGIN = isDev ? "face_login_dev" : "face_login";
 const FINGER_LOGIN = isDev ? "finger_login_dev" : "finger_login";
 const CART_BACKBTN = isDev ? "cart_backbtn_dev" : "cart_backbtn";
 export default {
+  // 写入热门搜索时间戳
+  setHotWords(val) {
+    uni.setStorageSync("hotWords", val);
+  },
+  // 获取热门搜索时间戳
+  getHotWords() {
+    return uni.getStorageSync(`hotWords`);
+  },
 
   // 获取face id登录
   getFaceLogin() {

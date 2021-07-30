@@ -30,12 +30,12 @@ export function getCategory(parent_id = 0) {
  * 获取热门关键词
  * @param num
  */
-export function getHotKeywords(start = 0, end = 10) {
+export function getHotKeywords(count) {
   return http.request({
     url: "/goods/hot-words",
     method: Method.GET,
     loading: false,
-    params: { start, end },
+    params: { count },
   });
 }
 

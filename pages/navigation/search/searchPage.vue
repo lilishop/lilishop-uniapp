@@ -274,7 +274,7 @@ import { getGoodsList, getGoodsRelated } from "@/api/goods.js";
 
 import { getHotKeywords } from "@/api/home.js";
 import mSearch from "@/components/m-search-revision/m-search-revision.vue";
-
+import storage from "@/utils/storage";
 export default {
   data() {
     return {
@@ -594,15 +594,38 @@ export default {
         },
       });
     },
-    //加载热门搜索
+
+    /**
+     * 加载热门搜索
+     * 1.30分钟之后更新缓存
+     * 2.如果有缓存热门关键字则去请求缓存
+     */
     async loadHotKeyword() {
       this.hotKeywordList = [];
-      let res = await getHotKeywords();
-      let keywords = res.data.result;
+      if (
+        !storage.getHotWords().time ||
+        storage.getHotWords().time <= new Date().getTime() / 1000
+      ) {
+        // 没有缓存或者第一次进入请求接口保存缓存
+        let res = await getHotKeywords(10);
+        let keywords = res.data.result;
 
-      keywords.forEach((item) => {
-        this.hotKeywordList.push(item);
-      });
+        keywords.forEach((item) => {
+          this.hotKeywordList.push(item);
+        });
+
+        let hotData = {
+          time: new Date().getTime() / 1000 + 30 * 60,
+          keywords: keywords,
+        };
+        storage.setHotWords(hotData);
+      } else {
+        let keywords = storage.getHotWords().keywords;
+
+        keywords.forEach((item) => {
+          this.hotKeywordList.push(item);
+        });
+      }
     },
     //加载商品 ，带下拉刷新和上滑加载
     async loadData(type, loading) {
@@ -612,7 +635,7 @@ export default {
       }
       //没有更多直接返回
       let goodsList = await getGoodsList(this.params);
-      
+
       if (goodsList.data.result.content.length < 10) {
         this.loadingType = "noMore";
       }
@@ -663,7 +686,6 @@ export default {
         content: "确定清除历史搜索记录？",
         success: (res) => {
           if (res.confirm) {
-           
             this.oldKeywordList = [];
             uni.removeStorage({
               key: "OldKeys",
@@ -694,7 +716,6 @@ export default {
     },
     //保存关键字到历史记录
     saveKeyword(keyword) {
-      
       if (!keyword) return false;
       uni.getStorage({
         key: "OldKeys",
@@ -715,7 +736,6 @@ export default {
             data: JSON.stringify(OldKeys),
           });
           this.oldKeywordList = OldKeys; //更新历史搜索
-        
         },
         fail: (e) => {
           var OldKeys = [keyword];
