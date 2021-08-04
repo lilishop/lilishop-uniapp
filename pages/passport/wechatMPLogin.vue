@@ -19,7 +19,7 @@
           <view>您的公开信息（昵称、头像）</view>
         </view>
         <view class="btns">
-          <button type="primary" bindtap="getUserProfile" @click="getUserProfile()" class="btn-auth">确认微信授权</button>
+          <button type="primary" bindtap="getUserProfile" @click="getUserProfile()" class="btn-auth">使用微信授权</button>
         </view>
       </div>
     </view>
@@ -50,7 +50,6 @@ export default {
 
   //微信小程序进入页面，先获取code，否则几率出现code和后续交互数据不对应情况
   mounted() {
-
     // 小程序默认分享
     uni.showShareMenu({ withShareTicket: true });
 
@@ -73,7 +72,7 @@ export default {
      */
 
     back() {
-      whetherNavigate('wx');
+      whetherNavigate("wx");
     },
     //获取用户信息
     getUserProfile(e) {
@@ -231,8 +230,15 @@ text.shop {
 .btn-auth {
   width: 92%;
   margin: 0 auto 100rpx;
-
   border-radius: 100px;
+  animation: mymove 5s infinite;
+  -webkit-animation: mymove 5s infinite; /*Safari and Chrome*/
+  animation-direction: alternate; /*轮流反向播放动画。*/
+  animation-timing-function: ease-in-out; /*动画的速度曲线*/
+  /* Safari 和 Chrome */
+  -webkit-animation: mymove 5s infinite;
+  -webkit-animation-direction: alternate; /*轮流反向播放动画。*/
+  -webkit-animation-timing-function: ease-in-out; /*动画的速度曲线*/
 }
 
 .btns {
@@ -240,5 +246,20 @@ text.shop {
   display: flex;
   width: 100%;
   justify-content: center;
+}
+
+@keyframes mymove {
+  0% {
+    transform: scale(1); /*开始为原始大小*/
+  }
+  25% {
+    transform: scale(1.1); /*放大1.1倍*/
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.1);
+  }
 }
 </style>

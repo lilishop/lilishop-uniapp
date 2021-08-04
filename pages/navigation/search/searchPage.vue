@@ -597,7 +597,7 @@ export default {
 
     /**
      * 加载热门搜索
-     * 1.30分钟之后更新缓存
+     * 1.5分钟之后更新缓存
      * 2.如果有缓存热门关键字则去请求缓存
      */
     async loadHotKeyword() {
@@ -615,7 +615,7 @@ export default {
         });
 
         let hotData = {
-          time: new Date().getTime() / 1000 + 30 * 60,
+          time: new Date().getTime() / 1000 + 30 * 5,
           keywords: keywords,
         };
         storage.setHotWords(hotData);
