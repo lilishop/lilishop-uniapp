@@ -11,14 +11,14 @@
           <view>{{ storeInfo.goodsNum || 0 }}关注 {{ storeInfo.collectionNum || 0 }}件商品</view>
         </view>
         <view class="follow" @click="whetherCollection">
-          <view>{{ isCollection == 'success' ? '已关注' : '+ 关注' }}</view>
+          <view>{{ isCollection  ? '已关注' : '+ 关注' }}</view>
         </view>
       </view>
       <view class="store-intro">
         <view class="title">店铺简介</view>
-        <view class="text" >
+        <view class="text">
           <view v-html="storeInfo.storeDesc"></view>
-       
+
         </view>
       </view>
       <!-- 优惠券 -->
@@ -68,7 +68,7 @@
 import { getstoreBaseInfo } from "@/api/store.js";
 import {
   receiveCoupons,
-  deleteGoodsCollection,
+  deleteStoreCollection,
   collectionGoods,
   getGoodsIsCollect,
 } from "@/api/members.js";
@@ -101,13 +101,12 @@ export default {
   mounted(options) {
     if (this.$options.filters.isLogin("auth")) {
       getGoodsIsCollect("STORE", this.storeId).then((res) => {
-        this.isCollection = res.data.message;
+        this.isCollection = res.data.result;
       });
     }
     this.initStoreInfo();
   },
   methods: {
-
     /**
      * 店铺信息
      */
@@ -135,8 +134,7 @@ export default {
         }
       });
     },
-  
-    
+
     /**
      * 跳转到商品详情
      */
@@ -151,9 +149,9 @@ export default {
      */
     whetherCollection() {
       if (this.isCollection) {
-        deleteGoodsCollection("STORE", this.storeId).then((res) => {
-          if (res.statusCode === 200) {
-            this.isCollection = "error";
+        deleteStoreCollection(this.storeId).then((res) => {
+          if (res.data.success) {
+            this.isCollection = false;
             uni.showToast({
               icon: "none",
               duration: 3000,
@@ -163,8 +161,8 @@ export default {
         });
       } else {
         collectionGoods("STORE", this.storeId).then((res) => {
-          if (res.statusCode === 200) {
-            this.isCollection = "success";
+          if (res.data.success) {
+            this.isCollection = true;
             uni.showToast({
               icon: "none",
               duration: 3000,
@@ -174,7 +172,7 @@ export default {
         });
       }
     },
-    
+
     /**
      * 获取优惠券
      */

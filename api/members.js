@@ -206,7 +206,7 @@ export function getGoodsCollection(params, type) {
  * 收藏商品
  * @returns {AxiosPromise}
  */
-export function collectionGoods(id, type) {
+export function collectionGoods(type, id) {
   return http.request({
     url: `/member/collection/add/${type}/${id}`,
     method: Method.POST,
@@ -231,10 +231,22 @@ export function deleteGoodsCollection(ids) {
 }
 
 /**
+ * 删除店铺收藏
+ * @param store_id
+ */
+export function deleteStoreCollection(store_id) {
+  return http.request({
+    url: `/member/collection/delete/STORE/${store_id}`,
+    method: Method.DELETE,
+    needToken: true,
+  });
+}
+
+/**
  * 获取商品是否被收藏
  * @param good_id
  */
-export function getGoodsIsCollect(good_id, type) {
+export function getGoodsIsCollect(type, good_id) {
   return http.request({
     url: `/member/collection/isCollection/${type}/${good_id}`,
     method: Method.GET,
@@ -254,18 +266,6 @@ export function collectionStore(store_id) {
     header: { "content-type": "application/x-www-form-urlencoded" },
     method: Method.POST,
     data: { store_id },
-  });
-}
-
-/**
- * 删除店铺收藏
- * @param store_id
- */
-export function deleteStoreCollection(store_id) {
-  return http.request({
-    url: `members/collection/store/${store_id}`,
-    method: Method.DELETE,
-    needToken: true,
   });
 }
 

@@ -174,9 +174,7 @@ export default {
   onLoad(options) {
     this.routers = options;
   },
-  watch: {
-    showFlag(val) {},
-  },
+  watch: {},
   onShow() {
     this.goodsList = [];
     this.init();
@@ -273,12 +271,7 @@ export default {
 
     // 选择商品
     handleClickGoods(val) {
-      uni.showLoading({
-        title: "加载中",
-        mask: true,
-      });
       checkedDistributionGoods({ id: val.id, checked: true }).then((res) => {
-        uni.hideLoading();
         if (res.data.success) {
           uni.showToast({
             title: "已添加到我的选品库",
@@ -295,12 +288,7 @@ export default {
     },
 
     init() {
-      uni.showLoading({
-        title: "加载中",
-      });
       distributionGoods(this.params).then((res) => {
-        uni.hideLoading();
-
         if (res.data.success && res.data.result.records.length >= 1) {
           res.data.result.records.forEach((item) => {
             this.$set(item, "___selected", false);
