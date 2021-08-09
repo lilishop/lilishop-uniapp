@@ -106,22 +106,22 @@ export default {
   }
 }
 
-.shopTag{
-  background: $main-color;
-  font-size: 24rpx;
-  padding: 0 12rpx;
-  margin-left: 10rpx;
-  font-weight: normal;
-  border-radius: 10rpx;
-  color: #fff;
-}
-
 .recommend-list-view {
   width: 100%;
+}
+.shopTag {
+  background: $main-color;
+  font-size: 24rpx;
+  margin-left: 10rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 10rpx;
+  font-weight: normal;
+  color: #fff;
 }
 
 .store-info {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   background: #fff;
   padding: 40rpx 20rpx 50rpx;
@@ -139,25 +139,22 @@ export default {
   .name-star {
     flex: 1;
     margin-left: 20rpx;
-    padding: 10rpx 0;
-    font-size: 30rpx;
-
     .name {
       display: flex;
+      align-items: center;
       width: 100%;
+      line-height: 1;
       font-weight: 700;
       font-size: 28rpx;
-      line-height: 24px;
-	  margin-left: 10px;
     }
-	.desc {
-		font-size: 12px;
-		color: #999;
-		margin-left: 10px;
-		text{
-			margin-right: 10px;
-		}
-	}
+    .desc {
+      font-size: 12px;
+      color: #999;
+      margin-left: 10px;
+      text {
+        margin-right: 10px;
+      }
+    }
   }
 
   .to-store-btn {

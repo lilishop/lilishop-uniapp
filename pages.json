@@ -335,12 +335,18 @@
 		{
 			"root": "pages/product",
 			"pages": [{
-					"path": "shopPage",
-					"style": {
-						"navigationBarTitleText": "详情展示",
-						"navigationStyle": "custom"
-					}
-				},
+				"path": "shopPage",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			},{
+				"path": "shopPageGoods",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			},
 				{
 					"path": "goods",
 					"style": {

@@ -37,7 +37,6 @@ export const getServerNo = function (callback) {
       result.versionInfo = response.content || "暂无";
       result.forceUpdate = response.forceUpdate;
       result.downloadUrl = response.downloadUrl;
-
       callback && callback(result);
     }
   });
@@ -855,7 +854,7 @@ function downloadPopup(data, callback, cancelCallback, rebootCallback) {
 export default function (isPrompt = false) {
   getCurrentNo((version) => {
     getServerNo((res) => {
-      if (res.versionCode.replace(/\./g, "") < version.versionCode) {
+      if (res.versionCode.replace(/\./g, "") <= version.versionCode) {
         return false;
       }
 

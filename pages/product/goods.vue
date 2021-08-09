@@ -506,21 +506,16 @@ export default {
      * 初始化信息
      */
     async init(id, goodsId, distributionId) {
-      console.log(id, goodsId);
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
-      uni.showLoading({
-        title: "加载中",
-        mask: true,
-      });
+
 
       let response = await getGoods(id, goodsId);
       if (!response.data.success) {
         uni.navigateBack();
         return false;
       }
-
       // 这里是绑定分销员
       if (distributionId || this.$store.state.distributionId) {
         let disResult = await getGoodsDistribution(distributionId);
@@ -528,7 +523,6 @@ export default {
           this.$store.state.distributionId = distributionId;
         }
       }
-      uni.hideLoading();
       /**商品信息以及规格信息存储 */
       this.goodsDetail = response.data.result.data;
       this.goodsSpec = response.data.result.specs;
@@ -551,7 +545,7 @@ export default {
       this.imgList = this.goodsDetail.goodsGalleryList;
 
       // 获取店铺基本信息
-      this.getstoreBaseInfoFun(this.goodsDetail.storeId);
+      this.getStoreBaseInfoFun(this.goodsDetail.storeId);
 
       // 获取购物车
       this.cartCount();
@@ -675,8 +669,8 @@ export default {
     /**
      * 获取店铺信息
      */
-    getstoreBaseInfoFun(id) {
-      API_store.getstoreBaseInfo(id).then((res) => {
+    getStoreBaseInfoFun(id) {
+      API_store.getStoreBaseInfo(id).then((res) => {
         if (res.data.success) {
           this.storeDetail = res.data.result;
         }

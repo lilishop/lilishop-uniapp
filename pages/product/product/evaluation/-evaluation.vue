@@ -223,10 +223,6 @@ export default {
       color: #333;
       padding: 20rpx 0;
     }
-
-    .img {
-    }
-
     .bot {
       display: flex;
       justify-content: space-between;

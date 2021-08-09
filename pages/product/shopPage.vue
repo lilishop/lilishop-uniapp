@@ -1,63 +1,131 @@
 <template>
-  <view class="store-page">
-    <view class="status_bar">
-      <!-- 这里是状态栏 -->
-    </view>
-    <view class="header">
-      <div class="search">
-        <u-icon @click="back" style="margin:0 10rpx 0;" name="arrow-left" size="40" color="#fff"></u-icon>
-        <u-search :show-action="false" border-color="#fff" bg-color="#fff" v-model="keyword" @search="search" placeholder="请输入搜索" />
-        <u-icon @click="shareChange()" style="margin:0 10rpx 0;" name="share-fill" size="40" color="#fff"></u-icon>
+  <div>
+    <u-navbar :border-bottom="false">
+      <u-search v-model="keyword" @search="search" @click="search" placeholder="请输入搜索"></u-search>
+    </u-navbar>
+    <div class="wrapper">
+      <!-- 店铺信息模块 -->
+      <div class="store flex">
+        <u-image border-radius="10" width="150" height="150" :src="storeInfo.storeLogo || '/static/logo.png'" mode="aspectFit"></u-image>
+        <div class="box">
+          <div class="store-name">
+            {{ storeInfo.storeName || ''}}
+          </div>
+          <div class="flex store-message">
+            <div> <span>{{ storeInfo.goodsNum || 0 }}</span>关注 </div>
+            <div> <span>{{ storeInfo.collectionNum || 0 }}</span>件商品 </div>
+          </div>
+        </div>
+        <div class="collection">
+          <div class="collection-btn" @click="whetherCollection"> {{ isCollection  ? '已关注' : '+ 关注' }}</div>
+        </div>
       </div>
-      <view class="tab-header">
-        <text :class="{ cur: tabIndex == 0 }" @click="checkNavigation(0)">首页</text>
-        <text :class="{ cur: tabIndex == 1 }" @click="checkNavigation(1)">商品</text>
+      <!-- 店铺简介 -->
+      <div class="store-desc wes-2">
+        {{storeInfo.storeDesc}}
+      </div>
+    </div>
+    <!-- 优惠券 -->
+    <scroll-view scroll-x="true" show-scrollbar="false" class="discount" v-if="couponList.length > 0">
+      <view class="card-box" v-for="(item, index) in couponList" :key="index">
+        <view class="card" @click="getCoupon(item)">
+          <view class="money">
+            <view>
+              <span v-if="item.couponType == 'DISCOUNT'">{{ item.couponDiscount }}折</span>
+              <span v-else>{{ item.price }}元</span>
+            </view>
+
+          </view>
+          <view class="xian"></view>
+          <view class="text">
+            <text>{{'领取优惠券'}}</text>
+            <text>满{{ item.consumeThreshold | unitPrice }}元可用</text>
+          </view>
+        </view>
       </view>
-    </view>
-    <swiper :current="tabIndex" class="swiper-box" @change="tabChange">
-      <swiper-item class="swiper-item" v-for="(item, index) in indexCats" :key="index">
-        <scroll-view class="scroll-v" scroll-anchoring enableBackToTop="true" scroll-y @refresherrefresh="refresh()" @scroll="pageScroll">
-          <storePageMain :load="load" :storeId="storeId" v-if="index == 0"></storePageMain>
-          <storePageGoods :load="load"  :categoryId="item" :storeId="storeId" v-if="index == 1"></storePageGoods>
-        </scroll-view>
-      </swiper-item>
-    </swiper>
+    </scroll-view>
 
-    <!-- 分享 -->
-    <shares type="shops" :link="'/pages/product/shopPage?id='+ this.storeId" v-if="shareFlage" @close="shareFlage = false" />
+    <!-- tab -->
+    <u-tabs :list="tabs" :active-color="mainColor" :is-scroll="false" :current="current" @change="changeTab"></u-tabs>
+    <!-- menu -->
 
-  </view>
+    <!-- 商品 -->
+    <div class="contant" v-if="current == 0">
+      <view v-if="!goodsList.length" class="empty">暂无商品信息</view>
+      <view v-else class="item" v-for="(item,index) in goodsList" :key="index" @click="navigateToGoodsDetail(item)">
+        <u-image width="100%" height="324rpx" :src="item.thumbnail">
+          <u-loading slot="loading"></u-loading>
+        </u-image>
+        <div class="name">{{ item.goodsName }}</div>
+        <div class="price">
+          <div>￥{{ item.price | unitPrice }}</div>
+        </div>
+        <view class="buyCount">
+          <div>已售 {{ item.buyCount || "0" }}</div>
+        </view>
+      </view>
+    </div>
+    <!-- 全部分类 -->
+    <div class="category" v-if="current == 1">
+      <div class="category-item" v-for="(item,index) in categoryList" :key="index">
+        <div class="flex" @click="getCategoryGoodsList(item)">
+          <div>{{item.labelName}}</div>
+          <div>
+            <u-icon color="#999" name="arrow-right"></u-icon>
+          </div>
+        </div>
+        <!-- 分类子级 -->
+        <div class="child-list" v-if="item.children && item.children.length!=0">
+          <div class="child" @click="getCategoryGoodsList(child)" v-for="(child,i) in item.children">{{child.labelName}}</div>
+        </div>
+      </div>
+    </div>
+    <u-back-top :scroll-top="scrollTop"></u-back-top>
+  </div>
 </template>
 
 <script>
-import shares from "@/components/m-share/index"; //分享
-import storePageMain from "./shopPageMain.vue";
-import storePageGoods from "./shopPageGoods.vue";
+import { getStoreBaseInfo, getStoreCategory } from "@/api/store.js";
+import {
+  receiveCoupons,
+  deleteStoreCollection,
+  collectionGoods,
+  getGoodsIsCollect,
+} from "@/api/members.js";
+import { getGoodsList } from "@/api/goods.js";
+import { getAllCoupons } from "@/api/promotions.js";
 export default {
-  components: {
-    shares,
-    storePageMain,
-    storePageGoods,
-  },
   data() {
     return {
-      shareFlage: false, //分享share
-      tabIndex: 0, //默认为第一个tab
-      keyword: "", //搜索关键字
-      load: false,
-      storeId: undefined, //店铺id
-      indexCats: [0, 1],  //默认为2个tab
-      loadIndex: 1, //加载的距离
-   
+      scrollTop: 0,
+      mainColor: this.$mainColor, //主色调
+      current: 0, //初始tabs的索引
+      tabs: [{ name: "全部商品" }, { name: "分类查看" }], // 标签
+      storeId: "",
+      keyword: "",
+      storeInfo: {}, //店铺详情
+      isCollection: false, //是否关注
+      goodsList: [], //推荐货物
+      couponList: [], //优惠券列表
+      categoryList: [],
+      couponParams: { pageNumber: 1, pageSize: 50, storeId: "" },
+      goodsParams: { pageNumber: 1, pageSize: 50, storeId: "" },
     };
+  },
+  watch: {
+    current(val) {
+      val == 0 ? this.getGoodsData() : this.getCategoryData();
+    },
   },
 
   /**
-   * 加载 
+   * 加载
    */
   async onLoad(options) {
     this.storeId = options.id;
-
+  },
+  onPageScroll(e) {
+    this.scrollTop = e.scrollTop;
   },
   mounted() {
     // #ifdef MP-WEIXIN
@@ -65,11 +133,48 @@ export default {
     uni.showShareMenu({ withShareTicket: true });
     // #endif
   },
+  onShow() {
+    this.goodsList = []
+    this.categoryList = []
+    this.couponList = []
+    this.goodsParams.pageNumber = 1;
+    if (this.$options.filters.isLogin("auth")) {
+      this.enableGoodsIsCollect();
+    }
+    // 店铺信息
+    this.getStoreData();
+    // 商品信息
+    this.getGoodsData();
+    // 优惠券信息
+    this.getCouponsData();
+  },
+  // 下拉加载
+  onReachBottom() {
+    this.goodsParams.pageNumber++;
+    this.getGoodsData();
+  },
 
   methods: {
-    // 点击分享
-    async shareChange() {
-      this.shareFlage = true;
+    /** 获取店铺分类 */
+    async getCategoryData() {
+      let res = await getStoreCategory(this.storeId);
+      if (res.data.success) {
+        this.categoryList = res.data.result;
+      }
+    },
+    /**是否收藏店铺 */
+    async enableGoodsIsCollect() {
+      let res = await getGoodsIsCollect("STORE", this.storeId);
+      if (res.data.success) {
+        this.isCollection = res.data.result;
+      }
+    },
+
+    /**商品分类中商品集合 */
+    getCategoryGoodsList(val){
+      uni.navigateTo({
+         url: `/pages/product/shopPageGoods?title=${val.labelName}&id=${val.id}&storeId=${this.storeId}`
+      });
     },
 
     /**
@@ -81,183 +186,296 @@ export default {
       });
     },
 
+    /** 点击tab */
+    changeTab(index) {
+      this.current = index;
+    },
+
     /**
-     * 下滑加载
+     * 店铺信息
      */
-    pageScroll(e) {
-      if (e.detail.scrollTop > 300 * this.loadIndex) {
-        this.loadIndex++;
-        this.load = this.loadIndex;
+    async getStoreData() {
+      let res = await getStoreBaseInfo(this.storeId);
+      res.data.success
+        ? (this.storeInfo = res.data.result)
+        : uni.reLaunch({ url: "/" });
+    },
+
+    /** 加载商品 */
+    async getGoodsData() {
+      let res = await getGoodsList(this.goodsParams);
+      if (res.data.success) {
+        this.goodsList.push(...res.data.result.content);
+      }
+    },
+
+    /** 加载优惠券 */
+    async getCouponsData() {
+      this.couponParams.storeId = this.storeId;
+      let res = await getAllCoupons(this.couponParams);
+      if (res.data.success) {
+        this.couponList.push(...res.data.result.records);
       }
     },
 
     /**
-     * 返回
+     * 跳转到商品详情
      */
-    back() {
-      if (getCurrentPages().length == 1) {
-        uni.switchTab({
-          url: "/pages/tabbar/home/index",
+    navigateToGoodsDetail(val) {
+      uni.navigateTo({
+        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
+      });
+    },
+
+    /**
+     *  是否收藏
+     */
+    whetherCollection() {
+      if (this.isCollection) {
+        deleteStoreCollection(this.storeId).then((res) => {
+          if (res.data.success) {
+            this.isCollection = false;
+            uni.showToast({
+              icon: "none",
+              duration: 3000,
+              title: "取消关注成功！",
+            });
+          }
         });
       } else {
-        uni.navigateBack();
+        collectionGoods("STORE", this.storeId).then((res) => {
+          if (res.data.success) {
+            this.isCollection = true;
+            uni.showToast({
+              icon: "none",
+              duration: 3000,
+              title: "关注成功！",
+            });
+          }
+        });
       }
     },
 
     /**
-     * 点击导航栏
+     * 领取
      */
-    checkNavigation(index) {
-      this.tabIndex = index;
-    },
-
-    /**
-     * 滑动回调
-     */
-    tabChange(e) {
-      this.tabIndex = e.detail.current;
-      this.checkNavigation(this.tabIndex);
+    getCoupon(item) {
+      if (!this.$options.filters.isLogin("auth")) {
+        uni.showToast({
+          icon: "none",
+          duration: 3000,
+          title: "请先登录！",
+        });
+        uni.redirectTo({
+          url: "/pages/passport/login",
+        });
+        return false;
+      }
+      receiveCoupons(item.id).then((res) => {
+        if (res.data.success) {
+          uni.showToast({
+            icon: "none",
+            duration: 3000,
+            title: "领取成功！",
+          });
+        }
+      });
     },
   },
 };
 </script>
-<style>
-page {
-  height: 100%;
-}
-</style>
+
 <style lang="scss" scoped>
-// #ifdef MP-WEIXIN
-@import "./mp-shopPage.scss";
-// #endif
-input[type="search"] {
-  -webkit-appearance: none;
-  // 也可以去除加上border: 0;之类的 根据设计图来
+.wrapper {
+  background: #fff;
+  padding: 32rpx;
 }
-
-input::-webkit-search-cancel-button {
-  display: none;
-}
-// 关闭的按钮
-
-.storeScrollBox {
-  overflow-y: auto;
-}
-
-.store-page {
-  height: 100%;
-  // background: #fff;
-  overflow: auto;
-
-  .tab-header {
-    height: 80rpx;
+.store {
+  align-items: center;
+  > .box {
     display: flex;
-
-    justify-content: space-between;
-    align-items: center;
-    font-size: 28rpx;
-    z-index: 9999;
-
-    text {
-      width: 50%;
-      text-align: center;
-      position: relative;
-      color: #fff;
-      &.cur {
-        font-size: 30rpx;
-        font-weight: bold;
-        color: #fff;
-
-        &::after {
-          content: "";
-          position: absolute;
-          width: 30rpx;
-          border: 1px solid #fff;
-          bottom: -6rpx;
-          left: 50%;
-          margin-left: -15rpx;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 30rpx;
+    font-size: 24rpx;
+    color: #999;
+    flex: 2;
+    > .store-name {
+      font-size: 34rpx;
+      color: #333;
+      letter-spacing: 1rpx;
+      font-weight: bold;
+    }
+    > .store-message {
+      margin-top: 25rpx;
+      > div {
+        font-size: 26rpx;
+        margin: 0 5rpx;
+        > span {
+          font-size: 26rpx;
+          font-weight: bold;
+          color: #333;
+          margin-right: 8rpx;
         }
       }
     }
   }
-
-  .header-line {
-    height: 1px;
-    background: #f2f2f2;
-    position: fixed;
-    top: 170rpx;
-    left: 0;
-    right: 0;
-    z-index: 999;
-  }
+}
+.collection-btn {
+  background: $main-color;
+  padding: 6rpx 0;
+  width: 140rpx;
+  font-size: 24rpx;
+  color: #fff;
+  border-radius: 100px;
+  text-align: center;
+}
+.store-desc {
+  margin: 40rpx 0 0 0;
+  color: #999;
 }
 
-.swiper-box {
-  width: 750rpx;
-
-  height: calc(
-    100% - var(--status-bar-height) - var(--window-top) - var(--window-bottom) -
-      (160rpx) - 16rpx - 28rpx
-  );
-
-  // #ifdef H5
-  height: calc(
-    100% - var(--status-bar-height) - var(--window-top) - var(--window-bottom) -
-      (160rpx)
-  );
-  // #endif
-}
-
-.swiper-item {
-  height: 100%;
-}
-
-.scroll-v {
-  width: 750rpx;
-  height: 100%;
-  overflow-y: auto;
-}
-.status_bar {
-  height: calc(var(--status-bar-height) + 160rpx);
-  width: 100%;
-  background-image: linear-gradient(
-    25deg,
-    $main-color,
-    $light-color,
-    $aider-light-color
-  );
-}
-.header {
-  width: 100%;
-  position: fixed;
-  top: var(--status-bar-height);
-
-  padding: 16rpx 0 0;
-  font-size: 30rpx;
-  z-index: 9999;
-  > .search {
+.contant {
+  margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  > .empty {
     width: 100%;
     display: flex;
-    align-items: center;
-    .back {
-      width: 90rpx;
-      height: 90rpx;
+    justify-content: center;
+    margin-top: 40rpx;
+  }
+  .item {
+    overflow: hidden;
+
+    background: #fff;
+    width: 49%;
+    height: 484rpx;
+    font-size: 26rpx;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #f8f8f8;
+    margin-bottom: 20rpx;
+
+    .name {
+      text-align: left !important;
+      color: #333;
+      padding: 0 20rpx;
+      margin-top: 20rpx;
+      line-height: 1.4em;
+      max-height: 2.8em; //height是line-height的整数倍，防止文字显示不全
+      overflow: hidden;
     }
-
-    .input-wrap {
-      background: $light-color;
-      width: 600rpx;
-      height: 58rpx;
-      padding: 10rpx 30rpx 10rpx 30rpx;
-      box-sizing: border-box;
-      background-color: #fff;
-      border-radius: 50rpx;
-      position: relative;
-      border: 1px solid $light-color;
-
-      input {
-        font-size: 26rpx;
+    .price {
+      font-weight: 500;
+      color: $main-color;
+      font-size: 30rpx;
+      padding: 0 20rpx;
+      margin-top: 20rpx;
+      white-space: nowrap;
+    }
+    .buyCount {
+      display: flex;
+      padding: 0 20rpx;
+      font-size: 24upx;
+      justify-content: space-between;
+      color: #999;
+    }
+  }
+}
+.discount {
+  height: 154rpx;
+  border-top: 1px solid #f6f6f6;
+  border-bottom: 18rpx solid #f6f6f6;
+  background: #f6f6f6;
+  overflow: hidden;
+  white-space: nowrap;
+  .card-box {
+    display: inline-block;
+    padding-top: 25rpx;
+  }
+  .card {
+    width: 324rpx;
+    height: 116rpx;
+    background: #fff;
+    margin-left: 20rpx;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    .money {
+      width: 45%;
+      color: #fd6466;
+      font-weight: 500;
+      text-align: center;
+      text {
+        font-size: 50rpx;
       }
+    }
+    .xian {
+      height: 66rpx;
+      border: 1px dashed #f6f6f6;
+      position: relative;
+      &:before,
+      &:after {
+        content: "";
+        width: 22rpx;
+        height: 12rpx;
+        position: absolute;
+        background: #f6f6f6;
+      }
+      &:before {
+        border-radius: 0 0 22rpx 22rpx;
+        top: -30rpx;
+        left: -10rpx;
+      }
+      &:after {
+        border-radius: 22rpx 22rpx 0 0;
+        bottom: -30rpx;
+        left: -10rpx;
+      }
+    }
+    .text {
+      flex: 1;
+      color: $aider-light-color;
+      font-size: 24rpx;
+      display: flex;
+      flex-direction: column;
+      margin-left: 14rpx;
+      text:nth-of-type(2) {
+        color: #ccc;
+      }
+      .cur:nth-of-type(1) {
+        color: #ccc;
+      }
+    }
+  }
+}
+.category-item {
+  background: #fff;
+  padding: 22rpx;
+  margin: 20rpx 10rpx;
+  > .flex {
+    color: #666;
+    justify-content: space-between;
+  }
+  > .child-list {
+    display: flex;
+    margin: 20rpx 0;
+    flex-wrap: wrap;
+    > .child {
+      justify-content: center;
+      margin: 1% 0;
+      display: flex;
+      width: 48%;
+      font-size: 24rpx;
+      color: #999;
+      margin-right: 1%;
+      border: 1rpx solid #ededed;
+      box-sizing: border-box;
+      height: 70rpx;
+      text-align: center;
+      line-height: 70rpx;
     }
   }
 }

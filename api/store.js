@@ -20,10 +20,21 @@ export function getstoreList(params) {
  * 获取店铺基本信息
  * @param storeId
  */
-export function getstoreBaseInfo(storeId) {
+ export function getStoreBaseInfo(storeId) {
   return http.request({
     url: `/store/get/detail/${storeId}`,
     method: Method.GET,
     loading: false,
+  });
+}
+
+/**
+ * 获取店铺分类
+ * @param id
+ */
+ export function getStoreCategory(id) {
+  return http.request({
+    url: `/store/label/get/${id}`,
+    method: Method.GET,
   });
 }

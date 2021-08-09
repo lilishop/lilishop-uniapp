@@ -26,7 +26,7 @@ export default {
       walletNum: 0,
     };
   },
-  async mounted() {
+  async onShow() {
     if (this.$options.filters.isLogin("auth")) {
       let result = await getUserWallet(); //预存款
       this.walletNum = result.data.result.memberWallet;

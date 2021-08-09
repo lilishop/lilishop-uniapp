@@ -118,17 +118,6 @@ export function getCategoryList(id) {
   });
 }
 
-/**
- * 获取商品分类
- * @param parent_id
- */
-export function getCategory(parent_id = 0) {
-  return http.request({
-    url: `goods/categories/${parent_id}/children`,
-    method: Method.GET,
-    loading: false,
-  });
-}
 
 
 

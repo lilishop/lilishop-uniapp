@@ -151,6 +151,7 @@
 				parms.clientType = this.paymentType;
 
 				API_Trade.getCashierData(parms).then((res) => {
+				
 					if(res.data.success){
 					this.cashierParams = res.data.result;
 
@@ -160,9 +161,11 @@
 					});
 					// #endif
 
+
+					// #ifndef APP-PLUS
 					//判断是否微信浏览器
 					var ua = window.navigator.userAgent.toLowerCase();
-					
+					// #endif
 					
 				
 

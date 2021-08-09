@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <div v-html="res.content"></div>
+    <u-parse v-html="res.content"></u-parse>
 
   </div>
 </template>
