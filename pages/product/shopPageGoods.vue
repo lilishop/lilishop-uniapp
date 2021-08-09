@@ -51,6 +51,10 @@ export default {
     this.params.pageNumber = 1;
     this.getGoodsData();
   },
+  onReachBottom(){
+    this.params.pageNumber ++;
+    this.getGoodsData();
+  },
   methods: {
     /**
      * 跳转到商品详情

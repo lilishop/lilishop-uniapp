@@ -147,6 +147,8 @@ export default {
     this.getGoodsData();
     // 优惠券信息
     this.getCouponsData();
+    // 店铺分类
+    this.getCategoryData();
   },
   // 下拉加载
   onReachBottom() {
