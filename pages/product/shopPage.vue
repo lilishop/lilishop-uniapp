@@ -24,6 +24,12 @@
       <div class="store-desc wes-2">
         {{storeInfo.storeDesc}}
       </div>
+
+      <!-- 联系客服 -->
+      <div class="kefu" @click="linkKefuDetail">
+        <u-icon name="kefu-ermai"></u-icon>
+        联系客服
+      </div>
     </div>
     <!-- 优惠券 -->
     <scroll-view scroll-x="true" show-scrollbar="false" class="discount" v-if="couponList.length > 0">
@@ -92,6 +98,8 @@ import {
   collectionGoods,
   getGoodsIsCollect,
 } from "@/api/members.js";
+
+import storage from "@/utils/storage";
 import { getGoodsList } from "@/api/goods.js";
 import { getAllCoupons } from "@/api/promotions.js";
 export default {
@@ -134,9 +142,9 @@ export default {
     // #endif
   },
   onShow() {
-    this.goodsList = []
-    this.categoryList = []
-    this.couponList = []
+    this.goodsList = [];
+    this.categoryList = [];
+    this.couponList = [];
     this.goodsParams.pageNumber = 1;
     if (this.$options.filters.isLogin("auth")) {
       this.enableGoodsIsCollect();
@@ -157,6 +165,37 @@ export default {
   },
 
   methods: {
+    /**
+     * 联系客服
+     */
+    linkKefuDetail() {
+      // 客服
+      // #ifdef MP-WEIXIN
+
+      const params = {
+      
+        // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+        uuid: storage.getUuid(),
+        token: storage.getAccessToken(),
+        sign: this.storeInfo.yzfSign,
+        mpSign: this.storeInfo.yzfMpSign,
+      };
+      uni.navigateTo({
+        url:
+          "/pages/product/customerservice/index?params=" +
+          encodeURIComponent(JSON.stringify(params)),
+      });
+      // #endif
+      // #ifndef MP-WEIXIN
+      const sign = this.storeInfo.yzfSign;
+      uni.navigateTo({
+        url:
+          "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+          sign,
+      });
+      // #endif
+    },
+
     /** 获取店铺分类 */
     async getCategoryData() {
       let res = await getStoreCategory(this.storeId);
@@ -173,9 +212,9 @@ export default {
     },
 
     /**商品分类中商品集合 */
-    getCategoryGoodsList(val){
+    getCategoryGoodsList(val) {
       uni.navigateTo({
-         url: `/pages/product/shopPageGoods?title=${val.labelName}&id=${val.id}&storeId=${this.storeId}`
+        url: `/pages/product/shopPageGoods?title=${val.labelName}&id=${val.id}&storeId=${this.storeId}`,
       });
     },
 
@@ -480,5 +519,16 @@ export default {
       line-height: 70rpx;
     }
   }
+}
+.kefu {
+  background: #f7f7f7;
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32rpx;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  color: #999;
 }
 </style>
