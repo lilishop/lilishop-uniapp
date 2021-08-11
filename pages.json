@@ -524,16 +524,8 @@
 					"style": {
 						"navigationBarTitleText": "我的优惠券",
 						"app-plus": {
-							"bounce": "coupon/none",
-							"titleNView": {
-								"padding-right": "12",
-								"buttons": [{
-									"fontSrc": "/static/font/iconfont/iconfont.ttf",
-									"text": "\ue608",
-									"fontSize": "20",
-									"color": "#FFFFFF"
-								}]
-							}
+							"bounce": "coupon/none"
+							
 						}
 					}
 				},
@@ -554,19 +546,8 @@
 					"path": "coupon/couponCenter",
 					"style": {
 						"navigationBarTitleText": "领券中心",
-						"enablePullDownRefresh": true,
-						"app-plus": {
-							"bounce": "none",
-							"titleNView": {
-								"padding-right": "12",
-								"buttons": [{
-									"fontSrc": "/static/font/iconfont/iconfont.ttf",
-									"text": "\ue608",
-									"fontSize": "20",
-									"color": "#FFFFFF"
-								}]
-							}
-						}
+						"enablePullDownRefresh": true
+						
 					}
 				},
 				{

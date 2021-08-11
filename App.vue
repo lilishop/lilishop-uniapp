@@ -195,7 +195,7 @@ export default {
 
 <style lang="scss">
 @import "uview-ui/index.scss";
-@import "./static/font/iconfont/iconfont.css";
+
 // -------适配底部安全区  苹果x系列刘海屏
 
 // #ifdef MP-WEIXIN

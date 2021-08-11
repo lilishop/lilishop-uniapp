@@ -47,7 +47,7 @@
                 <text class="text-2" v-if="coupon.used_status == 1">将过期</text>
               </view>
               <image class="no-icon" v-if="navIndex == 1" src="@/static/img/used.png"></image>
-              <image class="no-icon" v-if="navIndex == 2" src="@/pages/floor/imgs/overdue.png"></image>
+              <image class="no-icon" v-if="navIndex == 2" src="@/static/img/overdue.png"></image>
               <view class="receive" v-if="navIndex == 0" @click="useItNow(coupon)">
                 <text>立即</text><br />
                 <text>使用</text>
