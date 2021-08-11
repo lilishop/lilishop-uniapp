@@ -341,6 +341,11 @@
 					"navigationStyle": "custom"
 				}
 			},{
+				"path": "licencePhoto",
+				"style": {
+					"navigationBarTitleText": "营业执照"
+				}
+			},{
 				"path": "shopPageGoods",
 				"style": {
 					"navigationBarTitleText": "",

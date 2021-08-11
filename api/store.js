@@ -38,3 +38,19 @@ export function getstoreList(params) {
     method: Method.GET,
   });
 }
+
+
+/**
+ * 营业执照
+ * @param id
+ */
+ export function getLicencePhoto(id) {
+  return http.request({
+    url: `/store/get/licencePhoto/${id}`,
+    method: Method.GET,
+  });
+}
+
+
+
+

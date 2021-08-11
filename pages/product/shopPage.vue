@@ -8,8 +8,9 @@
       <div class="store flex">
         <u-image border-radius="10" width="150" height="150" :src="storeInfo.storeLogo || '/static/logo.png'" mode="aspectFit"></u-image>
         <div class="box">
-          <div class="store-name">
+          <div class="store-name" @click="getStoreLicencePhoto">
             {{ storeInfo.storeName || ''}}
+            <u-icon style="margin-left:10rpx;" name="arrow-right"></u-icon>
           </div>
           <div class="flex store-message">
             <div> <span>{{ storeInfo.collectionNum || 0 }}</span>关注 </div>
@@ -154,6 +155,11 @@ export default {
   },
 
   methods: {
+    getStoreLicencePhoto() {
+      uni.navigateTo({
+        url: `/pages/product/licencePhoto?id=${this.storeId}`,
+      });
+    },
     /**
      * 初始化信息
      */
