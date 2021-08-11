@@ -5,7 +5,7 @@
     <div class="contant">
       <view v-if="!goodsList.length" class="empty">暂无商品信息</view>
       <view v-else class="item" v-for="(item,index) in goodsList" :key="index" @click="navigateToGoodsDetail(item)">
-        <u-image width="100%" height="324rpx" :src="item.thumbnail">
+        <u-image width="100%" mode="aspectFit" height="324rpx" :src="item.thumbnail">
           <u-loading slot="loading"></u-loading>
         </u-image>
         <div class="name">{{ item.goodsName }}</div>

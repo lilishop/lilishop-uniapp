@@ -12,8 +12,8 @@
             {{ storeInfo.storeName || ''}}
           </div>
           <div class="flex store-message">
-            <div> <span>{{ storeInfo.goodsNum || 0 }}</span>关注 </div>
-            <div> <span>{{ storeInfo.collectionNum || 0 }}</span>件商品 </div>
+            <div> <span>{{ storeInfo.collectionNum || 0 }}</span>关注 </div>
+            <div> <span>{{ storeInfo.goodsNum || 0 }}</span>件商品 </div>
           </div>
         </div>
         <div class="collection">
@@ -59,7 +59,7 @@
     <div class="contant" v-if="current == 0">
       <view v-if="!goodsList.length" class="empty">暂无商品信息</view>
       <view v-else class="item" v-for="(item,index) in goodsList" :key="index" @click="navigateToGoodsDetail(item)">
-        <u-image width="100%" height="324rpx" :src="item.thumbnail">
+        <u-image width="100%" height="330rpx" mode="aspectFit" :src="item.thumbnail">
           <u-loading slot="loading"></u-loading>
         </u-image>
         <div class="name">{{ item.goodsName }}</div>
@@ -140,23 +140,12 @@ export default {
     // 小程序默认分享
     uni.showShareMenu({ withShareTicket: true });
     // #endif
+    this.init();
   },
   onShow() {
-    this.goodsList = [];
-    this.categoryList = [];
-    this.couponList = [];
-    this.goodsParams.pageNumber = 1;
-    if (this.$options.filters.isLogin("auth")) {
-      this.enableGoodsIsCollect();
+    if (this.goodsList.length == 0) {
+      this.init();
     }
-    // 店铺信息
-    this.getStoreData();
-    // 商品信息
-    this.getGoodsData();
-    // 优惠券信息
-    this.getCouponsData();
-    // 店铺分类
-    this.getCategoryData();
   },
   // 下拉加载
   onReachBottom() {
@@ -166,6 +155,26 @@ export default {
 
   methods: {
     /**
+     * 初始化信息
+     */
+    init() {
+      this.goodsList = [];
+      this.categoryList = [];
+      this.couponList = [];
+      this.goodsParams.pageNumber = 1;
+      if (this.$options.filters.isLogin("auth")) {
+        this.enableGoodsIsCollect();
+      }
+      // 店铺信息
+      this.getStoreData();
+      // 商品信息
+      this.getGoodsData();
+      // 优惠券信息
+      this.getCouponsData();
+      // 店铺分类
+      this.getCategoryData();
+    },
+    /**
      * 联系客服
      */
     linkKefuDetail() {
@@ -173,7 +182,6 @@ export default {
       // #ifdef MP-WEIXIN
 
       const params = {
-      
         // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
         uuid: storage.getUuid(),
         token: storage.getAccessToken(),
