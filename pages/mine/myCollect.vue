@@ -38,10 +38,10 @@
           <!-- 店铺展示数据 -->
           <u-swipe-action @open="openLeftChange(item,'store')" :show="item.selected" btn-width="180" :options="LeftOptions" v-else v-for="(item,index) in storeList" :key="index"
             @click="clickstoreSwiperAction(item)">
-            <view class="store" @click="gostoreMainPage(item.storeId)">
+            <view class="store" @click="gostoreMainPage(item.id)">
               <view class="intro">
                 <view class="store-logo">
-                  <u-image width="102rpx" height="102rpx" :src="item.logo" :alt="item.storeName" mode="aspectFit">
+                  <u-image width="102rpx" height="102rpx" :src="item.storeLogo" :alt="item.storeName" mode="aspectFit">
                     <u-loading slot="loading"></u-loading>
                   </u-image>
                 </view>
