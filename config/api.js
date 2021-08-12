@@ -6,10 +6,7 @@
 const dev = {
   common: "https://common-api.pickmall.cn",
   buyer: "https://buyer-api.pickmall.cn",
-//   common: "http://192.168.0.101:8890",
-//   buyer: "http://192.168.0.101:8888",
-//   seller: "http://192.168.0.101:8889",
-//   manager: "http://192.168.0.101:8887",
+
 };
 // 生产环境
 const prod = {

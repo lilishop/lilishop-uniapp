@@ -30,11 +30,8 @@
 </template>
 
 <script>
-import uniSteps from "@/components/uni-steps/uni-steps.vue";
 import { getExpress } from "@/api/trade.js";
-
 export default {
-  components: { uniSteps },
   data() {
     return {
       express: "",
