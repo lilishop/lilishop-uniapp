@@ -33,12 +33,22 @@ export default {
     return {
       selected: {
         index: 0,
-        val: "精选",
+        val: "",
       },
     };
   },
   props: ["res"],
-  mounted() {},
+  watch: {
+    res: {
+      handler(val) {
+        // 监听父级的值 如果有值将值赋给selected
+        if (val) {
+          this.selected.val = this.res.list[0].listWay[0].type;
+        }
+      },
+      immediate: true,
+    },
+  },
   methods: {
     handleClick(item) {
       uni.navigateTo({
