@@ -4,7 +4,7 @@
       <image src="/static/pointTrade/point_bg_1.png" mode=""></image>
       <image class="point-img" src="/static/pointTrade/tradehall.png" />
       <view class="position-point">
-        <view class="apply-point" @click="goIntro"><text>积分介绍</text></view>
+       
 
       </view>
     </view>

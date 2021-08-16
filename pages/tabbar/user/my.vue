@@ -68,10 +68,9 @@
         </view>
       </view>
     </div>
-
     <!-- 常用工具 -->
 
-    <tool  />
+    <tool />
 
   </view>
 </template>
@@ -79,9 +78,6 @@
 import tool from "@/pages/tabbar/user/utils/tool.vue";
 import { getCouponsNum, getFootprintNum } from "@/api/members.js";
 import { getUserWallet } from "@/api/members";
-let startY = 0,
-  moveY = 0,
-  pageAtTop = true;
 export default {
   components: {
     tool,
@@ -102,6 +98,8 @@ export default {
     this.userInfo = this.$options.filters.isLogin();
     if (this.$options.filters.isLogin("auth")) {
       this.getUserOrderNum();
+    } else {
+      this.walletNum = 0;
     }
   },
   onPullDownRefresh() {
@@ -132,45 +130,6 @@ export default {
       this.userInfo.id
         ? this.navigateTo("/pages/mine/set/personMsg")
         : this.navigateTo("/pages/passport/login");
-    },
-
-    /**
-     *  会员卡下拉和回弹
-     *  1.关闭bounce避免ios端下拉冲突
-     *  2.由于touchmove事件的缺陷（以前做小程序就遇到，比如20跳到40，h5反而好很多），下拉的时候会有掉帧的感觉
-     *    transition设置0.1秒延迟，让css来过渡这段空窗期
-     *  3.回弹效果可修改曲线值来调整效果，推荐一个好用的bezier生成工具 http://cubic-bezier.com/
-     */
-    coverTouchstart(e) {
-      if (pageAtTop === false) {
-        return;
-      }
-      this.coverTransition = "transform .1s linear";
-      startY = e.touches[0].clientY;
-    },
-    coverTouchmove(e) {
-      moveY = e.touches[0].clientY;
-      let moveDistance = moveY - startY;
-      if (moveDistance < 0) {
-        this.moving = false;
-        return;
-      }
-      this.moving = true;
-      if (moveDistance >= 80 && moveDistance < 100) {
-        moveDistance = 80;
-      }
-
-      if (moveDistance > 0 && moveDistance <= 80) {
-        this.coverTransform = `translateY(${moveDistance}px)`;
-      }
-    },
-    coverTouchend() {
-      if (this.moving === false) {
-        return;
-      }
-      this.moving = false;
-      this.coverTransition = "transform 0.3s cubic-bezier(.21,1.93,.53,.64)";
-      this.coverTransform = "translateY(0px)";
     },
     async getUserOrderNum() {
       uni.stopPullDownRefresh();

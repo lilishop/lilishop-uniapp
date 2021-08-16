@@ -154,7 +154,7 @@
           <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="7">运费</u-col>
           <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="5" class="tr tipsColor" textAlign="right">
             <u-tag v-if="orderMessage.priceDetailDTO.freightPrice == 0" style="margin-right: 20rpx" color="#FF6262" text="包邮" type="warning" size="mini" mode="plain" shape="circle" />
-            <span>￥{{
+            <span v-else>￥{{
                 orderMessage.priceDetailDTO.freightPrice | unitPrice
               }}</span>
           </u-col>
@@ -277,6 +277,7 @@ export default {
       }
     },
   },
+
 
   /**
    * 监听返回
