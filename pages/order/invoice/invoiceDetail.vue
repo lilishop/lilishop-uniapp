@@ -79,7 +79,11 @@ export default {
           },
         });
       } else {
-        this.$api.msg("暂无发票可预览");
+        uni.showToast({
+          title: "暂无发票可预览",
+          duration: 2000,
+          icon: "none",
+        });
       }
     },
     download() {
@@ -95,7 +99,11 @@ export default {
                 uni.saveFile({
                   tempFilePath: tempFilePath,
                   success: function (res) {
-                    _this.$api.msg("发票已下载到" + res.savedFilePath);
+                    uni.showToast({
+                      title: "发票已下载到" + res.savedFilePath,
+                      duration: 2000,
+                      icon: "none",
+                    });
                   },
                 });
               }
@@ -103,7 +111,11 @@ export default {
           });
         });
       } else {
-        this.$api.msg("暂无发票可下载");
+        uni.showToast({
+          title: "暂无发票可下载",
+          duration: 2000,
+          icon: "none",
+        });
       }
     },
   },

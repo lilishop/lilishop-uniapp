@@ -36,9 +36,8 @@ export default {
         duration: 3000,
         title: "请先登录！",
       });
-      uni.redirectTo({
-        url: "/pages/passport/login",
-      });
+
+      this.$options.filters.navigateToLogin("redirectTo");
     }
   },
   methods: {

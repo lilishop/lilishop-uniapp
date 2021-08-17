@@ -129,7 +129,7 @@ export default {
     userDetail() {
       this.userInfo.id
         ? this.navigateTo("/pages/mine/set/personMsg")
-        : this.navigateTo("/pages/passport/login");
+        : this.$options.filters.navigateToLogin();;
     },
     async getUserOrderNum() {
       uni.stopPullDownRefresh();

@@ -59,9 +59,7 @@ export default {
       storage.setAccessToken("");
       storage.setRefreshToken("");
       storage.setUserInfo({});
-      uni.redirectTo({
-        url: "/pages/passport/login",
-      });
+     this.$options.filters.navigateToLogin("redirectTo");
     },
 
     /**

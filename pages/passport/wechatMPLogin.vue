@@ -20,7 +20,7 @@
         </view>
         <view class="btns">
           <button type="primary" bindtap="getUserProfile" @click="getUserProfile()" class="btn-auth">使用微信授权</button>
-          <button @click="backToHome" class="btn-callback">暂不登录</button>
+          <div @click="backToHome" class="btn-callback">暂不登录</div>
         </view>
       </div>
     </view>
@@ -75,9 +75,9 @@ export default {
     back() {
       whetherNavigate("wx");
     },
-    backToHome(){
+    backToHome() {
       uni.switchTab({
-         url: `/pages/tabbar/home/index`
+        url: `/pages/tabbar/home/index`,
       });
     },
     //获取用户信息
@@ -236,7 +236,7 @@ text.shop {
 .btn-auth {
   width: 92%;
   margin: 0 auto 40rpx;
-  // border-radius: 100px;
+  border-radius: 100px;
   animation: mymove 5s infinite;
   -webkit-animation: mymove 5s infinite; /*Safari and Chrome*/
   animation-direction: alternate; /*轮流反向播放动画。*/
@@ -247,8 +247,14 @@ text.shop {
   -webkit-animation-timing-function: ease-in-out; /*动画的速度曲线*/
 }
 .btn-callback {
+  text-align: center;
+  font-size: 30rpx;
+  border: 1rpx solid #ededed;
+  height: 90rpx;
+  line-height: 90rpx;
+  border-radius: 100px;
   width: 92%;
-  margin: 0 auto 100rpx;
+  margin: 0 auto;
 }
 
 .btns {

@@ -77,9 +77,17 @@ function cleanStorage() {
   storage.setUuid("");
   storage.setUserInfo({});
 
+  // #ifdef MP-WEIXIN
+  uni.navigateTo({
+    url: "/pages/passport/wechatMPLogin",
+  });
+  // #endif
+
+  // #ifndef MP-WEIXIN
   uni.navigateTo({
     url: "/pages/passport/login",
   });
+  //  #endif
 }
 
 let http = new Request();

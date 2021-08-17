@@ -7,7 +7,7 @@
 
       <u-form-item class="cell code" label-width="120" prop="code" label="验证码">
         <div style="display:flex; with:100%;">
-          <u-input v-model="codeForm.code" placeholder="请输入验证码" />
+          <u-input maxlength="6" v-model="codeForm.code" placeholder="请输入验证码" />
           <u-verification-code keep-running unique-key="page-login" :seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange"></u-verification-code>
           <view @tap="getCode" class="text-tips">{{ tips }}</view>
         </div>

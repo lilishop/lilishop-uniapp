@@ -11,25 +11,11 @@ let btn = Vue.component("airBtn", airBtn); //全局注册
 document.body.appendChild(new btn().$mount().$el);
 // #endif
 
-
-
 Object.keys(filters).forEach((key) => {
   Vue.filter(key, filters[key]);
 });
 
-const msg = (title, duration = 1500, mask = false, icon = "none") => {
-  //统一提示方便全局修改
-  if (Boolean(title) === false) {
-    return;
-  }
-  uni.showToast({
-    title,
-    duration,
-    mask,
-    icon,
-  });
-};
-// 引入vuex
+// 引入Vuex
 Vue.prototype.$store = store;
 Vue.use(uView);
 Vue.config.productionTip = false;
@@ -37,8 +23,7 @@ Vue.config.productionTip = false;
 Vue.prototype.$mainColor = "#ff3c2a";
 // 高亮主题色
 Vue.prototype.$lightColor = "#ff6b35";
-// 可直接 this.$api调用
-Vue.prototype.$api = { msg };
+
 
 App.mpType = "app";
 

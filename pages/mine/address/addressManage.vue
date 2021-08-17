@@ -81,6 +81,7 @@ export default {
    * 进入页面检测当前账户是否登录
    */
   onShow() {
+    let that = this
     if (this.$options.filters.isLogin("auth")) {
       this.getAddressList();
     } else {
@@ -90,9 +91,7 @@ export default {
         confirmColor: this.$lightColor,
         success: function (res) {
           if (res.confirm) {
-            uni.navigateTo({
-              url: "/pages/passport/login",
-            });
+            that.$options.filters.navigateToLogin();
           } else if (res.cancel) {
             uni.navigateBack();
           }
