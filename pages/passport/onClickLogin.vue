@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import {  openIdLogin } from "@/api/connect.js";
+import { openIdLogin } from "@/api/connect.js";
 import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import { getUserInfo } from "@/api/members";
 import storage from "@/utils/storage.js";
@@ -127,9 +127,9 @@ export default {
           });
         } else {
           uni.showToast({
-            title: '配置有误请联系管理员',
+            title: "配置有误请联系管理员",
             duration: 2000,
-            icon:"none"
+            icon: "none",
           });
         }
       });
@@ -148,8 +148,8 @@ export default {
 
       // #ifdef H5
       let code = connectLogin.code;
-	  let buyer = api.buyer;
-      window.open(buyer+`/connect/login/web/`+code, "_self");
+      let buyer = api.buyer;
+      window.open(buyer + `/connect/login/web/` + code, "_self");
       // #endif
       // #ifdef APP-PLUS
       this.nonH5OpenId(connectLogin);
@@ -240,10 +240,25 @@ export default {
           });
           // 执行登录
           getUserInfo().then((user) => {
-            storage.setUserInfo(user.data.result);
-            storage.setHasLogin(true);
+            if (user.data.success) {
+              /**
+               * 个人信息存储到缓存userInfo中
+               */
+              storage.setUserInfo(user.data.result);
+              storage.setHasLogin(true);
+
+              /**
+               * 计算出当前router路径
+               * 1.如果跳转的链接为登录页面或跳转的链接为空页面。则会重新跳转到首页
+               * 2.都不满足返回跳转页面
+               */
+              whetherNavigate();
+            } else {
+              uni.switchTab({
+                url: "/pages/tabbar/home/index",
+              });
+            }
           });
-          whetherNavigate()
         }
       });
     },

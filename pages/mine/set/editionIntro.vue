@@ -1,7 +1,7 @@
 
 <template>
   <view class="edition-intro">
-    <image src="https://lilishop-oss.oss-cn-beijing.aliyuncs.com/4c864e133c2944efad1f7282ac8a3b9e.png" class="logo" />
+    <image :src="config.logo" class="logo" />
     <h1> {{config.name}}</h1>
     <view class='version'>
       <!-- #ifdef APP-PLUS -->
@@ -24,11 +24,11 @@
     </u-cell-group>
 
     <view class="intro">
-      <view>客服热线：13161366885</view>
-      <view style="margin:20rpx 0 0 0;">客服邮箱：lili@lili.com</view>
+      <view>{{config.customerServiceMobile ? `客服热线：${config.customerServiceMobile}` :  ``}}</view>
+      <view style="margin:20rpx 0 0 0;">{{config.customerServiceEmail ? `客服邮箱：${config.customerServiceEmail}` :  ``}}</view>
 
       <view>
-        <view style="margin:20rpx 0; color:#003a8c;" @click="navigateTo('/pages/mine/help/tips?type=user')">《lili商城用户协议》</view>
+        <view style="margin:20rpx 0; color:#003a8c;" @click="navigateTo('/pages/mine/help/tips?type=user')">《{{config.name}}用户协议》</view>
         <view>CopyRight @{{config.name}} </view>
       </view>
     </view>
@@ -54,6 +54,7 @@ export default {
     };
   },
   onLoad() {
+    // #ifdef APP-PLUS
     const platform = uni.getSystemInfoSync().platform;
     /**
      * 获取是否是安卓
@@ -72,6 +73,7 @@ export default {
         version: inf.version,
       };
     });
+    // #endif
   },
 
   methods: {
