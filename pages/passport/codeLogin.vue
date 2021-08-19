@@ -9,12 +9,13 @@
         <div style="display:flex; with:100%;">
           <u-input maxlength="6" v-model="codeForm.code" placeholder="请输入验证码" />
           <u-verification-code keep-running unique-key="page-login" :seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange"></u-verification-code>
-          <view @tap="getCode" class="text-tips">{{ tips }}</view>
+          <view @tap="getCode" :style="{color:aiderLightColor}" class="text-tips">{{ tips }}</view>
+
         </div>
       </u-form-item>
 
-      <view class="submit" @click="submit">登录</view>
-      <view class="text-tips cell" @click="clickLogin">一键登录</view>
+      <view class="submit bg-linear-gradient" @click="submit">登录</view>
+      <view :style="{color:aiderLightColor}" class="text-tips cell" @click="clickLogin">一键登录</view>
       <myVerification v-if="codeFlag" @send="verification" class="verification" ref="verification" business="LOGIN" />
     </u-form>
   </div>
@@ -34,6 +35,7 @@ export default {
   props: ["status"], //是否勾选 《用户隐私》和《隐私政策》
   data() {
     return {
+      aiderLightColor: this.$aiderLightColor,
       uuid,
       flage: false, //是否验证码验证
       codeFlag: true, //验证开关，用于是否展示验证码

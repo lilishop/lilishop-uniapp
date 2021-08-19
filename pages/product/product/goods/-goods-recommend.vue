@@ -148,7 +148,7 @@ export default {
       white-space: nowrap;
       font-size: 26rpx;
       text-align: left;
-      color: $jd-color;
+      color: $price-color;
       line-height: 23px;
       font-weight: bold;
       > span {

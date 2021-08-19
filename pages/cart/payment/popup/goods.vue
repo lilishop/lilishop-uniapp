@@ -322,10 +322,10 @@ export default {
 }
 
 .active {
-  background: $jd-light-color !important;
-  border: 2rpx solid $jd-color;
+  background: $price-light-color !important;
+  border: 2rpx solid $price-color;
   font-weight: bold;
-  color: $jd-color !important;
+  color: $price-color !important;
   box-sizing: border-box;
 }
 
@@ -377,7 +377,7 @@ export default {
 }
 
 .goods-price {
-  color: $jd-color;
+  color: $price-color;
   line-height: 80rpx;
   display: flex;
 }

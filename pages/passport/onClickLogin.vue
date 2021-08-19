@@ -7,7 +7,7 @@
           <u-icon :color="item.color" size="80" :name="item.icon" @click="navigateLogin(item)"></u-icon>
         </div>
       </div>
-      <view class="text-tips cell" @click="clickCodeLogin">账号密码登录</view>
+      <view :style="{color:aiderLightColor}"  class="text-tips cell" @click="clickCodeLogin">账号密码登录</view>
     </u-form>
   </div>
 </template>
@@ -22,6 +22,7 @@ import api from "@/config/api.js";
 export default {
   data() {
     return {
+      aiderLightColor: this.$aiderLightColor,
       loginList: [
         {
           icon: "weixin-circle-fill",

@@ -454,7 +454,7 @@ export default {
       overflow: hidden;
     }
     > .-item-price {
-      color: $jd-color;
+      color: $price-color;
       > span {
         font-size: 36rpx;
       }

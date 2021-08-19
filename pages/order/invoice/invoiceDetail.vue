@@ -205,13 +205,6 @@ export default {
   }
 }
 
-.btn {
-  font-size: 34rpx;
-  margin: 60rpx 20rpx;
-  &::after {
-    border: none;
-  }
-}
 .u-cell {
   padding: 35rpx 20rpx;
   height: 110rpx;

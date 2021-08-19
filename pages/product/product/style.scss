@@ -1,5 +1,5 @@
 .red {
-    color: $jd-color;
+    color: $price-color;
 }
 page {
     background: #fff;
@@ -10,8 +10,8 @@ page {
     top: 5rpx;
     padding: 2rpx 6rpx;
     border-top: 4rpx;
-    border: 2rpx solid $jd-color;
-    color: $jd-color;
+    border: 2rpx solid $price-color;
+    color: $price-color;
     font-size: 22rpx;
     border-radius: 200px;
     line-height: 18rpx;
@@ -82,7 +82,7 @@ page {
 }
 .-goods-price {
     flex: 8;
-    color: $jd-color;
+    color: $price-color;
     font-size: 32rpx;
     line-height: 1;
     /deep/ .price {

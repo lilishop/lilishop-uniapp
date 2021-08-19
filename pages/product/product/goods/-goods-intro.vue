@@ -125,7 +125,7 @@ export default {
       width: 52rpx;
       height: 6rpx;
 
-      background-image: linear-gradient(90deg, $jd-color, $jd-light-color);
+      background-image: linear-gradient(90deg, $price-color, $price-light-color);
     }
   }
   > .goods-detail-item {

@@ -94,9 +94,9 @@ export default {
 
 <style lang="scss" scoped>
 .deg_tag {
-  color: $jd-color;
+  color: $price-color;
   padding: 0 4rpx;
-  border: 2rpx solid $jd-color;
+  border: 2rpx solid $price-color;
   font-size: 22rpx;
 }
 

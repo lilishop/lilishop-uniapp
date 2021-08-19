@@ -144,7 +144,7 @@ export default {
   font-size: 28rpx;
 }
 .checked {
-  background: $jd-color;
+  background: $price-color;
 }
 .active {
   color: #fff;

@@ -12,6 +12,10 @@
           <view @click="handleAll" :style="{ color: $mainColor }">全部</view>
           <view style="font-size: 24rpx; color: #999">可提现金额<span>{{ walletNum | unitPrice }}</span>元</view>
         </view>
+
+      </view>
+      <view class="tips">
+        最低提现金额为1.00元
       </view>
     </view>
 
@@ -19,7 +23,7 @@
   </view>
 </template>
 <script>
-import { getUserWallet,withdrawalApply } from "@/api/members";
+import { getUserWallet, withdrawalApply } from "@/api/members";
 export default {
   data() {
     return {
@@ -67,4 +71,8 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "./style.scss";
+.tips {
+  font-size: 24rpx;
+  color: #999;
+}
 </style>

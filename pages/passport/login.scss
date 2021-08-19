@@ -6,7 +6,6 @@
 	margin: 40rpx 0;
 }
 .login-ball {
-	background-image: linear-gradient(25deg, #fa123b, #ff6b35, #ff9f28, #ffcc03);
 	border-bottom-left-radius: 300rpx;
 	height: 400rpx;
 	position: relative;
@@ -43,8 +42,6 @@ span {
 .submit {
 	height: 80rpx;
 	line-height: 80rpx;
-
-	background-image: linear-gradient(90deg, #ff6b35, #ff9f28, #ffcc03);
 	color: #fff;
 	text-align: center;
 	font-size: 30rpx;
@@ -61,7 +58,6 @@ span {
 }
 .text-tips {
 	text-align: center;
-	color: #ff9f28;
 }
 .tips {
 	position: absolute;

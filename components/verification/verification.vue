@@ -65,7 +65,6 @@ export default {
     // 可自行调整
     this.scHight = phone.screenHeight / 2 - 200 + "px";
     this.getCode();
-   
   },
   props: {
     height: {
@@ -313,30 +312,6 @@ export default {
   z-index: 15;
   background-color: #e3e3e3;
   width: 750rpx;
-}
-
-.border-bom {
-  border-bottom: 0.5rpx solid #dddddd;
-}
-
-.border-red {
-  border-bottom: 1rpx solid #d33e18;
-}
-
-.border-bom-big {
-  border-bottom: 8rpx solid #dddddd;
-}
-
-.border-bom-white {
-  border-bottom: 2rpx solid #ffffff;
-}
-
-.border-bom-green {
-  border-bottom: 4rpx solid #f8f9bd;
-}
-
-.border-bom-index {
-  border-bottom: 4rpx solid #27d9b3;
 }
 
 .padding-left {

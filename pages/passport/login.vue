@@ -1,7 +1,7 @@
 <template>
   <view v-if="mpWechatLogin">
     <!-- 背景 -->
-    <view class="login-ball small"></view>
+    <view class="login-ball bg-linear-gradient small"></view>
 
     <view class="logo-cell">
       <image class="logo" src="/static/logo.png" mode="aspectFit"></image>
@@ -17,7 +17,7 @@
     <!-- 隐私政策 -->
     <div class="privacy">
       <u-checkbox-group :icon-size="24" width="45rpx">
-        <u-checkbox v-model="value" active-color="rgb(255, 107, 53)"></u-checkbox>
+        <u-checkbox v-model="value" :active-color="lightColor"></u-checkbox>
 
       </u-checkbox-group>
       同意<span @click="handleClick('user')">《用户协议》</span>和<span @click="handleClick('privacy')">《隐私政策》</span>
@@ -32,6 +32,7 @@ import storage from "@/utils/storage.js";
 import { loginCallback } from "@/api/connect.js";
 import { webConnect } from "@/api/connect.js";
 export default {
+
   onShow() {
     // #ifdef MP-WEIXIN
     this.mpWechatLogin = false;
@@ -64,6 +65,7 @@ export default {
   },
   data() {
     return {
+      lightColor:this.$lightColor,
       mpWechatLogin: true, //是否加载微信登录
       value: true, //隐私政策
       loginData: {

@@ -223,15 +223,11 @@ text.shop {
 }
 
 .register {
-  color: #00a327 !important;
+  color: $weChat-color !important;
   border: none !important;
   background: #fff !important;
 }
 
-.btn {
-  width: 100%;
-  text-align: center;
-}
 
 .btn-auth {
   width: 92%;

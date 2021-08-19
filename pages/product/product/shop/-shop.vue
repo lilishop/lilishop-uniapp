@@ -209,7 +209,7 @@ export default {
     white-space: nowrap;
     margin: 18rpx 0;
     font-size: 22rpx;
-    color: $jd-color;
+    color: $price-color;
   }
 
   .recommend-list-con {
