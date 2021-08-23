@@ -72,7 +72,7 @@ import popupGoods from "./popup/goods"; //购物车商品的模块
 export default {
   data() {
     return {
-      flage:false, //判断接口是否正常请求
+      flage: false, //判断接口是否正常请求
       addr: {
         id: "",
       },
@@ -140,7 +140,7 @@ export default {
     async init(sn, sku) {
       let res = await getPinTuanShare(sn, sku);
       if (res.data.success && res.data.result.promotionGoods) {
-        this.flage = true
+        this.flage = true;
         this.data = res.data.result;
         this.selectedGoods = res.data.result.promotionGoods;
         let endTime = Date.parse(
@@ -172,7 +172,10 @@ export default {
         } else {
           this.isMaster = false;
           // 获取商品详情
-          this.getGoodsDetail(this.routers.sku, this.routers.goodsId);
+          this.getGoodsDetail({
+            id: this.routers.sku,
+            goodsId: this.routers.goodsId,
+          });
         }
 
         // 获取当前商品是否已经购买
@@ -183,15 +186,16 @@ export default {
           isBuy.length != 0 ? (this.isBuy = true) : (this.isBuy = false);
         }
       } else {
-          uni.showToast({
-            title: '当前拼团单有误！请联系管理员重试',
-            duration: 2000,
-            icon:"none"
-          });
+        uni.showToast({
+          title: "当前拼团单有误！请联系管理员重试",
+          duration: 2000,
+          icon: "none",
+        });
       }
     },
     // 获取商品详情
-    getGoodsDetail(id, goodsId) {
+    getGoodsDetail(val) {
+      let { id, goodsId } = val;
       uni.showLoading({
         title: "加载中",
         mask: true,

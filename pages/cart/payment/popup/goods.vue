@@ -23,17 +23,19 @@
                 formatPrice(goodsDetail.price)[0]
               }}</span>
                 .{{ formatPrice(goodsDetail.price)[1] }}
-                <span></span>
+
               </div>
             </view>
             <!-- 正常商品的价格 -->
             <view class="goods-price" v-else>
-              ￥
-              <span class="goods-price-bigshow">{{
+              <span>
+                ￥
+                <span class="goods-price-bigshow">{{
                 formatPrice(goodsDetail.price)[0]
               }}</span>
-              .{{ formatPrice(goodsDetail.price)[1] }}
-              <span></span>
+                .{{ formatPrice(goodsDetail.price)[1] }}
+
+              </span>
             </view>
             <view class="goods-check-skus">
               已选
@@ -50,7 +52,7 @@
           <view class="goods-skus-view" :key="specIndex" v-for="(spec, specIndex) in formatList">
             <view class="skus-view-list">
               <view class="view-class-title">{{ spec.name }}</view>
-              <view :class="{ active: spec_val.id == currentSelceted[specIndex] }" class="skus-view-item" v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
+              <view :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item" v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
                 @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }}</view>
             </view>
           </view>
@@ -63,7 +65,8 @@
         </view>
         <!-- 按钮 -->
         <view class="btns">
-          <view class="box-btn card" v-if="buyType !='PINTUAN'" @click="addToCartOrBuy('cart')">加入购物车</view>
+
+          <view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType!='VIRTUAL_GOODS'" @click="addToCartOrBuy('cart')">加入购物车</view>
           <view class="box-btn buy" @click="addToCartOrBuy('buy')">立即购买</view>
         </view>
       </view>
@@ -98,7 +101,13 @@ export default {
       isClose: false, //是否可以点击遮罩关闭
     };
   },
-  props: ["goodsDetail", "buyMask", "selectedSku", "goodsSpec", "addr"],
+  props: [
+    "goodsDetail", //商品详情
+    "buyMask",
+    "selectedSku",
+    "goodsSpec",
+    "addr",
+  ],
   watch: {
     buyType: {
       handler(val) {
@@ -129,14 +138,12 @@ export default {
 
     /**点击规格 */
     handleClickSpec(val, index, specValue) {
-      this.$set(this.currentSelceted, index, specValue.id);
-
+      this.$set(this.currentSelceted, index, specValue.value);
       let selectedSkuId = this.goodsSpec.find((i) => {
         let matched = true;
         let specValues = i.specValues.filter((j) => j.specName !== "images");
-
         for (let n = 0; n < specValues.length; n++) {
-          if (specValues[n].specValueId !== this.currentSelceted[n]) {
+          if (specValues[n].specValue !== this.currentSelceted[n]) {
             matched = false;
             return;
           }
@@ -145,7 +152,6 @@ export default {
           return i;
         }
       });
-
       this.selectSkuList = {
         spec: {
           specName: val.name,
@@ -155,23 +161,9 @@ export default {
       };
       this.selectName = specValue.value;
 
-      this.$emit("handleClickSku", selectedSkuId.skuId, this.goodsDetail.id);
-    },
-
-    /**
-     * 直接购买
-     */
-    buy(data) {
-      API_trade.addToCart(data).then((res) => {
-        if (res.data.code == 200) {
-          uni.navigateTo({
-            url: `/pages/order/fillorder?way=${
-              data.cartType
-            }&addr=${""}&parentOrder=${encodeURIComponent(
-              JSON.stringify(this.parentOrder)
-            )}`,
-          });
-        }
+      this.$emit("handleClickSku", {
+        skuId: selectedSkuId.skuId,
+        goodsId: this.goodsDetail.goodsId,
       });
     },
 
@@ -201,38 +193,39 @@ export default {
 
             this.$emit("queryCart");
             this.closeMask();
-          } else {
-            uni.showToast({
-              title: res.data.message,
-              duration: 2000,
-              icon: "none",
-            });
-            return false;
           }
         });
       } else {
         // 判断是否拼团商品
-        if (this.buyType == "PINTUAN") {
+        if (this.buyType) {
           data.cartType = "PINTUAN";
-        } else if (this.buyType == "POINTS") {
-          data.cartType = "POINTS";
+        } else if (this.goodsDetail.goodsType == "VIRTUAL_GOODS") {
+          data.cartType = "VIRTUAL";
         } else {
           data.cartType = "BUY_NOW";
         }
 
-        this.buy(data);
+        API_trade.addToCart(data).then((res) => {
+          if (res.data.code == 200) {
+            uni.navigateTo({
+              url: `/pages/order/fillorder?way=${data.cartType}&addr=${
+                this.addr.id || ""
+              }&parentOrder=${encodeURIComponent(
+                JSON.stringify(this.parentOrder)
+              )}`,
+            });
+          }
+        });
       }
     },
     formatSku(list) {
       // 格式化数据
-      if (typeof list != Array) return false;
+
       let arr = [{}];
       list.forEach((item, index) => {
         item.specValues.forEach((spec, specIndex) => {
-          let id = spec.specNameId;
           let name = spec.specName;
           let values = {
-            id: spec.specValueId,
             value: spec.specValue,
             quantity: item.quantity,
           };
@@ -244,7 +237,7 @@ export default {
             if (
               arrItem.name == name &&
               arrItem.values &&
-              !arrItem.values.find((i) => i.id === values.id)
+              !arrItem.values.find((i) => i.value === values.value)
             ) {
               arrItem.values.push(values);
             }
@@ -254,7 +247,6 @@ export default {
             });
             if (!keys.includes(name)) {
               arr.push({
-                id: id,
                 name: name,
                 values: [values],
               });
@@ -271,7 +263,7 @@ export default {
           item.specValues
             .filter((i) => i.specName !== "images")
             .forEach((value, _index) => {
-              this.currentSelceted[_index] = value.specValueId;
+              this.currentSelceted[_index] = value.specValue;
 
               this.selectName = value.specValue;
 
@@ -289,6 +281,8 @@ export default {
 
   mounted() {
     this.formatSku(this.goodsSpec);
+
+    console.log(this.goodsDetail);
   },
 };
 </script>

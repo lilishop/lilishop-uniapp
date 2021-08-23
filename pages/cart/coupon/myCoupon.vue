@@ -11,6 +11,7 @@
         <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData">
           <!-- 空白页 -->
           <u-empty mode="coupon" text="暂无优惠券了" v-if="navItem.wheterEmpty"></u-empty>
+       
           <!-- 数据 -->
           <view v-if="navItem.dataList && coupon" class="coupon-item" :class="{ 'coupon-used': navIndex != 0 }" v-for="(coupon, index) in navItem.dataList" :key="index">
             <view class="left">
@@ -112,7 +113,7 @@ export default {
     };
   },
 
-  onLoad() {
+  onShow() {
     this.getData();
   },
 
@@ -142,7 +143,7 @@ export default {
       let index = this.tabCurrentIndex;
       getMemberCoupons(this.navList[index].params).then((res) => {
         uni.stopPullDownRefresh();
-        if (res.statusCode == 200) {
+        if (res.data.success) {
           let data = res.data.result.records;
           if (data.length == 0) {
             if (res.data.pageNumber == 1) {
@@ -157,6 +158,7 @@ export default {
             this.navList[index].dataList.push(...data);
           }
         }
+        console.log(this.navList[index].dataList)
         uni.hideLoading();
       });
     },
@@ -220,7 +222,7 @@ $item-color: #fff;
 }
 
 .swiper-box {
-  height: calc(100% - 40px);
+  height: calc(100vh - 40px);
 }
 
 .list-scroll-content {
