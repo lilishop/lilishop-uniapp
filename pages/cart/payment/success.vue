@@ -7,36 +7,24 @@
       <div class="pay-btns">
         <div v-show="!from" @click="checkOrder">查看{{this.orderType == "RECHARGE" ? '余额' : '订单'}}</div>
         <div @click="navigateTo('/pages/tabbar/home/index', 'switch')">回到首页</div>
-
       </div>
     </div>
     <div class="pay-box">
       <div class="pay-tag-box">
         <h2>订单支付成功!</h2>
-
         <div class="pay-item">
           <div>
             支付方式：
           </div>
           <div>{{paymentMethod | paymentTypeFilter}}</div>
         </div>
-
       </div>
-      <!-- #ifdef MP-WEIXIN -->
-      <div class="subscribe flex">
-        <div>订阅订单状态</div>
-        <div>
-          <u-switch size="50" :disabled="checked" :active-color="activeColor" @change="changeStatus" v-model="checked"></u-switch>
-        </div>
-      </div>
-      <!-- #endif -->
     </div>
     <goodsRecommend />
   </div>
 
 </template>
 <script>
-import { getWeChatMpMessage } from "@/api/message.js";
 import goodsRecommend from "@/components/m-goods-recommend";
 export default {
   data() {
@@ -48,7 +36,6 @@ export default {
       payPrice: 0,
       goodsList: [],
       activeColor: this.$mainColor,
-     
     };
   },
   components: {
@@ -73,6 +60,7 @@ export default {
     this.from = options.from || "";
     this.payPrice = options.payPrice || 0;
     this.orderType = options.orderType;
+    // this.sendMessage()
   },
   methods: {
     checkOrder() {
@@ -93,30 +81,6 @@ export default {
       if (val) {
         this.sendMessage();
       }
-    },
-
-    sendMessage() {
-      //订阅消息
-      //#ifdef MP-WEIXIN
-      getWeChatMpMessage().then((res) => {
-        var message = res.data.result;
-        var templateid = message.map((item) => item.code);
-        uni.requestSubscribeMessage({
-          tmplIds: templateid,
-          success: (res) => {
-            for (let key in res) {
-              if (res[key] == "reject") {
-                this.checked = false;
-              }
-            }
-          },
-          fail: (res) => {
-            uni.removeStorageSync("acceptSubscribeMessage");
-            this.checked = false;
-          },
-        });
-      });
-      //#endif
     },
 
     navigateTo(url, type) {
