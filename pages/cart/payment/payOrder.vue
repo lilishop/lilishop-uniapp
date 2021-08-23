@@ -162,10 +162,7 @@
 					// #endif
 
 
-					// #ifndef APP-PLUS
-					//判断是否微信浏览器
-					var ua = window.navigator.userAgent.toLowerCase();
-					// #endif
+				
 					
 				
 
@@ -178,15 +175,20 @@
 					 else{
 						this.payList = res.data.result.support;
 					}
-					
-					// #endif
+					// #ifndef APP-PLUS
+					//判断是否微信浏览器
+					var ua = window.navigator.userAgent.toLowerCase();
 					if (ua.match(/MicroMessenger/i) == 'micromessenger') {
-						console.log("微信浏览器")
+					
 						this.payList = res.data.result.support.filter((item) => {
 							return item != "ALIPAY";
 						});
 						
 					}
+					// #endif
+					
+					// #endif
+					
 
 					this.walletValue = res.data.result.walletValue;
 					this.autoCancel =
