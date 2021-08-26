@@ -156,20 +156,23 @@ export function cash(params) {
 /**
  * 分销商提现历史
  */
-export function cashLog() {
+export function cashLog(params) {
   return http.request({
     url: `/distribution/cash`,
     method: Method.GET,
+    params
+
   });
 }
 
 /**
  * 获取分销商分页订单列表
  */
-export function distributionOrderList() {
+export function distributionOrderList(params) {
   return http.request({
     url: `/distribution/distributionOrder`,
     method: Method.GET,
+    params
   });
 }
 

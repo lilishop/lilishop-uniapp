@@ -161,11 +161,6 @@
 					});
 					// #endif
 
-
-				
-					
-				
-
 					// #ifndef MP-WEIXIN
 				    if(this.routerVal.recharge_sn){
 					 this.payList = res.data.result.support.filter((item) => {

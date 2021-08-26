@@ -150,9 +150,7 @@ export default {
             addAddress(this.form).then((res) => {
               if (res.data.success) {
                 if (this.routerVal.type == "order") {
-                  uni.redirectTo({
-                    url: `/pages/mine/address/address?way=${this.routerVal.way}`,
-                  });
+                  uni.navigateBack();
                 } else {
                   uni.redirectTo({
                     url: `/pages/mine/address/addressManage`,

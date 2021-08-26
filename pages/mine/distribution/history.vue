@@ -56,9 +56,6 @@ export default {
       type: 0,
       routers: "",
       achParams: {
-        distributionId: (this.routers && this.routers.id) || "", //分销商id
-        distributionName: (this.routers && this.routers.name) || "", //分销商名称
-        distributionOrderStatus: "", //分销商订单状态
         pageNumber: 1,
         pageSize: 10,
       },
@@ -72,15 +69,14 @@ export default {
       title: title, //这是修改后的导航栏文字
     });
     this.routers = option;
-
+    this.type = option.type;
     option.type == 0 ? this.achievement() : this.history();
   },
   mounted() {},
   onReachBottom() {
     this.status = "loading";
-    this.params.pageNumber++;
-
-    this.type == 1 ? this.history() : this.achievement();
+    this.type == 0 ? this.achParams.pageNumber++ : this.params.pageNumber++;
+    this.type == 0 ? this.achievement() : this.history();
   },
   methods: {
     // 业绩

@@ -76,19 +76,12 @@ export default {
     this.getAddressList();
   },
   onHide() {},
-  onBackPress(e) {
-    uni.redirectTo({
-      url: "/pages/order/fillorder?way=" + this.routerVal.way,
-    });
-    return true;
-  },
-
   methods: {
     async selectAddressData(val) {
       await API_Trade.setAddressId(val.id, this.routerVal.way);
 
-      uni.redirectTo({
-        url: `/pages/order/fillorder?way=${this.routerVal.way}`,
+      uni.navigateBack({
+        delta: 1,
       });
     },
     //获取地址列表
@@ -99,7 +92,6 @@ export default {
         this.params.pageNumber,
         this.params.pageSize
       ).then((res) => {
-      
         if (res.data.result.records.length == 0) {
           this.empty = true;
         } else {
@@ -108,8 +100,6 @@ export default {
           });
 
           this.$set(this, "addressList", res.data.result.records);
-
-         
         }
 
         uni.hideLoading();
@@ -139,7 +129,6 @@ export default {
     },
     //新建。编辑地址
     addAddress(id) {
- 
       if (id) {
         uni.navigateTo({
           url:
@@ -177,5 +166,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import './address.scss';
+@import "./address.scss";
 </style>
