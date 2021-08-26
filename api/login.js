@@ -18,9 +18,9 @@ export function resetByMobile(params) {
  * 发送验证码
  * @param  mobile
  */
-export function sendMobile(mobile) {
+export function sendMobile(mobile,type='LOGIN') {
   return http.request({
-    url: `${api.common}/sms/LOGIN/${mobile}`,
+    url: `${api.common}/sms/${type}/${mobile}`,
     method: "GET",
   });
 }

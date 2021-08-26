@@ -9,17 +9,17 @@
     <u-form :model="codeForm" class="form" ref="validateCodeForm">
       <view v-if="!validateFlage">
         <u-form-item label-width="120" label="手机号" prop="mobile">
-          <u-input v-model="codeForm.mobile" placeholder="请输入您的手机号" />
+          <u-input maxlength="11" v-model="codeForm.mobile" placeholder="请输入您的手机号" />
         </u-form-item>
 
         <u-form-item class="sendCode" label-width="120" prop="code" label="验证码">
-          <u-input v-model="codeForm.code" placeholder="请输入验证码" />
+          <u-input  v-model="codeForm.code" placeholder="请输入验证码" />
           <u-verification-code unique-key="page-edit" :seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange"></u-verification-code>
           <view @tap="getCode" class="text-tips">{{ tips }}</view>
         </u-form-item>
 
         <view class="submit" @click="validatePhone">验证</view>
-        <myVerification keep-running @send="verification" class="verification" ref="verification" business="LOGIN" />
+        <myVerification keep-running @send="verification" class="verification" ref="verification" business="FIND_USER" />
       </view>
       <view v-if="validateFlage">
         <u-form-item label-width="120" label="旧密码">
@@ -40,7 +40,7 @@
 
 <script>
 import { sendMobile, resetByMobile, modifyPass } from "@/api/login";
-import storage from "@/utils/storage.js";
+
 import { md5 } from "@/utils/md5.js"; // md5
 import myVerification from "@/components/verification/verification.vue"; //验证
 import uuid from "@/utils/uuid.modified.js";
@@ -108,7 +108,7 @@ export default {
           uni.showLoading({
             title: "正在获取验证码",
           });
-          sendMobile(this.codeForm.mobile).then((res) => {
+          sendMobile(this.codeForm.mobile, "FIND_USER").then((res) => {
             uni.hideLoading();
             // 这里此提示会被this.start()方法中的提示覆盖
             if (res.data.code == 200) {
@@ -161,8 +161,7 @@ export default {
         if (valid) {
           resetByMobile(this.codeForm).then((res) => {
             if (res.data.success) {
-              storage.setAccessToken(res.data.result.accessToken);
-              storage.setRefreshToken(res.data.result.refreshToken);
+              this.validateFlage = !this.validateFlage;
               // 登录成功
               uni.showToast({
                 title: "验证成功!",
@@ -237,6 +236,9 @@ page {
 .box {
   padding: 80rpx 0;
   border-radius: 20rpx;
+}
+.submit {
+  background: $light-color;
 }
 .box-tips {
   margin: 0 72rpx;

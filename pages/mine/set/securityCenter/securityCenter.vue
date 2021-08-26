@@ -17,12 +17,9 @@ export default {
   methods: {
     navigateTo(url) {
       uni.navigateTo({
-        url: url + `?mobile=${this.mobile}`,
+        url: url,
       });
     },
-  },
-  onLoad(option) {
-    this.mobile = option.mobile;
   },
 };
 </script>
