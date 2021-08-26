@@ -50,16 +50,7 @@
         <text class="close" @click="close">×</text>
       </view>
       <view class="mask-con">
-        <view class="keep-sign">
-          本月已连续签到
-          <text>{{ continuity }}</text>
-          天
-        </view>
         <u-icon size="120" style="margin: 50rpx 0" color="#ff9f28" name="checkmark"></u-icon>
-        <view class="mark">
-          <view>获得积分</view>
-          <text>{{ continuityPoint }}</text>
-        </view>
         <text class="text">连续签到可获得额外奖励哦！</text>
       </view>
     </view>
@@ -71,8 +62,7 @@ import { sign, signTime } from "@/api/point.js";
 export default {
   data() {
     return {
-      continuity: 1, //本月连续签到天数
-      continuityPoint: 2, //获得的积分
+  
       signFlag: false,
       animationData: {},
       maskFlag: false, //
@@ -488,7 +478,7 @@ page {
 
     .mask-con {
       width: 540rpx;
-      height: 460rpx;
+      height: 380rpx;
       background: #fff;
       display: flex;
       flex-direction: column;

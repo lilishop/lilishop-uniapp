@@ -15,7 +15,8 @@
                 {{bargainDetail.goodsName}}
               </div>
               <div class="flex price-box">
-                <div class="purchase-price">当前:<span>￥{{ activityData.surplusPrice == 0 ? this.bargains.purchasePrice :  activityData.surplusPrice | unitPrice}}</span>
+                <div class="purchase-price">
+                  当前:<span>￥{{ activityData.surplusPrice == 0 ? this.bargains.purchasePrice :  activityData.surplusPrice | unitPrice}}</span>
                 </div>
                 <div class="max-price">原价:<span>￥{{ bargainDetail.price | unitPrice}}</span>
 
@@ -26,7 +27,8 @@
           </div>
           <!-- 砍价进度 -->
           <div class="bargain-progress">
-            <u-line-progress class="line" :active-color="lightColor" striped striped-active :percent="totalPercent"></u-line-progress>
+            <u-line-progress class="line" :active-color="lightColor" striped striped-active :percent="totalPercent">
+            </u-line-progress>
             <div class="flex tips">
               <div>已砍{{cutPrice}}元</div>
               <div>还剩{{activityData.surplusPrice}}元</div>
@@ -37,10 +39,11 @@
             邀请砍价
           </div>
           <!-- 立即购买 -->
-
           <div class="buy" v-else @click="getGoodsDetail">
             立即购买
           </div>
+          <!-- 我要开团 -->
+          <div class="start" v-if="activityData.memberId != $options.filters.isLogin().id"  @click="startOpenGroup">我要开团</div>
         </div>
       </div>
       <!-- 帮砍列表 -->
@@ -73,9 +76,11 @@
       </div>
 
       <!-- 砍价 -->
-      <u-modal title="恭喜您砍掉了" v-model="Bargaining" mask-close-able :show-confirm-button="false" :title-style="{color: lightColor}">
+      <u-modal title="恭喜您砍掉了" v-model="Bargaining" mask-close-able :show-confirm-button="false"
+        :title-style="{color: lightColor}">
         <view class="slot-content">
-          <u-count-to :start-val="0" ref="uCountTo" font-size="100" :color="lightColor" :end-val="kanjiaPrice" :decimals="2" :autoplay="autoplay"></u-count-to><span class="price">元</span>
+          <u-count-to :start-val="0" ref="uCountTo" font-size="100" :color="lightColor" :end-val="kanjiaPrice"
+            :decimals="2" :autoplay="autoplay"></u-count-to><span class="price">元</span>
         </view>
       </u-modal>
       <!-- 帮砍 -->
@@ -88,13 +93,14 @@
       </u-modal>
 
       <!-- 分享 -->
-      <shares @close="closeShare" :link="'/pages/promotion/bargain/detail?id='+routerVal.id+'&activityId='+activityData.id" type="kanjia" :thumbnail="bargainDetail.thumbnail"
-        :goodsName="bargainDetail.goodsName" v-if="shareFlage " />
+      <shares @close="closeShare"
+        :link="'/pages/promotion/bargain/detail?id='+routerVal.id+'&activityId='+activityData.id" type="kanjia"
+        :thumbnail="bargainDetail.thumbnail" :goodsName="bargainDetail.goodsName" v-if="shareFlage " />
 
       <!-- 购买 -->
 
-      <popupGoods  ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail" :goodsSpec="goodsSpec" v-if="bargainDetail.id "
-        @handleClickSku="getGoodsDetail" />
+      <popupGoods ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail"
+        :goodsSpec="goodsSpec" v-if="bargainDetail.id " @handleClickSku="getGoodsDetail" />
 
       <!-- 产品详情 -->
       <div class=" box4">
@@ -201,6 +207,12 @@ export default {
     },
   },
   methods: {
+    // 跳转选择商品页面
+    startOpenGroup() {
+      uni.redirectTo({
+        url: `/pages/promotion/bargain/list`,
+      });
+    },
     closePopupBuy(val) {
       this.maskFlag = false;
     },
@@ -360,7 +372,23 @@ page {
     font-weight: bold;
   }
 }
+.bargaining,
+.buy,
+.start {
+  font-size: 24rpx;
 
+  width: 80%;
+  margin: 50rpx auto 0 auto;
+  text-align: center;
+
+  font-size: 30rpx;
+  padding: 18rpx;
+  border-radius: 100px;
+}
+.start {
+  border: 1rpx solid $main-color;
+  color: $main-color;
+}
 .bargaining,
 .buy {
   font-size: 24rpx;

@@ -10,7 +10,8 @@
               {{ address.name }}
               <span>
                 {{ address.mobile | secrecyMobile }}
-                <u-tag v-if="address.isDefault" text="默认" style="margin-left: 24rpx" mode="plain" type="error" size="mini" />
+                <u-tag v-if="address.isDefault" text="默认" style="margin-left: 24rpx" mode="plain" type="error"
+                  size="mini" />
               </span>
             </div>
             <div class="userAdress">
@@ -52,17 +53,20 @@
       </view>
       <view class="group">
         <view>
-          <u-image borderRadius="50%" shape="square" class="head-img" width="81rpx" height="81rpx" :src="masterWay.face || '/static/missing-face.png'"></u-image>
+          <u-image borderRadius="50%" shape="square" class="head-img" width="81rpx" height="81rpx"
+            :src="masterWay.face || '/static/missing-face.png'"></u-image>
           <view class="btn-one">团长</view>
         </view>
         <view class="line"> </view>
         <view>
           <!-- 如果有最后一名，显示最后一名，没有最后一名，显示等待参团 -->
-          <u-image class="head-img" v-if="endWay.face" :src="endWay.face" borderRadius="50%" shape="square" width="81rpx" height="81rpx">
+          <u-image class="head-img" v-if="endWay.face" :src="endWay.face" borderRadius="50%" shape="square"
+            width="81rpx" height="81rpx">
             <view slot="loading"></view>
           </u-image>
 
-          <u-image class="head-img" borderRadius="50%" shape="square" v-else width="81rpx" height="81rpx" :src="endWay.face || '/static/missing-face.png'"></u-image>
+          <u-image class="head-img" borderRadius="50%" shape="square" v-else width="81rpx" height="81rpx"
+            :src="endWay.face || '/static/missing-face.png'"></u-image>
 
           <view class="wait">{{ endWay.nickname || "等待参团" }}</view>
         </view>
@@ -78,14 +82,18 @@
       </u-row>
       <div class="promotionNotice">{{ item.promotionNotice }}</div>
       <u-row class="goodsBorder" v-for="(val, i) in item.skuList" :key="i">
-        <u-col class="tabL" :offset="0" @click="navigateTo('/pages/product/goods?id=' + val.goodsSku.id+'&goodsId='+val.goodsSku.goodsId)" :span="3">
+        <u-col class="tabL" :offset="0"
+          @click="navigateTo('/pages/product/goods?id=' + val.goodsSku.id+'&goodsId='+val.goodsSku.goodsId)" :span="3">
           <u-image borderRadius="10rpx" :src="val.goodsSku.thumbnail" alt />
         </u-col>
-        <u-col :span="9" @click="navigateTo('/pages/product/goods?id=' + val.goodsSku.id+'&goodsId='+val.goodsSku.goodsId)" class="tabC">
+        <u-col :span="9"
+          @click="navigateTo('/pages/product/goods?id=' + val.goodsSku.id+'&goodsId='+val.goodsSku.goodsId)"
+          class="tabC">
           <div style="overflow: hidden">
             <p class="sp_name">{{ val.goodsSku.goodsName }}</p>
             <p class="sp_promotion" v-if="val.promotion_tags">
-              <view class="sp_tag sp_tag_plain" v-for="(promotion_item, promotion_index) in val.promotion_tags" :key="promotion_index">{{ promotion_item }}</view>
+              <view class="sp_tag sp_tag_plain" v-for="(promotion_item, promotion_index) in val.promotion_tags"
+                :key="promotion_index">{{ promotion_item }}</view>
             </p>
             <span class="nums">x{{ val.num }}</span>
           </div>
@@ -120,20 +128,22 @@
     <!-- 优惠券 -->
     <div class="box box4">
       <u-row>
-        <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :offset="0" :span="9" @click="shippingFlag = true">配送方式</u-col>
+        <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :offset="0" :span="9" @click="shippingFlag = true">配送方式
+        </u-col>
         <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="3" textAlign="right" @click="shippingFlag = true">
-          {{   shippingMethod.find(e=>{  return e.value == shippingText; }).label }}
+          {{shippingMethod.find(e=>{  return e.value == shippingText; }).label }}
         </u-col>
       </u-row>
       <u-row>
         <u-col :offset="0" :span="9" @click="GET_Discount()">优惠券</u-col>
 
-        <u-col :span="3" v-if="orderMessage.priceDetailDTO && orderMessage.priceDetailDTO.couponPrice" textAlign="right" @click="GET_Discount()">
-          <span class="main-color">-{{orderMessage.priceDetailDTO.couponPrice | unitPrice}}</span>
+        <u-col :span="3" v-if="orderMessage.priceDetailDTO && orderMessage.priceDetailDTO.couponPrice" textAlign="right"
+          @click="GET_Discount()">
+          <span class="main-color">-￥{{orderMessage.priceDetailDTO.couponPrice | unitPrice}}</span>
         </u-col>
         <!--  orderMessage.priceDetailDTO.couponPrice | unitPrice  -->
         <u-col :span="3" v-else textAlign="right" @click="GET_Discount()">
-          {{ couponNums || "0" }}张可用
+          {{ orderMessage.canUseCoupons.length || "0" }}张可用
           <u-icon name="arrow-right"></u-icon>
         </u-col>
       </u-row>
@@ -153,7 +163,8 @@
         <u-row>
           <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="7">运费</u-col>
           <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="5" class="tr tipsColor" textAlign="right">
-            <u-tag v-if="orderMessage.priceDetailDTO.freightPrice == 0" style="margin-right: 20rpx" color="#FF6262" text="包邮" type="warning" size="mini" mode="plain" shape="circle" />
+            <u-tag v-if="orderMessage.priceDetailDTO.freightPrice == 0" style="margin-right: 20rpx" color="#FF6262"
+              text="包邮" type="warning" size="mini" mode="plain" shape="circle" />
             <span v-else>￥{{
                 orderMessage.priceDetailDTO.freightPrice | unitPrice
               }}</span>
@@ -171,8 +182,9 @@
         <u-row>
           <u-col :span="6">活动优惠</u-col>
           <u-col :span="6" class="tr tipsColor" textAlign="right">
-            <u-tag style="margin-right: 20rpx" v-if="orderMessage.priceDetailDTO.discountPrice != 0" color="#FF6262" :text="`优惠 ${orderMessage.priceDetailDTO.discountPrice} 元`" type="warning"
-              size="mini" mode="plain" shape="circle" />
+            <u-tag style="margin-right: 20rpx" v-if="orderMessage.priceDetailDTO.discountPrice != 0" color="#FF6262"
+              :text="`优惠 ${orderMessage.priceDetailDTO.discountPrice} 元`" type="warning" size="mini" mode="plain"
+              shape="circle" />
             <span>{{
               orderMessage.priceDetailDTO.discountPrice | unitPrice
             }}</span>
@@ -183,7 +195,8 @@
 
     <!-- 配送地区没有提示 -->
     <div class="notSupportFreight" v-if="notSupportFreight.length !=0">
-      <u-notice-bar style="width:100%" :volume-icon="false" mode="horizontal" :list="notSupportFreightGoodsList"></u-notice-bar>
+      <u-notice-bar style="width:100%" :volume-icon="false" mode="horizontal" :list="notSupportFreightGoodsList">
+      </u-notice-bar>
     </div>
 
     <!-- 结账 -->
@@ -194,7 +207,8 @@
           ¥
           <span>{{ orderMessage.priceDetailDTO.flowPrice | unitPrice }}</span>
         </span>
-        <span v-else class="number"><span style="margin-right:10rpx;">{{orderMessage.priceDetailDTO.payPoint | unitPrice }}</span>积分</span>
+        <span v-else class="number"><span
+            style="margin-right:10rpx;">{{orderMessage.priceDetailDTO.payPoint | unitPrice }}</span>积分</span>
       </div>
       <div class="navRiv" @click="createTradeFun()">
         <!-- #ifndef MP-WEIXIN -->
@@ -277,7 +291,6 @@ export default {
       }
     },
   },
-
 
   /**
    * 监听返回
@@ -512,8 +525,6 @@ export default {
 
     // 获取结算参数
     getOrderList() {
-      // 获取购物车可用优惠券
-      this.getCartsCouponNums();
       // 获取结算参数
       API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
         res.data.result.cartList.forEach((item, index) => {
@@ -523,6 +534,12 @@ export default {
           };
         });
         this.orderMessage = res.data.result;
+        /**
+         * 为了避免路径传值在h5中超出限制问题
+         * 这块将可用的优惠券以及不可用的优惠券放入到vuex里面进行存储
+         */
+        this.$store.state.canUseCoupons = res.data.result.canUseCoupons;
+        this.$store.state.cantUseCoupons = res.data.result.cantUseCoupons;
 
         if (!res.data.result.memberAddress.id) {
           // 获取会员默认地址
@@ -542,15 +559,6 @@ export default {
           res.data.result.notSupportFreight.forEach((item) => {
             this.notSupportFreightGoodsList[0] += item.goodsSku.goodsName;
           });
-        }
-      });
-    },
-
-    /**购物车可用优惠券 */
-    getCartsCouponNums() {
-      API_Trade.getCartCouponNum(this.routerVal.way).then((res) => {
-        if (res.data.success) {
-          this.couponNums = res.data.result;
         }
       });
     },

@@ -1,5 +1,8 @@
 <template>
   <div class="wrapper">
+    <u-tabs :list="list" :is-scroll="false" :active-color="lightColor" :current="current" @change="(i)=>{current = i}">
+    </u-tabs>
+
     <div class="empty" v-if="couponsList.length <= 0">
       <u-empty text="暂无优惠券" mode="coupon"></u-empty>
     </div>
@@ -19,29 +22,40 @@
         <view class="circle circle-bottom"></view>
       </view>
       <view class="right">
-        <view>
+        <view class="desc">
           <view v-if="item.scopeType">
             <span v-if="item.scopeType == 'ALL' && item.id == 'platform'">全平台</span>
             <span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
             <view v-else>{{  item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用</view>
           </view>
-          <view>有效期至：{{item.endTime}}</view>
+          <view class="reason" v-if="item.reason">{{item.reason}}</view>
+          <view class="end-time">有效期至:{{item.endTime}}</view>
         </view>
         <view class="receive" @click="clickWay(item)">
           <text>立即</text><br />
           <text>使用</text>
         </view>
-        <view class="bg-quan"> 券 </view>
+        <view class="bg-quan">券</view>
       </view>
     </view>
   </div>
 </template>
 <script>
-import { useCoupon, getMemberCanUse } from "@/api/trade.js";
+import { useCoupon } from "@/api/trade.js";
 
 export default {
   data() {
     return {
+      lightColor: this.$lightColor,
+      current: 0,
+      list: [
+        {
+          name: "可用优惠券",
+        },
+        {
+          name: "不可能优惠券",
+        },
+      ],
       couponsList: [], //优惠券集合
       params: {
         //传参
@@ -55,36 +69,26 @@ export default {
       routerVal: "", //上级传参
     };
   },
-  /**
-   * 赋值
-   */
-  onLoad(val) {
-    this.routerVal = val;
-    this.params.scopeId = val.skuId;
-    this.params.storeId = val.storeId;
+  watch: {
+    current(val) {
+      console.log(this.$store.state.cantUseCoupons);
+      val == 0
+        ? (this.couponsList = this.$store.state.canUseCoupons)
+        : (this.couponsList = this.$store.state.cantUseCoupons);
+    },
   },
+
   mounted() {
-    uni.getStorage({
-      key: "totalPrice",
-      success: (res) => {
-        this.params.totalPrice = res.data;
-        this.getCoupons();
-      },
-    });
+    this.init();
   },
 
   methods: {
     /**
-     * 获取优惠券数量
+     * 从vuex中拿取优惠券信息
      */
-    getCoupons() {
-      getMemberCanUse(this.params).then((res) => {
-        if (res.data.success) {
-          this.couponsList = res.data.result.records;
-        }
-      });
+    init() {
+      this.couponsList = this.$store.state.canUseCoupons;
     },
-
     /**
      * 领取优惠券
      */
@@ -109,6 +113,19 @@ export default {
 };
 </script>
 <style scoped lang="scss">
+.desc {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.end-time,
+.reason {
+  color: #999;
+  line-height: 1.5;
+  font-size: 24rpx;
+}
+
 .empty {
   margin-top: 20px;
   text-align: center;
