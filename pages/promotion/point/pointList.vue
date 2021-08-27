@@ -4,7 +4,8 @@
     <view class="index-head">
       <scroll-view scroll-x class="list-scroll-content" :scroll-left="currentLeft" scroll-with-animation>
         <view class="index-head-navs">
-          <view class="index-head-nav" v-for="(ele, index) in categoryIndexData" :key="index" :class="{ 'index-head-nav-active': tabIndex == index }" @click="setCat(index)">
+          <view class="index-head-nav" v-for="(ele, index) in categoryIndexData" :key="index"
+            :class="{ 'index-head-nav-active': tabIndex == index }" @click="setCat(index)">
             {{ ele.name }}
           </view>
         </view>
@@ -23,7 +24,7 @@
                 </u-image>
                 <view class="index-item-title">{{ item.goodsSku.goodsName }}</view>
                 <view class="index-item-price">
-                  {{ item.points | unitPrice }}积分
+                  {{ item.points }}积分
                   <span class="tipsMkt">¥{{ item.goodsSku.price | unitPrice }}</span>
                 </view>
               </view>
@@ -264,7 +265,6 @@ page {
 }
 
 .index-head-nav {
-  width: 100rpx;
   padding-bottom: 8rpx;
   margin: 20rpx;
   text-align: center;

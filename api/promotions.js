@@ -163,12 +163,17 @@ export function getBargainLog(params) {
   });
 }
 
+
+
 /**
- * 分页获取砍价活动-帮砍记录
+ * 分页获取已参与的砍价活动
  */
-export function helpBargain(kanJiaActivityId) {
+export function getMineBargainLog(params) {
   return http.request({
-    url: `promotion/kanjiaGoods/help/${kanJiaActivityId}`,
-    method: Method.POST,
+    url: `/promotion/kanjiaGoods/kanjiaActivity/mine/`,
+    method: Method.GET,
+    params
   });
 }
+
+

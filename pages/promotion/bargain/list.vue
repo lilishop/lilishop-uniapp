@@ -1,9 +1,11 @@
 <template>
   <div class="page">
-    <u-navbar back-icon-color="#fff" :background="background" :border-bottom="false" title=""></u-navbar>
+    <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false" title="">
+    </u-navbar>
     <div class="wrapper">
       <!-- 砍价列表 -->
       <div class="box">
+        <!-- 已砍的商品 -->
         <div class="bargain" v-if="bargainList.length!=0">
           <div class="flex bargain-item" v-for="(item,index) in bargainList" :key="index">
             <div class="goods-img">
@@ -54,6 +56,12 @@ export default {
     this.init();
   },
   methods: {
+    // 返回上一级
+    back() {
+      uni.switchTab({
+        url:"/pages/tabbar/home/index"
+      });
+    },
     /**
      * 初始化砍价列表
      */
@@ -100,7 +108,6 @@ page {
 }
 .bargain-item {
   align-items: center;
-
   border-bottom: 1rpx solid #f6f6f6;
   padding: 32rpx 0;
 }

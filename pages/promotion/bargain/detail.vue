@@ -1,6 +1,7 @@
 <template>
   <div class="page">
-    <u-navbar back-icon-color="#fff" :background="background" :border-bottom="false" title=""></u-navbar>
+    <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false" title="">
+    </u-navbar>
 
     <div class="wrapper">
       <!-- 砍价列表 -->
@@ -43,7 +44,8 @@
             立即购买
           </div>
           <!-- 我要开团 -->
-          <div class="start" v-if="activityData.memberId != $options.filters.isLogin().id"  @click="startOpenGroup">我要开团</div>
+          <div class="start" v-if="activityData.memberId != $options.filters.isLogin().id" @click="startOpenGroup">我要开团
+          </div>
         </div>
       </div>
       <!-- 帮砍列表 -->
@@ -207,6 +209,18 @@ export default {
     },
   },
   methods: {
+    // 返回上一级
+    back() {
+      // 进行路由栈判定如果当前路由栈是空的就返回拼团列表页面
+      if (getCurrentPages().length > 1) {
+        uni.navigateBack();
+      } else {
+        uni.redirectTo({
+          url: `/pages/promotion/bargain/list`,
+        });
+      }
+    },
+    
     // 跳转选择商品页面
     startOpenGroup() {
       uni.redirectTo({
@@ -232,6 +246,7 @@ export default {
       });
       this.$refs.popupGoods.buy({
         skuId: this.bargainDetail.id,
+        id: this.routerVal.id,
         num: 1,
         cartType: "KANJIA",
       });

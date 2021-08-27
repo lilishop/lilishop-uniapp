@@ -504,6 +504,11 @@
 
 					}
 				},{
+					"path": "bargain/log",
+					"style": {
+						"navigationBarTitleText": "砍价记录"
+					}
+				},{
 					"path": "point/detail",
 					"style": {
 						"navigationStyle": "custom",

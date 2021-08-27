@@ -54,6 +54,10 @@
             <image src="/static/mine/distribution.png" mode=""></image>
             <view>我的分销</view>
           </view>
+          <view class="interact-item" @click="navigateTo('/pages/promotion/bargain/log')">
+            <image src="/static/mine/kanjia.png" mode=""></image>
+            <view>砍价记录</view>
+          </view>
         </view>
       </div>
     </view>
