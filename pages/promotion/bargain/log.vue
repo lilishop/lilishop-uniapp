@@ -3,7 +3,7 @@
     <div v-if="bargainLog.length != 0">
       <div v-for="(item,index) in bargainLog" class="flex" :key="index">
         <div>
-          <u-image width='250' height="250" :src="item.thumbnail"></u-image>
+          <u-image border-radius="20" width='230' height="230" :src="item.thumbnail"></u-image>
         </div>
         <div class="goods">
           <div class="wes-2">
@@ -113,6 +113,7 @@ page {
   color: $light-color;
 }
 .goods {
+  margin: 0 20rpx;
   display: flex;
   flex: 2;
   flex-direction: column;

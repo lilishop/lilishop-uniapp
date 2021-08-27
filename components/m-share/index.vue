@@ -58,13 +58,6 @@ export default {
   // 图片缩略图、 商品名称 、 type（goods,shop,pintuan) 拼团商品分享以及店铺分享
 
   props: ["thumbnail", "goodsName", "type", "goodsId", "link"],
-  // #ifdef MP-WEIXIN
-  onShareAppMessage(res) {
-    return {
-      imageUrl: this.thumbnail || require("@/static/logo.png"),
-    };
-  },
-  // #endif
   methods: {
     close() {
       this.$emit("close");
@@ -97,21 +90,24 @@ export default {
     },
     // #endif
 
+    shareTitle() {
+      let shareTitle;
+      if (this.type == "goods") {
+        shareTitle = `我发现了一个${this.goodsName}商品快来跟我一起看看吧`;
+      } else if (this.type == "shops") {
+        shareTitle = `我发现了一个${this.goodsName}店铺快来跟我一起看看吧`;
+      } else if (this.type == "pintuan") {
+        shareTitle = `我拼了一个${this.goodsName}快来跟我一起抢购吧!`;
+      } else if (this.type == "kanjia") {
+        shareTitle = `请快来帮我砍一刀${this.goodsName}`;
+      }
+      return shareTitle;
+    },
+
     // #ifdef APP-PLUS
     handleShare(val) {
+      console.log("12312312")
       if (val.type <= 1) {
-        let shareTitle;
-
-        if (this.type == "goods") {
-          shareTitle = `我发现了一个${this.goodsName}商品快来跟我一起看看吧`;
-        } else if (this.type == "shops") {
-          shareTitle = `我发现了一个${this.goodsName}店铺快来跟我一起看看吧`;
-        } else if (this.type == "pintuan") {
-          shareTitle = `我拼了一个${this.goodsName}快来跟我一起抢购吧!`;
-        } else if (this.type == "kanjia") {
-          shareTitle = `请快来帮我砍一刀${this.goodsName}`;
-        }
-
         let scene; //  "WXSenceTimeline 朋友圈   WXSceneSession 微信好友"
         val.type == 1
           ? (scene = "WXSenceTimeline")
@@ -123,7 +119,7 @@ export default {
           imageUrl: this.thumbnail,
           type: 0,
           summary: this.goodsName,
-          title: shareTitle,
+          title: this.shareTitle(),
           success: function (res) {
             uni.showToast({
               title: "分享成功!",

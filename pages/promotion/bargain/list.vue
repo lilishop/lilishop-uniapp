@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false" title="">
+    <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false" >
     </u-navbar>
     <div class="wrapper">
       <!-- 砍价列表 -->
@@ -59,7 +59,7 @@ export default {
     // 返回上一级
     back() {
       uni.switchTab({
-        url:"/pages/tabbar/home/index"
+        url: "/pages/tabbar/home/index",
       });
     },
     /**
@@ -88,7 +88,7 @@ page {
 </style>
 <style lang="scss" scoped>
 .wrapper {
-  background: url("../static/Bargaining.png");
+  background: url("https://lilishop-oss.oss-cn-beijing.aliyuncs.com/aac88f4e8eff452a8010af42c4560b04.png");
   background-repeat: no-repeat;
   background-size: 100% 100%;
   height: 700rpx;

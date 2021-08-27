@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false" title="">
+    <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false">
     </u-navbar>
 
     <div class="wrapper">
@@ -36,12 +36,15 @@
             </div>
           </div>
           <!-- 参与砍价 -->
-          <div class="bargaining" v-if="!activityData.pass" @click="shareBargain">
+          <div class="bargaining" v-if="!activityData.pass && activityData.status!='END'" @click="shareBargain">
             邀请砍价
           </div>
           <!-- 立即购买 -->
-          <div class="buy" v-else @click="getGoodsDetail">
-            立即购买
+          <div v-else>
+
+            <div v-if="activityData.status!='END'" class="buy" @click="getGoodsDetail">
+              立即购买
+            </div>
           </div>
           <!-- 我要开团 -->
           <div class="start" v-if="activityData.memberId != $options.filters.isLogin().id" @click="startOpenGroup">我要开团
@@ -89,18 +92,17 @@
 
       <u-modal :show-title="false" v-model="helpBargainFlage" :show-confirm-button="false">
         <view class="help-bargain" @click="handleClickHelpBargain">
-          <u-image width="100%" height="600rpx" src="/pages/promotion/static/bargain.jpeg"></u-image>
+          <u-image width="100%" height="600rpx"
+            src="https://lilishop-oss.oss-cn-beijing.aliyuncs.com/91631d5a66c7426bbe3f7d644ee41946.jpeg"></u-image>
           <u-image class="help" width="300rpx" height="80rpx" src="/pages/promotion/static/help-bargain.png"></u-image>
         </view>
       </u-modal>
 
       <!-- 分享 -->
-      <shares @close="closeShare"
-        :link="'/pages/promotion/bargain/detail?id='+routerVal.id+'&activityId='+activityData.id" type="kanjia"
-        :thumbnail="bargainDetail.thumbnail" :goodsName="bargainDetail.goodsName" v-if="shareFlage " />
+      <shares @close="closeShare" :link="share()" type="kanjia" :thumbnail="bargainDetail.thumbnail"
+        :goodsName="bargainDetail.goodsName" v-if="shareFlage " />
 
       <!-- 购买 -->
-
       <popupGoods ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail"
         :goodsSpec="goodsSpec" v-if="bargainDetail.id " @handleClickSku="getGoodsDetail" />
 
@@ -113,7 +115,7 @@
 </template>
 
 <script>
-import popupGoods from "@/pages/cart/payment/popup/goods"; //购物车商品的模块
+import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
 import {
   getBargainDetail,
   getBargainActivity,
@@ -121,7 +123,6 @@ import {
   getBargainLog,
   helpBargain,
 } from "@/api/promotions";
-import { getGoods } from "@/api/goods.js";
 import shares from "@/components/m-share/index";
 export default {
   components: {
@@ -171,6 +172,17 @@ export default {
       this.params.kanjiaActivityId = options.activityId;
     }
   },
+
+  // #ifdef MP-WEIXIN
+  onShareAppMessage(res) {
+    return {
+      path: this.share(),
+      title: `请快来帮我砍一刀${this.bargainDetail.goodsName}`,
+      imageUrl: this.thumbnail || require("@/static/logo.png"),
+    };
+  },
+  // #endif
+
   onShow() {
     this.init();
   },
@@ -209,6 +221,14 @@ export default {
     },
   },
   methods: {
+    share() {
+      return (
+        "/pages/promotion/bargain/detail?id=" +
+        this.routerVal.id +
+        "&activityId=" +
+        this.activityData.id
+      );
+    },
     // 返回上一级
     back() {
       // 进行路由栈判定如果当前路由栈是空的就返回拼团列表页面
@@ -220,7 +240,7 @@ export default {
         });
       }
     },
-    
+
     // 跳转选择商品页面
     startOpenGroup() {
       uni.redirectTo({
@@ -332,7 +352,7 @@ page {
   padding: 10rpx 0;
 }
 .wrapper {
-  background: url("../static/Bargaining.png");
+  background: url("https://lilishop-oss.oss-cn-beijing.aliyuncs.com/aac88f4e8eff452a8010af42c4560b04.png");
   background-repeat: no-repeat;
   background-size: 100% 100%;
   height: 700rpx;

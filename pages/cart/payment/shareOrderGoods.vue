@@ -67,7 +67,7 @@ import { getGoods } from "@/api/goods.js";
 import { getPinTuanShare } from "@/api/order";
 import shares from "@/components/m-share/index";
 import storage from "@/utils/storage.js";
-import popupGoods from "./popup/goods"; //购物车商品的模块
+import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
 
 export default {
   data() {

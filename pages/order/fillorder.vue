@@ -80,7 +80,7 @@
           <span class="ybname">{{ item.storeName }}</span>
         </u-col>
       </u-row>
-      <div class="promotionNotice">{{ item.promotionNotice }}</div>
+      <div class="promotionNotice">{{ item.promotionNotice || '' }}</div>
       <u-row class="goodsBorder" v-for="(val, i) in item.skuList" :key="i">
         <u-col class="tabL" :offset="0"
           @click="navigateTo('/pages/product/goods?id=' + val.goodsSku.id+'&goodsId='+val.goodsSku.goodsId)" :span="3">

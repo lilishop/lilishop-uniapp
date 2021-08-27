@@ -134,11 +134,10 @@ export default {
         getUserInfo().then((user) => {
           storage.setUserInfo(user.data.result);
           storage.setHasLogin(true);
-          setTimeout(() => {
-            uni.navigateBack({
-              delta: 1,
-            });
-          }, 500);
+
+          uni.navigateBack({
+            delta: 1,
+          });
         });
       });
     },
@@ -227,7 +226,6 @@ text.shop {
   border: none !important;
   background: #fff !important;
 }
-
 
 .btn-auth {
   width: 92%;

@@ -505,6 +505,9 @@ page,
 
 .swiper-box {
   height: calc(100vh - 40px);
+  // #ifdef H5
+  height: calc(100vh - 40px - 44px);
+  // #endif
 }
 
 .list-scroll-content {

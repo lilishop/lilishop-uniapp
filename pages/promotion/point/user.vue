@@ -2,7 +2,8 @@
   <div class="user-point">
     <!-- <div class="point-rule">积分规则</div> -->
     <div class="point-wrapper">
-      <u-image shape="circle" :lazy-load="true" width="100" height="100" :src="userInfo.face || '/static/missing-face.png'"></u-image>
+      <u-image shape="circle" :lazy-load="true" width="100" height="100"
+        :src="userInfo.face || '/static/missing-face.png'"></u-image>
       <div class="whether-point">
         <div>你的可用积分：<span class="point">{{userInfo.point || 0}}</span></div>
       </div>
@@ -10,18 +11,22 @@
   </div>
 </template>
 <script>
+import { getUserInfo } from "@/api/members";
 export default {
   data() {
     return {
-      userInfo: this.$options.filters.isLogin() || {},
+      userInfo: {},
     };
   },
-  mounted (){
-      this.init()
+  mounted() {
+    this.init();
   },
   methods: {
-    init() {
-  
+    async init() {
+      let res = await getUserInfo();
+      if (res.data.success) {
+        this.userInfo = res.data.result;
+      }
     },
   },
 };
@@ -33,8 +38,8 @@ export default {
   background: url("/static/point-bg.png") no-repeat;
   background-size: 100%;
 }
-.point{
-    font-size: 40rpx;
+.point {
+  font-size: 40rpx;
 }
 .point-rule {
   color: #fff;

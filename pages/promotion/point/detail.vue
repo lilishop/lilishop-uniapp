@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import popupGoods from "@/pages/cart/payment/popup/goods"; //购物车商品的模块
+import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
 import { getPointsGoodsDetail } from "@/api/promotions";
 export default {
   components: {

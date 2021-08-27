@@ -4,7 +4,7 @@ import storage from "@/utils/storage.js";
 import { md5 } from "@/utils/md5.js";
 import Foundation from "@/utils/Foundation.js";
 import api from "@/config/api.js";
-
+import debounce from "@/uview-ui/libs/function/debounce.js";
 import uuid from "@/utils/uuid.modified.js";
 
 /**
@@ -77,16 +77,22 @@ function cleanStorage() {
   storage.setUuid("");
   storage.setUserInfo({});
 
+  // 防抖处理跳转
   // #ifdef MP-WEIXIN
-  uni.navigateTo({
-    url: "/pages/passport/wechatMPLogin",
-  });
+  debounce(() => {
+    console.log("防抖");
+    uni.navigateTo({
+      url: "/pages/passport/wechatMPLogin",
+    });
+  }, 1000);
   // #endif
 
   // #ifndef MP-WEIXIN
-  uni.navigateTo({
-    url: "/pages/passport/login",
-  });
+  debounce(() => {
+    uni.navigateTo({
+      url: "/pages/passport/login",
+    });
+  }, 1000);
   //  #endif
 }
 
@@ -211,6 +217,7 @@ http.interceptors.response.use(
       response.data.code === 403
     ) {
       cleanStorage();
+
       // 如果当前状态码为正常但是success为不正常时
     } else if (
       (response.statusCode == 200 && !response.data.success) ||
