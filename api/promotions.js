@@ -164,6 +164,15 @@ export function getBargainLog(params) {
 }
 
 
+/**
+ * 分页获取砍价活动-帮砍记录
+ */
+ export function helpBargain(kanJiaActivityId) {
+  return http.request({
+    url: `promotion/kanjiaGoods/help/${kanJiaActivityId}`,
+    method: Method.POST,
+  });
+}
 
 /**
  * 分页获取已参与的砍价活动
