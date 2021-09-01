@@ -6,7 +6,7 @@
     <div class="empty" v-if="couponsList.length <= 0">
       <u-empty text="暂无优惠券" mode="coupon"></u-empty>
     </div>
-    <view class="coupon-item" v-for="(item, index) in couponsList" :key="index" v-if="item.memberCouponStatus == 'NEW'">
+    <view class="coupon-item" v-for="(item, index) in couponsList" :key="index" >
       <view class="left">
         <view class="wave-line">
           <view class="wave" v-for="(item, index) in 12" :key="index"></view>
@@ -31,7 +31,7 @@
           <view class="reason" v-if="item.reason">{{item.reason}}</view>
           <view class="end-time">有效期至:{{item.endTime}}</view>
         </view>
-        <view class="receive" @click="clickWay(item)">
+        <view class="receive" v-if="current ==0" @click="clickWay(item)">
           <text>立即</text><br />
           <text>使用</text>
         </view>
@@ -53,7 +53,7 @@ export default {
           name: "可用优惠券",
         },
         {
-          name: "不可能优惠券",
+          name: "不可用优惠券",
         },
       ],
       couponsList: [], //优惠券集合

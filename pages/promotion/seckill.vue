@@ -6,7 +6,8 @@
     <scroll-view scroll-x>
       <view class="index-navs">
         <view class="index-nav-v">
-          <view class="index-nav" :class="{ 'index-nav-active': nav == index }" @click="clickNavigateTime(index)" v-for="(item, index) in timeLine" :key="index">
+          <view class="index-nav" :class="{ 'index-nav-active': nav == index }" @click="clickNavigateTime(index)"
+            v-for="(item, index) in timeLine" :key="index">
             {{ item.timeLine }}:00
             <view class="index-nav-desc">{{ index === 0 && item.distanceStartTime === 0 ? '抢购中' : '即将开始' }}
             </view>
@@ -34,7 +35,8 @@
           </view>
           <view class="sale-item-surplus">
             仅剩{{ item.quantity - item.salesNum }}件
-            <view class="sale-item-surplus-text" :style="{ width: (item.quantity / (item.quantity - item.salesNum)) * 100 + '%' }">
+            <view class="sale-item-surplus-text"
+              :style="{ width: (item.quantity / (item.quantity - item.salesNum)) * 100 + '%' }">
             </view>
           </view>
           <view class="sale-item-btn" @click="navigateToGoodsDetail(item)">
@@ -160,6 +162,7 @@ export default {
      */
     clickNavigateTime(type) {
       this.nav = type;
+      this.goodsList = [];
       this.diffTime = parseInt(new Date().getTime() / 1000) - this.resTime;
       this.time =
         this.timeLine[this.nav].distanceStartTime ||

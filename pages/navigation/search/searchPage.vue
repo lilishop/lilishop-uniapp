@@ -1,10 +1,9 @@
 <template>
   <view class="content">
     <u-navbar :background="navObj" :is-back="false">
-      <!-- mSearch组件 如果使用原样式，删除组件元素-->
-
-      <mSearch ref="mSearch" class="mSearch-input-box" @clickLeft="back" :mode="2" :placeholder="defaultKeyword" @search="doSearch(false)" @input="inputChange" @confirm="doSearch(false)"
-        @SwitchType="doSearchSwitch()" v-model="keyword" :isFocusVal="!isShowSeachGoods"></mSearch>
+      <mSearch ref="mSearch" class="mSearch-input-box" @clickLeft="back" :mode="2" :placeholder="defaultKeyword"
+        @search="doSearch(false)" @confirm="doSearch(false)" @SwitchType="doSearchSwitch()" v-model="keyword"
+        :isFocusVal="!isShowSeachGoods"></mSearch>
     </u-navbar>
 
     <view class="search-keyword" v-if="!isShowSeachGoods">
@@ -23,22 +22,19 @@
             <view class="u-tips">热门搜索</view>
           </view>
           <view class="keyword keywordBox">
-            <view class="wes" v-for="(keyword, index) in hotKeywordList" @tap="doSearch(keyword)" :key="index">{{ keyword }}</view>
+            <view class="wes" v-for="(keyword, index) in hotKeywordList" @tap="doSearch(keyword)" :key="index">
+              {{ keyword }}</view>
           </view>
-
         </view>
-
         <view class="keyword-block" v-if="oldKeywordList.length > 0">
           <view class="keyword-list-header">
             <view class="u-tips">搜索历史</view>
-
           </view>
           <div class="oldKeyList">
-
-            <div class="oldKeyItem" v-if="keyword" v-for="(keyword, index) in oldKeywordList" :key="index" @click="doSearch(keyword)">
+            <div class="oldKeyItem" v-if="keyword" v-for="(keyword, index) in oldKeywordList" :key="index"
+              @click="doSearch(keyword)">
               <span>{{ keyword }} </span>
             </div>
-
             <div @click="showMore" v-if=" oldKeywordIndex > loadIndex" class="oldKeyItem">展示更多</div>
           </div>
         </view>
@@ -54,11 +50,13 @@
           <text>销量</text>
           <view class="p-box">
             <view class="index-nav-arrow">
-              <image class="img" src="/static/index/arrow-up-1.png" v-if="params.sort === 'buyCount' && params.order === 'asc'" mode="aspectFit"></image>
+              <image class="img" src="/static/index/arrow-up-1.png"
+                v-if="params.sort === 'buyCount' && params.order === 'asc'" mode="aspectFit"></image>
               <image class="img" src="/static/index/arrow-up.png" v-else mode="aspectFit"></image>
             </view>
             <view class="index-nav-arrow">
-              <image class="img" src="/static/index/arrow-down.png" v-if="params.sort === 'buyCount' && params.order === 'desc'" mode="aspectFit"></image>
+              <image class="img" src="/static/index/arrow-down.png"
+                v-if="params.sort === 'buyCount' && params.order === 'desc'" mode="aspectFit"></image>
               <image class="img" src="/static/index/arrow-down-1.png" v-else mode="aspectFit"></image>
             </view>
           </view>
@@ -67,11 +65,13 @@
           <text>价格</text>
           <view class="p-box">
             <view class="index-nav-arrow">
-              <image class="img" src="/static/index/arrow-up-1.png" v-if="params.sort === 'price' && params.order === 'asc'" mode="aspectFit"></image>
+              <image class="img" src="/static/index/arrow-up-1.png"
+                v-if="params.sort === 'price' && params.order === 'asc'" mode="aspectFit"></image>
               <image class="img" src="/static/index/arrow-up.png" v-else mode="aspectFit"></image>
             </view>
             <view class="index-nav-arrow">
-              <image class="img" src="/static/index/arrow-down.png" v-if="params.sort === 'price' && params.order === 'desc'" mode="aspectFit"></image>
+              <image class="img" src="/static/index/arrow-down.png"
+                v-if="params.sort === 'price' && params.order === 'desc'" mode="aspectFit"></image>
               <image class="img" src="/static/index/arrow-down-1.png" v-else mode="aspectFit"></image>
             </view>
           </view>
@@ -80,7 +80,8 @@
       </view>
       <!-- 一行一个商品展示 -->
       <div v-if="isSWitch">
-        <scroll-view :style="{ height: goodsHeight }" enableBackToTop="true" lower-threshold="250" @scrolltolower="loadmore()" scroll-with-animation scroll-y class="scoll-page">
+        <scroll-view :style="{ height: goodsHeight }" enableBackToTop="true" lower-threshold="250"
+          @scrolltolower="loadmore()" scroll-with-animation scroll-y class="scoll-page">
           <div class="goodsClass">
             <u-row v-for="(item, index) in goodsList" :key="index" class="goodsRow">
               <u-col :span="4" @click.native="navigateToDetailPage(item)" class="switchType1">
@@ -113,7 +114,8 @@
               <u-col :span="12" class="storeSellerBox">
                 <div class="storeSellerName" @click="clickTostore()">
                   <div class="textHidden">
-                    <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营" type="error" />
+                    <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营"
+                      type="error" />
 
                     <span style="
                         color: #333333;
@@ -148,9 +150,11 @@
           !isSWitch &&
           !(goodsList == [] || goodsList == '' || goodsList == null)
         ">
-        <scroll-view :style="{ height: goodsHeight }" scroll-anchoring enableBackToTop="true" @scrolltolower="loadmore()" scroll-with-animation scroll-y lower-threshold="250" class="scoll-page">
+        <scroll-view :style="{ height: goodsHeight }" scroll-anchoring enableBackToTop="true"
+          @scrolltolower="loadmore()" scroll-with-animation scroll-y lower-threshold="250" class="scoll-page">
           <view class="goods-list">
-            <view v-for="(item, index) in goodsList" :key="index" class="goods-item" @click="navigateToDetailPage(item)">
+            <view v-for="(item, index) in goodsList" :key="index" class="goods-item"
+              @click="navigateToDetailPage(item)">
               <view class="image-wrapper">
                 <image :src="item.thumbnail" mode="aspectFill"></image>
               </view>
@@ -179,7 +183,8 @@
                 </div>
                 <div class="storeSellerName">
                   <div class="textHidden">
-                    <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营" type="error" />
+                    <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营"
+                      type="error" />
                     <span>{{ item.storeName || "暂无" }}</span>
                   </div>
                   <span>
@@ -201,7 +206,8 @@
           <view class="sort-item">
             <view class="sort-title"> 品牌 </view>
             <view class="flex" v-if="sortData.brands">
-              <view class="sort-brand-item" :key="brandsIndex" v-for="(brand, brandsIndex) in sortData.brands" @click="handleSort(brand, brandsIndex, 'brand')">
+              <view class="sort-brand-item" :key="brandsIndex" v-for="(brand, brandsIndex) in sortData.brands"
+                @click="handleSort(brand, brandsIndex, 'brand')">
                 <view class="sort-radius" :class="{
                     'sort-active': brand.__selected,
                   }">
@@ -214,7 +220,9 @@
           <view class="sort-item">
             <view class="sort-title"> 全部分类 </view>
             <view class="flex" style="flex-wrap: wrap;" v-if="sortData.categories">
-              <view class="sort-brand-item" :key="categoriesIndex" v-for="(categoryId, categoriesIndex) in sortData.categories" @click="handleSort(categoryId, categoriesIndex, 'categoryId')">
+              <view class="sort-brand-item" :key="categoriesIndex"
+                v-for="(categoryId, categoriesIndex) in sortData.categories"
+                @click="handleSort(categoryId, categoriesIndex, 'categoryId')">
                 <view class="sort-radius" :class="{
                     'sort-active': categoryId.__selected,
                   }">
@@ -248,7 +256,8 @@
           <view class="sort-item" :key="paramIndex" v-for="(param, paramIndex) in sortData.paramOptions">
             <view class="sort-title"> {{ param.key }} </view>
             <view class="flex" style="flex-warp:warp" v-if="param.values">
-              <view class="sort-brand-item" :key="i" v-for="(value, i) in param.values" @click="handleSort(value, i, 'prop', param)">
+              <view class="sort-brand-item" :key="i" v-for="(value, i) in param.values"
+                @click="handleSort(value, i, 'prop', param)">
                 <view class="sort-radius" :class="{
                     'sort-active': value.__selected,
                   }">
@@ -337,7 +346,6 @@ export default {
     };
   },
   onLoad(val) {
-    // return false
     this.init();
     this.initSortGoods();
     // 接收分类的数据
@@ -360,8 +368,26 @@ export default {
     this.loadData();
   },
   components: {
-    //引用mSearch组件，如不需要删除即可
     mSearch,
+  },
+  watch: {
+    /**
+     * 将搜索的字和热词进行匹配,如果为热词则不改商品搜索关键字
+     */
+    keyword(val) {
+      if (val) {
+        let identical = this.hotKeywordList.some((item) => {
+          return item == val;
+        });
+        if (!identical) {
+          this.defaultKeyword = "请输入搜索商品";
+        } else {
+          this.defaultKeyword = val;
+        }
+      } else {
+        this.defaultKeyword = "请输入搜索商品";
+      }
+    },
   },
 
   onReachBottom() {
@@ -497,8 +523,9 @@ export default {
     },
 
     init() {
-      this.loadDefaultKeyword();
+      // 加载搜索记录
       this.loadOldKeyword(this.loadIndex);
+      // 加载热词
       this.loadHotKeyword();
     },
     blur() {
@@ -577,8 +604,16 @@ export default {
     },
     //加载默认搜索关键字
     loadDefaultKeyword() {
-      //定义默认搜索关键字，可以自己实现ajax请求数据再赋值,用户未输入时，以水印方式显示在输入框，直接不输入内容搜索会搜索默认关键字
-      this.defaultKeyword = "请输入搜索商品";
+      /**
+       * 定义默认搜索关键字会根据当前热门搜索来进行显示
+       * 如果当前热门搜索没有的话，则会显示默认关键字
+       */
+      if (this.hotKeywordList.length != 0) {
+        //
+        this.defaultKeyword = this.hotKeywordList[0];
+      } else {
+        this.defaultKeyword = "请输入搜索商品";
+      }
     },
     //加载历史搜索,自动读取本地Storage
     loadOldKeyword(index) {
@@ -626,6 +661,7 @@ export default {
           this.hotKeywordList.push(item);
         });
       }
+      this.loadDefaultKeyword();
     },
     //加载商品 ，带下拉刷新和上滑加载
     async loadData(type, loading) {
@@ -643,19 +679,7 @@ export default {
       this.initSortGoods();
       uni.hideLoading();
     },
-    //监听输入
-    inputChange(event) {
-      //兼容引入组件时传入参数情况
-      var keyword = event.detail ? event.detail.value : event;
-      if (!keyword) {
-        this.keywordList = [];
-        this.isShowKeywordList = false;
-        return;
-      }
-      this.isShowKeywordList = true;
 
-      this.getKeywordNumFun(keyword);
-    },
     //高亮关键字
     drawCorrelativeKeyword(keywords, keyword) {
       var len = keywords.length,
@@ -696,14 +720,27 @@ export default {
     },
 
     // 样式修改布局
-    doSearchSwitch(val) {
+    doSearchSwitch() {
       this.isSWitch = !this.isSWitch;
       this.isShowSeachGoods = true;
     },
 
-    //执行搜索
+    /**
+     * 执行搜索
+     */
     doSearch(keyword) {
+      //  用户自行搜索/热门搜索/搜索历史
       keyword = keyword === false ? this.keyword : keyword;
+
+      if (!keyword) {
+        /**
+         * 进行空搜索
+         * 第一次搜索如果没有关键词会将热门搜索中第一个热词进行判定
+         * 如果没有热词则会展示一个空词搜索
+         */
+        keyword = (this.hotKeywordList.length && this.hotKeywordList[0]) || "";
+      }
+      this.defaultKeyword == "请输入搜索商品" ? (keyword = "") : "";
       this.keyword = keyword;
       this.saveKeyword(keyword); //保存为历史
       this.isShowSeachGoods = true;
@@ -711,7 +748,6 @@ export default {
       this.params.keyword = keyword;
       this.params.pageNumber = 1;
       this.$set(this.sortParams, "keyword", keyword);
-
       this.loadData("refresh", 1);
     },
     //保存关键字到历史记录
@@ -746,12 +782,6 @@ export default {
           this.oldKeywordList = OldKeys; //更新历史搜索
         },
       });
-    },
-
-    // 搜索关键字
-    getKeywordNumFun(keywords) {
-      this.params.keyword = keywords;
-      this.$set(this.sortParams, "keyword", keywords);
     },
   },
 };

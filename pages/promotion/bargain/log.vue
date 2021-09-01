@@ -81,7 +81,7 @@ page {
 </style>
 <style scoped lang="scss">
 .box {
-  padding: 32rpx;
+  padding: 0 32rpx;
   background: #fff;
 }
 .buy {
@@ -99,6 +99,7 @@ page {
   flex: 1;
   justify-content: center;
   display: flex;
+
   align-items: center;
 }
 .tips {
@@ -118,6 +119,12 @@ page {
   flex: 2;
   flex-direction: column;
   justify-content: center;
+}
+.flex {
+  border-bottom: 1rpx solid #f7f7f7;
+
+  padding: 20rpx 0;
+  margin: 10rpx 0;
 }
 .SUCCESS {
   color: $light-color;

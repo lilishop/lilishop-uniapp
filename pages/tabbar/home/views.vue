@@ -25,7 +25,9 @@
       <textPicture v-if="item.type == 'textPicture'" :res="item.options" />
       <menuLayout v-if="item.type == 'menu'" :res="item.options" />
       <flexOne v-if="item.type == 'flexOne'" :res="item.options" />
+
       <goods v-if="item.type == 'goods'" :res="item.options" />
+
       <group v-if="item.type == 'group'" :res="item.options" />
       <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
       <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
@@ -94,8 +96,6 @@ export default {
   },
 
   mounted() {
- 
-
     this.init();
     // #ifdef MP-WEIXIN
     // 小程序默认分享

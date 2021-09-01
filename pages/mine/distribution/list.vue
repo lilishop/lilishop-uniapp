@@ -222,7 +222,7 @@ export default {
      */
     handleNavgationGoods(val) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${val.skuId}&goodsId=${val.id}`,
+        url: `/pages/product/goods?id=${val.skuId}&goodsId=${val.goodsId}`,
       });
     },
 
