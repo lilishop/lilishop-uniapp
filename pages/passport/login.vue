@@ -4,9 +4,9 @@
     <view class="login-ball bg-linear-gradient small"></view>
 
     <view class="logo-cell">
-      <image class="logo" src="/static/logo.png" mode="aspectFit"></image>
+      <image class="logo" :src="config.logo" mode="aspectFit"></image>
     </view>
-    <view class="title">LiLi商城</view>
+    <view class="title">{{config.name}}</view>
 
     <!-- 验证码登录 -->
     <codeLogin @open="open" :status="value" v-if="login && loginData.code" />
@@ -31,8 +31,8 @@ import { getUserInfo } from "@/api/members";
 import storage from "@/utils/storage.js";
 import { loginCallback } from "@/api/connect.js";
 import { webConnect } from "@/api/connect.js";
+import config from "@/config/config";
 export default {
-
   onShow() {
     // #ifdef MP-WEIXIN
     this.mpWechatLogin = false;
@@ -65,7 +65,8 @@ export default {
   },
   data() {
     return {
-      lightColor:this.$lightColor,
+      config,
+      lightColor: this.$lightColor,
       mpWechatLogin: true, //是否加载微信登录
       value: true, //隐私政策
       loginData: {
@@ -102,7 +103,6 @@ export default {
     //联合信息返回登录
     stateLogin(state) {
       loginCallback(state).then((res) => {
-      
         let data = res.data;
         if (data.success) {
           storage.setAccessToken(data.result.accessToken);

@@ -13,7 +13,7 @@
             :fade="true"
             duration="450"
             :lazy-load="true"
-            :src="item.thumbnail"
+            :src="item.content.thumbnail"
             width="330rpx"
             height="330rpx"
             class="like-goods-uimage"
@@ -21,12 +21,12 @@
             <u-loading slot="loading"></u-loading>
           </u-image>
           <view style="background-color: #ffffff; width: 100%">
-            <view class="name">{{ item.goodsName }}</view>
+            <view class="name">{{ item.content.goodsName }}</view>
             <view class="price-sales">
-              <div class="item-price" v-if="item.price != undefined">
+              <div class="item-price" v-if="item.content.price != undefined">
                 ￥
-                <span>{{ formatPrice(item.price)[0] }}</span>
-                .{{formatPrice(item.price)[1]}}
+                <span>{{ formatPrice(item.content.price)[0] }}</span>
+                .{{formatPrice(item.content.price)[1]}}
                 <!-- <text v-if="item.point != undefined">+{{ item.point }}积分</text> -->
               </div>
             </view>
@@ -44,7 +44,7 @@ export default {
     // 点击店铺推荐
     clickGoods(val) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`
+        url: `/pages/product/goods?id=${val.content.id}&goodsId=${val.content.goodsId}`
       });
     },
     // 格式化金钱  1999 --> [1999,00]

@@ -5,12 +5,12 @@
     <div class="contant">
       <view v-if="!goodsList.length" class="empty">暂无商品信息</view>
       <view v-else class="item" v-for="(item,index) in goodsList" :key="index" @click="navigateToGoodsDetail(item)">
-        <u-image width="100%" mode="aspectFit" height="324rpx" :src="item.thumbnail">
+        <u-image width="100%" mode="aspectFit" height="324rpx" :src="item.content.thumbnail">
           <u-loading slot="loading"></u-loading>
         </u-image>
-        <div class="name">{{ item.goodsName }}</div>
+        <div class="name">{{ item.content.goodsName }}</div>
         <div class="price">
-          <div>￥{{ item.price | unitPrice }}</div>
+          <div>￥{{ item.content.price | unitPrice }}</div>
         </div>
         <view class="buyCount">
           <div>已售 {{ item.buyCount || "0" }}</div>
@@ -61,11 +61,12 @@ export default {
      */
     navigateToGoodsDetail(val) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
+        url: `/pages/product/goods?id=${val.content.id}&goodsId=${val.content.goodsId}`,
       });
     },
 
     async getGoodsData() {
+      // #TODO
       let goodsList = await getGoodsList(this.params);
       if (goodsList.data.success) {
         this.goodsList.push(...goodsList.data.result.content);

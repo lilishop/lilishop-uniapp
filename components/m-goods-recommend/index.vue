@@ -4,16 +4,16 @@
     <div class="goods-list">
       <div @click="handleClick(item)" class="goods-item" v-for="(item, item_index) in goodsList" :key="item_index">
         <div class="goods-img">
-          <u-image :src="item.thumbnail" mode="aspectFill" height="350rpx" width="100%">
+          <u-image :src="item.content.thumbnail" mode="aspectFill" height="350rpx" width="100%">
             <u-loading slot="loading"></u-loading>
           </u-image>
         </div>
         <div class="goods-desc">
           <div class="goods-title">
-            {{ item.goodsName }}
+            {{ item.content.goodsName }}
           </div>
           <div class="goods-bottom">
-            <div class="goods-price">￥{{ item.price | unitPrice }}</div>
+            <div class="goods-price">￥{{ item.content.price | unitPrice }}</div>
           </div>
         </div>
       </div>
@@ -73,13 +73,12 @@ export default {
           delete submit[key];
         }
       });
-
       let goodsList = await getGoodsList(submit);
       this.goodsList.push(...goodsList.data.result.content);
     },
     handleClick(item) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
+        url: `/pages/product/goods?id=${item.content.id}&goodsId=${item.content.goodsId}`,
       });
     },
   },

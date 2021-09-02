@@ -7,9 +7,11 @@
     <!-- 仅h5有效 打开App -->
 
     <!-- 分享 -->
-    <shares v-if="shareFlage && goodsDetail.id" :skuId="this.routerVal.id" :goodsId="this.routerVal.goodsId" :link="'/pages/product/goods?id='+this.routerVal.id+'&goodsId='+this.routerVal.goodsId"
+    <shares v-if="shareFlage && goodsDetail.id" :skuId="this.routerVal.id" :goodsId="this.routerVal.goodsId"
+      :link="'/pages/product/goods?id='+this.routerVal.id+'&goodsId='+this.routerVal.goodsId"
       :thumbnail="goodsDetail.thumbnail" :goodsName="goodsDetail.goodsName" type="goods" @close="shareFlage = false" />
-    <popups v-model="popupsSwitch" @tapPopup="handleNavbarList" :popData="navbarListData" :x="navbarListX" :y="navbarListY" placement="top-start" />
+    <popups v-model="popupsSwitch" @tapPopup="handleNavbarList" :popData="navbarListData" :x="navbarListX"
+      :y="navbarListY" placement="top-start" />
     <view class="index">
 
       <!-- topBar -->
@@ -22,7 +24,8 @@
           </div>
           <div class="headerList" :class="headerFlag ? 'tab-bar' : 'tab-bar scroll-hide'">
             <div class="headerRow">
-              <div class="nav-item" v-for="header in headerList" :key="header.id" :class="{ cur: scrollId === header.id }" @click="headerTab(header.id)">
+              <div class="nav-item" v-for="header in headerList" :key="header.id"
+                :class="{ cur: scrollId === header.id }" @click="headerTab(header.id)">
                 {{ header.text }}
               </div>
             </div>
@@ -30,7 +33,8 @@
         </div>
       </u-navbar>
 
-      <u-navbar :border-bottom="false" v-show="!headerFlag" class="header-only-back" :background="navbarOnlyBack" :is-back="false">
+      <u-navbar :border-bottom="false" v-show="!headerFlag" class="header-only-back" :background="navbarOnlyBack"
+        :is-back="false">
         <div>
           <div class="bg-back">
             <u-icon size="40" @click="back()" name="arrow-left" class="icon-back"></u-icon>
@@ -42,7 +46,8 @@
     </view>
 
     <view class="product-container" :style="{ height: productRefHeight }" ref="productRef" id="productRef">
-      <scroll-view scroll-anchoring enableBackToTop="true" scroll-with-animation scroll-y class="scroll-page" :scroll-top="tabScrollTop" @scroll="pageScroll">
+      <scroll-view scroll-anchoring enableBackToTop="true" scroll-with-animation scroll-y class="scroll-page"
+        :scroll-top="tabScrollTop" @scroll="pageScroll">
         <view>
           <!-- 轮播图 -->
           <GoodsSwiper id="main1" :res="imgList" />
@@ -58,7 +63,8 @@
                   {{ goodsDetail.goodsName || "" }}
                 </view>
                 <view class="favorite" @click="clickFavorite(goodsDetail.id)">
-                  <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'" :name="favorite ? 'heart-fill' : 'heart'"></u-icon>
+                  <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'" :name="favorite ? 'heart-fill' : 'heart'">
+                  </u-icon>
                   <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{ favorite ? "已收藏" : "收藏" }}</view>
                 </view>
               </view>
@@ -88,7 +94,8 @@
                     <view>分享</view>
                   </view>
                   <view class="icons" @click="clickFavorite(goodsDetail.id)">
-                    <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'" :name="favorite ? 'heart-fill' : 'heart'"></u-icon>
+                    <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'"
+                      :name="favorite ? 'heart-fill' : 'heart'"></u-icon>
                     <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{ favorite ? "已收藏" : "收藏" }}</view>
                   </view>
                 </view>
@@ -153,7 +160,8 @@
           <storeLayout id="main7" :storeDetail="storeDetail" :goodsDetail="goodsDetail" :res="recommendList" />
 
           <!-- 宝贝详情 -->
-          <GoodsIntro id="main9" :res="goodsDetail" :goodsParams="goodsParams" :goodsId="goodsDetail.goodsId" v-if="goodsDetail.id" />
+          <GoodsIntro id="main9" :res="goodsDetail" :goodsParams="goodsParams" :goodsId="goodsDetail.goodsId"
+            v-if="goodsDetail.id" />
 
           <!-- 宝贝推荐 -->
           <GoodsRecommend id="main11" :res="likeGoodsList" />
@@ -178,7 +186,8 @@
         </view>
         <!-- 正常结算页面 -->
         <view class="detail-btn" v-if="!isGroup">
-          <view class="to-store-car to-store-btn" v-if="goodsDetail.goodsType!='VIRTUAL_GOODS'" @click="shutMask(4)">加入购物车</view>
+          <view class="to-store-car to-store-btn" v-if="goodsDetail.goodsType!='VIRTUAL_GOODS'" @click="shutMask(4)">
+            加入购物车</view>
           <view class="to-buy to-store-btn" @click="shutMask(4, 'buy')">立即购买</view>
           <view class="to-store-car to-store-btn" v-if="startTimer">暂未开始</view>
         </view>
@@ -215,10 +224,12 @@
         </view>
 
         <!-- 配送地址弹窗 -->
-        <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id" :goodsId="goodsDetail.id" :addressFlag="addressFlag" />
+        <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id"
+          :goodsId="goodsDetail.id" :addressFlag="addressFlag" />
 
         <!-- 商品规格  商品详情，以及默认参与活动的id-->
-        <popupGoods :addr="delivery" ref="popupGoods" @changed="changedGoods" @closeBuy="closePopupBuy" @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :id="productId"
+        <popupGoods :addr="delivery" ref="popupGoods" @changed="changedGoods" @closeBuy="closePopupBuy"
+          @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :id="productId"
           v-if="goodsDetail.id " :pointDetail="pointDetail" @handleClickSku="selectSku" :buyMask="buyMask" />
       </view>
     </view>
@@ -510,11 +521,11 @@ export default {
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
 
-
       let response = await getGoods(id, goodsId);
       if (!response.data.success) {
-        uni.navigateBack();
-        return false;
+        setTimeout(()=>{
+          uni.navigateBack();
+        },500)
       }
       // 这里是绑定分销员
       if (distributionId || this.$store.state.distributionId) {
@@ -719,6 +730,7 @@ export default {
 
     /**
      * 获取相似商品列表
+     * 
      */
     getOtherLikeGoods() {
       getGoodsList({
@@ -728,7 +740,6 @@ export default {
         keyword: this.goodsDetail.name,
       }).then((res) => {
         this.likeGoodsList = res.data.result.content;
-        console.warn(this.likeGoodsList);
       });
     },
 

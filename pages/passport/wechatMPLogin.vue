@@ -12,7 +12,7 @@
     <view class="wx-auth-container">
       <div class="box">
         <view class="logo-info">
-          <text class="title">欢迎进入{{ projectName }}商城</text>
+          <text class="title">欢迎进入{{ projectName }}</text>
         </view>
         <view class="small-tips">
           <view>为您提供优质服务,{{ projectName }}需要获取以下信息</view>
@@ -33,13 +33,14 @@ import { mpAutoLogin } from "@/api/connect.js";
 import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import { getUserInfo } from "@/api/members";
 import storage from "@/utils/storage.js";
+import config from '@/config/config'
 export default {
   data() {
     return {
       // 是否展示手机号码授权弹窗，默认第一步不展示，要先获取用户基础信息
       phoneAuthPopup: false,
       // 授权信息展示，商城名称
-      projectName: "LiLi",
+      projectName: config.name,
       //微信返回信息，用于揭秘信息，获取sessionkey
       code: "",
       //微信昵称

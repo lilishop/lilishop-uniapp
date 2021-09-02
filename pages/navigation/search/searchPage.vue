@@ -85,16 +85,16 @@
           <div class="goodsClass">
             <u-row v-for="(item, index) in goodsList" :key="index" class="goodsRow">
               <u-col :span="4" @click.native="navigateToDetailPage(item)" class="switchType1">
-                <u-image width="182rpx" height="200rpx" class="imgGoods" :src="item.thumbnail">
+                <u-image width="182rpx" height="200rpx" class="imgGoods" :src="item.content.thumbnail">
                   <u-loading slot="loading"></u-loading>
                 </u-image>
               </u-col>
               <u-col :span="8" @click.native="navigateToDetailPage(item)" class="switchType2">
-                <div class="title clamp3" style="">{{ item.goodsName }}</div>
+                <div class="title clamp3" style="">{{ item.content.goodsName }}</div>
                 <view class="price-box">
-                  <div class="price" v-if="item.price!=undefined">
-                    ¥<span>{{ formatPrice(item.price )[0] }} </span>.{{
-                      formatPrice(item.price )[1]
+                  <div class="price" v-if="item.content.price!=undefined">
+                    ¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
+                      formatPrice(item.content.price )[1]
                     }}
                   </div>
                 </view>
@@ -156,15 +156,15 @@
             <view v-for="(item, index) in goodsList" :key="index" class="goods-item"
               @click="navigateToDetailPage(item)">
               <view class="image-wrapper">
-                <image :src="item.thumbnail" mode="aspectFill"></image>
+                <image :src="item.content.thumbnail" mode="aspectFill"></image>
               </view>
               <view class="goods-detail">
-                <div class="title clamp">{{ item.goodsName }}</div>
+                <div class="title clamp">{{ item.content.goodsName }}</div>
                 <view class="price-box">
-                  <div class="price" v-if="item.price!=undefined">
+                  <div class="price" v-if="item.content.price!=undefined">
 
-                    ¥<span>{{ formatPrice(item.price )[0] }} </span>.{{
-                      formatPrice(item.price )[1]
+                    ¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
+                      formatPrice(item.content.price )[1]
                     }}
                   </div>
                 </view>
@@ -538,7 +538,7 @@ export default {
     },
     navigateToDetailPage(item) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
+        url: `/pages/product/goods?id=${item.content.id}&goodsId=${item.content.goodsId}`,
       });
     },
     loadmore() {
@@ -669,7 +669,7 @@ export default {
       if (type == "refresh") {
         this.goodsList = [];
       }
-      //没有更多直接返回
+      //没有更多直接返回 #TODO
       let goodsList = await getGoodsList(this.params);
 
       if (goodsList.data.result.content.length < 10) {

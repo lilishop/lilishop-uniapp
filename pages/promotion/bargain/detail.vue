@@ -124,6 +124,7 @@ import {
   helpBargain,
 } from "@/api/promotions";
 import shares from "@/components/m-share/index";
+import config from "@/config/config";
 export default {
   components: {
     shares,
@@ -178,7 +179,7 @@ export default {
     return {
       path: this.share(),
       title: `请快来帮我砍一刀${this.bargainDetail.goodsName}`,
-      imageUrl: this.thumbnail || require("@/static/logo.png"),
+      imageUrl: this.thumbnail || config.logo,
     };
   },
   // #endif

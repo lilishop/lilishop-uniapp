@@ -6,7 +6,7 @@
     <div class="wrapper">
       <!-- 店铺信息模块 -->
       <div class="store flex">
-        <u-image border-radius="10" width="150" height="150" :src="storeInfo.storeLogo || '/static/logo.png'" mode="aspectFit"></u-image>
+        <u-image border-radius="10" width="150" height="150" :src="storeInfo.storeLogo || config.logo" mode="aspectFit"></u-image>
         <div class="box">
           <div class="store-name" @click="getStoreLicencePhoto">
             {{ storeInfo.storeName || ''}}
@@ -60,15 +60,15 @@
     <div class="contant" v-if="current == 0">
       <view v-if="!goodsList.length" class="empty">暂无商品信息</view>
       <view v-else class="item" v-for="(item,index) in goodsList" :key="index" @click="navigateToGoodsDetail(item)">
-        <u-image width="100%" height="330rpx" mode="aspectFit" :src="item.thumbnail">
+        <u-image width="100%" height="330rpx" mode="aspectFit" :src="item.content.thumbnail">
           <u-loading slot="loading"></u-loading>
         </u-image>
-        <div class="name">{{ item.goodsName }}</div>
+        <div class="name">{{ item.content.goodsName }}</div>
         <div class="price">
-          <div>￥{{ item.price | unitPrice }}</div>
+          <div>￥{{ item.content.price | unitPrice }}</div>
         </div>
         <view class="buyCount">
-          <div>已售 {{ item.buyCount || "0" }}</div>
+          <div>已售 {{ item.content.buyCount || "0" }}</div>
         </view>
       </view>
     </div>
@@ -99,13 +99,14 @@ import {
   collectionGoods,
   getGoodsIsCollect,
 } from "@/api/members.js";
-
+import config from '@/config/config'
 import storage from "@/utils/storage";
 import { getGoodsList } from "@/api/goods.js";
 import { getAllCoupons } from "@/api/promotions.js";
 export default {
   data() {
     return {
+      config,
       scrollTop: 0,
       mainColor: this.$mainColor, //主色调
       current: 0, //初始tabs的索引
@@ -278,7 +279,7 @@ export default {
      */
     navigateToGoodsDetail(val) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
+        url: `/pages/product/goods?id=${val.content.id}&goodsId=${val.content.goodsId}`,
       });
     },
 

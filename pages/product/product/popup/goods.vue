@@ -63,7 +63,7 @@
           <!-- 数量 -->
           <view class="goods-skus-number">
             <view class="view-class-title">数量</view>
-            <u-number-box :bg-color="numberBox.bgColor" :color="numberBox.color" :input-width="numberBox.width" :input-height="numberBox.height" :size="numberBox.size" :min="1" v-model="num">
+            <u-number-box :bg-color="numberBox.bgColor"  :max="200"  :color="numberBox.color" :input-width="numberBox.width" :input-height="numberBox.height" :size="numberBox.size" :min="1" v-model="num">
             </u-number-box>
           </view>
         </view>

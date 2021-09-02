@@ -790,7 +790,7 @@ page {
 
 .wrapper {
   height: auto;
-  background: #ededed;
+  background: #f7f7f7;
   padding-bottom: 200rpx;
   overflow: auto !important;
 }
