@@ -1,26 +1,30 @@
 <template>
   <view class="sign-in">
-    <view class="signin-btn-con">
-      <div class="circle-box">
-        <div class="cricle" @click="signIn()">
-          <span v-if="!ifSign" :class="{ active: signFlag || ifSign }">签到</span>
-          <span v-else :class="{ active: signFlag || ifSign }" :style="ifSign ? 'transform: rotateY(0deg);' : ''">已签</span>
+    <view class="date-card">
+      <div class="box">
+        <div class="circle-box">
+          <div class="cricle" @click="signIn()">
+            <span v-if="!ifSign" :class="{ active: signFlag || ifSign }">签到</span>
+            <span v-else :class="{ active: signFlag || ifSign }"
+              :style="ifSign ? 'transform: rotateY(0deg);' : ''">已签</span>
+          </div>
         </div>
+        <text class="tips">坚持每天连续签到可以获多重奖励哦</text>
       </div>
-      <text class="tips">坚持每天连续签到可以获多重奖励哦</text>
     </view>
     <div class="date-card">
       <view class="date-con">
         <view class="date-tit">
-          <u-row style="width: 100%;  justify-content: center;">
-            <div style="text-align: center; " class="text">{{ currentMonth }} {{ currentYear }}</div>
-          </u-row>
+          <div class="current-month">
+            <div class="day">每日记录<span> ({{ currentMonth }})</span></div>
+          </div>
         </view>
         <view class="week">
           <text v-for="item in weekArr" :key="item.id">{{ item }}</text>
         </view>
         <view class="date" v-for="obj in dataObj" :key="obj.id">
-          <view class="item" v-for="item in obj" :key="item.id" :class="item == '' ? 'hide' : ''" :animation="item == currentDay ? animationData : ''">
+          <view class="item" v-for="item in obj" :key="item.id" :class="item == '' ? 'hide' : ''"
+            :animation="item == currentDay ? animationData : ''">
             <view class="just" :class="signArr.indexOf(item) != -1 ? 'active' : ''">
               <view class="top">{{ item }} </view>
               <view class="bottom">
@@ -36,7 +40,7 @@
               ">
               <view class="top">{{ item }}</view>
               <view class="bottom">
-                <u-icon name="checkmark" color="#ff9f28"></u-icon>
+                <u-icon name="checkmark" :color="aiderLightColor"></u-icon>
               </view>
             </view>
           </view>
@@ -50,7 +54,7 @@
         <text class="close" @click="close">×</text>
       </view>
       <view class="mask-con">
-        <u-icon size="120" style="margin: 50rpx 0" color="#ff9f28" name="checkmark"></u-icon>
+        <u-icon size="120" style="margin: 50rpx 0" :color="aiderLightColor" name="checkmark"></u-icon>
         <text class="text">连续签到可获得额外奖励哦！</text>
       </view>
     </view>
@@ -62,7 +66,7 @@ import { sign, signTime } from "@/api/point.js";
 export default {
   data() {
     return {
-  
+      aiderLightColor:this.$aiderLightColor,
       signFlag: false,
       animationData: {},
       maskFlag: false, //
@@ -105,7 +109,6 @@ export default {
     this.getDate();
   },
   methods: {
-
     /**
      * 补0
      */
@@ -116,7 +119,7 @@ export default {
         return "0" + val;
       }
     },
-  
+
     /**
      * 点击签到
      */
@@ -205,7 +208,6 @@ export default {
           Number(itemVal[1]) === Number(this.currentMonthIndex)
         ) {
           this.signArr.push(Number(itemVal[2]));
-         
         }
         if (
           Number(itemVal[0]) === Number(date.getFullYear()) &&
@@ -285,70 +287,79 @@ export default {
   },
 };
 </script>
-
+<style scoped>
+page {
+  background: #f7f7f7;
+}
+</style>
 <style lang="scss" scoped>
 .date-card {
-  padding: 0 40rpx;
+  padding: 0 32rpx;
+  margin: 32rpx 0;
+  box-shadow: 0 4rpx 24rpx 0 rgba($color: #f6f6f6, $alpha: 1);
 }
 .tips {
-  margin-top: 34rpx;
+  margin-top: 54rpx;
+  color: #999;
+  font-size: 24rpx;
+  letter-spacing: 1rpx;
 }
+
 .circle-box {
   width: 200rpx;
   height: 200rpx;
   border-radius: 50%;
-  margin-top: 60rpx;
-  background: #ff9f28;
+  background: $aider-light-color;
+  box-shadow: 0 4rpx 24rpx 0 rgba($color: $aider-light-color, $alpha: 1);
   display: flex;
   justify-content: center; //这个是X轴居中
   align-items: center; //这个是 Y轴居中
+ 
 }
 
 .cricle {
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
-  background: #ff9f28;
+  background: $aider-light-color;
   text-align: center;
   line-height: 160rpx;
   color: #fff;
   font-size: 40rpx;
 }
-
-page {
-  background: #fff;
+.current-month {
+  width: 100%;
+  margin: 20rpx 0;
 }
-
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding:64rpx 32rpx;
+  background: #fff;
+  border-radius: 20rpx;
+}
 .sign-in {
   color: #333;
-  .signin-btn-con {
-    width: 100%;
-    height: 670rpx;
-    background-image: linear-gradient(180deg, #ff6b35, #ff9f28, #ffcc03);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text {
-      color: #fff;
-      font-size: 28rpx;
-      font-weight: 400;
-    }
-  }
-
   .date-con {
     background: #fff;
     min-height: 730rpx;
-    border-radius: 0.8em;
-    border: 1px solid #ededed;
+    border-radius: 20rpx;
     padding: 0 28rpx;
-    transform: translateY(-320rpx);
-    box-shadow: (1px 3px 5px rgba(0, 0, 0, 0.2));
   }
+  .day {
+    font-size: 36rpx;
 
+    > span {
+      font-size: 30rpx;
+      color: #999;
+      margin-left: 20rpx;
+    }
+  }
   .date-tit {
     display: flex;
     justify-content: space-between;
-    margin: 30rpx 0;
+    margin: 0 0 30rpx 0;
   }
 
   .week {
@@ -419,7 +430,7 @@ page {
         }
 
         .top {
-          color: #ff9f28;
+          color: $aider-light-color;
         }
       }
 
@@ -461,7 +472,7 @@ page {
       width: 540rpx;
       height: 130rpx;
       line-height: 130rpx;
-      background: #ff9f28;
+      background: $aider-light-color;
       color: #fff;
       font-size: 40rpx;
       font-weight: 500;

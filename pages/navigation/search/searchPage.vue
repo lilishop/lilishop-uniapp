@@ -376,12 +376,7 @@ export default {
      */
     keyword(val) {
       if (val) {
-        let identical = this.hotKeywordList.some((item) => {
-          return item == val;
-        });
-        if (!identical) {
-          this.defaultKeyword = "请输入搜索商品";
-        } else {
+        if (val) {
           this.defaultKeyword = val;
         }
       } else {
@@ -741,11 +736,12 @@ export default {
         keyword = (this.hotKeywordList.length && this.hotKeywordList[0]) || "";
       }
       this.defaultKeyword == "请输入搜索商品" ? (keyword = "") : "";
-      this.keyword = keyword;
+      // this.keyword = keyword;
+      keyword ? (this.keyword = keyword) : "";
       this.saveKeyword(keyword); //保存为历史
       this.isShowSeachGoods = true;
       this.$refs.mSearch.isShowSeachGoods = true;
-      this.params.keyword = keyword;
+      this.params.keyword = this.keyword;
       this.params.pageNumber = 1;
       this.$set(this.sortParams, "keyword", keyword);
       this.loadData("refresh", 1);
