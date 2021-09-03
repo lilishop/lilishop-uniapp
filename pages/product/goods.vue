@@ -708,7 +708,7 @@ export default {
      */
     getGoodsCollectionFun(goodsId) {
       if (storage.getHasLogin()) {
-        API_Members.getGoodsIsCollect(goodsId, "GOODS").then((res) => {
+        API_Members.getGoodsIsCollect("GOODS",goodsId ).then((res) => {
           this.favorite = res.data.result;
         });
       }
