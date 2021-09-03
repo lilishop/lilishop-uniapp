@@ -820,7 +820,7 @@ export default {
         this.deleteGoodsCollectionFun(id);
         return false;
       }
-      API_Members.collectionGoods(id, "GOODS").then((res) => {
+      API_Members.collectionGoods("GOODS",id ).then((res) => {
         if (res.data.success) {
           uni.showToast({
             title: "收藏成功!",
