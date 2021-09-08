@@ -11,10 +11,11 @@
       <view v-if="tabCurrentIndex == 0" class="tab-content">
         <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadMore">
           <!-- 空白页 -->
-          <u-empty text="暂无收藏商品数据" mode="favor" v-if="goodsEmpty"></u-empty>
-           <!-- 商品展示数据 -->
-          <u-swipe-action @open="openLeftChange(item,index,'goods')" :show="item.selected" btn-width="180" :options="LeftOptions" v-else v-for="(item,index) in goodList"
-            @click="clickGoodsSwiperAction(item,index)" :index="index" :key="index">
+          <u-empty style="margin-top:40rpx;" text="暂无收藏商品数据" mode="favor" v-if="goodsEmpty"></u-empty>
+          <!-- 商品展示数据 -->
+          <u-swipe-action @open="openLeftChange(item,index,'goods')" :show="item.selected" btn-width="180"
+            :options="LeftOptions" v-else v-for="(item,index) in goodList" @click="clickGoodsSwiperAction(item,index)"
+            :index="index" :key="index">
             <view class="goods" @click="goGoodsDetail(item)">
               <u-image width="131rpx" height="131rpx" :src="item.image" mode="aspectFit">
                 <u-loading slot="loading"></u-loading>
@@ -34,9 +35,10 @@
       <view v-else class="tab-content">
         <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadMore">
           <!-- 空白页 -->
-          <u-empty text="暂无收藏店铺数据" mode="favor" v-if="storeEmpty"></u-empty>
+          <u-empty style="margin-top:40rpx;" text="暂无收藏店铺数据" mode="favor" v-if="storeEmpty"></u-empty>
           <!-- 店铺展示数据 -->
-          <u-swipe-action @open="openLeftChange(item,'store')" :show="item.selected" btn-width="180" :options="LeftOptions" v-else v-for="(item,index) in storeList" :key="index"
+          <u-swipe-action @open="openLeftChange(item,'store')" :show="item.selected" btn-width="180"
+            :options="LeftOptions" v-else v-for="(item,index) in storeList" :key="index"
             @click="clickstoreSwiperAction(item)">
             <view class="store" @click="gostoreMainPage(item.id)">
               <view class="intro">
@@ -47,7 +49,8 @@
                 </view>
                 <view class="store-name">
                   <view>{{item.storeName}}</view>
-                  <u-tag size="mini" type="error" :color="$mainColor" v-if="item.selfOperated" text="自营" mode="plain" shape="circle" />
+                  <u-tag size="mini" type="error" :color="$mainColor" v-if="item.selfOperated" text="自营" mode="plain"
+                    shape="circle" />
                 </view>
                 <view class="store-collect">
                   <view>进店逛逛</view>
@@ -133,7 +136,6 @@ export default {
      */
     clickGoodsSwiperAction(val) {
       deleteGoodsCollection(val.skuId).then((res) => {
-      
         if (res.statusCode == 200) {
           this.storeList = [];
           this.goodList = [];
@@ -159,7 +161,6 @@ export default {
      */
     tabClick(index) {
       this.tabCurrentIndex = index;
-  
     },
 
     /**

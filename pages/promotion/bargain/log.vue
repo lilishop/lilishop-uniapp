@@ -25,7 +25,7 @@
       </div>
     </div>
     <div v-else>
-      <u-empty text="暂无砍价活动"></u-empty>
+      <u-empty style="margin-top:20%;" text="暂无砍价活动"></u-empty>
     </div>
   </div>
 </template>
