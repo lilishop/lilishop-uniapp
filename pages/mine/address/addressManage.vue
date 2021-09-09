@@ -1,7 +1,7 @@
 <template>
   <view class="address">
-    <u-empty class="empty" v-if="empty" text="暂无收货地址" mode="address"></u-empty>
-    <view class="list" v-else>
+    <u-empty class="empty" v-if="this.addressList == 0" text="暂无收货地址" mode="address"></u-empty>
+    <view class="list" >
       <view class="item c-content" v-for="(item, index) in addressList" :key="index">
         <view class="basic">
           <text>{{ item.name }}</text>
@@ -50,7 +50,7 @@ export default {
     return {
       addressList: [], //地址列表
       showAction: false, //是否显示下栏框
-      empty: false, //是否为空
+  
       removeList: [
         {
           text: "确定",
@@ -112,14 +112,11 @@ export default {
         this.params.pageNumber,
         this.params.pageSize
       ).then((res) => {
-        if (res.data.result.records.length == 0) {
-          this.empty = true;
-        } else {
-          res.data.result.records.forEach((item) => {
-            item.consigneeAddressPath = item.consigneeAddressPath.split(",");
-          });
-          this.addressList = res.data.result.records;
-        }
+        res.data.result.records.forEach((item) => {
+          item.consigneeAddressPath = item.consigneeAddressPath.split(",");
+        });
+        this.addressList = res.data.result.records;
+
         uni.hideLoading();
       });
     },
