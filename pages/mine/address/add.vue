@@ -149,13 +149,7 @@ export default {
             delete this.form.___path;
             addAddress(this.form).then((res) => {
               if (res.data.success) {
-                if (this.routerVal.type == "order") {
-                  uni.navigateBack();
-                } else {
-                  uni.redirectTo({
-                    url: `/pages/mine/address/addressManage`,
-                  });
-                }
+                 uni.navigateBack();
               }
             });
           } else {

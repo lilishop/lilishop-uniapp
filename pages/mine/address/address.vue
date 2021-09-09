@@ -75,7 +75,6 @@ export default {
     this.routerVal = val;
   },
   onShow() {
-    console.log("onshow");
     this.addressList = [];
     this.getAddressList();
   },

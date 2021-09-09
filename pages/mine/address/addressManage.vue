@@ -60,7 +60,7 @@ export default {
         text: "确定要删除该收货人信息吗？",
       },
       removeId: "", //删除的地址id
-      routerVal: "", 
+      routerVal: "",
       params: {
         pageNumber: 1,
         pageSize: 1000,
@@ -77,11 +77,16 @@ export default {
   onLoad: function (val) {
     this.routerVal = val;
   },
+  onPullDownRefresh() {
+    //下拉刷新
+    this.addressList = [];
+    this.getAddressList();
+  },
   /**
    * 进入页面检测当前账户是否登录
    */
   onShow() {
-    let that = this
+    let that = this;
     if (this.$options.filters.isLogin("auth")) {
       this.getAddressList();
     } else {
@@ -168,5 +173,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import './address.scss';
+@import "./address.scss";
 </style>
