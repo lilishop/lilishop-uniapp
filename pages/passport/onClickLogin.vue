@@ -5,7 +5,7 @@
         <!-- 循环出当前可使用的第三方登录模式 -->
         <div :style="{background:item.color}" class="login-item" v-for="(item,index) in loginList" :key="index">
           <u-icon v-if="item.title!='APPLE'" color="#fff" size="42" :name="item.icon" @click="navigateLogin(item)"></u-icon>
-           <u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" width="80" height="80" />
+           <u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" @click="navigateLogin(item)" width="80" height="80" />
         </div>
       </div>
 

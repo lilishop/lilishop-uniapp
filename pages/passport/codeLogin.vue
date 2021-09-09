@@ -6,9 +6,10 @@
       </u-form-item>
 
       <u-form-item class="cell code" label-width="120" prop="code" label="验证码">
-        <div style="display:flex; with:100%;">
+        <div style="display:flex; width:100%;">
           <u-input maxlength="6" v-model="codeForm.code" placeholder="请输入验证码" />
-          <u-verification-code keep-running unique-key="page-login" :seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange"></u-verification-code>
+          <u-verification-code keep-running unique-key="page-login" :seconds="seconds" @end="end" @start="start"
+            ref="uCode" @change="codeChange"></u-verification-code>
           <view @tap="getCode" :style="{color:aiderLightColor}" class="text-tips">{{ tips }}</view>
 
         </div>
@@ -28,6 +29,7 @@ import storage from "@/utils/storage.js"; //缓存
 import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import myVerification from "@/components/verification/verification.vue"; //验证码模块
 import uuid from "@/utils/uuid.modified.js"; // uuid
+import api from "@/config/api.js";
 export default {
   components: {
     myVerification,
@@ -73,7 +75,6 @@ export default {
   },
   // 必须要在onReady生命周期setRules，因为onLoad生命周期组件可能尚未创建完毕
   mounted() {
-    // whetherNavigate();
     this.$refs.validateCodeForm.setRules(this.codeRules);
     /**
      * 条件编译判断当前客户端类型
@@ -82,6 +83,7 @@ export default {
     this.clientType = "H5";
     //#endif
     //#ifdef APP-PLUS
+
     this.clientType = "APP";
     //#endif
   },
@@ -190,7 +192,21 @@ export default {
     },
     // 跳转到一键登录
     clickLogin() {
+      // #ifndef APP-PLUS
+      //判断是否微信浏览器
+      var ua = window.navigator.userAgent.toLowerCase();
+      if (ua.match(/MicroMessenger/i) == "micromessenger") {
+        let code = "WECHAT";
+        let buyer = api.buyer;
+        window.open(buyer + `/connect/login/web/` + code, "_self");
+      }
+      else{
+        this.$emit("open", "click");
+      }
+      // #endif
+      // #ifdef APP-PLUS
       this.$emit("open", "click");
+      // #endif
     },
 
     /**点击验证码*/
