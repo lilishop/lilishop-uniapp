@@ -3,11 +3,13 @@
     <u-form ref="validateCodeForm">
       <div class="login-list">
         <!-- 循环出当前可使用的第三方登录模式 -->
-        <div class="login-item" v-for="(item,index) in loginList" :key="index">
-          <u-icon :color="item.color" size="80" :name="item.icon" @click="navigateLogin(item)"></u-icon>
+        <div :style="{background:item.color}" class="login-item" v-for="(item,index) in loginList" :key="index">
+          <u-icon v-if="item.title!='APPLE'" color="#fff" size="42" :name="item.icon" @click="navigateLogin(item)"></u-icon>
+           <u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" width="80" height="80" />
         </div>
       </div>
-      <view :style="{color:aiderLightColor}"  class="text-tips cell" @click="clickCodeLogin">账号密码登录</view>
+
+      <view :style="{color:aiderLightColor}" class="text-tips cell" @click="clickCodeLogin">账号密码登录</view>
     </u-form>
   </div>
 </template>
@@ -25,13 +27,13 @@ export default {
       aiderLightColor: this.$aiderLightColor,
       loginList: [
         {
-          icon: "weixin-circle-fill",
+          icon: "weixin-fill",
           color: "#00a327",
           title: "微信",
           code: "WECHAT",
         },
         {
-          icon: "qq-circle-fill",
+          icon: "qq-fill",
           color: "#38ace9",
           title: "QQ",
           code: "QQ",
@@ -78,7 +80,7 @@ export default {
               title = "QQ";
               code = "QQ";
               break;
-            case "apple":
+               case "apple":
               icon = "apple-fill";
               color = "#000000";
               title = "Apple";
@@ -275,22 +277,20 @@ export default {
 <style lang="scss" scoped>
 @import url("./login.scss");
 
-.submit {
-  margin: 80rpx 0 40rpx 0;
+.login-list {
+  margin: 140rpx 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
 }
 
-.login-list {
+.login-item {
+  width: 80rpx;
+
+  border-radius: 10rpx;
+  height: 80rpx;
   display: flex;
-  padding: 40rpx 0;
-  justify-content: space-between;
-
-  .login-item {
-    font-size: 24rpx;
-    text-align: center;
-
-    > * {
-      margin: 4rpx 0;
-    }
-  }
+  justify-content: center;
+  align-items: center;
 }
 </style>
