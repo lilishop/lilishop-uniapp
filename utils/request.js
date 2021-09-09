@@ -84,7 +84,7 @@ function cleanStorage() {
     uni.navigateTo({
       url: "/pages/passport/wechatMPLogin",
     });
-  }, 1000);
+  }, 500);
   // #endif
 
   // #ifndef MP-WEIXIN
@@ -92,7 +92,7 @@ function cleanStorage() {
     uni.navigateTo({
       url: "/pages/passport/login",
     });
-  }, 1000);
+  }, 500);
   //  #endif
 }
 

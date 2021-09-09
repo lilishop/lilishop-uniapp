@@ -6,7 +6,8 @@
     <div class="wrapper">
       <!-- 店铺信息模块 -->
       <div class="store flex">
-        <u-image border-radius="10" width="150" height="150" :src="storeInfo.storeLogo || config.logo" mode="aspectFit"></u-image>
+        <u-image border-radius="10" width="150" height="150" :src="storeInfo.storeLogo || config.logo" mode="aspectFit">
+        </u-image>
         <div class="box">
           <div class="store-name" @click="getStoreLicencePhoto">
             {{ storeInfo.storeName || ''}}
@@ -83,7 +84,8 @@
         </div>
         <!-- 分类子级 -->
         <div class="child-list" v-if="item.children && item.children.length!=0">
-          <div class="child" @click="getCategoryGoodsList(child)" v-for="(child,i) in item.children">{{child.labelName}}</div>
+          <div class="child" @click="getCategoryGoodsList(child)" v-for="(child,i) in item.children">{{child.labelName}}
+          </div>
         </div>
       </div>
     </div>
@@ -99,7 +101,7 @@ import {
   collectionGoods,
   getGoodsIsCollect,
 } from "@/api/members.js";
-import config from '@/config/config'
+import config from "@/config/config";
 import storage from "@/utils/storage";
 import { getGoodsList } from "@/api/goods.js";
 import { getAllCoupons } from "@/api/promotions.js";
@@ -137,18 +139,18 @@ export default {
   onPageScroll(e) {
     this.scrollTop = e.scrollTop;
   },
+  onPullDownRefresh() {
+   
+     this.init();
+  },
   mounted() {
-    // #ifdef MP-WEIXIN
+     // #ifdef MP-WEIXIN
     // 小程序默认分享
     uni.showShareMenu({ withShareTicket: true });
     // #endif
     this.init();
   },
-  onShow() {
-    if (this.goodsList.length == 0) {
-      this.init();
-    }
-  },
+ 
   // 下拉加载
   onReachBottom() {
     this.goodsParams.pageNumber++;
@@ -322,7 +324,7 @@ export default {
           duration: 3000,
           title: "请先登录！",
         });
-      
+
         this.$options.filters.navigateToLogin("redirectTo");
         return false;
       }

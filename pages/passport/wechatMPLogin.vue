@@ -244,7 +244,7 @@ text.shop {
 .btn-callback {
   text-align: center;
   font-size: 30rpx;
-  border: 1rpx solid #ededed;
+  background: #ededed;
   height: 90rpx;
   line-height: 90rpx;
   border-radius: 100px;
