@@ -1,27 +1,33 @@
 <template>
-  <view v-if="mpWechatLogin">
-    <!-- 背景 -->
-    <view class="login-ball bg-linear-gradient small"></view>
+  <view>
+    <!--  -->
+    <view v-if="codeLogin">
+      <!-- 背景 -->
+      <view class="login-ball bg-linear-gradient small"></view>
 
-    <view class="logo-cell">
-      <image class="logo" :src="config.logo" mode="aspectFit"></image>
+      <view class="logo-cell">
+        <image class="logo" :src="config.logo" mode="aspectFit"></image>
+      </view>
+      <view class="title">{{config.name}}</view>
+
+      <!-- 验证码登录 -->
+      <codeLogin @open="open" :status="value" v-if="login && loginData.code" />
+      <!-- 账号密码登录 -->
+      <onClickLogin @open="open" :status="value" v-if="login && loginData.click" />
+      <view class="form"> </view>
+
+      <!-- 隐私政策 -->
+      <div class="privacy">
+        <u-checkbox-group :icon-size="24" width="45rpx">
+          <u-checkbox v-model="value" :active-color="lightColor"></u-checkbox>
+
+        </u-checkbox-group>
+        同意<span @click="handleClick('user')">《用户协议》</span>和<span @click="handleClick('privacy')">《隐私政策》</span>
+      </div>
     </view>
-    <view class="title">{{config.name}}</view>
-
-    <!-- 验证码登录 -->
-    <codeLogin @open="open" :status="value" v-if="login && loginData.code" />
-    <!-- 账号密码登录 -->
-    <onClickLogin @open="open" :status="value" v-if="login && loginData.click" />
-    <view class="form"> </view>
-
-    <!-- 隐私政策 -->
-    <div class="privacy">
-      <u-checkbox-group :icon-size="24" width="45rpx">
-        <u-checkbox v-model="value" :active-color="lightColor"></u-checkbox>
-
-      </u-checkbox-group>
-      同意<span @click="handleClick('user')">《用户协议》</span>和<span @click="handleClick('privacy')">《隐私政策》</span>
-    </div>
+    <view v-if="wechatLogin">
+      <wechatH5Login />
+    </view>
   </view>
 </template>
 <script>
@@ -32,25 +38,9 @@ import storage from "@/utils/storage.js";
 import { loginCallback } from "@/api/connect.js";
 import { webConnect } from "@/api/connect.js";
 import config from "@/config/config";
+import wechatH5Login from "./wechatH5Login.vue";
 export default {
   onShow() {
-    // #ifdef MP-WEIXIN
-    this.mpWechatLogin = false;
-    if (this.$options.filters.isLogin("auth")) {
-      getCurrentPages().length > 1
-        ? uni.navigateBack({
-            delta: getCurrentPages().length - 2,
-          })
-        : uni.switchTab({
-            url: "/pages/tabbar/home/index",
-          });
-    } else {
-      uni.navigateTo({
-        url: "/pages/passport/wechatMPLogin",
-      });
-    }
-    // #endif
-
     //#ifdef H5
     let isWXBrowser = /micromessenger/i.test(navigator.userAgent);
     if (isWXBrowser) {
@@ -67,7 +57,8 @@ export default {
     return {
       config,
       lightColor: this.$lightColor,
-      mpWechatLogin: true, //是否加载微信登录
+      wechatLogin: false, //是否加载微信公众号登录
+      codeLogin: false, //是否加载正常验证码登录
       value: true, //隐私政策
       loginData: {
         code: true, //验证码登录
@@ -80,6 +71,23 @@ export default {
   components: {
     codeLogin,
     onClickLogin,
+    wechatH5Login,
+  },
+  mounted() {
+    // #ifndef APP-PLUS
+    //判断是否微信浏览器
+    var ua = window.navigator.userAgent.toLowerCase();
+    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+      this.wechatLogin = true;
+      return;
+  
+    } else {
+      this.codeLogin = true;
+    }
+    // #endif
+    // #ifdef APP-PLUS
+    this.codeLogin = true;
+    // #endif
   },
 
   onLoad(options) {

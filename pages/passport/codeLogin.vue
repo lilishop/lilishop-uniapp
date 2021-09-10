@@ -29,7 +29,6 @@ import storage from "@/utils/storage.js"; //缓存
 import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import myVerification from "@/components/verification/verification.vue"; //验证码模块
 import uuid from "@/utils/uuid.modified.js"; // uuid
-import api from "@/config/api.js";
 export default {
   components: {
     myVerification,
@@ -192,21 +191,8 @@ export default {
     },
     // 跳转到一键登录
     clickLogin() {
-      // #ifndef APP-PLUS
-      //判断是否微信浏览器
-      var ua = window.navigator.userAgent.toLowerCase();
-      if (ua.match(/MicroMessenger/i) == "micromessenger") {
-        let code = "WECHAT";
-        let buyer = api.buyer;
-        window.open(buyer + `/connect/login/web/` + code, "_self");
-      }
-      else{
-        this.$emit("open", "click");
-      }
-      // #endif
-      // #ifdef APP-PLUS
       this.$emit("open", "click");
-      // #endif
+      
     },
 
     /**点击验证码*/
