@@ -383,6 +383,12 @@ export default {
         this.defaultKeyword = "请输入搜索商品";
       }
     },
+    sortPopup(val) {
+      if (val) {
+        this.selectedWay = { brand: [], categoryId: [], prop: [] };
+        console.log(this.selectedWay);
+      }
+    },
   },
 
   onReachBottom() {
@@ -486,11 +492,17 @@ export default {
 
       this.goodsList = [];
       this.loadData();
+      this.sortParams = this.params;
       this.sortPopup = false;
     },
 
     // 重置
     repick() {
+       this.sortParams = {
+        pageNumber: 1,
+        pageSize: 10,
+      };
+      this.sortPopup  = false
       this.initSortGoods();
       this.minPrice = "";
       this.maxPrice = "";
@@ -498,6 +510,7 @@ export default {
         pageNumber: 1,
         pageSize: 10,
       };
+       this.goodsList = []
       this.loadData();
     },
 

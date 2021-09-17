@@ -28,7 +28,8 @@
         <div class="saveBtn" @click="save">保存</div>
       </u-form>
 
-      <m-city :provinceData="list" headTitle="区域选择" ref="cityPicker" @funcValue="getpickerParentValue" pickerSize="4"></m-city>
+      <m-city :provinceData="list" headTitle="区域选择" ref="cityPicker" @funcValue="getpickerParentValue" pickerSize="4">
+      </m-city>
 
       <uniMap v-if="mapFlage" @close="closeMap" @callback="callBackAddress" />
     </div>
@@ -149,7 +150,7 @@ export default {
             delete this.form.___path;
             addAddress(this.form).then((res) => {
               if (res.data.success) {
-                 uni.navigateBack();
+                uni.navigateBack();
               }
             });
           } else {
@@ -190,8 +191,8 @@ export default {
             return _child.id == item.id;
           });
 
-          this.form.lat = _town[0].center.split(",")[0];
-          this.form.lon = _town[0].center.split(",")[1];
+          this.form.lat = _town[0].center.split(",")[1];
+          this.form.lon = _town[0].center.split(",")[0];
         }
       });
     },

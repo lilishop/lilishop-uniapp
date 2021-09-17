@@ -2,8 +2,8 @@
     "name" : "lili商城",
     "appid" : "__UNI__C100675",
     "description" : "",
-    "versionName" : "4.0.42",
-    "versionCode" : 4000042,
+    "versionName" : "4.0.43",
+    "versionCode" : 4000043,
     "transformPx" : false,
     "app-plus" : {
         "compatible" : {
@@ -72,7 +72,8 @@
                     "NSPhotoLibraryAddUsageDescription" : "保存商品图片到本地",
                     "NSFaceIDUsageDescription" : "使用面部识别进行登录",
                     "NSCameraUsageDescription" : "需要用与扫描二维码和商品评论图片拍摄",
-                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "位置信息将用于高德地图的效果展示"
+                    "NSLocationAlwaysAndWhenInUseUsageDescription" : "位置信息将用于高德地图的效果展示",
+                    "NSMicrophoneUsageDescription" : "用户上传视频时需使用音频信息"
                 },
                 "urltypes" : "lilishop"
             },
