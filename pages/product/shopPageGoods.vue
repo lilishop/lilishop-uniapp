@@ -13,7 +13,7 @@
           <div>￥{{ item.content.price | unitPrice }}</div>
         </div>
         <view class="buyCount">
-          <div>已售 {{ item.buyCount || "0" }}</div>
+          <div>已售 {{ item.content.buyCount || "0" }}</div>
         </view>
       </view>
     </div>

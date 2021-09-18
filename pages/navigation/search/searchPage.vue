@@ -178,14 +178,14 @@
                   </div>
                 </div>
                 <div class="countConfig">
-                  <span>已售 {{ item.buyCount || "0" }}</span>
-                  <span>{{ item.commentNum || "0" }}条评论</span>
+                  <span>已售 {{ item.content.buyCount || "0" }}</span>
+                  <span>{{ item.content.commentNum || "0" }}条评论</span>
                 </div>
                 <div class="storeSellerName">
                   <div class="textHidden">
                     <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营"
                       type="error" />
-                    <span>{{ item.storeName || "暂无" }}</span>
+                    <span>{{ item.content.storeName || "暂无" }}</span>
                   </div>
                   <span>
                     <u-icon name="arrow-right"></u-icon>
