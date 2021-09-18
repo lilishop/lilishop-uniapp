@@ -347,7 +347,7 @@ export default {
   },
   onLoad(val) {
     this.init();
-    this.initSortGoods();
+//  this.initSortGoods();
     // 接收分类的数据
 
     this.routerVal = val;
@@ -355,6 +355,7 @@ export default {
     // 有值
     if (this.routerVal.category) {
       this.params.categoryId = this.routerVal.category;
+      this.sortParams.categoryId = this.routerVal.category;
       this.isShowSeachGoods = true;
     }
     if (this.routerVal.keyword) {
@@ -366,6 +367,7 @@ export default {
       this.isShowSeachGoods = true;
     }
     this.loadData();
+   
   },
   components: {
     mSearch,
@@ -498,11 +500,11 @@ export default {
 
     // 重置
     repick() {
-       this.sortParams = {
+      this.sortParams = {
         pageNumber: 1,
         pageSize: 10,
       };
-      this.sortPopup  = false
+      this.sortPopup = false;
       this.initSortGoods();
       this.minPrice = "";
       this.maxPrice = "";
@@ -510,7 +512,7 @@ export default {
         pageNumber: 1,
         pageSize: 10,
       };
-       this.goodsList = []
+      this.goodsList = [];
       this.loadData();
     },
 
