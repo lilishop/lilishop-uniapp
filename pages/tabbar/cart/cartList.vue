@@ -1,6 +1,7 @@
 <template>
   <div class="wrapper">
     <u-navbar :isBack="false" title="购物车"></u-navbar>
+
     <!-- 空白页-->
     <view v-if="cartDetail.cartList == '' || cartDetail.cartList == [] || !cartDetail" class="empty">
       <image src="/static/emptyCart.png" mode="aspectFit"></image>
@@ -12,16 +13,19 @@
 
     <!-- 店铺商品信息 -->
     <div class="content">
-      <div class="box box2" :class="{ invalid: isInvalid(item) }" v-for="(item, index) in cartDetail.cartList" :key="index">
+      <div class="box box2" :class="{ invalid: isInvalid(item) }" v-for="(item, index) in cartDetail.cartList"
+        :key="index">
         <view class="tab">
           <view class="store-line">
             <u-checkbox-group class="store-line-check">
               <!-- #ifndef MP-WEIXIN -->
-              <u-checkbox shape="circle" :active-color="lightColor" v-model="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
+              <u-checkbox shape="circle" :active-color="lightColor" v-model="item.checked"
+                @change="checkboxChangeDP(item)"></u-checkbox>
               <!-- #endif -->
               <!-- 微信小程序这里 v-model出现问题，改用:value -->
               <!-- #ifdef MP-WEIXIN -->
-              <u-checkbox shape="circle" :active-color="lightColor" :value="item.checked" @change="checkboxChangeDP(item)"></u-checkbox>
+              <u-checkbox shape="circle" :active-color="lightColor" :value="item.checked"
+                @change="checkboxChangeDP(item)"></u-checkbox>
               <!-- #endif -->
             </u-checkbox-group>
             <span class="storeName store-line-desc" @click.stop="navigateToStore(item)">{{
@@ -33,10 +37,12 @@
             <span>领劵</span>
           </view>
         </view>
-        <u-swipe-action :show="skuItem.selected" @open="openAction(skuItem)" :options="options" bg-color="#fff" ref="swiperAction" class="cartItem" v-for="(skuItem, i) in item.skuList" :index="i"
-          :key="skuItem.goodsSku.id" @click="changeActionTab(skuItem)" @longpress="changeActionTab(skuItem)">
+        <u-swipe-action :show="skuItem.selected" @open="openAction(skuItem)" :options="options" bg-color="#fff"
+          ref="swiperAction" class="cartItem" v-for="(skuItem, i) in item.skuList" :index="i" :key="skuItem.goodsSku.id"
+          @click="changeActionTab(skuItem)" @longpress="changeActionTab(skuItem)">
           <!-- 满减活动 -->
-          <div v-if="skuItem.promotions" v-for="(fullDiscount,fullDiscountIndex) in skuItem.promotions" :key="fullDiscountIndex">
+          <div v-if="skuItem.promotions" v-for="(fullDiscount,fullDiscountIndex) in skuItem.promotions"
+            :key="fullDiscountIndex">
             <div v-if="fullDiscount.promotionType == 'FULL_DISCOUNT'">
               <div class="promotion-notice" v-if="item.promotionNotice">
                 <span class="tips">满减</span>
@@ -49,16 +55,19 @@
               <view>
                 <u-checkbox-group v-if="skuItem.invalid == 0">
                   <!-- #ifndef MP-WEIXIN -->
-                  <u-checkbox shape="circle" :active-color="lightColor" class="c-left" v-model="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
+                  <u-checkbox shape="circle" :active-color="lightColor" class="c-left" v-model="skuItem.checked"
+                    @change="checkboxChange(skuItem)"></u-checkbox>
                   <!-- #endif -->
                   <!-- 微信小程序这里 v-model出现问题，改用:value -->
                   <!-- #ifdef MP-WEIXIN -->
-                  <u-checkbox shape="circle" :active-color="lightColor" class="c-left" :value="skuItem.checked" @change="checkboxChange(skuItem)"></u-checkbox>
+                  <u-checkbox shape="circle" :active-color="lightColor" class="c-left" :value="skuItem.checked"
+                    @change="checkboxChange(skuItem)"></u-checkbox>
                   <!-- #endif -->
                 </u-checkbox-group>
                 <span class="invalid" v-else style="font-size: 24rpx">失效</span>
               </view>
-              <u-image border-radius="20" :fade="true" @click.native="navigateToGoods(skuItem)" width="200rpx" height="200rpx" :src="skuItem.goodsSku.thumbnail" @click="navigateToGoods(skuItem)" />
+              <u-image border-radius="20" :fade="true" @click.native="navigateToGoods(skuItem)" width="200rpx"
+                height="200rpx" :src="skuItem.goodsSku.thumbnail" @click="navigateToGoods(skuItem)" />
             </view>
             <view class="goods-content">
               <!-- 商品名称 -->
@@ -76,18 +85,22 @@
                 </view>
                 <view>
                   <!-- #ifndef MP-WEIXIN -->
-                  <u-number-box class="uNumber" :min="1" input-width="70" input-height="40" size="20" v-model="skuItem.num" @change="numChange(skuItem)"></u-number-box>
+                  <u-number-box class="uNumber" :min="1" input-width="70" input-height="40" size="20"
+                    v-model="skuItem.num" @change="numChange(skuItem)"></u-number-box>
                   <!-- #endif -->
                   <!-- #ifdef MP-WEIXIN -->
-                  <u-number-box class="uNumber" :min="1" input-width="70" input-height="40" size="20" :value="skuItem.num" @plus="numChange(skuItem, '1')" @change="numChange_WEIXIN" :skuItem="skuItem"
+                  <u-number-box class="uNumber" :min="1" input-width="70" input-height="40" size="20"
+                    :value="skuItem.num" @plus="numChange(skuItem, '1')" @change="numChange_WEIXIN" :skuItem="skuItem"
                     @minus="numChange(skuItem, '0')"></u-number-box>
                   <!-- #endif -->
                 </view>
                 <!-- 如果当有促销并且促销是 限时抢购 -->
                 <!-- promotions -->
-              <div class="promotions-list" v-if="skuItem.promotions" v-for="(seckill,seckillIndex) in skuItem.promotions" :key="seckillIndex">
+              <div class="promotions-list" v-if="skuItem.promotions"
+                v-for="(seckill,seckillIndex) in skuItem.promotions" :key="seckillIndex">
                 <div class="promotions-item-seckill" v-if="seckill.promotionType == 'SECKILL'">
-                  距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed" font-size="24" :timestamp="getCountDownTime(seckill.endTime)">
+                  距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
+                    font-size="24" :timestamp="getCountDownTime(seckill.endTime)">
                   </u-count-down>
                 </div>
 
@@ -105,21 +118,27 @@
         </u-swipe-action>
       </div>
     </div>
-    <u-modal v-model="deleteShow" :confirm-style="{'color':lightColor}" @confirm="delectConfirm" show-cancel-button :content="deleteContent" :async-close="true"></u-modal>
+    <u-modal v-model="deleteShow" :confirm-style="{'color':lightColor}" @confirm="delectConfirm" show-cancel-button
+      :content="deleteContent" :async-close="true"></u-modal>
     <!-- 结账 -->
     <div class="box box6">
       <view class="navL">
-        <u-checkbox shape="circle" :active-color="lightColor" v-model="checkout" @change="checkOut()" label-size="24">全选</u-checkbox>
+        <u-checkbox shape="circle" :active-color="lightColor" v-model="checkout" @change="checkOut()" label-size="24">全选
+        </u-checkbox>
         <span class="price">
           <div class="prices">
             <div class="fullPrice">
               <span class="number" v-if="cartDetail && cartDetail.priceDetailDTO">
-                总计: <span>¥{{ formatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ formatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
+                总计:
+                <span>¥{{ formatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ formatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
               </span>
               <span class="number" v-else>总计:0.00</span>
             </div>
-            <div v-if="cartDetail.cartList && cartDetail.cartList.length!=0 && cartDetail.priceDetailDTO && cartDetail.priceDetailDTO.discountPrice!=0 " class="discountPrice">
-              <span>优惠减:￥{{(cartDetail.priceDetailDTO.goodsPrice - cartDetail.priceDetailDTO.flowPrice) | unitPrice}} </span>
+            <div
+              v-if="cartDetail.cartList && cartDetail.cartList.length!=0 && cartDetail.priceDetailDTO && cartDetail.priceDetailDTO.discountPrice!=0 "
+              class="discountPrice">
+              <span>优惠减:￥{{(cartDetail.priceDetailDTO.goodsPrice - cartDetail.priceDetailDTO.flowPrice) | unitPrice}}
+              </span>
               <span class="discountDetails" @click="discountDetails">优惠明细</span>
             </div>
           </div>
@@ -549,9 +568,6 @@ export default {
     color: #fff;
   }
 }
-.promotionNotice {
-  font-size: 24rpx;
-}
 
 .goods-row {
   padding: 30rpx 0;
@@ -572,9 +588,7 @@ export default {
   transition: 0.35s;
 }
 
-.index {
-  padding-top: var(--status-bar-height);
-}
+
 
 /* 空白页 */
 /deep/ .u-number-input {
@@ -598,7 +612,7 @@ export default {
   width: 100%;
   height: 100vh;
   z-index: 99;
-  padding-bottom: 100rpx;
+  padding-bottom: var(--window-bottom);
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -723,9 +737,6 @@ export default {
   justify-content: space-between;
   padding: 30rpx 0;
 }
-.couponIcon {
-  margin-left: 20rpx;
-}
 
 .right_Col {
   color: $light-color;
@@ -754,7 +765,7 @@ export default {
   bottom: 0;
   // #endif
   // #ifdef H5
-  bottom: 100rpx;
+  bottom:  var(--window-bottom);
   // #endif
   left: 0;
   border-top: 1px solid #ededed;
@@ -773,15 +784,6 @@ export default {
   }
 }
 
-.sp-name {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  font-size: 26rpx;
-  color: #333;
-  font-weight: bold;
-}
 
 .sp-type {
   color: $u-light-color;
@@ -796,11 +798,7 @@ export default {
 
 .default-color {
   color: #333;
-}
-.theme-color {
-  color: $main-color;
-}
-.sp-number {
+}.sp-number {
   font-weight: bold;
 
   display: flex;
