@@ -69,6 +69,10 @@ export default {
       routerVal: "", //上级传参
     };
   },
+  onLoad(options){
+    this.routerVal = options
+   
+  },
   watch: {
     current(val) {
       console.log(this.$store.state.cantUseCoupons);
@@ -114,10 +118,11 @@ export default {
 </script>
 <style scoped lang="scss">
 .desc {
-  height: 100%;
+  height: 220rpx;
+  flex: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-around;
 }
 .end-time,
 .reason {
@@ -204,14 +209,14 @@ export default {
     align-items: center;
     width: 450rpx;
     font-size: $font-sm;
-    height: 100%;
+    height: 220rpx;
     background-color: #ffffff;
     overflow: hidden;
     position: relative;
     > view:nth-child(1) {
       color: #666666;
       margin-left: 20rpx;
-      line-height: 3em;
+    
       > view:nth-child(1) {
         color: #ff6262;
         font-size: 30rpx;

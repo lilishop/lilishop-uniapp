@@ -150,7 +150,7 @@
         <u-row>
           <u-col :span="9">优惠金额</u-col>
           <u-col :span="3" textAlign="right" v-if=" orderMessage.priceDetailDTO.couponPrice">
-            -￥{{ orderMessage.priceDetailDTO.couponPrice | unitPrice }}</u-col>
+           <span class="main-color"> -￥{{ orderMessage.priceDetailDTO.couponPrice | unitPrice }}</span></u-col>
           <u-col :span="3" textAlign="right" v-else>0.00</u-col>
         </u-row>
       </div>
