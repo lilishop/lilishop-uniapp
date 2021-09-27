@@ -2,12 +2,13 @@
   <view class="myTracks">
     <u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
     <div v-else>
-      <view  v-for="(item, index) in trackList" :key="index">
+      <view v-for="(item, index) in trackList" :key="index">
         <view class="myTracks-title" @click="navgaiteToStore(item)">{{item.storeName}}</view>
         <view class="myTracks-items">
           <view class="myTracks-item">
             <u-checkbox-group>
-              <u-checkbox v-model="item.___isDel" v-if="editFlag" active-color="#ff6b35" style="margin-right: 10rpx" @change="changeChecked(item)"></u-checkbox>
+              <u-checkbox v-model="item.___isDel" v-if="editFlag" active-color="#ff6b35" style="margin-right: 10rpx"
+                @change="changeChecked(item)"></u-checkbox>
             </u-checkbox-group>
             <view class="myTracks-item-img" @click.stop="navgaiteToDetail(item)">
               <image :src="item.thumbnail"></image>
@@ -33,7 +34,8 @@
       <view class="myTracks-action">
         <view class="myTracks-action-check">
           <u-checkbox-group>
-            <u-checkbox v-model="allChecked" v-if="editFlag" active-color="#ff6b35" style="margin-right: 10rpx" @change="checkedAllitem"></u-checkbox>
+            <u-checkbox v-model="allChecked" v-if="editFlag" active-color="#ff6b35" style="margin-right: 10rpx"
+              @change="checkedAllitem"></u-checkbox>
             全选
           </u-checkbox-group>
         </view>
@@ -77,6 +79,10 @@ export default {
     }
   },
   onLoad() {
+    this.getList();
+  },
+  onPullDownRefresh() {
+    this.trackList = [];
     this.getList();
   },
   methods: {

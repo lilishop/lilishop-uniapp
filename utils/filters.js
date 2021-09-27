@@ -168,6 +168,7 @@ export function orderStatusList(val) {
     PAID: "已付款",
     DELIVERED: "已发货",
     CANCELLED: "已取消",
+    COMPLETED:"已完成",
     COMPLETE: "已完成",
     TAKE: "待核验",
   };

@@ -830,9 +830,7 @@ page {
   margin-bottom: 20rpx;
   color: #666;
 }
-.address-list {
-  margin-left: 20rpx;
-}
+
 .address-item {
   font-weight: normal;
   letter-spacing: 1rpx;

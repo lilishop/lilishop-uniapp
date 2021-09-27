@@ -47,7 +47,7 @@
                 </view>
                 <view v-if="current == 0 && sku.commentStatus == 'UNFINISHED'">
                   <view class="evaluate">
-                    <view @click="talkCommont(order)">
+                    <view @click="talkCommont(sku)">
                       <u-tag text="发表评价" shape="circle" mode="plain" type="error" />
                     </view>
                   </view>
@@ -192,10 +192,11 @@ export default {
     /**
      * 发表评价
      */
-    talkCommont(order) {
+    talkCommont(sku) {
+      console.log(sku)
       uni.navigateTo({
-        url: `./releaseEvaluate?sn=${order.sn}&order=${encodeURIComponent(
-          JSON.stringify(order)
+        url: `./releaseEvaluate?sn=${sku.sn}&sku=${encodeURIComponent(
+          JSON.stringify(sku)
         )}`,
       });
     },

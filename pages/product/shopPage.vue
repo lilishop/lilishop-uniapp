@@ -135,22 +135,23 @@ export default {
    */
   async onLoad(options) {
     this.storeId = options.id;
+    this.goodsParams.storeId = options.id;
+    this.couponParams.storeId = options.id;
   },
   onPageScroll(e) {
     this.scrollTop = e.scrollTop;
   },
   onPullDownRefresh() {
-   
-     this.init();
+    this.init();
   },
   mounted() {
-     // #ifdef MP-WEIXIN
+    // #ifdef MP-WEIXIN
     // 小程序默认分享
     uni.showShareMenu({ withShareTicket: true });
     // #endif
     this.init();
   },
- 
+
   // 下拉加载
   onReachBottom() {
     this.goodsParams.pageNumber++;

@@ -1,7 +1,7 @@
 <template>
   <view>
     <!-- 遍历出评价商品 -->
-    <view v-for="(sku, index) in order.orderItems" :key="index">
+    <view>
       <view class="after-sales-goods-detail-view">
         <view>
           <view class="goods-item-view">
@@ -23,23 +23,27 @@
           <view class="sub-title">满意请打好评哦</view>
         </view>
         <view class="rate-view">
-          <view class="rate-btn" @click="onGrade('GOOD', index)">
-            <view style="font-size: 42rpx" :style="{ color: form.grade === 'GOOD' ? 'red' : '#CCCCCC' }" class="alifont icon-haoping1"></view>
+          <view class="rate-btn" @click="onGrade('GOOD')">
+            <u-icon name="heart-fill" style="font-size: 42rpx"
+              :style="{ color: form.grade === 'GOOD' ? 'red' : '#CCCCCC' }"></u-icon>
             <text>好评</text>
           </view>
-          <view class="rate-btn" @click="onGrade('MODERATE', index)">
-            <view style="font-size: 42rpx" :style="{ color: form.grade === 'MODERATE' ? 'red' : '#CCCCCC' }" class="alifont icon-zhongping1"></view>
+          <view class="rate-btn" @click="onGrade('MODERATE')">
+            <u-icon name="heart-fill" style="font-size: 42rpx"
+              :style="{ color: form.grade === 'MODERATE' ? 'red' : '#CCCCCC' }"></u-icon>
             <text>中评</text>
           </view>
-          <view class="rate-btn" @click="onGrade('WORSE', index)">
-            <view style="font-size: 42rpx" :style="{ color: form.grade === 'WORSE' ? 'red' : '#CCCCCC' }" class="alifont icon-chaping"></view>
+          <view class="rate-btn" @click="onGrade('WORSE')">
+            <u-icon name="heart-fill" style="font-size: 42rpx"
+              :style="{ color: form.grade === 'WORSE' ? 'red' : '#CCCCCC' }"></u-icon>
             <text>差评</text>
           </view>
         </view>
       </view>
       <view class="info-evaluate-view">
         <view class="input-view">
-          <u-input v-model="form.content" height="200" placeholder-style="font-size:12px;color:#CCCCCC" :type="type" :border="border" :maxlength="maxlength" :placeholder="placeholder" />
+          <u-input v-model="form.content" height="200" placeholder-style="font-size:12px;color:#CCCCCC" :type="type"
+            :border="border" :maxlength="maxlength" :placeholder="placeholder" />
         </view>
         <view class="input-num">
           <text>{{ form.content.length }}/{{ maxlength }}</text>
@@ -47,7 +51,8 @@
       </view>
       <view class="info-evaluate-view">
         <view class="images-view">
-          <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150" @on-uploaded="onUploaded" :max-count="5" :show-progress="false"></u-upload>
+          <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150"
+            @on-uploaded="onUploaded" :max-count="5" :show-progress="false"></u-upload>
         </view>
       </view>
     </view>
@@ -57,7 +62,8 @@
         <view class="seller-rate-view">
           <view class="rate-title">描述相符</view>
           <view>
-            <u-rate count="count" gutter="20" active-color="#FFC71C" v-model="form.descriptionScore" :size="40"></u-rate>
+            <u-rate count="count" gutter="20" active-color="#FFC71C" v-model="form.descriptionScore" :size="40">
+            </u-rate>
           </view>
         </view>
         <view class="seller-rate-view">
@@ -94,7 +100,7 @@ export default {
       maxlength: 500, //评价最大字数为500字
       placeholder:
         "宝贝满足您的期待吗？说说它的优点和美中不足的地方吧。您的评价会帮助更多的人",
-      order: {}, //订单信息
+      sku: {}, //订单信息
       form: {
         content: "", //评价详情
         goodsId: "", //商品id
@@ -111,10 +117,9 @@ export default {
   onLoad(options) {
     // 获取上一级传过来的数据进行解析
     this.form.orderItemSn = options.sn;
-    this.order = JSON.parse(decodeURIComponent(options.order));
-    this.form.goodsId = this.order.orderItems[0].goodsId;
-    this.form.orderItemSn = this.order.orderItems[0].sn;
-    this.form.skuId = this.order.orderItems[0].skuId;
+    this.sku = JSON.parse(decodeURIComponent(options.sku));
+    this.form.goodsId = this.sku.goodsId;
+    this.form.skuId = this.sku.skuId;
   },
   methods: {
     /**
@@ -141,7 +146,7 @@ export default {
             success: () => {
               setTimeout(() => {
                 uni.navigateBack();
-              }, 2000);
+              }, 500);
             },
           });
         }
