@@ -507,6 +507,7 @@ export default {
 
     // 获取结算参数
     getOrderList() {
+      this.notSupportFreight = []
       // 获取结算参数
       API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
         res.data.result.cartList.forEach((item, index) => {

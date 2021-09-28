@@ -155,7 +155,7 @@
         <view class="invoice-info-view">
           <view class="ltitle">发票信息：</view>
           <view v-if="!order.needReceipt" class="value">无需发票</view>
-          <view v-else class="value" @click="onReceipt(order.receiptVO)">查看发票</view>
+          <view v-else class="value" @click="onReceipt(orderDetail.receipt)">查看发票</view>
         </view>
       </view>
     </view>

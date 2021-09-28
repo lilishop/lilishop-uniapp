@@ -45,7 +45,7 @@ export default {
         face: storage.getUserInfo().face || "/static/missing-face.png", //默认头像
         regionId: [], //地址Id
         region: storage.getUserInfo().region || [], //地址
-        sex: storage.getUserInfo().sex || 1, //性别
+        sex: storage.getUserInfo().sex, //性别
         ___path: storage.getUserInfo().region,
       },
       birthday: storage.getUserInfo().birthday || "", //生日

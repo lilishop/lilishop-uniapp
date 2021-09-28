@@ -339,9 +339,7 @@ export default {
       getAfterSaleReason(serviceType).then((res) => {
         if (res.data.success) {
           // 1357583466371219456
-          this.reason = res.data.result.filter((item) => {
-            return item.id == this.serviceDetail.reason;
-          })[0].reason;
+           this.reason = this.serviceDetail.reason;
         }
       });
     },
