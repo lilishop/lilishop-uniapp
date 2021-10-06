@@ -820,7 +820,8 @@ page {
   font-size: 24rpx;
   border-radius: 8rpx;
   padding: 0rpx 12rpx;
-  color: #fff;
+  color: #fff; 
+  margin-right: 20rpx;
 }
 .address-box {
   border-radius: 40rpx;

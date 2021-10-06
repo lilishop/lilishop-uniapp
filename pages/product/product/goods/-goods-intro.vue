@@ -4,9 +4,10 @@
       <view class="goods-detail">
         <view class="detail_padding">
           <div class="goods-detail-box">
-            <div class="goods-detail-item goods-active">商品介绍</div>
+            <div class="goods-detail-item goods-active">商品介绍
+            </div>
           </div>
-          <u-empty class="empty" text="暂无商品介绍" mode="data" v-if="!res.intro"></u-empty>
+          <u-empty class="empty" text="暂无商品介绍" mode="data" v-if="!res.mobileIntro"></u-empty>
           <u-parse class="vhtml" :lazy-load="true" :use-cache="true" :show-with-animation="true" :html="res.mobileIntro"></u-parse>
         </view>
       </view>
