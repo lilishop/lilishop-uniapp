@@ -64,8 +64,8 @@
                 </u-checkbox-group>
                 <span class="invalid" v-else style="font-size: 24rpx">失效</span>
               </view>
-              <u-image border-radius="20" :fade="true" @click.native="navigateToGoods(skuItem)" width="200rpx"
-                height="200rpx" :src="skuItem.goodsSku.thumbnail" @click="navigateToGoods(skuItem)" />
+              <u-image border-radius="20" :fade="true" @click="navigateToGoods(skuItem)" width="200rpx"
+                height="200rpx" :src="skuItem.goodsSku.thumbnail"  />
             </view>
             <view class="goods-content">
               <!-- 商品名称 -->

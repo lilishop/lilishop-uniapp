@@ -21,7 +21,7 @@
           <view class="order-sn">{{ order.serviceType_text }}</view>
         </view>
         <view v-for="(sku, goodsIndex) in order.orderItems" :key="goodsIndex">
-          <view class="goods-item-view" @click="onDetail(sku)">
+          <view class="goods-item-view" @click="onDetail(order,sku)">
             <view class="goods-img">
               <u-image border-radius="6" width="100%" height="100%" :src="sku.image"></u-image>
             </view>
@@ -276,11 +276,19 @@ export default {
     /**
      * 查看详情
      */
-    onDetail(sku) {
-      if (!this.$u.test.isEmpty(sku.skuId)) {
+    onDetail(goods,sku) {
+      // 售后申请
+      if(this.current == 0){
         uni.navigateTo({
-          url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId}`,
+          url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId || sku.goodsId}`,
         });
+      }
+      
+      else{
+        uni.navigateTo({
+          url: `/pages/product/goods?id=${goods.skuId}&goodsId=${goods.goodsId || goods.goodsId}`,
+        });
+     
       }
     },
 

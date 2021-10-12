@@ -10,7 +10,8 @@
           </view>
         </view>
         <view>
-          <view class="goods-item-view" v-for="(item,index) in sku.orderItems" v-if="item.sn == sn" @click="gotoGoodsDetail(sku.goods_id)">
+          <view class="goods-item-view" v-for="(item,index) in sku.orderItems" v-if="item.sn == sn"
+            @click="gotoGoodsDetail(sku.goods_id)">
             <view class="goods-img">
               <u-image border-radius="6" width="131rpx" height="131rpx" :src="item.image"></u-image>
             </view>
@@ -27,7 +28,8 @@
         <view class="after-num">
           <view>申请数量</view>
           <view>
-            <u-number-box :value="parseInt(form.num)" disabled-input :min="1" :max="parseInt(sku.num)" bg-color="#fff" @change="valChange"></u-number-box>
+            <u-number-box :value="parseInt(form.num)" disabled-input :min="1" :max="parseInt(sku.num)" bg-color="#fff"
+              @change="valChange"></u-number-box>
           </view>
         </view>
       </view>
@@ -36,7 +38,8 @@
         <!-- 退款原因 -->
         <view class="opt-view">
           <u-form-item label="申请原因" :label-width="150">
-            <u-input v-model="form.reason" type="select" input-align="right" :select-open="reasonSelectShow" @click="reasonSelectShow = true" placeholder="请选择申请原因" />
+            <u-input v-model="form.reason" type="select" input-align="right" :select-open="reasonSelectShow"
+              @click="reasonSelectShow = true" placeholder="请选择申请原因" />
           </u-form-item>
           <u-form-item label="申请说明" :label-width="150">
             <u-input input-align="right" type="textarea" v-model="form.problemDesc" placeholder="请描述申请售后的说明" />
@@ -47,7 +50,8 @@
         <view class="opt-view">
           <view class="img-title">上传凭证（最多5张）</view>
           <view class="images-view">
-            <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150" @on-uploaded="onUploaded" :max-count="5" :show-progress="false"></u-upload>
+            <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150"
+              @on-uploaded="onUploaded" :max-count="5" :show-progress="false"></u-upload>
           </view>
         </view>
 
@@ -81,11 +85,14 @@
     </u-form>
 
     <view class="submit-view">
-      <u-button type="primary" ripple shape="circle" v-if="applyInfo.refundWay" :custom-style="customStyle" @click="onSubmit">提交申请</u-button>
+      <u-button type="primary" ripple shape="circle" v-if="applyInfo.refundWay" :custom-style="customStyle"
+        @click="onSubmit">提交申请</u-button>
     </view>
-    <u-select mode="single-column" :list="reasonList" v-model="reasonSelectShow" @confirm="reasonSelectConfirm"></u-select>
+    <u-select mode="single-column" :list="reasonList" v-model="reasonSelectShow" @confirm="reasonSelectConfirm">
+    </u-select>
     <u-select mode="single-column" :list="typeList" v-model="typeSelectShow" @confirm="typeSelectConfirm"></u-select>
-    <u-select mode="single-column" :list="returnList" v-model="returnSelectShow" @confirm="returnSelectConfirm"></u-select>
+    <u-select mode="single-column" :list="returnList" v-model="returnSelectShow" @confirm="returnSelectConfirm">
+    </u-select>
     <u-toast ref="uToast" />
   </view>
 </template>
@@ -462,7 +469,6 @@ page,
     align-items: center;
   }
   .images-view {
-    
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -484,12 +490,11 @@ page,
   background-color: #ffffff;
   height: 100rpx;
   width: 750rpx;
+  justify-content: flex-end;
+
   display: flex;
   align-items: center;
   width: 100%;
-  /deep/ .u-btn{
-    width: 94% !important;
-
-  }
+  padding-right: 32rpx;
 }
 </style>

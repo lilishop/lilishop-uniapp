@@ -90,11 +90,13 @@
           serviceDetail.afterSaleImage &&
           serviceDetail.afterSaleImage.split(',').length != 0
         ">
-        <image :src="img" @click="preview(serviceDetail.afterSaleImage.split(','), index)" v-for="(img, index) in serviceDetail.afterSaleImage.split(',')" :key="index"
+        <image :src="img" @click="preview(serviceDetail.afterSaleImage.split(','), index)"
+          v-for="(img, index) in serviceDetail.afterSaleImage.split(',')" :key="index"
           style="width: 50px; height: 50px; margin: 0px 5px"></image>
       </view>
       <!-- 如果服务类型为退款则不显示 -->
-      <view class="detail-item" v-if="serviceDetail.serviceType != 'RETURN_MONEY' && serviceDetail.serviceStatus != 'APPLY'">
+      <view class="detail-item"
+        v-if="serviceDetail.serviceType != 'RETURN_MONEY' && serviceDetail.serviceStatus != 'APPLY'">
         <view class="title">收货地址:</view>
         <view class="value">
           <span v-if="storeAfterSaleAddress.salesConsigneeAddressPath">{{
@@ -103,12 +105,14 @@
         </view>
       </view>
       <!-- 如果服务类型为退款则不显示 -->
-      <view class="detail-item" v-if="serviceDetail.serviceType != 'RETURN_MONEY'  && serviceDetail.serviceStatus != 'APPLY'">
+      <view class="detail-item"
+        v-if="serviceDetail.serviceType != 'RETURN_MONEY'  && serviceDetail.serviceStatus != 'APPLY'">
         <view class="title">联系人:</view>
         <view class="value">{{ storeAfterSaleAddress.salesConsigneeName }}</view>
       </view>
       <!-- 如果服务类型为退款则不显示 -->
-      <view class="detail-item" v-if="serviceDetail.serviceType != 'RETURN_MONEY'  && serviceDetail.serviceStatus != 'APPLY'">
+      <view class="detail-item"
+        v-if="serviceDetail.serviceType != 'RETURN_MONEY'  && serviceDetail.serviceStatus != 'APPLY'">
         <view class="title">联系方式:</view>
         <view class="value">{{
           storeAfterSaleAddress.salesConsigneeMobile || "" | secrecyMobile
@@ -339,7 +343,7 @@ export default {
       getAfterSaleReason(serviceType).then((res) => {
         if (res.data.success) {
           // 1357583466371219456
-           this.reason = this.serviceDetail.reason;
+          this.reason = this.serviceDetail.reason;
         }
       });
     },
@@ -365,12 +369,13 @@ export default {
           (this.serviceDetail.serviceType === "RETURN_GOODS" ||
             this.serviceDetail.serviceType === "ORDER_CANCEL") &&
           this.serviceDetail.refundWay === "OFFLINE";
+
         this.bankShow =
-          this.serviceDetail.serviceType === "RETURN_MONEY" ||
-          ((this.serviceDetail.serviceType === "RETURN_GOODS" ||
-            this.serviceDetail.serviceType === "ORDER_CANCEL") &&
-            this.serviceDetail.refundWay === "OFFLINE" &&
-            this.serviceDetail.accountType === "BANK_TRANSFER");
+          this.serviceDetail.accountType === "BANK_TRANSFER" &&
+          this.serviceDetail.refundWay === "OFFLINE" &&
+          ((this.serviceDetail.serviceType === "RETURN_GOODS") |
+            (this.serviceDetail.serviceType === "ORDER_CANCEL") ||
+            this.serviceDetail.serviceType === "RETURN_MONEY");
 
         this.getReasonList(this.serviceDetail.serviceType);
       });
