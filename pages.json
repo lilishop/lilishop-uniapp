@@ -40,9 +40,16 @@
 			"style": {
 				"navigationBarTitleText": "搜索",
 				"navigationStyle": "custom",
+				
 				"app-plus": {
 					//app页面不显示滚动条
-					"scrollIndicator": "none"
+					"scrollIndicator": "none",
+					"bottom": "0",
+					"contentAdjust": "false",
+					"bounce": "none",
+					"safearea": {
+					"bottom": "none"
+					}
 				}
 			}
 		}, {
@@ -443,14 +450,7 @@
 
 		{
 			"root": "pages/promotion",
-			"pages": [{
-					"path": "sale",
-					"style": {
-						"navigationBarTitleText": "特惠推荐",
-						"navigationStyle": "custom"
-
-					}
-				}, {
+			"pages": [ {
 					"path": "seckill",
 					"style": {
 						"navigationBarTitleText": "限时抢购",
@@ -472,13 +472,6 @@
 							// 将回弹属性关掉
 							"bounce": "none"
 						}
-					}
-				}, {
-					"path": "recommend",
-					"style": {
-						"navigationBarTitleText": "人气推荐",
-						"navigationStyle": "custom"
-
 					}
 				},{
 					"path": "lives",

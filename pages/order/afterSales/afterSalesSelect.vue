@@ -34,7 +34,7 @@
           <view class="select-title">退货</view>
           <view class="select-sub-title">
             退回收到的商品
-            <uni-icons color="#BABABA" type="arrowright"></uni-icons>
+            <u-icon name="arrow-right"  color="#bababa"></u-icon>
           </view>
         </view>
       </view>
@@ -46,7 +46,7 @@
           <view class="select-title">退款</view>
           <view class="select-sub-title">
             退款商品返还金额
-            <uni-icons color="#BABABA" type="arrowright"></uni-icons>
+            <u-icon name="arrow-right"  color="#bababa"></u-icon>
           </view>
         </view>
       </view>
@@ -55,13 +55,8 @@
 </template>
 
 <script>
-import UniIcons from "@/components/uni-icons/uni-icons.vue";
-
 import { getAfterSaleInfo } from "@/api/after-sale";
 export default {
-  components: {
-    UniIcons,
-  },
   data() {
     return {
       sn: "",

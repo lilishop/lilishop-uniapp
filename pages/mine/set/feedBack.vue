@@ -2,7 +2,7 @@
   <div class="feedBack">
     <div class="feedBack-box">
       <h4>猜你想问</h4>
-      <div class="feedBack-item" @click="handleClick(index)" v-for="(item,index) in list" :key="index">
+      <div class="feedBack-item" :class="{'active':feedBack.type == item.value }" @click="handleClick(index)" v-for="(item,index) in list" :key="index">
         {{item.text}}
       </div>
     </div>
@@ -129,6 +129,10 @@ export default {
   margin-bottom: 100rpx;
   margin: 0 auto;
   border-radius: 100px;
+}
+.active{
+  color: $light-color !important;
+  font-weight: bold;
 }
 .feedBack {
   padding-bottom: 100rpx;

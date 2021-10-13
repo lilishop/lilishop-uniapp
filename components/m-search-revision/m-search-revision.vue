@@ -1,20 +1,21 @@
 <template>
   <view class="serach">
     <view class="left-box" @tap="onClickLeft">
-      <uni-icons style="line-height:70rpx" type="back" size="24" />
+      <u-icon name="arrow-left" size="40" color="#666"></u-icon>
     </view>
     <view class="content" :style="{ 'border-radius': radius + 'px' }">
       <!-- HM修改 增加进入输入状态的点击范围 -->
       <view class="content-box" :class="{ center: mode === 2 }">
         <u-icon name="search" size="32" style="padding:0 15rpx;"></u-icon>
         <!-- HM修改 增加placeholder input confirm-type confirm-->
-        <input style="width:100%; " :placeholder="placeholder" placeholder-class="placeholder-color" @input="inputChange" confirm-type="search" @confirm="triggerConfirm" class="input"
+        <input style="width:100%; " :placeholder="placeholder" placeholder-class="placeholder-color"
+          @input="inputChange" confirm-type="search" @confirm="triggerConfirm" class="input"
           :class="{ center: !active && mode === 2 }" :focus="isFocus" v-model="inputVal" @focus="focus" @blur="blur" />
         <u-icon name="close" v-if="isDelShow" style="padding:0 30rpx;" @click="clear"></u-icon>
       </view>
-      <view v-show="(active && show && button === 'inside') || (isDelShow && button === 'inside')" class="serachBtn" @click="search">搜索</view>
+
     </view>
-    <view v-if="button === 'outside'" class="button" :class="{ active: show || active }">
+    <view class="button active" >
       <view v-if="isShowSeachGoods !=true" class="button-item">
         <div @click="out()">取消</div>
       </view>
@@ -28,14 +29,7 @@
 </template>
 
 <script>
-import uniStatusBar from "../uni-status-bar/uni-status-bar.vue";
-import uniIcons from "../uni-icons/uni-icons.vue";
-
 export default {
-  components: {
-    uniStatusBar,
-    uniIcons,
-  },
   props: {
     mode: {
       value: Number,
@@ -49,15 +43,6 @@ export default {
     value: {
       type: String,
       default: "",
-    },
-    button: {
-      value: String,
-      default: "outside",
-    },
-    //
-    show: {
-      value: Boolean,
-      default: true,
     },
     // 默认半径为60
     radius: {
@@ -131,7 +116,6 @@ export default {
       this.$emit("input", "");
       //this.$emit('search', '');//HM修改 清空内容时候不进行搜索
     },
-  
 
     /**
      * 回退到上一级
@@ -145,7 +129,7 @@ export default {
      */
     search() {
       if (!this.inputVal) {
-        if (!this.show && this.searchName == "取消") {
+        if (this.searchName == "取消") {
           uni.hideKeyboard();
           this.isFocus = false;
           this.active = false;
@@ -175,6 +159,9 @@ export default {
   font-size: $uni-font-size-base;
 
   .left-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 15%;
     /* #ifndef APP-NVUE */
     text-align: center;
@@ -224,19 +211,6 @@ export default {
           color: grey;
         }
       }
-    }
-
-    .serachBtn {
-      height: 100%;
-      flex-shrink: 0;
-      padding: 0 30rpx;
-      //HM修改 按钮背景色
-      background: linear-gradient(to right, grey, grey);
-      //background: $uni-color-success;
-      line-height: 60rpx;
-      color: #eee;
-      //border-left: 1px #ccc solid; //HM修改 去掉边框
-      transition: all 0.3s;
     }
   }
 

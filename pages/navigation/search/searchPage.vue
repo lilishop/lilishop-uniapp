@@ -82,53 +82,49 @@
       <div v-if="isSWitch">
         <scroll-view :style="{ height: goodsHeight }" enableBackToTop="true" lower-threshold="250"
           @scrolltolower="loadmore()" scroll-with-animation scroll-y class="scoll-page">
-          <div class="goodsClass">
-            <u-row v-for="(item, index) in goodsList" :key="index" class="goodsRow">
-              <u-col :span="4" @click.native="navigateToDetailPage(item)" class="switchType1">
-                <u-image width="182rpx" height="200rpx" class="imgGoods" :src="item.content.thumbnail">
-                  <u-loading slot="loading"></u-loading>
-                </u-image>
-              </u-col>
-              <u-col :span="8" @click.native="navigateToDetailPage(item)" class="switchType2">
-                <div class="title clamp3" style="">{{ item.content.goodsName }}</div>
-                <view class="price-box">
-                  <div class="price" v-if="item.content.price!=undefined">
-                    ¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
+          <div class="goods-class">
+            <div v-for="(item, index) in goodsList" :key="index" class="goods-row">
+              <div class="flex goods-col">
+                <div class="goods-img" @click="navigateToDetailPage(item)">
+                  <u-image width="230rpx" height="230rpx" :src="item.content.thumbnail">
+                    <u-loading slot="loading"></u-loading>
+                  </u-image>
+                </div>
+                <div class="goods-detail">
+                  <div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.content.goodsName }}</div>
+                  <view class="price-box" @click="navigateToDetailPage(item)">
+                    <div class="price" v-if="item.content.price!=undefined">
+                      ¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
                       formatPrice(item.content.price )[1]
                     }}
+                    </div>
+                  </view>
+                  <div class="promotion" @click="navigateToDetailPage(item)">
+                    <div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
+                      <span v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
+                      <span v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
+                      <span v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
+                    </div>
                   </div>
-                </view>
-                <div class="promotion">
-                  <div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
+                  <div style="overflow: hidden" @click="navigateToDetailPage(item)" class="count-config">
+                    <span style="float: left; font-size: 22rpx">已售 {{ item.content.buyCount || '0' }}</span>
+                    <span style="float: right; font-size: 22rpx">{{ item.content.commentNum || '0' }}条评论</span>
+                  </div>
+                  <div style="overflow: hidden" @click="navigateToStoreDetailPage(item)" class="count-config">
+                    <div class="text-hidden">
+                      <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营"
+                        type="error" />
+                      <span class="line1-store-name">{{ item.content.storeName }}</span>
+                      <span class="to-store">进店<u-icon size="24" name="arrow-right" color="#666"></u-icon></span>
+                    </div>
+                    <span>
+                      <u-icon name="arrow-right" color="#c5c5c5"></u-icon>
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-                    <span v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
-                    <span v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
-                    <span v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
-                  </div>
-                </div>
-                <div style="overflow: hidden" class="countConfig">
-                  <span style="float: left; font-size: 22rpx">已售 {{ item.buyCount || '0' }}</span>
-                  <span style="float: right; font-size: 22rpx">{{ item.commentNum || '0' }}条评论</span>
-                </div>
-              </u-col>
-              <u-col :span="12" class="storeSellerBox">
-                <div class="storeSellerName" @click="clickTostore()">
-                  <div class="textHidden">
-                    <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营"
-                      type="error" />
-
-                    <span style="
-                        color: #333333;
-                        font-size: 28rpx;
-                        padding-left: 17rpx;
-                      ">{{ item.storeName }}</span>
-                  </div>
-                  <span>
-                    <u-icon name="arrow-right" color="#c5c5c5"></u-icon>
-                  </span>
-                </div>
-              </u-col>
-            </u-row>
+            </div>
           </div>
           <uni-load-more :status="loadingType" @loadmore="loadmore()"></uni-load-more>
         </scroll-view>
@@ -153,36 +149,33 @@
         <scroll-view :style="{ height: goodsHeight }" scroll-anchoring enableBackToTop="true"
           @scrolltolower="loadmore()" scroll-with-animation scroll-y lower-threshold="250" class="scoll-page">
           <view class="goods-list">
-            <view v-for="(item, index) in goodsList" :key="index" class="goods-item"
-              @click="navigateToDetailPage(item)">
-              <view class="image-wrapper">
+            <view v-for="(item, index) in goodsList" :key="index" class="goods-item">
+              <view class="image-wrapper" @click="navigateToDetailPage(item)">
                 <image :src="item.content.thumbnail" mode="aspectFill"></image>
               </view>
               <view class="goods-detail">
-                <div class="title clamp">{{ item.content.goodsName }}</div>
-                <view class="price-box">
+                <div class="title clamp" @click="navigateToDetailPage(item)">{{ item.content.goodsName }}</div>
+                <view class="price-box" @click="navigateToDetailPage(item)">
                   <div class="price" v-if="item.content.price!=undefined">
-
                     ¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
                       formatPrice(item.content.price )[1]
                     }}
                   </div>
                 </view>
 
-                <div class="promotion">
+                <div class="promotion" @click="navigateToDetailPage(item)">
                   <div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
-
                     <span v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
                     <span v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
                     <span v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
                   </div>
                 </div>
-                <div class="countConfig">
+                <div class="count-config" @click="navigateToDetailPage(item)">
                   <span>已售 {{ item.content.buyCount || "0" }}</span>
                   <span>{{ item.content.commentNum || "0" }}条评论</span>
                 </div>
-                <div class="storeSellerName">
-                  <div class="textHidden">
+                <div class="store-seller-name" @click="navigateToStoreDetailPage(item)">
+                  <div class="text-hidden">
                     <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营"
                       type="error" />
                     <span>{{ item.content.storeName || "暂无" }}</span>
@@ -275,6 +268,7 @@
         </view>
       </view>
     </u-popup>
+    <u-back-top :scroll-top="scrollTop"></u-back-top>
   </view>
 </template>
 
@@ -287,6 +281,7 @@ import storage from "@/utils/storage";
 export default {
   data() {
     return {
+      scrollTop: 0,
       loadIndex: 10,
       oldKeywordIndex: "",
       selectedWay: {
@@ -345,9 +340,13 @@ export default {
       routerVal: "",
     };
   },
+  onPageScroll(e) {
+    console.log(e)
+    this.scrollTop = e.scrollTop;
+  },
   onLoad(val) {
     this.init();
-//  this.initSortGoods();
+    //  this.initSortGoods();
     // 接收分类的数据
 
     this.routerVal = val;
@@ -367,7 +366,6 @@ export default {
       this.isShowSeachGoods = true;
     }
     this.loadData();
-   
   },
   components: {
     mSearch,
@@ -546,9 +544,16 @@ export default {
         delta: 1,
       });
     },
+    // 跳转到商品详情
     navigateToDetailPage(item) {
       uni.navigateTo({
         url: `/pages/product/goods?id=${item.content.id}&goodsId=${item.content.goodsId}`,
+      });
+    },
+    // 跳转地址
+    navigateToStoreDetailPage(item) {
+      uni.navigateTo({
+        url: `/pages/product/shopPage?id=${item.content.storeId}`,
       });
     },
     loadmore() {

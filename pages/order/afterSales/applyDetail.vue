@@ -28,7 +28,7 @@
               logs[0].message
             }}</view>
           </view>
-          <uni-icons type="arrowright" style="margin-right: 5px"></uni-icons>
+         <u-icon name="arrow-right" style="margin-right: 5px" size="30" color="#999"></u-icon>
         </view>
       </view>
       <view class="goods-info">
@@ -201,12 +201,7 @@ import {
   getAfterSaleLog,
   getAfterSaleReason,
 } from "@/api/after-sale.js";
-import UniIcons from "@/components/uni-icons/uni-icons.vue";
-
 export default {
-  components: {
-    UniIcons,
-  },
   data() {
     return {
       reason: "", //申请原因
