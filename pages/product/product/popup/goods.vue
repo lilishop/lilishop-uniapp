@@ -1,11 +1,13 @@
 <template>
   <div class="wrapper">
-    <u-popup class="popup" v-model="buyMask" :height="setup.height" closeable :mode="setup.mode" :mask-close-able="isClose" :mask="isMask" :border-radius="setup.radius" @close="closeMask()">
+    <u-popup class="popup" v-model="buyMask" :height="setup.height" closeable :mode="setup.mode"
+      :mask-close-able="setup.close" :border-radius="setup.radius" @close="closeMask()">
       <!-- 商品 -->
       <view class="goods-box bottom">
         <view class="goods-header">
           <view class="goods-img">
-            <u-image width="200rpx" border-radius="20" class="uimage" height="200rpx" :src="selectedSpecImg ? selectedSpecImg : goodsDetail.thumbnail"></u-image>
+            <u-image width="200rpx" border-radius="20" class="uimage" height="200rpx"
+              :src="selectedSpecImg ? selectedSpecImg : goodsDetail.thumbnail"></u-image>
           </view>
           <view class="goods-skus">
 
@@ -13,11 +15,11 @@
             <view class="goods-price " v-if="goodsDetail.promotionPrice">
               <span v-if="goodsDetail.promotionPrice && !pointDetail">
                 ￥
-                <span class="goods-price-promotionShow goods-price-bigshow">{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
+                <span
+                  class="goods-price-promotionShow goods-price-bigshow">{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
                 .{{ formatPrice(goodsDetail.promotionPrice)[1] }}
               </span>
               <span v-if="pointDetail.points">
-
                 <span class="goods-price-promotionShow goods-price-bigshow">{{ pointDetail.points }}</span>
                 积分
               </span>
@@ -56,21 +58,25 @@
           <view class="goods-skus-view" :key="specIndex" v-for="(spec, specIndex) in formatList">
             <view class="skus-view-list">
               <view class="view-class-title">{{ spec.name }}</view>
-              <view :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item" v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
+              <view :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item"
+                v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
                 @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }}</view>
             </view>
           </view>
           <!-- 数量 -->
           <view class="goods-skus-number">
             <view class="view-class-title">数量</view>
-            <u-number-box :bg-color="numberBox.bgColor"  :max="200"  :color="numberBox.color" :input-width="numberBox.width" :input-height="numberBox.height" :size="numberBox.size" :min="1" v-model="num">
+            <u-number-box :bg-color="numberBox.bgColor" :max="200" :color="numberBox.color"
+              :input-width="numberBox.width" :input-height="numberBox.height" :size="numberBox.size" :min="1"
+              v-model="num">
             </u-number-box>
           </view>
         </view>
         <!-- 按钮 -->
         <view class="btns">
 
-          <view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType!='VIRTUAL_GOODS'" @click="addToCartOrBuy('cart')">加入购物车</view>
+          <view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType!='VIRTUAL_GOODS'"
+            @click="addToCartOrBuy('cart')">加入购物车</view>
           <view class="box-btn buy" @click="addToCartOrBuy('buy')">立即购买</view>
         </view>
       </view>
@@ -101,7 +107,6 @@ export default {
       formatList: [],
       currentSelceted: [],
       skuList: "",
-      isMask: false, //是否显示遮罩层
       isClose: false, //是否可以点击遮罩关闭
     };
   },
@@ -129,8 +134,6 @@ export default {
   },
 
   methods: {
-  
-
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
       if (typeof val == "undefined") {
@@ -168,7 +171,10 @@ export default {
       };
       this.selectName = specValue.value;
 
-      this.$emit("handleClickSku", {skuId: selectedSkuId.skuId, goodsId: this.goodsDetail.goodsId});
+      this.$emit("handleClickSku", {
+        skuId: selectedSkuId.skuId,
+        goodsId: this.goodsDetail.goodsId,
+      });
     },
 
     /**
@@ -203,11 +209,9 @@ export default {
         // 判断是否拼团商品
         if (this.buyType) {
           data.cartType = "PINTUAN";
-        }
-        else if(this.goodsDetail.goodsType == 'VIRTUAL_GOODS'){
-            data.cartType = "VIRTUAL";
-        }
-        else {
+        } else if (this.goodsDetail.goodsType == "VIRTUAL_GOODS") {
+          data.cartType = "VIRTUAL";
+        } else {
           data.cartType = "BUY_NOW";
         }
 

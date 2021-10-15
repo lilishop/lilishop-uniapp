@@ -204,24 +204,25 @@
         </view>
       </view>
       <!-- 规格-模态层弹窗 -->
-      <view class="popup spec" @click="shutMask(false)" v-show="maskFlag">
+      <view class="spec">
         <!-- 促销弹窗 -->
-        <view class="cuxiao mask" v-show="cuxiao">
-          <view ref="mask_title" class="title mask_title">
-            优惠
-            <span @click="shutMask(false)">×</span>
+        <u-popup v-model="promotionFlag" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius"
+          @close="promotionFlag=false" :mask-close-able="setup.close" closeable>
+          <view class="header-title">优惠</view>
+          <view class="cuxiao">
+            <scroll-view class="scroll_mask" :scroll-y="true">
+              <view class="con-cuxiao">
+                <view class="cuxiao-title">促销活动</view>
+                <PromotionDetailsLayout :res="PromotionList" />
+              </view>
+              <view class="con-cuxiao coupons">
+
+                <view class="cuxiao-title">可领优惠券</view>
+                <PromotionCoupon @getCoupon="getCoupon" :res="PromotionList" />
+              </view>
+            </scroll-view>
           </view>
-          <scroll-view class="scroll_mask" :scroll-y="true">
-            <view class="con-cuxiao">
-              <text>促销活动</text>
-              <PromotionDetailsLayout :res="PromotionList" />
-            </view>
-            <view class="con-cuxiao coupons">
-              <text>可领优惠券</text>
-              <PromotionCoupon @getCoupon="getCoupon" :res="PromotionList" />
-            </view>
-          </scroll-view>
-        </view>
+        </u-popup>
 
         <!-- 配送地址弹窗 -->
         <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id"
@@ -266,6 +267,8 @@ import popupGoods from "./product/popup/goods"; //购物车商品的模块
 import popupAddress from "./product/popup/address"; //地址选择模块
 import shares from "@/components/m-share/index"; //分享
 import popups from "@/components/popups/popups"; //气泡框
+
+import setup from "./product/popup/popup";
 export default {
   components: {
     popups,
@@ -285,6 +288,8 @@ export default {
   },
   data() {
     return {
+      setup,
+      promotionFlag: false,
       // #ifdef H5
       navbarListX: 110, //导航栏列表栏x轴
       navbarListY: 80, //导航栏列表栏y轴
@@ -373,8 +378,7 @@ export default {
       imgList: [], //轮播图数据
       favorite: false, //收藏与否flag
       recommendList: [], //推荐列表
-      maskFlag: false, //模态显示与否
-      cuxiao: false, //促销弹窗
+      // maskFlag: false, //模态显示与否
       goodsInfo: false, //商品介绍弹窗
       addressFlag: false, //配送地址弹窗
       buyMask: false, //添加购物车直接购买，查看已选 弹窗
@@ -523,9 +527,9 @@ export default {
 
       let response = await getGoods(id, goodsId);
       if (!response.data.success) {
-        setTimeout(()=>{
+        setTimeout(() => {
           uni.navigateBack();
-        },500)
+        }, 500);
       }
       // 这里是绑定分销员
       if (distributionId || this.$store.state.distributionId) {
@@ -625,14 +629,14 @@ export default {
      */
     closePopupAddress(val) {
       this.addressFlag = val;
-      this.maskFlag = false;
+      // this.maskFlag = false;
     },
     /**
      * 商品规格子级关闭回调
      */
     closePopupBuy(val) {
       this.buyMask = val;
-      this.maskFlag = false;
+      // this.maskFlag = false;
     },
 
     /** 参与拼团  创建拼团 */
@@ -708,7 +712,7 @@ export default {
      */
     getGoodsCollectionFun(goodsId) {
       if (storage.getHasLogin()) {
-        API_Members.getGoodsIsCollect("GOODS",goodsId ).then((res) => {
+        API_Members.getGoodsIsCollect("GOODS", goodsId).then((res) => {
           this.favorite = res.data.result;
         });
       }
@@ -730,7 +734,7 @@ export default {
 
     /**
      * 获取相似商品列表
-     * 
+     *
      */
     getOtherLikeGoods() {
       getGoodsList({
@@ -775,22 +779,21 @@ export default {
      * 规格弹窗开关
      */
     shutMask(flag, buyFlag, type) {
-      // type是指是否点击底部按钮
+      this.promotionFlag = false;
+      this.buyMask = false;
+      this.addressFlag = false;
       if (flag) {
         switch (flag) {
           case 1: //优惠券弹窗
-            this.maskFlag = true;
-            this.cuxiao = true;
+            this.promotionFlag = true;
 
             break;
-
           case 3:
-            this.maskFlag = true;
             this.addressFlag = true;
             break;
           case 4: //添加购物车直接购买，查看已选 弹窗
             // 判断是否是一个规格
-            this.maskFlag = true;
+
             this.buyMask = true;
             if (buyFlag == "PINTUAN") {
               if (type.orderSn) {
@@ -804,10 +807,6 @@ export default {
 
             break;
         }
-      } else {
-        this.maskFlag = false;
-        this.cuxiao = false;
-        this.buyMask = false;
       }
     },
 
@@ -820,7 +819,7 @@ export default {
         this.deleteGoodsCollectionFun(id);
         return false;
       }
-      API_Members.collectionGoods("GOODS",id ).then((res) => {
+      API_Members.collectionGoods("GOODS", id).then((res) => {
         if (res.data.success) {
           uni.showToast({
             title: "收藏成功!",

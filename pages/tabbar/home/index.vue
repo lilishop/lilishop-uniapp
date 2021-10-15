@@ -1,14 +1,13 @@
 <template>
   <div class="wrapper">
     <!-- 楼层装修组件 -->
-    <tpl />
+    <tpl ref="tpl" />
   </div>
 </template>
 <script>
 import tpl from "@/pages/tabbar/home/views.vue";
 
 export default {
-  
   data() {
     return {
       background: {
@@ -16,13 +15,16 @@ export default {
       },
     };
   },
+  onPullDownRefresh() {
+    this.$refs.tpl.init();
+
+    uni.stopPullDownRefresh();
+  },
   components: {
     tpl,
   },
-  
 };
 </script>
 
 <style lang="scss" scoped>
-
 </style>

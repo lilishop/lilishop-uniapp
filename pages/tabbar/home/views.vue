@@ -108,6 +108,7 @@ export default {
      * 实例化首页数据楼层
      */
     init() {
+      this.pageData = ""
       getFloorData().then((res) => {
         if (res.data.success) {
           this.pageData = JSON.parse(res.data.result.pageData);

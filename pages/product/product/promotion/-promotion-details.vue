@@ -7,11 +7,19 @@
         <view v-if="prom.split('-')[0] == 'FULL_DISCOUNT'">
           <div class="res_prom_item" v-if="res[prom].fullMinus">
             <u-tag text="满减" type="error"></u-tag>
-            <span class="proText">满{{ res[prom].fullMoney }}元，立减现金 <span class="price">{{ res[prom].fullMinus}}元</span></span>
+            <!-- TODO 后续将优化为可点击的商品以及优惠券显示明细 -->
+            <span class="pro-text">满{{ res[prom].fullMoney }}元 立减现金 <span class="price">{{ res[prom].fullMinus}}元</span>
+              <span v-if="res[prom].isCoupon"> 赠送<span>优惠券</span></span>
+              <span v-if="res[prom].isPoint"> 赠送{{res[prom].point}}积分</span>
+              <span v-if="res[prom].isGift"> 赠送商品</span>
+              <span v-if="res[prom].isFreeFreight">赠送包邮服务</span>
+
+            </span>
           </div>
           <div class="res_prom_item" v-if="res[prom].fullRate">
             <u-tag text="打折" type="error"></u-tag>
-            <span class="proText">满{{ res[prom].fullMoney }}元，立享<span class="price">{{ res[prom].fullRate }}折</span>优惠</span>
+            <span class="pro-text">满{{ res[prom].fullMoney }}元，立享<span
+                class="price">{{ res[prom].fullRate }}折</span>优惠</span>
           </div>
         </view>
 
@@ -19,14 +27,15 @@
 
           <div class="res_prom_item" v-if="res[prom].requiredNum">
             <u-tag text="拼团" type="error"></u-tag>
-            <span class="proText">{{ res[prom].requiredNum }}人拼团 限购<span class="price">{{ res[prom].limitNum}}件</span></span>
+            <span class="pro-text">{{ res[prom].requiredNum }}人拼团 限购<span
+                class="price">{{ res[prom].limitNum}}件</span></span>
           </div>
         </view>
 
         <view v-if="prom.split('-')[0] == 'SECKILL'">
           <div class="res_prom_item">
             <u-tag text="限时抢购" type="error"></u-tag>
-            <span class="proText">限时抢购</span>
+            <span class="pro-text">限时抢购</span>
           </div>
         </view>
       </view>
@@ -68,13 +77,16 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.proText {
+.pro-text {
   font-size: 26rpx;
   font-family: PingFang SC, PingFang SC-Regular;
   font-weight: 400;
   text-align: left;
   color: #333333;
   margin-left: 20rpx;
+  > span {
+    margin-right: 15rpx;
+  }
 }
 
 .wrapper {
