@@ -483,6 +483,7 @@ export default {
       getMpScene(this.routerVal.scene).then((res) => {
         if (res.data.success) {
           let data = res.data.result.split(","); // skuId,goodsId,distributionId
+          console.warn(data)
           this.init(data[0], data[1], data[2]);
         }
       });
@@ -520,7 +521,7 @@ export default {
     /**
      * 初始化信息
      */
-    async init(id, goodsId, distributionId) {
+    async init(id, goodsId, distributionId="") {
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
@@ -535,6 +536,7 @@ export default {
       if (distributionId || this.$store.state.distributionId) {
         let disResult = await getGoodsDistribution(distributionId);
         if (!disResult.data.success || disResult.statusCode == 403) {
+          console.log("绑定成功!")
           this.$store.state.distributionId = distributionId;
         }
       }
