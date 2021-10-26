@@ -61,7 +61,7 @@ $font-weight: 400;
 	color: $light-color;
 }
 .main-color {
-	color: $main-color;
+	color: $main-color !important;
 }
 .bg-light-color {
 	background-color: $light-color !important;

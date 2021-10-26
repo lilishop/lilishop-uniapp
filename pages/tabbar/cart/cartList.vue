@@ -26,17 +26,17 @@
                 @change="checkboxChangeDP(item)"></u-checkbox>
               <!-- #endif -->
             </u-checkbox-group>
-            <span class="storeName store-line-desc" @click.stop="navigateToStore(item)">{{
+            <span class="store-name store-line-desc" @click.stop="navigateToStore(item)">{{
               item.storeName
             }}</span>
           </view>
-          <view class="right_Col" @click="navigateToConpon(item)">
-            <div class="right_Line"></div>
+          <view class="right-col" @click="navigateToConpon(item)">
+            <div class="right-line"></div>
             <span>领劵</span>
           </view>
         </view>
         <u-swipe-action :show="skuItem.selected" @open="openAction(skuItem)" :options="options" bg-color="#fff"
-          ref="swiperAction" class="cartItem" v-for="(skuItem, i) in item.skuList" :index="i" :key="skuItem.goodsSku.id"
+          ref="swiperAction" class="cart-item" v-for="(skuItem, i) in item.skuList" :index="i" :key="skuItem.goodsSku.id"
           @click="changeActionTab(skuItem)" @longpress="changeActionTab(skuItem)">
           <!-- 满减活动 -->
           <div v-if="skuItem.promotions" v-for="(fullDiscount,fullDiscountIndex) in skuItem.promotions"
@@ -64,8 +64,8 @@
                 </u-checkbox-group>
                 <span class="invalid" v-else style="font-size: 24rpx">失效</span>
               </view>
-              <u-image border-radius="20" :fade="true" @click="navigateToGoods(skuItem)" width="200rpx"
-                height="200rpx" :src="skuItem.goodsSku.thumbnail"  />
+              <u-image border-radius="10" :fade="true" @click="navigateToGoods(skuItem)" width="160rpx" height="160rpx"
+                :src="skuItem.goodsSku.thumbnail" />
             </view>
             <view class="goods-content">
               <!-- 商品名称 -->
@@ -76,7 +76,8 @@
               <p class="sp-type">{{skuItem.goodsSku.simpleSpecs}}</p>
               <p class="sp-number">
                 <view class="sp-price">
-                  <div class="default-color" :class="{'theme-color':skuItem.promotions.length <=0  }">
+                  <div class="default-color" :class="{'main-color':skuItem.promotions.length ==0  }">
+                    
                     ￥<span>{{ formatPrice(skuItem.goodsSku.price)[0] }}</span>
                     <span>.{{ formatPrice(skuItem.goodsSku.price)[1] }}</span>
                   </div>
@@ -101,11 +102,10 @@
                     font-size="24" :timestamp="getCountDownTime(seckill.endTime)">
                   </u-count-down>
                 </div>
-
               </div>
 
               <!-- 如果有活动 并且是选中的状态,显示预估到手价格 -->
-              <div class="priceDetail-flowPrice" :class="{'theme-color':skuItem.priceDetailDTO}"
+              <div class="priceDetail-flowPrice" :class="{'main-color':skuItem.priceDetailDTO}"
                 v-if="skuItem.priceDetailDTO && skuItem.invalid == 0  && skuItem.promotions.length!=0 && skuItem.checked && skuItem.checked">
                 预估到手价 ￥<span>{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
                 <span>.{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
@@ -137,7 +137,7 @@
               class="discountPrice">
               <span>优惠减:￥{{(cartDetail.priceDetailDTO.goodsPrice - cartDetail.priceDetailDTO.flowPrice) | unitPrice}}
               </span>
-              <span class="discountDetails" @click="discountDetails">优惠明细</span>
+              <span class="discount-details" @click="discountDetails">优惠明细</span>
             </div>
           </div>
         </span>
@@ -208,6 +208,7 @@ export default {
       WEIXIN_num: "", //购物车兼容微信步进器
     };
   },
+  
   mounted() {
     // #ifdef MP-WEIXIN
     // 小程序默认分享
@@ -542,6 +543,11 @@ export default {
 };
 </script>
 
+<style lang="scss">
+page {
+  background: #f2f2f2;
+}
+</style>
 <style scoped lang="scss">
 // #ifdef MP-WEIXIN
 @import "./mp-carui.scss";
@@ -566,7 +572,9 @@ export default {
     color: #fff;
   }
 }
-
+.default-color {
+  color: #333;
+}
 .goods-row {
   padding: 30rpx 0;
 
@@ -574,19 +582,17 @@ export default {
   align-items: center;
 }
 
-.storeName {
+.store-name {
   font-weight: bold;
 }
 .invalid {
   filter: grayscale(1);
 }
 
-.cartItem {
+.cart-item {
   border-radius: 0.4em;
   transition: 0.35s;
 }
-
-
 
 /* 空白页 */
 /deep/ .u-number-input {
@@ -660,16 +666,16 @@ export default {
 }
 
 .box2 {
-  border-radius: 30rpx;
-  padding: 32rpx 40rpx 32rpx;
-
+  border-radius: 20rpx;
+  padding: 0 16rpx 0;
+  margin: 0 16rpx 20rpx;
   .u-checkbox {
     display: flex;
     align-items: center;
     text-align: center;
   }
   background: #fff;
-  margin-bottom: 20rpx;
+
 }
 
 .wrapper {
@@ -687,11 +693,6 @@ export default {
   > p {
     padding-left: 20rpx;
   }
-}
-
-.allCheck {
-  // padding: 0 10rpx;
-  font-size: 24rpx;
 }
 
 .content {
@@ -733,10 +734,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30rpx 0;
+  padding: 30rpx 0 0 0;
 }
 
-.right_Col {
+.right-col {
   color: $light-color;
   font-size: 26rpx;
 
@@ -745,7 +746,7 @@ export default {
   }
 }
 
-.right_Line {
+.right-line {
   width: 3px;
   float: left;
   height: 40rpx;
@@ -763,7 +764,7 @@ export default {
   bottom: 0;
   // #endif
   // #ifdef H5
-  bottom:  var(--window-bottom);
+  bottom: var(--window-bottom);
   // #endif
   left: 0;
   border-top: 1px solid #ededed;
@@ -782,7 +783,6 @@ export default {
   }
 }
 
-
 .sp-type {
   color: $u-light-color;
   padding: 10rpx 0;
@@ -794,9 +794,8 @@ export default {
   white-space: nowrap;
 }
 
-.default-color {
-  color: #333;
-}.sp-number {
+
+.sp-number {
   font-weight: bold;
 
   display: flex;
@@ -829,7 +828,7 @@ export default {
     color: rgb(201, 199, 199);
   }
 }
-.discountDetails {
+.discount-details {
   margin-left: 10px;
   color: #666;
   padding: 4rpx 10rpx;

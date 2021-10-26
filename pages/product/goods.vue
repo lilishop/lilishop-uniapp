@@ -410,17 +410,7 @@ export default {
       routerVal: "",
     };
   },
-  // #ifdef MP-WEIXNI
-  shareAppMessage() {
-    return {
-      title: this.goodsDetail.goodsName,
-      type: 0,
-      query: `id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`,
-      path: `/pages/product/goods`,
-      imageUrl: this.goodsDetail.goodsGalleryList[0],
-    };
-  },
-  // #endif
+
   watch: {
     isGroup(val) {
       if (val) {
@@ -483,7 +473,7 @@ export default {
       getMpScene(this.routerVal.scene).then((res) => {
         if (res.data.success) {
           let data = res.data.result.split(","); // skuId,goodsId,distributionId
-          console.warn(data)
+          console.warn(data);
           this.init(data[0], data[1], data[2]);
         }
       });
@@ -495,7 +485,19 @@ export default {
       );
     }
   },
+  // #ifdef MP-WEIXIN
+  onShareAppMessage(res) {
+    return {
+      path: this.share(),
+      title: `[好友推荐]${this.goodsDetail.goodsName}`,
+      imageUrl: this.goodsDetail.goodsGalleryList[0],
+    };
+  },
+  // #endif
   methods: {
+    share() {
+      return `/pages/product/goods?id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`;
+    },
     /**
      * 导航栏列表栏
      */
@@ -521,12 +523,14 @@ export default {
     /**
      * 初始化信息
      */
-    async init(id, goodsId, distributionId="") {
+    async init(id, goodsId, distributionId = "") {
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
 
       let response = await getGoods(id, goodsId);
+
+      console.log(response);
       if (!response.data.success) {
         setTimeout(() => {
           uni.navigateBack();
@@ -536,7 +540,7 @@ export default {
       if (distributionId || this.$store.state.distributionId) {
         let disResult = await getGoodsDistribution(distributionId);
         if (!disResult.data.success || disResult.statusCode == 403) {
-          console.log("绑定成功!")
+          console.log("绑定成功!");
           this.$store.state.distributionId = distributionId;
         }
       }

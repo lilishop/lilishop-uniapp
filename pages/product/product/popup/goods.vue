@@ -53,14 +53,14 @@
           </view>
         </view>
         <!-- 商品信息 -->
-        <view class="goods-skus-box">
+        <scroll-view class="goods-skus-box" :scroll-y="true">
           <!-- 规格 -->
           <view class="goods-skus-view" :key="specIndex" v-for="(spec, specIndex) in formatList">
             <view class="skus-view-list">
               <view class="view-class-title">{{ spec.name }}</view>
               <view :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item"
                 v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
-                @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }}</view>
+                @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }} </view>
             </view>
           </view>
           <!-- 数量 -->
@@ -71,7 +71,7 @@
               v-model="num">
             </u-number-box>
           </view>
-        </view>
+        </scroll-view>
         <!-- 按钮 -->
         <view class="btns">
 
@@ -86,6 +86,7 @@
 <script>
 import * as API_trade from "@/api/trade.js";
 import setup from "./popup";
+
 export default {
   data() {
     return {
@@ -148,7 +149,7 @@ export default {
 
     /**点击规格 */
     handleClickSpec(val, index, specValue) {
-      this.$set(this.currentSelceted, index, specValue.value);
+      this.currentSelceted[index] = specValue.value;
       let selectedSkuId = this.goodsSpec.find((i) => {
         let matched = true;
         let specValues = i.specValues.filter((j) => j.specName !== "images");
@@ -162,19 +163,28 @@ export default {
           return i;
         }
       });
-      this.selectSkuList = {
-        spec: {
-          specName: val.name,
-          specValue: specValue.value,
-        },
-        data: this.goodsDetail,
-      };
-      this.selectName = specValue.value;
+      if (selectedSkuId?.skuId) {
+        this.$set(this.currentSelceted, index, specValue.value);
+        this.selectSkuList = {
+          spec: {
+            specName: val.name,
+            specValue: specValue.value,
+          },
+          data: this.goodsDetail,
+        };
+        this.selectName = specValue.value;
 
-      this.$emit("handleClickSku", {
-        skuId: selectedSkuId.skuId,
-        goodsId: this.goodsDetail.goodsId,
-      });
+        this.$emit("handleClickSku", {
+          skuId: selectedSkuId.skuId,
+          goodsId: this.goodsDetail.goodsId,
+        });
+      } else {
+        uni.showToast({
+          title: "暂无该商品!",
+          duration: 2000,
+          icon: "none",
+        });
+      }
     },
 
     /**
@@ -230,7 +240,7 @@ export default {
     },
     formatSku(list) {
       // 格式化数据
-
+      console.log(list);
       let arr = [{}];
       list.forEach((item, index) => {
         item.specValues.forEach((spec, specIndex) => {
@@ -238,6 +248,7 @@ export default {
           let values = {
             value: spec.specValue,
             quantity: item.quantity,
+            skuId: item.skuId,
           };
           if (name === "images") {
             return;
@@ -247,7 +258,9 @@ export default {
             if (
               arrItem.name == name &&
               arrItem.values &&
-              !arrItem.values.find((i) => i.value === values.value)
+              !arrItem.values.find((i) => {
+                return i.value === values.value;
+              })
             ) {
               arrItem.values.push(values);
             }
@@ -256,6 +269,7 @@ export default {
               return key.name;
             });
             if (!keys.includes(name)) {
+              console.log(name, values);
               arr.push({
                 name: name,
                 values: [values],
@@ -269,6 +283,7 @@ export default {
       this.formatList = arr;
 
       list.forEach((item) => {
+        // 默认选中
         if (item.skuId === this.goodsDetail.id) {
           item.specValues
             .filter((i) => i.specName !== "images")
@@ -286,13 +301,12 @@ export default {
       });
 
       this.skuList = list;
+      // console.log(" this.skuList", this.skuList)
     },
   },
 
   mounted() {
     this.formatSku(this.goodsSpec);
-
-    console.log(this.goodsDetail);
   },
 };
 </script>

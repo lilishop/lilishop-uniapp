@@ -48,7 +48,7 @@
           </view>
         </view>
         <!-- 商品信息 -->
-        <view class="goods-skus-box">
+          <scroll-view class="goods-skus-box" :scroll-y="true">
           <!-- 规格 -->
           <view class="goods-skus-view" :key="specIndex" v-for="(spec, specIndex) in formatList">
             <view class="skus-view-list">
@@ -65,7 +65,7 @@
               :input-height="numberBox.height" :size="numberBox.size" :min="1" v-model="num">
             </u-number-box>
           </view>
-        </view>
+          </scroll-view>
         <!-- 按钮 -->
         <view class="btns">
 
@@ -142,7 +142,7 @@ export default {
 
     /**点击规格 */
     handleClickSpec(val, index, specValue) {
-      this.$set(this.currentSelceted, index, specValue.value);
+       this.currentSelceted[index] = specValue.value;
       let selectedSkuId = this.goodsSpec.find((i) => {
         let matched = true;
         let specValues = i.specValues.filter((j) => j.specName !== "images");
@@ -156,19 +156,28 @@ export default {
           return i;
         }
       });
-      this.selectSkuList = {
-        spec: {
-          specName: val.name,
-          specValue: specValue.value,
-        },
-        data: this.goodsDetail,
-      };
-      this.selectName = specValue.value;
+      if (selectedSkuId?.skuId) {
+        this.$set(this.currentSelceted, index, specValue.value);
+        this.selectSkuList = {
+          spec: {
+            specName: val.name,
+            specValue: specValue.value,
+          },
+          data: this.goodsDetail,
+        };
+        this.selectName = specValue.value;
 
-      this.$emit("handleClickSku", {
-        skuId: selectedSkuId.skuId,
-        goodsId: this.goodsDetail.goodsId,
-      });
+        this.$emit("handleClickSku", {
+          skuId: selectedSkuId.skuId,
+          goodsId: this.goodsDetail.goodsId,
+        });
+      } else {
+        uni.showToast({
+          title: "暂无该商品!",
+          duration: 2000,
+          icon: "none",
+        });
+      }
     },
 
     /**
