@@ -1,53 +1,57 @@
 <template>
   <div class="wrapper">
-    <u-navbar :is-back="showBack" :border-bottom="false"></u-navbar>
-    <div>
-      <div class="title">{{loginTitleWay[current].title}}</div>
-      <div :class="current == 1 ? 'desc-light':'desc'">{{loginTitleWay[current].desc}}<span
-          v-if="current == 1">{{mobile | secrecyMobile}}</span></div>
-    </div>
-    <!-- 手机号 -->
-    <div v-show="current==0">
-      <u-input :custom-style="inputStyle" :placeholder-style="placeholderStyle" placeholder="请输入手机号 (11位)"
-        class='mobile' focus v-model="mobile" type="number" maxlength="11" />
-      <div :class="!enabuleFetchCode ?'disable':'fetch'" @click="fetchCode" class=" btn">获取验证码</div>
-      <div class="flex">
-        <u-checkbox-group :icon-size="24" width="45rpx">
-          <u-checkbox shape="circle" v-model="enabulePrivacy" active-color="#FF5E00"></u-checkbox>
-        </u-checkbox-group>
-        <div class="tips">未注册的手机号验证后将自动创建用户账号，登录即代表您已同意<span @click="navigateToPrivacy('privacy')">《使用条款及隐私协议》</span>
+    <div v-if="!wechatLogin">
+      <u-navbar :is-back="showBack" :border-bottom="false"></u-navbar>
+      <div>
+        <div class="title">{{loginTitleWay[current].title}}</div>
+        <div :class="current == 1 ? 'desc-light':'desc'">{{loginTitleWay[current].desc}}<span
+            v-if="current == 1">{{mobile | secrecyMobile}}</span></div>
+      </div>
+      <!-- 手机号 -->
+      <div v-show="current==0">
+        <u-input :custom-style="inputStyle" :placeholder-style="placeholderStyle" placeholder="请输入手机号 (11位)"
+          class='mobile' focus v-model="mobile" type="number" maxlength="11" />
+        <div :class="!enabuleFetchCode ?'disable':'fetch'" @click="fetchCode" class=" btn">获取验证码</div>
+        <div class="flex">
+          <u-checkbox-group :icon-size="24" width="45rpx">
+            <u-checkbox shape="circle" v-model="enabulePrivacy" active-color="#FF5E00"></u-checkbox>
+          </u-checkbox-group>
+          <div class="tips">未注册的手机号验证后将自动创建用户账号，登录即代表您已同意<span @click="navigateToPrivacy('privacy')">《使用条款及隐私协议》</span>
+          </div>
+        </div>
+
+      </div>
+      <!-- 输入验证码 -->
+      <div v-show="current==1" class="box-code">
+        <verifyCode type="bottom" @confirm="submit" boxActiveColor="#D8D8D8" v-model="code" isFocus
+          boxNormalColor="#D8D8D8" cursorColor="#D8D8D8" />
+
+        <div class="fetch-btn">
+          <u-verification-code change-text="验证码已发送（x）" end-text="重新获取验证码" keep-running unique-key="page-login"
+            :seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange"></u-verification-code>
+          <span @tap="fetchCode" :style="{color:codeColor}"> {{tips}}</span>
         </div>
       </div>
 
-    </div>
-    <!-- 输入验证码 -->
-    <div v-show="current==1" class="box-code">
-      <verifyCode type="bottom" @confirm="submit" boxActiveColor="#D8D8D8" v-model="code" isFocus
-        boxNormalColor="#D8D8D8" cursorColor="#D8D8D8" />
-
-      <div class="fetch-btn">
-        <u-verification-code change-text="验证码已发送（x）" end-text="重新获取验证码" keep-running unique-key="page-login"
-          :seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange"></u-verification-code>
-        <span @tap="fetchCode" :style="{color:codeColor}"> {{tips}}</span>
+      <!-- 循环出当前可使用的第三方登录模式 -->
+      <div class="flex login-list">
+        <div :style="{background:item.color}" class="login-item" v-for="(item,index) in loginList" :key="index">
+          <u-icon v-if="item.title!='APPLE'" color="#fff" size="42" :name="item.icon" @click="navigateLogin(item)">
+          </u-icon>
+          <u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" @click="navigateLogin(item)" width="80"
+            height="80" />
+        </div>
       </div>
+      <myVerification v-if="codeFlag" @send="verification" class="verification" ref="verification" business="LOGIN" />
     </div>
-
-    <!-- 循环出当前可使用的第三方登录模式 -->
-    <div class="flex login-list">
-      <div :style="{background:item.color}" class="login-item" v-for="(item,index) in loginList" :key="index">
-        <u-icon v-if="item.title!='APPLE'" color="#fff" size="42" :name="item.icon" @click="navigateLogin(item)">
-        </u-icon>
-        <u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" @click="navigateLogin(item)" width="80"
-          height="80" />
-      </div>
-    </div>
-    <myVerification v-if="codeFlag" @send="verification" class="verification" ref="verification" business="LOGIN" />
-
+    <view v-else>
+      <wechatH5Login />
+    </view>
   </div>
 </template>
 
 <script>
-import { openIdLogin ,loginCallback } from "@/api/connect.js";
+import { openIdLogin, loginCallback } from "@/api/connect.js";
 import api from "@/config/api.js";
 import { sendMobile, smsLogin } from "@/api/login";
 import myVerification from "@/components/verification/verification.vue"; //验证码模块
@@ -56,13 +60,15 @@ import verifyCode from "@/components/verify-code/verify-code";
 import { getUserInfo } from "@/api/members";
 import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import storage from "@/utils/storage.js"; //缓存
-
+import wechatH5Login from "./wechatH5Login.vue";
+import { webConnect } from "@/api/connect.js";
 export default {
-  components: { myVerification, verifyCode },
+  components: { myVerification, verifyCode, wechatH5Login },
 
   data() {
     return {
       uuid,
+      wechatLogin: false, //是否加载微信公众号登录
       flage: false, //是否验证码验证
       codeFlag: true, //验证开关，用于是否展示验证码
       tips: "",
@@ -117,7 +123,28 @@ export default {
       ],
     };
   },
+  onShow() {
+    //#ifdef H5
+    let isWXBrowser = /micromessenger/i.test(navigator.userAgent);
+    if (isWXBrowser) {
+      webConnect("WECHAT").then((res) => {
+        let data = res.data;
+        if (data.success) {
+          window.location = data.result;
+        }
+      });
+    }
+    //#endif
+  },
   mounted() {
+    // #ifndef APP-PLUS
+    //判断是否微信浏览器
+    var ua = window.navigator.userAgent.toLowerCase();
+    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+      this.wechatLogin = true;
+      return;
+    } 
+    // #endif
     /**
      * 条件编译判断当前客户端类型
      */
@@ -231,7 +258,7 @@ export default {
       }
     },
   },
-   onLoad(options) {
+  onLoad(options) {
     if (options && options.state) {
       this.stateLogin(options.state);
     }
