@@ -2,7 +2,8 @@
   <view class="b-content">
     <view class="navbar">
       <!-- 循环出头部tab栏 -->
-      <view v-for="(item, index) in navList" :key="index" class="nav-item" @click="handleTabClick(index)"><text :class="{ current: tabCurrentIndex === index }">{{
+      <view v-for="(item, index) in navList" :key="index" class="nav-item" @click="handleTabClick(index)"><text
+          :class="{ current: tabCurrentIndex === index }">{{
           item.text
         }}</text></view>
     </view>
@@ -11,9 +12,10 @@
         <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData">
           <!-- 空白页 -->
           <u-empty mode="coupon" text="暂无优惠券了" v-if="navItem.wheterEmpty"></u-empty>
-       
+
           <!-- 数据 -->
-          <view v-if="navItem.dataList && coupon" class="coupon-item" :class="{ 'coupon-used': navIndex != 0 }" v-for="(coupon, index) in navItem.dataList" :key="index">
+          <view v-if="navItem.dataList && coupon" class="coupon-item" :class="{ 'coupon-used': navIndex != 0 }"
+            v-for="(coupon, index) in navItem.dataList" :key="index">
             <view class="left">
               <view class="wave-line">
                 <view class="wave" v-for="(item, index) in 12" :key="index"></view>
@@ -114,6 +116,7 @@ export default {
   },
 
   onShow() {
+    this.navList[this.tabCurrentIndex].dataList = [];
     this.getData();
   },
 
@@ -158,7 +161,6 @@ export default {
             this.navList[index].dataList.push(...data);
           }
         }
-        console.log(this.navList[index].dataList)
         uni.hideLoading();
       });
     },
