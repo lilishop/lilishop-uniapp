@@ -27,7 +27,7 @@
           boxNormalColor="#D8D8D8" cursorColor="#D8D8D8" />
 
         <div class="fetch-btn">
-          <u-verification-code change-text="验证码已发送（x）" end-text="重新获取验证码" keep-running unique-key="page-login"
+          <u-verification-code change-text="验证码已发送（x）" end-text="重新获取验证码"  unique-key="page-login"
             :seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange"></u-verification-code>
           <span @tap="fetchCode" :style="{color:codeColor}"> {{tips}}</span>
         </div>
@@ -136,6 +136,8 @@ export default {
     }
     //#endif
   },
+  
+
   mounted() {
     // #ifndef APP-PLUS
     //判断是否微信浏览器
@@ -143,7 +145,7 @@ export default {
     if (ua.match(/MicroMessenger/i) == "micromessenger") {
       this.wechatLogin = true;
       return;
-    } 
+    }
     // #endif
     /**
      * 条件编译判断当前客户端类型
@@ -532,8 +534,6 @@ export default {
           title: "加载中",
         });
         if (!this.codeFlag) {
-          this.codeFlag = true;
-
           let timer = setInterval(() => {
             if (this.$refs.verification) {
               this.$refs.verification.error(); //发送

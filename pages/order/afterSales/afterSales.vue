@@ -1,10 +1,12 @@
 <template>
   <view class="content">
     <view class="u-tabs-box">
-      <u-tabs bg-color="#fff" :list="list" :is-scroll="false" :current="current" @change="change" :active-color="$lightColor"></u-tabs>
+      <u-tabs bg-color="#fff" :list="list" :is-scroll="false" :current="current" @change="change"
+        :active-color="$lightColor"></u-tabs>
     </view>
     <div class="u-tabs-search">
-      <u-search placeholder="请输入订单编号" @search="handleGetOrderList(current)" @clear="handleGetOrderList(current)" @custom="handleGetOrderList(current)" v-model="params.orderSn"></u-search>
+      <u-search placeholder="请输入订单编号" @search="handleGetOrderList(current)" @clear="handleGetOrderList(current)"
+        @custom="handleGetOrderList(current)" v-model="params.orderSn"></u-search>
     </div>
     <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
       <view class="seller-view" v-for="(order, orderIndex) in orderList" :key="orderIndex">
@@ -40,31 +42,38 @@
             <view class="description">
               <!-- 售后申请 -->
               <view v-if="
-                  current === 0 && order.groupAfterSaleStatus &&
-                  order.groupAfterSaleStatus === 'ALREADY_APPLIED'
+                  current === 0 &&  order.groupAfterSaleStatus &&
+                 order.groupAfterSaleStatus.includes('ALREADY_APPLIED') 
                 " class="cannot_apply">
                 <u-icon class="icon" name="info-circle-fill"></u-icon>
                 该商品已申请售后服务
               </view>
-              <view class="cannot_apply" v-if="current === 0 && order.groupAfterSaleStatus && order.groupAfterSaleStatus === 'EXPIRED'" @click="tipsShow = true">
+              <view class="cannot_apply"
+                v-if="current === 0 && order.groupAfterSaleStatus && order.groupAfterSaleStatus.includes('EXPIRED')  "
+                @click="tipsShow = true">
                 <u-icon class="icon" name="info-circle-fill"></u-icon>
                 该商品无法申请售后
               </view>
 
               <div v-if="current === 1 || current === 2">
                 <!-- 申请中 -->
-                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_GOODS'">退货处理-{{ order.serviceStatus | serviceStatusList  }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'">补发商品-{{ order.serviceStatus | serviceStatusList  }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_MONEY'">退款-{{ order.serviceStatus | serviceStatusList  }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'EXCHANGE_GOODS'">换货-{{ order.serviceStatus | serviceStatusList  }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'CANCEL'">取消订单-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_GOODS'">
+                  退货处理-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'">
+                  补发商品-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_MONEY'">
+                  退款-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'EXCHANGE_GOODS'">
+                  换货-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view class="cannot_apply" v-if="order.serviceType == 'CANCEL'">
+                  取消订单-{{ order.serviceStatus | serviceStatusList  }}</view>
               </div>
               <!-- 申请记录 -->
             </view>
             <view class="after-line">
               <!-- 售后申请 -->
               <view v-if="
-                  current === 0 && order.groupAfterSaleStatus=='NOT_APPLIED'
+                  current === 0 && order.groupAfterSaleStatus.includes('NOT_APPLIED')
                 " @click="applyService(sku.sn, order, sku)" class="rebuy-btn">
                 申请售后
               </view>
@@ -276,19 +285,20 @@ export default {
     /**
      * 查看详情
      */
-    onDetail(goods,sku) {
+    onDetail(goods, sku) {
       // 售后申请
-      if(this.current == 0){
+      if (this.current == 0) {
         uni.navigateTo({
-          url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId || sku.goodsId}`,
+          url: `/pages/product/goods?id=${sku.skuId}&goodsId=${
+            sku.goodsId || sku.goodsId
+          }`,
         });
-      }
-      
-      else{
+      } else {
         uni.navigateTo({
-          url: `/pages/product/goods?id=${goods.skuId}&goodsId=${goods.goodsId || goods.goodsId}`,
+          url: `/pages/product/goods?id=${goods.skuId}&goodsId=${
+            goods.goodsId || goods.goodsId
+          }`,
         });
-     
       }
     },
 

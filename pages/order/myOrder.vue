@@ -57,7 +57,7 @@
                   <u-button ripple :customStyle="{'background':lightColor,'color':'#fff' }" shape="circle" class="pay-btn" size="mini" v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
                     确认收货
                   </u-button>
-                  <u-button ripple shape="circle" class="cancel-btn" size="mini" v-if="order.groupAfterSaleStatus=='NOT_APPLIED'" @click="applyService(order)">
+                  <u-button ripple shape="circle" class="cancel-btn" size="mini" v-if="order.groupAfterSaleStatus.includes('NOT_APPLIED')" @click="applyService(order)">
                     退款/售后
                   </u-button>
                   <!-- TODO 后续完善 -->
