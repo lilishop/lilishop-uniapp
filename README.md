@@ -1,110 +1,138 @@
-## Lilishop B2B2C商城系统
+## 🔥 Lilishop B2B2C商城系统
 
-##### 官方公众号 & 开源不易，如有帮助请点Star
+##### 🌹  开源不易，如有帮助请点Star 
+
+
+
+#### 欢迎交流需求，交流业务，交流技术（基础问题自行解决，进群先看文档后提问）
+
+##### 交流 qq 1群 961316482（已满）
+
+##### 交流 qq 2群 875294241
+
+
+
+##### 商城 公众号/小程序体验，扫描二维码
+
 ![image-20210511171611793](https://pickmall.cn/assets/imgs/h5-qrcode.png)
 
 [![star](https://gitee.com/beijing_hongye_huicheng/lilishop/badge/star.svg?theme=dark)](https://gitee.com/beijing_hongye_huicheng/lilishop/stargazers)
+&nbsp;&nbsp;![github](https://img.shields.io/github/stars/hongyehuicheng/lilishop.svg?style=social&logo=#181717)
 
 
-### 介绍
+### 🔥 商城介绍
 **官网**：https://pickmall.cn
 
-Lilishop 是一款Java开发，基于SpringBoot研发的B2B2C多用户商城，前端使用 Vue、uniapp开发 **系统全端全部代码开源**
+Lilishop 商城系统 基于SpringBoot 研发，B2B2C多用户商城系统，前端使用 Vue、uniapp开发 **系统全端全部代码开源**
 
-产品前后端分离、支持分布式部署。
+业务兼容O2O商城/B2B商城/B2B2C商城/F2B2C商城/S2B2C商城。支持小程序商城、H5商城、APP商城、 PC商城。
 
-商城展示端包含 PC、H5、微信小程序、APP。
+
+商城前后端分离、支持分布式部署。
 
 商城包含 会员模块、**第三方登录模块**、**第三方支付模块**、**楼层装修模块**、订单模块、分销模块、文章模块、系统设置模块、流量分析模块
 
-系统包含各种中间件、搜索引擎、多级缓存、分布式事务、分布式任务调度等，支持Docker，支持k8s。是一款高性能，支持高并发等商城系统。
+商城包含各种中间件、搜索引擎、多级缓存、分布式事务、分布式任务调度等，支持Docker，支持k8s。是一款高性能，支持高并发的商城系统。
 
-开箱即用，简单配置即可部署一套属于您的系统。
+##### 商城 API/消费者 聚合版
+api不需要单独部署，只需启动一个jar包就可以正常运转 如有需要，可以点击跳转https://gitee.com/beijing_hongye_huicheng/lilishop-simplify
 
-### 文档
+### ☃️ 商城 开发/使用/常见问题 帮助文档
 
-**产品文档**（需求、架构、使用、部署、开发）：https://docs.pickmall.cn
+https://docs.pickmall.cn
+
+### 💧 开源商城项目地址(gitee)
+
+**API（商城所有API）**：https://gitee.com/beijing_hongye_huicheng/lilishop.git
+
+**UI（商城管理端/商家端/买家PC端）**： https://gitee.com/beijing_hongye_huicheng/lilishop-ui.git
+
+**uniapp（商城移动端，支持小程序/APP/H5）**：https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp.git
+
+**docker一键部署（商城部署脚本）**：https://gitee.com/beijing_hongye_huicheng/docker.git
+
+### 💧 开源商城项目地址(github)
+
+**API（商城所有API）**：https://github.com/hongyehuicheng/lilishop.git
+
+**UI（商城管理端/商家端/买家PC端）**： https://github.com/hongyehuicheng/lilishop-ui.git
+
+**uniapp（商城移动端，支持小程序/APP/H5）**：https://github.com/hongyehuicheng/lilishop-uniapp.git
+
+**docker一键部署（商城部署脚本）**：https://github.com/hongyehuicheng/docker.git
 
 
-### 项目链接(gitee)
+☃️ UI 项目下3个文件夹 buyer：买家PC端，seller：商家端，manager：后台管理端
 
-**Java后台**：https://gitee.com/beijing_hongye_huicheng/lilishop.git
 
-**Vue后台前端**： https://gitee.com/beijing_hongye_huicheng/lilishop-ui.git
+### 💧 演示地址(手机验证码为 ‘111111’)
 
-**Uni-app**：https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp.git
+**商城管理端**：https://admin-b2b2c.pickmall.cn 账号：admin/123456
 
-**docker一键部署**：https://gitee.com/beijing_hongye_huicheng/docker.git
+**商城店铺后台**：https://store-b2b2c.pickmall.cn 账号：13011111111/111111
 
-### 项目链接(github)
+**商城PC页面**：https://pc-b2b2c.pickmall.cn
 
-**Java后台**：https://github.com/hongyehuicheng/lilishop.git
+**商城移动端（请使浏览器手机模式，或者用手机浏览器打开）**：https://m-b2b2c.pickmall.cn
 
-**Vue后台前端**： https://github.com/hongyehuicheng/lilishop-ui.git
-
-**Uni-app**：https://github.com/hongyehuicheng/lilishop-uniapp.git
-
-**docker一键部署**：https://github.com/hongyehuicheng/docker.git
-
-### 演示地址
-
-**运营后台**：https://admin-b2b2c.pickmall.cn 账号：admin/123456
-
-**店铺后台**：https://store-b2b2c.pickmall.cn 账号：13011111111/111111
-
-**用户前台**：https://pc-b2b2c.pickmall.cn
-
-**移动端**：https://m-b2b2c.pickmall.cn
+**小程序/公众号**：扫描二维码
 
 ![image-20210511171611793](https://pickmall.cn/assets/imgs/h5-qrcode.png)
 
-### 3行命令搭建本地环境
+### 🚙 3行命令搭建本地商城（注：只能本机访问，如需调整，请自行操作镜像）
 
-温馨提示：由于服务较多，如果笔记本环境启动内存没有32g可能无法启动成功（macbookpro 2020 16g内存启动无法成功），台式机在16g内存、AMD 3700x 的ubuntu系统成功运行。
+温馨提示：由于服务中间件较多，如果笔记本环境启动内存没有32g可能无法启动成功（macbookpro 2020 16g内存启动无法成功），台式机在16g内存、AMD 3700x 的ubuntu系统成功运行。
 
-##### 下载docker脚本
+
+
+#####  docker环境安装 [点击跳转](https://docs.pickmall.cn/deploy/%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87.html)
+
+
+
+##### 下载docker-compose脚本
 `git clone https://gitee.com/beijing_hongye_huicheng/docker.git `
-##### 部署基础环境
+
+##### 部署商城所需中间件
 `docker-compose up -d`
 
-##### 部署应用
+##### 部署商城应用
 `docker-compose -f docker-compose-application.yml up -d`
 
 
 
-PS:单独部署的话，数据库文件访问这里：https://gitee.com/beijing_hongye_huicheng/docker/tree/master/init/mysql
+PS:商城数据库单独部署 https://gitee.com/beijing_hongye_huicheng/docker/tree/master/init/mysql 这里有与tag版本一致的sql，根据tag获取sql，如果使用master代码，则需要在lilishop项目根目录的DB目录中，获取对应的升级sql。
 
-##### 各个地址
+##### 商城 API/UI 地址
 
 | API           | 地址            |
 | -------------- | --------------- |
-| 买家API    | http://127.0.0.1:8888     |
-| 商家API     | http://127.0.0.1:8889      |
-| 管理端API       | http://127.0.0.1:8887   |
-| 通用API    | http://127.0.0.1:8890     |
+| 商城买家API  | http://127.0.0.1:8888     |
+| 商城商家API   | http://127.0.0.1:8889      |
+| 商城管理端API     | http://127.0.0.1:8887   |
+| 商城基础API  | http://127.0.0.1:8890     |
 
 | 前端演示         | 地址            |
 | -------------- | --------------- |
-| PC       | http://127.0.0.1:10000     |
-| WAP        | http://127.0.0.1:10001      |
-| 商家       | http://127.0.0.1:10002   |
-| 管理端       | http://127.0.0.1:10003     |
+| 商城PC端    | http://127.0.0.1:10000     |
+| 商城WAP端     | http://127.0.0.1:10001      |
+| 商城卖家端    | http://127.0.0.1:10002   |
+| 商城管理端     | http://127.0.0.1:10003     |
 
 
 
 
 
-### 功能列表
+### ⚾️ 功能列表
 
 
 
-#### 平台功能
+#### 🥎 商城平台功能
 
 ![平台功能](https://pickmall.cn/assets/imgs/other/managerList.jpg)
 
 
 
-#### 商家端功能
+#### 🥎 商城卖家功能
 
 ![商家端功能](https://pickmall.cn/assets/imgs/other/storeList.jpg)
 
@@ -112,30 +140,28 @@ PS:单独部署的话，数据库文件访问这里：https://gitee.com/beijing_
 
 
 
-### 功能展示
+### 🧩 商城前端功能展示
 
 
 
-#### 移动端
-
-<img src="https://pickmall.cn/assets/imgs/other/app.gif" alt="管理端功能展示" style="zoom:50%;" />
+#### ⚽️ 商城移动端
 
 <img src="https://pickmall.cn/assets/imgs/other/app.gif" alt="移动端功能展示" style="zoom:50%;" />
 
 
 
-#### 管理端
+#### ⚽️ 商城管理端
 
 ![管理端功能展示](https://pickmall.cn/assets/imgs/other/manager.gif)
 
 
-### 技术选型
+### 商城技术选型
 
-#### 架构图
+#### 🥅 架构图
 
 ![架构](https://lili-system.oss-cn-beijing.aliyuncs.com/docs/%E6%9E%B6%E6%9E%84.png)
 
-##### Java后台
+##### 🕹 后台技术选型
 
 | 说明           | 框架            | 说明           |               |
 | -------------- | --------------- | -------------- | ------------- |
@@ -149,7 +175,7 @@ PS:单独部署的话，数据库文件访问这里：https://gitee.com/beijing_
 | 短信           | 阿里云短信      | 认证           | JWT           |
 | 日志处理       | Log4j           | 接口规范       | RESTful       |
 
-##### 前端-运营后台、店铺后台
+##### 🖥 前端-运营后台、店铺后台
 
 | 说明       | 框架       | 说明       | 框架    |
 | ---------- | ---------- | ---------- | ------- |
@@ -159,119 +185,34 @@ PS:单独部署的话，数据库文件访问这里：https://gitee.com/beijing_
 | 基础UI库   | iView      | UI界面基于 | iView   |
 | 网络请求   | axios      |            |         |
 
-##### 前端-移动端
+##### 📱前端-移动端
 
 | 说明      | 架构    | 说明     | 架构    |
 | --------- | ------- | -------- | ------- |
 | 基础UI库  | uViewui | 基础框架 | uni-app |
 | CSS预处理 | scss    | 地图引擎 | amap    |
 
-### 升级计划
-
-#### 计划每个月发布一个版本，具体时间可能有出入
-
-时间：2021年6月15日
+### 🌟 版本升级
 
 ```
-新增功能：
-1.微信小程序直播
-2.优惠券活动
-3.新人赠券
-4.准确发券
-5.用户等级
-6.数据导出
-7.订单批量
-8.APP版本升级检测
-9.积分商城
+商城后续会持续版本升级，修复bug，完善功能，覆盖更多业务场景 o2o/b2b/s2b2b2c/跨境电商
 
-功能优化：
-1.优惠券有效期增加类型：设置领取后*内有效。
-2.秒杀活动设置为每天开启，需设置秒杀活动开启时间。
-3.店铺配送模板，配送地区如果选择省份则下方的市级地址不展示。
-4.店铺配送模板支持，店铺包邮。
-5.普通商品设置去除卖家承担运费。
-
+后续会考虑推出微服务商城系统/商城中台等
 ```
 
-时间：2021年7月15日
 
-```
-新增功能：
-1.会员权益
-2.支持用户升级会员
-3.供求单
-4.IM：腾讯云智服
-5.服务商品
-6.店铺支持订单核销
-7.店铺自提点
-功能优化：
-1.用户分享商城、关注店铺、邀请新用户可获取积分、经验值。
-```
-
-时间：2021年8月16日
-
-```
-新增功能：
-1.微淘功能
-2.店铺移动端
-3.店铺发货单
-```
-
-时间：2021年9月15日
-
-```
-新增功能：
-增加供应商功能
-```
-
-### 版本升级
-
-```
-后续会持续版本升级，修复bug，完善功能，覆盖更多业务场景 o2o/b2b/s2b2b2c/跨境电商
-
-后续会考虑推出微服务/中台等 企业级版本
-```
-
-### 技术亮点
-
-
-    1.后端框架基于Springboot，构建基于maven，持久层使用MyBatisPlus。使用elasticsearch、redis、mongodb、rocketmq 等各种中间健。都是主流架构，轻松应对各种环境。
-    
-    2.支持集群、分布式，支持docker 轻松部署，解决各种复杂场景！
-    
-    3.代码模块清晰，主要分为三端api（买家、卖家、管理），各端API互相隔离，自己鉴权，自己操作业务。
-    
-    4.使用阿里开源的RocketMQ，基于mq解决各种并发场景，解决事务一致性，解决搞并发延迟场景问题。
-    
-    5.项目使用多级缓存，应用不同场景，redis缓存业务数据、mongodb缓存关系型多对多关系问题、nginx缓存高频访问低频修改的页面。
-    
-    6.支持各种联合登陆，支持各种客户端的支付问题，灵活配置灵活开启。
-    
-    7.内置完善的楼层装修机制，各种拖拉拽，维护跳转页面或外网，即便是一个什么都不懂的运营也可以轻松掌握。
-    
-    8.内置阿里短信接口，可以在线申请短信模版。内置阿里oss系统，可以对文件执行各种操作。oss商家端资源相互隔离。
-    
-    10.强大的统计报表，统计效果，可以实现各个场景，包含在线人数，历史在线人数，活跃人数等信息。
-    
-    11.标准Api接口、提供swagger文档，快速二开。
-    
-    12.分布式调度任务中心，解决分布式定时任务多次执行问题。
-    
-    13.代码注释完善，快速上手。
-    
-    14.非移动端采用IView框架，各种自定义插件、选择器实现。移动端采用uniapp，一次编写，全端使用
-    
-    15.已经对接好各种第三方插件，支持各种复杂等联合登陆，联合支付等场景。
-
-
-### 开源须知
+### ⚠️ 开源须知
 1.仅允许用于个人学习研究使用.
 
 2.禁止将本开源的代码和资源进行任何形式任何名义的出售.
 
-3.限制商用，如果需要商业使用请联系我们。QQ3409056806.
+3.软件受国家计算机软件著作权保护（登记号：2021SR0805085）。
 
-### 交流群
+4.限制商用，如果需要商业使用请联系我们。QQ3409056806.
 
-**QQ群**：961316482
+
+### 🐧 交流群
+
+##### 官方qq 1群 961316482（已满）
+##### 官方qq 2群 875294241
 
