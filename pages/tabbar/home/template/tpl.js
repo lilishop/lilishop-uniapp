@@ -20,7 +20,7 @@ export function modelNavigateTo(item) {
         });
       }
       break;
-    case "stores":
+    case "shops":
       uni.navigateTo({
         url: `/pages/product/shopPage?id=${val.id}`,
       });

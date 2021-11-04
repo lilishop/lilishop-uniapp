@@ -501,6 +501,7 @@ export default {
       this.sortParams = {
         pageNumber: 1,
         pageSize: 10,
+        categoryId:this.routerVal.category || ''
       };
       this.sortPopup = false;
       this.initSortGoods();
@@ -509,6 +510,9 @@ export default {
       this.params = {
         pageNumber: 1,
         pageSize: 10,
+        categoryId:this.routerVal.category || '',
+        order: 'desc',
+        sort: 'releaseTime'
       };
       this.goodsList = [];
       this.loadData();
