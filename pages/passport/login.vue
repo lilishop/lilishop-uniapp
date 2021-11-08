@@ -507,7 +507,7 @@ export default {
     /** 结束验证码后执行 */
     end() {
       this.codeColor = this.lightColor;
-
+      this.codeFlag = true;
       console.log(this.codeColor);
     },
     // 发送验证码
