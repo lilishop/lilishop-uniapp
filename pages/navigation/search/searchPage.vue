@@ -341,7 +341,7 @@ export default {
     };
   },
   onPageScroll(e) {
-    console.log(e)
+    console.log(e);
     this.scrollTop = e.scrollTop;
   },
   onLoad(val) {
@@ -464,13 +464,21 @@ export default {
     // 点击确定进行筛选
     sortConfim() {
       // 处理品牌（多选
-      this.params.brandId = [];
+      if (!this.params.brandId) {
+        this.params.brandId = [];
+      } else {
+        this.params.brandId = [this.params.brandId];
+      }
+
+      // 如果选中品牌 赋值
       this.selectedWay["brand"].forEach((item) => {
         if (item.__selected) {
           this.params.brandId.push(item.value);
         }
       });
-      this.params.brandId = this.params.brandId.join("@");
+
+      this.params.brandId = this.params.brandId.join("@") || this.params.brandId;
+
       // 处理分类 (单选)
       if (this.selectedWay["categoryId"][0]) {
         this.params.categoryId = this.selectedWay["categoryId"][0].value;
@@ -501,7 +509,7 @@ export default {
       this.sortParams = {
         pageNumber: 1,
         pageSize: 10,
-        categoryId:this.routerVal.category || ''
+        categoryId: this.routerVal.category || "",
       };
       this.sortPopup = false;
       this.initSortGoods();
@@ -510,9 +518,9 @@ export default {
       this.params = {
         pageNumber: 1,
         pageSize: 10,
-        categoryId:this.routerVal.category || '',
-        order: 'desc',
-        sort: 'releaseTime'
+        categoryId: this.routerVal.category || "",
+        order: "desc",
+        sort: "releaseTime",
       };
       this.goodsList = [];
       this.loadData();
