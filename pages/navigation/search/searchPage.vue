@@ -477,7 +477,7 @@ export default {
         }
       });
 
-      this.params.brandId = this.params.brandId.join("@") || this.params.brandId;
+      this.params.brandId = this.params.brandId.join("@") ||  "";
 
       // 处理分类 (单选)
       if (this.selectedWay["categoryId"][0]) {
