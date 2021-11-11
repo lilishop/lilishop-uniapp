@@ -65,3 +65,12 @@ export function refreshTokenFn(refresh_token) {
     method: "GET",
   });
 }
+
+// 获取密码状态
+export function logout () {
+  return http.request({
+    url: '/members/logout',
+    method: "POST",
+    needToken: true,
+  })
+}
