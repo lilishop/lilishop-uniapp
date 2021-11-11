@@ -749,6 +749,7 @@ export default {
         category: this.goodsDetail.categoryId,
         keyword: this.goodsDetail.name,
       }).then((res) => {
+        console.warn(this.likeGoodsList )
         this.likeGoodsList = res.data.result.content;
       });
     },

@@ -32,8 +32,6 @@ export default {
       params: {
         pageNumber: 1,
         pageSize: 10,
-
-        order: "desc",
         keyword: "",
         storeCatId: "",
         storeId: "",

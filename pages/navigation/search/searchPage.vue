@@ -321,8 +321,7 @@ export default {
         pageNumber: 1,
         pageSize: 10,
         // sort: 'grade_asc',
-        sort: "releaseTime",
-        order: "desc",
+      
         keyword: "",
       },
       minPrice: "",
@@ -528,8 +527,6 @@ export default {
         pageNumber: 1,
         pageSize: 10,
         categoryId: this.routerVal.category || "",
-        order: "desc",
-        sort: "releaseTime",
       };
       this.goodsList = [];
       this.loadData();
