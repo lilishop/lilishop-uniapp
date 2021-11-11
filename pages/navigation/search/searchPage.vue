@@ -477,14 +477,19 @@ export default {
         }
       });
 
-      this.params.brandId = this.params.brandId.join("@") ||  "";
+      this.params.brandId = this.params.brandId.join("@") || "";
 
+      console.log(this.params.brandId);
       // 处理分类 (单选)
       if (this.selectedWay["categoryId"][0]) {
         this.params.categoryId = this.selectedWay["categoryId"][0].value;
       }
-      // 处理属性
-      this.params.prop = [];
+      if (!this.params.prop) {
+        this.params.prop = [];
+      } else {
+        this.params.prop = [this.params.prop];
+      }
+     
       this.selectedWay["prop"].forEach((item) => {
         if (item.__selected) {
           this.params.prop.push(`${item.parent}_${item.title}`);
@@ -499,8 +504,12 @@ export default {
       }
 
       this.goodsList = [];
-      this.loadData();
+      
+      this.params.pageNumber = 1;
       this.sortParams = this.params;
+
+     
+      this.loadData();
       this.sortPopup = false;
     },
 
