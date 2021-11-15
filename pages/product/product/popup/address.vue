@@ -27,7 +27,7 @@
   </u-popup>
 </template>
 <script>
-import setup from "./popup";
+import setup from "@/components/m-buy/popup.js";
 /************请求存储***************/
 
 import * as API_Address from "@/api/address.js";
@@ -157,7 +157,7 @@ export default {
   border-radius: 50%;
   border: 2rpx solid #ededed;
 }
-@import "./popup.scss";
+@import "@/components/m-buy/popup.scss";
 .view-box {
   height: 810rpx;
   // #ifdef MP-WEIXIN

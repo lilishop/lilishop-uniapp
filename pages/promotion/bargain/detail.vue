@@ -496,6 +496,11 @@ page {
   > .user-name {
     > div:nth-of-type(1) {
       font-size: 28rpx;
+      max-width: 300rpx;
+      overflow: hidden;
+      word-wrap: normal;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     > div:nth-last-of-type(1) {
       font-size: 24rpx;

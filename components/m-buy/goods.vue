@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <u-popup class="popup" v-model="buyMask" :height="setup.height" closeable :mode="setup.mode"
-      :mask-close-able="isClose" :mask="isMask" :border-radius="setup.radius" @close="closeMask()">
+    :border-radius="setup.radius" @close="closeMask()">
       <!-- 商品 -->
       <view class="goods-box bottom">
         <view class="goods-header">
@@ -10,14 +10,18 @@
               :src="selectedSpecImg ? selectedSpecImg : goodsDetail.thumbnail"></u-image>
           </view>
           <view class="goods-skus">
+
             <!-- 有活动商品价格 -->
             <view class="goods-price " v-if="goodsDetail.promotionPrice">
-              <span>
+              <span v-if="goodsDetail.promotionPrice && !pointDetail">
                 ￥
-                <span class="goods-price-promotionShow goods-price-bigshow"
-                  v-if="goodsDetail.promotionPrice">{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
+                <span
+                  class="goods-price-promotionShow goods-price-bigshow">{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
                 .{{ formatPrice(goodsDetail.promotionPrice)[1] }}
-                <span></span>
+              </span>
+              <span v-if="pointDetail.points">
+                <span class="goods-price-promotionShow goods-price-bigshow">{{ pointDetail.points }}</span>
+                积分
               </span>
               <div class="promotion-box">
                 ￥
@@ -36,6 +40,7 @@
                 formatPrice(goodsDetail.price)[0]
               }}</span>
                 .{{ formatPrice(goodsDetail.price)[1] }}
+
               </span>
             </view>
             <view class="goods-check-skus">
@@ -48,24 +53,33 @@
           </view>
         </view>
         <!-- 商品信息 -->
-          <scroll-view class="goods-skus-box" :scroll-y="true">
+        <scroll-view class="goods-skus-box" :scroll-y="true">
           <!-- 规格 -->
           <view class="goods-skus-view" :key="specIndex" v-for="(spec, specIndex) in formatList">
             <view class="skus-view-list">
               <view class="view-class-title">{{ spec.name }}</view>
-              <view :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item"
+
+
+              <!-- 正常逻辑 循环出sku -->
+              <view v-if="!parentOrder"  :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item"
                 v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
-                @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }}</view>
+                @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }} </view>
+
+              <!-- 拼团购买，仅筛选出当前拼团类型商品 -->
+              <view v-if="parentOrder  && spec_val.skuId == goodsDetail.id"  :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item"
+                v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
+                @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }} </view>
             </view>
           </view>
           <!-- 数量 -->
           <view class="goods-skus-number">
             <view class="view-class-title">数量</view>
-            <u-number-box :bg-color="numberBox.bgColor" :color="numberBox.color" :input-width="numberBox.width"
-              :input-height="numberBox.height" :size="numberBox.size" :min="1" v-model="num">
+            <u-number-box :bg-color="numberBox.bgColor" :max="200" :color="numberBox.color"
+              :input-width="numberBox.width" :input-height="numberBox.height" :size="numberBox.size" :min="1"
+              v-model="num">
             </u-number-box>
           </view>
-          </scroll-view>
+        </scroll-view>
         <!-- 按钮 -->
         <view class="btns">
 
@@ -80,6 +94,7 @@
 <script>
 import * as API_trade from "@/api/trade.js";
 import setup from "./popup";
+
 export default {
   data() {
     return {
@@ -101,17 +116,35 @@ export default {
       formatList: [],
       currentSelceted: [],
       skuList: "",
-      isMask: false, //是否显示遮罩层
       isClose: false, //是否可以点击遮罩关闭
     };
   },
-  props: [
-    "goodsDetail", //商品详情
-    "buyMask",
-    "selectedSku",
-    "goodsSpec",
-    "addr",
-  ],
+  props: {
+    buyMask: {
+      type: Boolean,
+      default: false,
+    },
+    goodsDetail: {
+      default: "",
+      type: null,
+    },
+    selectedSku: {
+      default: "",
+      type: null,
+    },
+    goodsSpec: {
+      default: "",
+      type: null,
+    },
+    addr: {
+      default: "",
+      type: null,
+    },
+    pointDetail:{
+      default: "",
+      type: null,
+    }
+  },
   watch: {
     buyType: {
       handler(val) {
@@ -120,7 +153,7 @@ export default {
       immediate: true,
     },
     selectSkuList: {
-      handler(val) {
+      handler(val, oldval) {
         this.$emit("changed", val);
       },
       deep: true,
@@ -128,6 +161,8 @@ export default {
   },
 
   methods: {
+    
+
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
       if (typeof val == "undefined") {
@@ -142,7 +177,7 @@ export default {
 
     /**点击规格 */
     handleClickSpec(val, index, specValue) {
-       this.currentSelceted[index] = specValue.value;
+      this.currentSelceted[index] = specValue.value;
       let selectedSkuId = this.goodsSpec.find((i) => {
         let matched = true;
         let specValues = i.specValues.filter((j) => j.specName !== "images");
@@ -179,6 +214,24 @@ export default {
         });
       }
     },
+
+     /**
+     * 直接购买
+     */
+    buy(data) {
+      API_trade.addToCart(data).then((res) => {
+        if (res.data.success) {
+          uni.navigateTo({
+            url: `/pages/order/fillorder?way=${
+              data.cartType
+            }&addr=${""}&parentOrder=${encodeURIComponent(
+              JSON.stringify(this.parentOrder)
+            )}`,
+          });
+        }
+      });
+    },
+
 
     /**
      * 添加到购物车或购买
@@ -231,27 +284,9 @@ export default {
         });
       }
     },
-
-    /**
-     * 直接购买
-     */
-    buy(data) {
-      API_trade.addToCart(data).then((res) => {
-        if (res.data.success) {
-          uni.navigateTo({
-            url: `/pages/order/fillorder?way=${
-              data.cartType
-            }&addr=${""}&parentOrder=${encodeURIComponent(
-              JSON.stringify(this.parentOrder)
-            )}`,
-          });
-        }
-      });
-    },
-
     formatSku(list) {
       // 格式化数据
-      if (!Array.isArray(list)) return false;
+      console.log(list);
       let arr = [{}];
       list.forEach((item, index) => {
         item.specValues.forEach((spec, specIndex) => {
@@ -259,6 +294,7 @@ export default {
           let values = {
             value: spec.specValue,
             quantity: item.quantity,
+            skuId: item.skuId,
           };
           if (name === "images") {
             return;
@@ -268,7 +304,9 @@ export default {
             if (
               arrItem.name == name &&
               arrItem.values &&
-              !arrItem.values.find((i) => i.value === values.value)
+              !arrItem.values.find((i) => {
+                return i.value === values.value;
+              })
             ) {
               arrItem.values.push(values);
             }
@@ -277,6 +315,7 @@ export default {
               return key.name;
             });
             if (!keys.includes(name)) {
+              console.log(name, values);
               arr.push({
                 name: name,
                 values: [values],
@@ -285,16 +324,20 @@ export default {
           });
         });
       });
+
       arr.shift();
       this.formatList = arr;
 
       list.forEach((item) => {
+        // 默认选中
         if (item.skuId === this.goodsDetail.id) {
           item.specValues
             .filter((i) => i.specName !== "images")
             .forEach((value, _index) => {
               this.currentSelceted[_index] = value.specValue;
+
               this.selectName = value.specValue;
+
               this.selectSkuList = {
                 spec: value,
                 data: this.goodsDetail,
@@ -304,13 +347,12 @@ export default {
       });
 
       this.skuList = list;
+      // console.log(" this.skuList", this.skuList)
     },
   },
 
   mounted() {
     this.formatSku(this.goodsSpec);
-
-    console.log(this.goodsDetail);
   },
 };
 </script>

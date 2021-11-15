@@ -263,7 +263,7 @@ import GoodsRecommend from "./product/goods/-goods-recommend"; //宝贝推荐
 import storeLayout from "./product/shop/-shop"; //店铺组件
 import Evaluation from "./product/evaluation/-evaluation"; //评价组件
 import GoodsSwiper from "./product/goods/-goods-swiper"; //轮播图组件
-import popupGoods from "./product/popup/goods"; //购物车商品的模块
+import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
 import popupAddress from "./product/popup/address"; //地址选择模块
 import shares from "@/components/m-share/index"; //分享
 import popups from "@/components/popups/popups"; //气泡框
