@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { logout } from "@/api/login";
 import storage from "@/utils/storage.js";
 import config from "@/config/config";
 export default {
@@ -56,10 +57,12 @@ export default {
      * 清除缓存重新登录
      */
     confirm() {
-      storage.setAccessToken("");
-      storage.setRefreshToken("");
-      storage.setUserInfo({});
-     this.$options.filters.navigateToLogin("redirectTo");
+      logout().then(res => {
+        storage.setAccessToken("");
+        storage.setRefreshToken("");
+        storage.setUserInfo({});
+        this.$options.filters.navigateToLogin("redirectTo");
+      });
     },
 
     /**
