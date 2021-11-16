@@ -1,7 +1,8 @@
 <template>
   <view class="container">
     <view class="person" @click="checkUserInfo()">
-      <u-image width=140 height="140" shape="circle" :src="userInfo.face || '/static/missing-face.png'" mode=""></u-image>
+      <u-image width=140 height="140" shape="circle" :src="userInfo.face || '/static/missing-face.png'" mode="">
+      </u-image>
       <view class="user-name">
 
         {{ userInfo.id ? userInfo.nickName || '' : '暂未登录'  }}
@@ -22,7 +23,8 @@
       <u-cell-item :title="`关于${config.name}`" @click="navigateTo('/pages/mine/set/editionIntro')"></u-cell-item>
     </u-cell-group>
     <view class="submit" @click="showModalDialog">{{userInfo.id ?'退出登录':'返回登录'}}</view>
-    <u-modal show-cancel-button v-model="quitShow" @confirm="confirm" :confirm-color="lightColor" :async-close="true" :content="userInfo.id ? '确定要退出登录么？' : '确定要返回登录么？'"></u-modal>
+    <u-modal show-cancel-button v-model="quitShow" @confirm="confirm" :confirm-color="lightColor" :async-close="true"
+      :content="userInfo.id ? '确定要退出登录么？' : '确定要返回登录么？'"></u-modal>
   </view>
 </template>
 
@@ -51,18 +53,20 @@ export default {
         url: url,
       });
     },
+    clear() {
+      storage.setAccessToken("");
+      storage.setRefreshToken("");
+      storage.setUserInfo({});
+      this.$options.filters.navigateToLogin("redirectTo");
+    },
 
     /**
      * 确认退出
      * 清除缓存重新登录
      */
-    confirm() {
-      logout().then(res => {
-        storage.setAccessToken("");
-        storage.setRefreshToken("");
-        storage.setUserInfo({});
-        this.$options.filters.navigateToLogin("redirectTo");
-      });
+    async confirm() {
+      await logout();
+      this.clear();
     },
 
     /**
