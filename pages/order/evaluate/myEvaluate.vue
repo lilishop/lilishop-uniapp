@@ -2,7 +2,8 @@
   <view>
     <view class="wrap">
       <view class="u-tabs-box">
-        <u-tabs :list="list" :is-scroll="false" inactive-color="#333" :current="current" class="utabs" :active-color="$lightColor" @change="changeTab"></u-tabs>
+        <u-tabs :list="list" :is-scroll="false" inactive-color="#333" :current="current" class="utabs"
+          :active-color="$lightColor" @change="changeTab"></u-tabs>
       </view>
       <swiper class="swiper-box" :current="current" @change="changeSwiper" duration="500">
         <swiper-item v-for="(item, listIndex) in list" :key="listIndex">
@@ -18,7 +19,8 @@
               <view v-for="(sku, _index) in order.orderItems" :key="_index">
                 <view class="goods-item-view">
                   <view>
-                    <u-image border-radius="6rpx" width="132rpx" height="132rpx" class="goods_img" :src="sku.image" alt />
+                    <u-image border-radius="6rpx" width="132rpx" height="132rpx" class="goods_img" :src="sku.image"
+                      alt />
                   </view>
                   <view class="goods-info">
                     <view class="goods-title u-line-2">{{ sku.name }}</view>
@@ -34,7 +36,8 @@
                     </view>
 
                     <view class="goods-imgs-view" v-if="order.image">
-                      <view class="img-view" v-if="order.image" v-for="(img, imgIndex) in order.image.split(',')" :key="imgIndex">
+                      <view class="img-view" v-if="order.image" v-for="(img, imgIndex) in order.image.split(',')"
+                        :key="imgIndex">
                         <u-image v-if="order.image" @click.native="
                             preview(order.image.split(','), imgIndex)
                           " width="160rpx" height="160rpx" :src="img"></u-image>
@@ -52,7 +55,11 @@
                     </view>
                   </view>
                 </view>
+                <view class="tips" v-if="sku.commentStatus">
+                  {{groupCommentStatusWay[sku.commentStatus]}}
+                </view>
               </view>
+
             </view>
             <uni-load-more :status="params.loadStatus"></uni-load-more>
           </scroll-view>
@@ -69,7 +76,8 @@ import { getComments } from "@/api/members.js";
 export default {
   data() {
     return {
-      list: [ //顶部tab
+      list: [
+        //顶部tab
         {
           name: "待评价",
         },
@@ -77,11 +85,18 @@ export default {
           name: "已评价",
         },
       ],
-      gradeList: {  //评论表
+      gradeList: {
+        //评论表
         GOOD: "好评",
         MODERATE: "中评",
         WORSE: "差评",
         haveImage: "有图",
+      },
+      groupCommentStatusWay: {
+        NEW: "新订单，不能进行评论",
+        UNFINISHED: "未完成评论",
+        WAIT_CHASE: "待追评的评论信息",
+        FINISHED: "已经完成评论",
       },
       current: 0, //当前tabIndex
       orderList: [], //商品集合
@@ -193,7 +208,7 @@ export default {
      * 发表评价
      */
     talkCommont(sku) {
-      console.log(sku)
+      console.log(sku);
       uni.navigateTo({
         url: `./releaseEvaluate?sn=${sku.sn}&sku=${encodeURIComponent(
           JSON.stringify(sku)
@@ -261,6 +276,11 @@ export default {
 <style lang="scss" scoped>
 page {
   height: 100%;
+}
+.tips {
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
 }
 .wrap {
   background: #f6f6f6;
