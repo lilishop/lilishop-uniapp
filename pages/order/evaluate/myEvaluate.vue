@@ -27,7 +27,7 @@
                     <view class="text title">{{ gradeList[order.grade] || '' }}</view>
                   </view>
                 </view>
-                <view class="btn-view u-row-between" v-if="current != 0">
+                <view class="btn-view u-row-between" v-if="current == 2">
                   <view class="description">
                     <view class="text title">
                       <u-read-more ref="uReadMore" :color="$lightColor" text-indent="0">
@@ -45,10 +45,10 @@
                     </view>
                   </view>
                 </view>
-                <view class="again-btn" @click="onDetail(order)" v-if="current == 1">
+                <view class="again-btn" @click="onDetail(order)" v-if="current == 2">
                   <u-tag text="评价详情" shape="circle" mode="plain" type="error" />
                 </view>
-                <view v-if="current == 0 && sku.commentStatus == 'UNFINISHED'">
+                <view v-if="current == 1 && sku.commentStatus == 'UNFINISHED'">
                   <view class="evaluate">
                     <view @click="talkCommont(sku)">
                       <u-tag text="发表评价" shape="circle" mode="plain" type="error" />
@@ -78,6 +78,10 @@ export default {
     return {
       list: [
         //顶部tab
+
+        {
+          name: "全部订单",
+        },
         {
           name: "待评价",
         },
@@ -123,12 +127,18 @@ export default {
       this.params.loadStatus = "more";
       this.orderList = [];
       //重新读取数据
+
       if (val == 0) {
+        delete  this.params.commentStatus 
         this.loadData();
-      }
-      if (val == 1) {
+      } else if (val == 1) {
+        this.params.commentStatus = "UNFINISHED";
         this.orderList = [];
-        this.loadComments();
+        this.loadData();
+      } else {
+        this.params.commentStatus = "FINISHED";
+        this.orderList = [];
+        return this.loadComments();
       }
     },
   },
@@ -138,7 +148,7 @@ export default {
      * 判断当前店铺是否有可评价的商品
      */
     commentStatus(val) {
-      if (this.current == 1) {
+      if (this.current == 2) {
         return true;
       } else {
         let show;
@@ -251,11 +261,7 @@ export default {
       if (this.params.loadStatus == "noMore") return;
       if (index == 0) {
         this.loadData();
-      }
-      if (index == 1) {
-        this.params.audit_status = "PASS_AUDIT";
-        this.params.comments_type = "INITIAL";
-        this.params.comment_status = "WAIT_CHASE";
+      } else {
         this.loadComments();
       }
     },
