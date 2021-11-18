@@ -355,6 +355,9 @@ export default {
       this.params.categoryId = this.routerVal.category;
       this.sortParams.categoryId = this.routerVal.category;
       this.isShowSeachGoods = true;
+      this.$nextTick(()=>{
+          this.$refs.mSearch.isShowSeachGoods = true;
+      })
     }
     if (this.routerVal.keyword) {
       this.params.keyword = this.routerVal.keyword;

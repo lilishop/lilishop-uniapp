@@ -45,7 +45,7 @@
       <view class="cell-item">
         <view class="cell-title"> 投诉凭证 </view>
         <view class="cell-view">
-          <u-upload ref="uUpload" :header=" { accessToken: storage.getAccessToken() }" upload-text="" :show-progress="false" :action="action" width="100" @on-uploaded="onUploaded" :max-count="5">
+          <u-upload ref="uUpload" :header=" { accessToken: storage.getAccessToken() }" upload-text=""  :action="action" width="100" @on-uploaded="onUploaded" :max-count="5">
           </u-upload>
         </view>
       </view>
