@@ -8,7 +8,8 @@
             </div>
           </div>
           <u-empty class="empty" text="暂无商品介绍" mode="data" v-if="!res.mobileIntro"></u-empty>
-          <u-parse class="vhtml" :lazy-load="true" :use-cache="true" :show-with-animation="true" :html="res.mobileIntro"></u-parse>
+          <u-parse class="vhtml" :lazy-load="true" :use-cache="true" :show-with-animation="true"
+            :html="res.mobileIntro"></u-parse>
         </view>
       </view>
     </view>
@@ -21,17 +22,17 @@
           </div>
           <!-- <u-divider>商品参数</u-divider> -->
           <div class="param-list" v-if="goodsParams.length == 0">
-              <u-empty text="暂无商品参数" mode="list"></u-empty>
+            <u-empty text="暂无商品参数" mode="list"></u-empty>
           </div>
-		  <div class="params-group" v-for="(group,groupIndex) in goodsParams" :key="groupIndex">
-			<view style="font-weight: bold;margin-left: 10px;">{{group.groupName}}</view> 
-			<div class="param-list">
-			  <div class="param-item" v-for="(param,index) in group.goodsParamsItemDTOList" :key="index">
-			    <div class="param-left">{{param.paramName}}</div>
-			    <div class="param-right">{{param.paramValue}}</div>
-			  </div>
-			</div>
-		  </div>
+          <div class="params-group" v-for="(group,groupIndex) in goodsParams" :key="groupIndex">
+            <view style="font-weight: bold;margin-left: 10px;">{{group.groupName}}</view>
+            <div class="param-list">
+              <div class="param-item" v-for="(param,index) in group.goodsParamsItemDTOList" :key="index">
+                <div class="param-left">{{param.paramName}}</div>
+                <div class="param-right">{{param.paramValue}}</div>
+              </div>
+            </div>
+          </div>
         </view>
       </view>
     </view>
@@ -43,16 +44,15 @@ import { getGoodsMessage } from "@/api/goods";
 export default {
   data() {
     return {
-      goodsDetail: ""
+      goodsDetail: "",
     };
   },
   props: ["res", "goodsId", "goodsParams"],
   async mounted() {
-	  console.log(this.res)
+    console.log(this.res);
     let res = await getGoodsMessage(this.goodsId);
     if (res.data.success) {
       this.goodsDetail = res.data.result;
-     
     }
   },
 };
@@ -103,6 +103,11 @@ export default {
 
   width: 100%;
 }
+.vhtml {
+  /deep/ img {
+    display: block !important;
+  }
+}
 
 /deep/ img {
   width: 100%;
@@ -126,7 +131,11 @@ export default {
       width: 52rpx;
       height: 6rpx;
 
-      background-image: linear-gradient(90deg, $price-color, $price-light-color);
+      background-image: linear-gradient(
+        90deg,
+        $price-color,
+        $price-light-color
+      );
     }
   }
   > .goods-detail-item {
