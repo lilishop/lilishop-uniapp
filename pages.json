@@ -86,15 +86,7 @@
 					"style": {
 						"navigationBarTitleText": "我的足迹",
 						"enablePullDownRefresh": true,
-						"app-plus": {
-							"titleNView": {
-								"buttons": [{
-									"text": "编辑",
-									"fontSize": "14"
-
-								}]
-							}
-						}
+						"navigationStyle": "custom"
 					}
 				}, {
 					"path": "myCollect",

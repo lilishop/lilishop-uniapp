@@ -1,5 +1,10 @@
 <template>
   <view class="myTracks">
+    <u-navbar title="我的足迹">
+      <div @click="changeRightBtn" slot="right" style="margin-right:32rpx">
+        {{edit}}
+      </div>
+    </u-navbar>
     <u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
     <div v-else>
       <view v-for="(item, index) in trackList" :key="index">
@@ -30,7 +35,6 @@
       <uni-load-more :status="loadStatus"></uni-load-more>
     </div>
     <view v-if="editFlag">
-      <view class="myTracks-action-placeholder"></view>
       <view class="myTracks-action">
         <view class="myTracks-action-check">
           <u-checkbox-group>
@@ -41,7 +45,7 @@
         </view>
 
         <view>
-          <u-button type="warning" plain="true" @click="delAllTracks" class="myTracks-action-btn">
+          <u-button type="warning"  @click="delAllTracks" class="myTracks-action-btn">
             删除
           </u-button>
         </view>
@@ -56,6 +60,7 @@ import { myTrackList, deleteHistoryListId } from "@/api/members.js";
 export default {
   data() {
     return {
+      edit: "编辑",
       editFlag: false, //是否编辑
       allChecked: false, //是否全选
       loadStatus: "more", //底部下拉加载状态
@@ -173,6 +178,18 @@ export default {
     },
 
     /**
+     * 右侧标签栏切换
+     */
+    changeRightBtn(e) {
+      if (!this.editFlag) {
+        this.edit = "完成";
+      } else {
+        this.edit = "编辑";
+      }
+      this.editFlag = !this.editFlag;
+    },
+
+    /**
      * 点击全选按钮
      */
     checkedAllitem() {
@@ -207,18 +224,6 @@ export default {
         }
       });
     },
-  },
-
-  /**
-   * 右侧标签栏切换
-   */
-  onNavigationBarButtonTap(e) {
-    if (!this.editFlag) {
-      this.setStyle("完成");
-    } else {
-      this.setStyle("编辑");
-    }
-    this.editFlag = !this.editFlag;
   },
 };
 </script>
@@ -292,6 +297,18 @@ export default {
   color: $light-color;
   padding: 10rpx 0 0 0;
 }
+.myTracks-action{
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  height: 75rpx;
+  align-items: center;
+  padding: 0 32rpx;
+}
 
 .myTracks-action-btn {
   width: 130rpx;
@@ -304,9 +321,7 @@ export default {
   height: 20rpx;
 }
 
-.myTracks-action-placeholder {
-  height: 110rpx;
-}
+
 
 .myTracks-action-check {
   align-items: center;
