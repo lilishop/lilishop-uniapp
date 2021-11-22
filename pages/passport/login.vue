@@ -35,7 +35,7 @@
 
       <!-- 循环出当前可使用的第三方登录模式 -->
       <div class="flex login-list">
-        <div :style="{background:item.color}" class="login-item" v-for="(item,index) in loginList" :key="index">
+        <div v-if="item.code" :style="{background:item.color}" class="login-item" v-for="(item,index) in loginList" :key="index">
           <u-icon v-if="item.title!='APPLE'" color="#fff" size="42" :name="item.icon" @click="navigateLogin(item)">
           </u-icon>
           <u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" @click="navigateLogin(item)" width="80"
@@ -636,7 +636,8 @@ page {
   position: absolute;
   bottom: 20px;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
+ 
 }
 
 .login-item {
@@ -647,5 +648,8 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
+ 
+    margin: 0 20rpx;
+  
 }
 </style>
