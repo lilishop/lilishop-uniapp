@@ -113,7 +113,7 @@ export default {
   },
   onLoad() {
     this.getGoodList();
-    this.getstoreList();
+    this.getStoreList();
   },
 
   methods: {
@@ -151,7 +151,7 @@ export default {
       deleteStoreCollection(val.storeId).then((res) => {
         if (res.statusCode == 200) {
           this.storeList = [];
-          this.getstoreList();
+          this.getStoreList();
         }
       });
     },
@@ -213,7 +213,7 @@ export default {
     /**
      * 获取店铺集合
      */
-    getstoreList() {
+    getStoreList() {
       uni.showLoading({
         title: "加载中",
       });
@@ -246,7 +246,7 @@ export default {
         this.getGoodList();
       } else {
         this.navList[1].params.pageNumber++;
-        this.getstoreList();
+        this.getStoreList();
       }
     },
   },
@@ -262,7 +262,7 @@ export default {
     } else {
       this.navList[1].params.pageNumber = 1;
       this.storeList = [];
-      this.getstoreList();
+      this.getStoreList();
     }
   },
 };

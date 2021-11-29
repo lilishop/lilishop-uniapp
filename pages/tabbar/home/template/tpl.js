@@ -3,7 +3,6 @@ export function modelNavigateTo(item) {
   let val = item.url;
 
   switch (val.___type) {
-    
     case "goods":
       uni.navigateTo({
         url: "/pages/product/goods?id=" + val.id + "&goodsId=" + val.goodsId,
@@ -38,7 +37,6 @@ export function modelNavigateTo(item) {
       break;
     case "other":
       switch (val.title) {
-      
         case "首页":
           uni.switchTab({
             url: `/pages/tabbar/home/index`,
@@ -97,6 +95,11 @@ export function modelNavigateTo(item) {
         case "积分商城":
           uni.navigateTo({
             url: `/pages/promotion/point/pointList`,
+          });
+          break;
+        case "店铺列表":
+          uni.navigateTo({
+            url: `/pages/product/shopList`,
           });
           break;
       }

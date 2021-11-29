@@ -339,6 +339,12 @@
 					"navigationStyle": "custom"
 				}
 			},{
+				"path": "shopList",
+				"style": {
+					"navigationBarTitleText": "",
+					"navigationStyle": "custom"
+				}
+			},{
 				"path": "licencePhoto",
 				"style": {
 					"navigationBarTitleText": "营业执照"
@@ -460,7 +466,6 @@
 					"style": {
 						"navigationBarTitleText": "拼团活动",
 						"navigationStyle": "custom", // 隐藏系统导航栏
-						
 						"app-plus": {
 							// 将回弹属性关掉
 							"bounce": "none"

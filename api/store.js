@@ -4,11 +4,14 @@
 
 import {http, Method} from '@/utils/request.js';
 
+
+
+
 /**
  * 获取店铺列表
  * @param params
  */
-export function getstoreList(params) {
+export function getStoreList(params) {
   return http.request({
     url: '/store',
     method: Method.GET,
