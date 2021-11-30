@@ -197,7 +197,7 @@
 <script>
 import {
   getServiceDetail,
-  getstoreAfterSaleAddress,
+  getStoreAfterSaleAddress,
   getAfterSaleLog,
   getAfterSaleReason,
 } from "@/api/after-sale.js";
@@ -315,7 +315,7 @@ export default {
      * 获取地址信息
      */
     getAddress() {
-      getstoreAfterSaleAddress(this.sn).then((res) => {
+      getStoreAfterSaleAddress(this.sn).then((res) => {
         if (res.data.success) {
           this.storeAfterSaleAddress = res.data.result;
         }

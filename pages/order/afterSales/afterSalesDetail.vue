@@ -312,6 +312,7 @@ export default {
         return false;
       }
 
+      console.log(this.form.accountType)
       if (this.form.accountType == "BANK_TRANSFER") {
         // 银行开户行校验
         if (this.$u.test.isEmpty(this.form.bankDepositName)) {

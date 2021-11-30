@@ -187,13 +187,13 @@ export default {
      * 立即使用优惠券
      */
     useItNow(item) {
-      if (item.storeId) {
+      if (item.storeId && item.storeId!='platform') {
         uni.navigateTo({
           url: `/pages/product/shopPage?id=${item.storeId}`,
         });
       } else {
         uni.switchTab({
-          url: "/pages/tabbar/home/index",
+          url: "/pages/navigation/search/searchPage",
         });
       }
     },

@@ -68,17 +68,19 @@
                 <view class="cannot_apply" v-if="order.serviceType == 'CANCEL'">
                   取消订单-{{ order.serviceStatus | serviceStatusList  }}</view>
               </div>
+             
               <!-- 申请记录 -->
             </view>
+             <!-- 售后申请 -->
+              <div v-if="current === 0 && sku.afterSaleStatus && (sku.afterSaleStatus.includes('NOT_APPLIED') || sku.afterSaleStatus.includes('PART_AFTER_SALE')) "  @click="applyService(sku.sn, order, sku)" class="sale">
+                <view class=" default-btn border" >
+                  申请售后
+                </view>
+              </div>
             <view class="after-line">
-              <!-- 售后申请 -->
-              <view v-if="
-                  current === 0 && order.groupAfterSaleStatus.includes('NOT_APPLIED')
-                " @click="applyService(sku.sn, order, sku)" class="rebuy-btn">
-                申请售后
-              </view>
+
               <!-- 申请中 -->
-              <view class="rebuy-btn" v-if="
+              <view class="default-btn border" v-if="
                   current === 2 &&
                   order.serviceStatus &&
                   order.serviceStatus == 'PASS' &&
@@ -86,7 +88,10 @@
                 " @click="onExpress(order, sku)">
                 提交物流
               </view>
-              <view @click="afterDetails(order, sku)" v-if="current === 1 || current === 2" class="rebuy-btn">
+              <view @click="close(order,sku)" v-if="current === 1" class="default-btn close">
+                取消售后
+              </view>
+              <view @click="afterDetails(order, sku)" v-if="current === 1 || current === 2" class="default-btn border">
                 售后详情
               </view>
             </view>
@@ -105,13 +110,14 @@
       </view>
       <u-loadmore bg-color="#f8f8f8" :status="status" />
     </scroll-view>
+    <u-modal show-cancel-button @confirm="closeService" v-model="cancelShow" content="确认取消售后"></u-modal>
     <u-modal v-model="tipsShow" content="当订单未确认收货|已过售后服务有效期|已申请售后服务时，不能申请售后"></u-modal>
   </view>
 </template>
 
 <script>
 import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
-import { getAfterSaleList } from "@/api/after-sale.js";
+import { getAfterSaleList, cancelAfterSale } from "@/api/after-sale.js";
 import { getOrderList } from "@/api/order.js";
 
 export default {
@@ -134,6 +140,8 @@ export default {
       ],
       current: 0, //当前表头索引
       tipsShow: false, //提示开关
+      cancelShow: false, //取消显示开关
+      selectedOrder: "", //选中的order
       orderList: [], //订单集合
       params: {
         pageNumber: 1,
@@ -202,17 +210,42 @@ export default {
       });
       getOrderList(this.params).then((res) => {
         uni.hideLoading();
-        const orderlist = res.data.result.records;
-        if (orderlist.length > 0) {
-          this.orderList = this.orderList.concat(orderlist);
+        const orderList = res.data.result.records;
+        if (orderList.length > 0) {
+          this.orderList = this.orderList.concat(orderList);
           this.params.pageNumber += 1;
         }
-        if (orderlist.length < 10) {
+        if (orderList.length < 10) {
           this.status = "nomore";
         } else {
           this.status = "loading";
         }
       });
+    },
+
+    close(order, sku) {
+      console.log(order, sku);
+      this.selectedOrder = order;
+      this.cancelShow = true;
+    },
+
+    async closeService() {
+      uni.showLoading({
+        title: "加载中",
+      });
+      console.log(this.selectedOrder);
+      let res = await cancelAfterSale(this.selectedOrder.sn);
+      if (res.data.success) {
+        uni.showToast({
+          title: "取消成功!",
+          duration: 2000,
+          icon: "none",
+        });
+      }
+      this.orderList = [];
+      this.getOrderList(this.current);
+
+      uni.hideLoading();
     },
 
     /**
@@ -324,6 +357,7 @@ page,
   background: $page-color-base;
   height: 100%;
 }
+
 .body-view {
   overflow-y: auto;
   height: calc(100vh - 44px - 80rpx - 104rpx);
@@ -420,28 +454,27 @@ page,
 .icon {
   margin-right: 10rpx;
 }
-.cancel-btn {
-  color: #999999;
-  border-color: #999999;
-  margin-left: 15rpx;
-  height: 60rpx;
+
+.sale {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
 }
-.pay-btn {
-  background-color: #1abc9c;
-  color: #ffffff;
-  margin-left: 15rpx;
-  height: 60rpx;
-}
-.rebuy-btn {
+.default-btn {
   background-color: #ffffff;
   margin-left: 15rpx;
   height: 60rpx;
   line-height: 60rpx;
   text-align: center;
   font-size: 24rpx;
-  border: 2rpx solid $light-color;
-  color: $light-color;
   padding: 0 24rpx;
   border-radius: 200px;
+}
+.close {
+  color: $light-color;
+}
+.border {
+  border: 2rpx solid $light-color;
+  color: $light-color;
 }
 </style>

@@ -35,15 +35,28 @@ export function applyCancelOrder(params) {
 }
 
 /**
+/**
  * 获取商家售后收件地址
  */
-export function getstoreAfterSaleAddress(sn) {
+export function getStoreAfterSaleAddress(sn) {
   return http.request({
     url: `/afterSale/getStoreAfterSaleAddress/${sn}`,
     method: Method.GET,
     needToken: true,
   });
 }
+/**
+ * 取消售后
+ */
+export function cancelAfterSale(afterSaleSn) {
+  return http.request({
+    url: `/afterSale/cancel/${afterSaleSn}`,
+    method: Method.POST,
+    needToken: true,
+  });
+}
+
+
 
 /**
  * 获取售后服务记录相关数据
