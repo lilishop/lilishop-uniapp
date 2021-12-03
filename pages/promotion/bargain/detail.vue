@@ -179,7 +179,7 @@ export default {
     return {
       path: this.share(),
       title: `请快来帮我砍一刀${this.bargainDetail.goodsName}`,
-      imageUrl: this.thumbnail || config.logo,
+      imageUrl: this.bargainDetail.thumbnail || config.logo,
     };
   },
   // #endif
