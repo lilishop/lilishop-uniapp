@@ -11,7 +11,7 @@
       </div>
     </u-sticky>
     <div class="goods-list">
-      <div v-if="selected.val == item.type" @click="handleClick(item)" class="goods-item"
+      <div v-if="selected.index == item.___index || selected.val == item.type" @click="handleClick(item)" class="goods-item"
         v-for="(item, item_index) in res.list[0].listWay" :key="item_index">
         <div class="goods-img">
           <u-image :src="item.img" height="350rpx" mode="aspectFit" width="100%">
