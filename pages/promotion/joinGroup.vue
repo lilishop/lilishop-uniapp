@@ -26,7 +26,7 @@
       <div v-if="groupBuy.length !=0">
         <view class="view-item" v-for="(groupItem, groupIndex) in groupBuy" :key="groupIndex">
           <view class="view-left">
-            <u-image border-radius="10" shape="square" :src="groupItem.goodsImage" width="186rpx" height="186rpx">
+            <u-image border-radius="10" shape="square" :src="groupItem.thumbnail" width="186rpx" height="186rpx">
 
               <view slot="error" style="font-size: 24rpx;">加载失败</view>
             </u-image>

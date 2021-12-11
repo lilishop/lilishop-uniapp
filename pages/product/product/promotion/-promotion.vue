@@ -1,50 +1,65 @@
 <template>
   <view>
-
-    <view v-for="(promotionItem,promotionIndex) in promotion" :key="promotionIndex" class="promotion_row" @click="shutMask(1)">
-      <view  v-if="res!=null" v-for="(item, index) in Object.keys(res)" :key="index">
-        <div class="promotion_col" v-if="item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'FULL_DISCOUNT'">
+    <view
+      v-for="(promotionItem, promotionIndex) in promotion"
+      :key="promotionIndex"
+      class="promotion_row"
+      @click="shutMask(1)"
+    >
+      <view v-if="res != null" v-for="(item, index) in Object.keys(res)" :key="index">
+        <div
+          class="promotion_col"
+          v-if="
+            item.split('-')[0] == promotionItem.value &&
+            item.split('-')[0] == 'FULL_DISCOUNT'
+          "
+        >
           <!-- 满减，折扣 -->
           <div class="flex">
-            <view class="deg_tag">{{promotionItem.title}}</view>
+            <view class="deg_tag">{{ promotionItem.title }}</view>
             <div class="text proText">满{{ res[item].fullMoney }}元，立享优惠</div>
           </div>
         </div>
-        <div class="promotion_col" v-if="item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'PINTUAN'">
+        <div
+          class="promotion_col"
+          v-if="
+            item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'PINTUAN'
+          "
+        >
           <!-- 拼团 -->
           <div class="flex">
-            <view class="deg_tag">{{promotionItem.title}}</view>
+            <view class="deg_tag">{{ promotionItem.title }}</view>
             <div class="text proText">{{ res[item].promotionName }}</div>
           </div>
         </div>
-        <div class="promotion_col" v-if="item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'SECKILL'">
+        <div
+          class="promotion_col"
+          v-if="
+            item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'SECKILL'
+          "
+        >
           <!-- 限时抢购 -->
           <div class="flex">
-            <view class="deg_tag">{{promotionItem.title}}</view>
+            <view class="deg_tag">{{ promotionItem.title }}</view>
             <div class="text proText">{{ res[item].promotionName }}</div>
           </div>
         </div>
-
       </view>
 
-      <view class="promotion_row" style="display:inline;">
+      <view class="promotion_row" style="display: inline">
         <view>
-          <div class="promotion_col coupon" v-if="couponList && promotionIndex ==1">
+          <div class="promotion_col coupon" v-if="couponList && promotionIndex == 1">
             <!-- 优惠券 -->
 
             <div>
               <view class="deg_tag">优惠券</view>
             </div>
-
           </div>
         </view>
       </view>
     </view>
 
-    <view v-if=" this.res != null && Object.keys(res).length == 0">
-      暂无促销信息
-    </view>
-
+    <view v-if="this.res != null && Object.keys(res).length == 0"> 暂无促销信息 </view>
   </view>
 </template>
 
@@ -69,7 +84,6 @@ export default {
       handler() {
         if (this.res && this.res.length != 0 && this.res != null) {
           Object.keys(this.res).forEach((item) => {
-            
             let key = item.split("-")[0];
             this.res[item].__key = key;
 
