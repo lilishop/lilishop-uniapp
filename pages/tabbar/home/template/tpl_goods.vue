@@ -21,7 +21,7 @@
         </div>
         <div class="goods-desc">
           <div class="goods-title">
-            {{ item.title }} {{item.___index}}
+            {{ item.title }}
           </div>
           <div class="goods-bottom">
             <div class="goods-price">￥{{ item.price | unitPrice }}</div>
