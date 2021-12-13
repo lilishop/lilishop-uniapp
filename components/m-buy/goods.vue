@@ -23,7 +23,7 @@
           </view>
           <view class="goods-skus">
             <!-- 有活动商品价格 -->
-            <view class="goods-price" v-if="goodsDetail.promotionPrice">
+            <view class="goods-price" v-if="goodsDetail.promotionPrice && ((isGroup && buyType === 'PINTUAN') || !isGroup)">
               <span v-if="goodsDetail.promotionPrice && !pointDetail">
                 ￥
                 <span class="goods-price-promotionShow goods-price-bigshow">{{
@@ -161,6 +161,10 @@ export default {
       type: Boolean,
       default: false,
     },
+	isGroup: {
+	  type: Boolean,
+	  default: false,
+	},
     goodsDetail: {
       default: "",
       type: null,

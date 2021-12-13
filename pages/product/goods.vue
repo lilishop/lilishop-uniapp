@@ -344,6 +344,7 @@
           @queryCart="cartCount()"
           :goodsDetail="goodsDetail"
           :goodsSpec="goodsSpec"
+		  :isGroup="isGroup"
           :id="productId"
           v-if="goodsDetail.id"
           :pointDetail="pointDetail"
