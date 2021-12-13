@@ -1,7 +1,7 @@
 
 <template>
   <div class="layout">
-    <u-sticky >
+    <u-sticky>
       <div class="goods-cell-title">
         <div class="goods-item-title" :class="{ 'selected-title': selected.index == index }"
           @click="handleClickTitle(title, index)" v-for="(title, index) in res.list[0].titleWay" :key="index">
@@ -11,8 +11,9 @@
       </div>
     </u-sticky>
     <div class="goods-list">
-      <div v-if="selected.index == item.___index || selected.val == item.type" @click="handleClick(item)" class="goods-item"
-        v-for="(item, item_index) in res.list[0].listWay" :key="item_index">
+      <div v-if="item.___index != undefined  ?   (selected.index == item.___index) : ( selected.val == item.type)"
+        @click="handleClick(item)" class="goods-item" v-for="(item, item_index) in res.list[0].listWay"
+        :key="item_index">
         <div class="goods-img">
           <u-image :src="item.img" height="350rpx" mode="aspectFit" width="100%">
             <u-loading slot="loading"></u-loading>
@@ -20,7 +21,7 @@
         </div>
         <div class="goods-desc">
           <div class="goods-title">
-            {{ item.title }}
+            {{ item.title }} {{item.___index}}
           </div>
           <div class="goods-bottom">
             <div class="goods-price">￥{{ item.price | unitPrice }}</div>
@@ -53,11 +54,7 @@ export default {
       immediate: true,
     },
   },
-  mounted () {
-    this.$u.getRect('.goods-cell-title').then(res=>{
-      console.log(res)
-    })
-  },
+  mounted() {},
   methods: {
     handleClick(item) {
       uni.navigateTo({
