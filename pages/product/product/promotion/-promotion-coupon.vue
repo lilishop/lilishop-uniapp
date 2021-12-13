@@ -1,33 +1,37 @@
 <template>
   <view class="wrapper">
-
     <div class="coupon-empty" v-if="!res">暂无优惠券</div>
-    <view class="coupon-List" v-if="res && item.__key=='COUPON'" v-for="(item, index) in res" :key="index">
-      
+    <view class="coupon-List" v-for="(item, index) in couponRes" :key="index">
       <view class="coupon-item">
         <view class="top">
           <div class="price">
-           
             <span v-if="item.couponType == 'DISCOUNT'">{{ item.couponDiscount }}折</span>
             <span v-if="item.couponType == 'PRICE'">￥{{ item.price | unitPrice }}</span>
           </div>
           <view class="text">
-
             <div class="coupon-List-title">
               <view v-if="item.scopeType">
-                <span v-if="item.scopeType == 'ALL' && item.id == 'platform'">全平台</span>
+                <span v-if="item.scopeType == 'ALL' && item.id == 'platform'"
+                  >全平台</span
+                >
                 <span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
-                <view v-else>{{  item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用</view>
+                <view v-else
+                  >{{
+                    item.storeName == "platform" ? "全平台" : item.storeName + "店铺"
+                  }}使用</view
+                >
               </view>
             </div>
             <div>满{{ item.consumeThreshold | unitPrice }}可用</div>
           </view>
-          <view class="lingqu-btn" @click="getCoupon(item)">
-            <div :class="yhqFlag ? 'cur' : ''">{{ yhqFlag ? '已领取或领完' : '立即领取' }}</div>
+          <view class="lingqu-btn" @click="getCoupon(item, index)">
+            <div :class="yhqFlag[index] ? 'cur' : ''">
+              {{ yhqFlag[index] ? "已领取或领完" : "立即领取" }}
+            </div>
           </view>
         </view>
         <view class="line"></view>
-        <view class="time">{{ item.startTime }} - {{item.endTime }}</view>
+        <view class="time">{{ item.startTime }} - {{ item.endTime }}</view>
       </view>
     </view>
   </view>
@@ -37,7 +41,8 @@
 export default {
   data() {
     return {
-      yhqFlag: false, //获取优惠券判断是否点击
+      yhqFlag: [], //获取优惠券判断是否点击
+      couponRes: {},
     };
   },
   props: {
@@ -52,7 +57,9 @@ export default {
         if (this.res && this.res.length != 0) {
           Object.keys(this.res).forEach((item) => {
             let key = item.split("-")[0];
-            this.res[item].__key = key;
+            if (key === "COUPON") {
+              this.couponRes[item] = this?.res[item];
+            }
           });
         }
       },
@@ -61,9 +68,8 @@ export default {
   },
   methods: {
     // 提交优惠券
-    getCoupon(item) {
-      this.yhqFlag = true;
-
+    getCoupon(item, index) {
+      this.yhqFlag[index] = true;
       this.$emit("getCoupon", item);
     },
   },

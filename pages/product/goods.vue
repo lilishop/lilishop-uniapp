@@ -1,31 +1,60 @@
 <template>
   <div class="main-page">
-
     <!-- #ifdef APP-PLUS -->
     <view class="status_bar"></view>
     <!-- #endif -->
     <!-- 仅h5有效 打开App -->
 
     <!-- 分享 -->
-    <shares v-if="shareFlage && goodsDetail.id" :skuId="this.routerVal.id" :goodsId="this.routerVal.goodsId"
-      :link="'/pages/product/goods?id='+this.routerVal.id+'&goodsId='+this.routerVal.goodsId"
-      :thumbnail="goodsDetail.thumbnail" :goodsName="goodsDetail.goodsName" type="goods" @close="shareFlage = false" />
-    <popups v-model="popupsSwitch" @tapPopup="handleNavbarList" :popData="navbarListData" :x="navbarListX"
-      :y="navbarListY" placement="top-start" />
+    <shares
+      v-if="shareFlage && goodsDetail.id"
+      :skuId="this.routerVal.id"
+      :goodsId="this.routerVal.goodsId"
+      :link="
+        '/pages/product/goods?id=' +
+        this.routerVal.id +
+        '&goodsId=' +
+        this.routerVal.goodsId
+      "
+      :thumbnail="goodsDetail.thumbnail"
+      :goodsName="goodsDetail.goodsName"
+      type="goods"
+      @close="shareFlage = false"
+    />
+    <popups
+      v-model="popupsSwitch"
+      @tapPopup="handleNavbarList"
+      :popData="navbarListData"
+      :x="navbarListX"
+      :y="navbarListY"
+      placement="top-start"
+    />
     <view class="index">
-
       <!-- topBar -->
-      <u-navbar :background="navbar" :is-back="false" :class="headerFlag ? 'header' : 'header bg-none scroll-hide'">
+      <u-navbar
+        :background="navbar"
+        :is-back="false"
+        :class="headerFlag ? 'header' : 'header bg-none scroll-hide'"
+      >
         <div class="headerRow">
           <div class="backs">
             <u-icon @click="back()" name="arrow-left" class="icon-back"></u-icon>
 
-            <u-icon name="list" @click="popupsSwitch = !popupsSwitch" class="icon-list"></u-icon>
+            <u-icon
+              name="list"
+              @click="popupsSwitch = !popupsSwitch"
+              class="icon-list"
+            ></u-icon>
           </div>
           <div class="headerList" :class="headerFlag ? 'tab-bar' : 'tab-bar scroll-hide'">
             <div class="headerRow">
-              <div class="nav-item" v-for="header in headerList" :key="header.id"
-                :class="{ cur: scrollId === header.id }" @click="headerTab(header.id)">
+              <div
+                class="nav-item"
+                v-for="header in headerList"
+                :key="header.id"
+                :class="{ cur: scrollId === header.id }"
+                @click="headerTab(header.id)"
+              >
                 {{ header.text }}
               </div>
             </div>
@@ -33,27 +62,57 @@
         </div>
       </u-navbar>
 
-      <u-navbar :border-bottom="false" v-show="!headerFlag" class="header-only-back" :background="navbarOnlyBack"
-        :is-back="false">
+      <u-navbar
+        :border-bottom="false"
+        v-show="!headerFlag"
+        class="header-only-back"
+        :background="navbarOnlyBack"
+        :is-back="false"
+      >
         <div>
           <div class="bg-back">
-            <u-icon size="40" @click="back()" name="arrow-left" class="icon-back"></u-icon>
-            <u-icon size="40" @click="popupsSwitch = !popupsSwitch" name="list" class="icon-list"></u-icon>
-
+            <u-icon
+              size="40"
+              @click="back()"
+              name="arrow-left"
+              class="icon-back"
+            ></u-icon>
+            <u-icon
+              size="40"
+              @click="popupsSwitch = !popupsSwitch"
+              name="list"
+              class="icon-list"
+            ></u-icon>
           </div>
         </div>
       </u-navbar>
     </view>
 
-    <view class="product-container" :style="{ height: productRefHeight }" ref="productRef" id="productRef">
-      <scroll-view scroll-anchoring enableBackToTop="true" scroll-with-animation scroll-y class="scroll-page"
-        :scroll-top="tabScrollTop" @scroll="pageScroll">
+    <view
+      class="product-container"
+      :style="{ height: productRefHeight }"
+      ref="productRef"
+      id="productRef"
+    >
+      <scroll-view
+        scroll-anchoring
+        enableBackToTop="true"
+        scroll-with-animation
+        scroll-y
+        class="scroll-page"
+        :scroll-top="tabScrollTop"
+        @scroll="pageScroll"
+      >
         <view>
           <!-- 轮播图 -->
           <GoodsSwiper id="main1" :res="imgList" />
 
           <!-- 促销活动条 -->
-          <PromotionAssembleLayout v-if="PromotionList" :detail="goodsDetail" :res="PromotionList" />
+          <PromotionAssembleLayout
+            v-if="PromotionList"
+            :detail="goodsDetail"
+            :res="PromotionList"
+          />
 
           <view class="card-box top-radius-0" id="main2">
             <!-- 活动不显示价钱 -->
@@ -63,14 +122,20 @@
                   {{ goodsDetail.goodsName || "" }}
                 </view>
                 <view class="favorite" @click="clickFavorite(goodsDetail.id)">
-                  <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'" :name="favorite ? 'heart-fill' : 'heart'">
+                  <u-icon
+                    size="30"
+                    :color="favorite ? '#f2270c' : '#262626'"
+                    :name="favorite ? 'heart-fill' : 'heart'"
+                  >
                   </u-icon>
-                  <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{ favorite ? "已收藏" : "收藏" }}</view>
+                  <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{
+                    favorite ? "已收藏" : "收藏"
+                  }}</view>
                 </view>
               </view>
               <!-- 商品描述 -->
               <view class="-goods-desc">
-                {{ goodsDetail.sellingPoint || '' }}
+                {{ goodsDetail.sellingPoint || "" }}
               </view>
             </view>
             <view v-else class="-goods-msg">
@@ -79,31 +144,41 @@
                 <view class="-goods-flex">
                   <!-- 如果有积分显示积分 -->
                   <view class="-goods-price" v-if="goodsDetail.price != undefined">
-                    <span v-if="pointDetail.points"> <span class="price">{{pointDetail.points}}</span>
+                    <span v-if="pointDetail.points">
+                      <span class="price">{{ pointDetail.points }}</span>
                       <span>积分</span>
                     </span>
 
-                    <span v-else> <span>¥</span><span class="price">{{ formatPrice(goodsDetail.price)[0] }}</span>.{{
-                      formatPrice(goodsDetail.price)[1]
-                    }} </span>
+                    <span v-else>
+                      <span>¥</span
+                      ><span class="price">{{ formatPrice(goodsDetail.price)[0] }}</span
+                      >.{{ formatPrice(goodsDetail.price)[1] }}
+                    </span>
                   </view>
-                  <view class="-goods-price" v-else> ¥<span class="price">0 </span>.00 </view>
+                  <view class="-goods-price" v-else>
+                    ¥<span class="price">0 </span>.00
+                  </view>
 
                   <view class="icons share" @click="shareChange()">
                     <u-icon size="30" name="share-fill"></u-icon>
                     <view>分享</view>
                   </view>
                   <view class="icons" @click="clickFavorite(goodsDetail.id)">
-                    <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'"
-                      :name="favorite ? 'heart-fill' : 'heart'"></u-icon>
-                    <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{ favorite ? "已收藏" : "收藏" }}</view>
+                    <u-icon
+                      size="30"
+                      :color="favorite ? '#f2270c' : '#262626'"
+                      :name="favorite ? 'heart-fill' : 'heart'"
+                    ></u-icon>
+                    <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{
+                      favorite ? "已收藏" : "收藏"
+                    }}</view>
                   </view>
                 </view>
                 <view class="-goods-name desc-bold">
                   {{ goodsDetail.goodsName || "" }}
                 </view>
                 <view class="-goods-desc">
-                  {{ goodsDetail.sellingPoint || ''  }}
+                  {{ goodsDetail.sellingPoint || "" }}
                 </view>
               </view>
             </view>
@@ -123,16 +198,22 @@
           </view>
 
           <!-- 拼团用户列表 -->
-          <PromotionAssembleListLayout v-if="isGroup" @to-assemble-buy-now="toAssembleBuyNow" :res="PromotionList" />
+          <PromotionAssembleListLayout
+            v-if="isGroup"
+            @to-assemble-buy-now="toAssembleBuyNow"
+            :res="PromotionList"
+          />
 
           <!-- 配置地址 如果是虚拟产品的时候不展示 -->
-          <view class="card-box" v-if="goodsDetail.goodsType !='VIRTUAL_GOODS'">
+          <view class="card-box" v-if="goodsDetail.goodsType != 'VIRTUAL_GOODS'">
             <view class="card-flex" @click="shutMask(4)">
               <view class="card-title"> 已选 </view>
               <view class="card-content">
-                <span v-if="selectedGoods.spec">{{ selectedGoods.spec.specName }}-{{
+                <span v-if="selectedGoods.spec"
+                  >{{ selectedGoods.spec.specName }}-{{
                     selectedGoods.spec.specValue
-                  }}</span>
+                  }}</span
+                >
                 <span v-else>默认</span>
               </view>
               <view class="card-bottom">
@@ -157,11 +238,21 @@
           <Evaluation id="main5" :goodsDetail="goodsDetail" />
 
           <!-- 店铺推荐 -->
-          <storeLayout id="main7" :storeDetail="storeDetail" :goodsDetail="goodsDetail" :res="recommendList" />
+          <storeLayout
+            id="main7"
+            :storeDetail="storeDetail"
+            :goodsDetail="goodsDetail"
+            :res="recommendList"
+          />
 
           <!-- 宝贝详情 -->
-          <GoodsIntro id="main9" :res="goodsDetail" :goodsParams="goodsParams" :goodsId="goodsDetail.goodsId"
-            v-if="goodsDetail.id" />
+          <GoodsIntro
+            id="main9"
+            :res="goodsDetail"
+            :goodsParams="goodsParams"
+            :goodsId="goodsDetail.goodsId"
+            v-if="goodsDetail.id"
+          />
 
           <!-- 宝贝推荐 -->
           <GoodsRecommend id="main11" :res="likeGoodsList" />
@@ -186,8 +277,13 @@
         </view>
         <!-- 正常结算页面 -->
         <view class="detail-btn" v-if="!isGroup">
-          <view class="to-store-car to-store-btn" v-if="goodsDetail.goodsType!='VIRTUAL_GOODS'" @click="shutMask(4)">
-            加入购物车</view>
+          <view
+            class="to-store-car to-store-btn"
+            v-if="goodsDetail.goodsType != 'VIRTUAL_GOODS'"
+            @click="shutMask(4)"
+          >
+            加入购物车</view
+          >
           <view class="to-buy to-store-btn" @click="shutMask(4, 'buy')">立即购买</view>
           <view class="to-store-car to-store-btn" v-if="startTimer">暂未开始</view>
         </view>
@@ -206,8 +302,15 @@
       <!-- 规格-模态层弹窗 -->
       <view class="spec">
         <!-- 促销弹窗 -->
-        <u-popup v-model="promotionFlag" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius"
-          @close="promotionFlag=false" :mask-close-able="setup.close" closeable>
+        <u-popup
+          v-model="promotionFlag"
+          :height="setup.height"
+          :mode="setup.mode"
+          :border-radius="setup.radius"
+          @close="promotionFlag = false"
+          :mask-close-able="setup.close"
+          closeable
+        >
           <view class="header-title">优惠</view>
           <view class="cuxiao">
             <scroll-view class="scroll_mask" :scroll-y="true">
@@ -216,7 +319,6 @@
                 <PromotionDetailsLayout :res="PromotionList" />
               </view>
               <view class="con-cuxiao coupons">
-
                 <view class="cuxiao-title">可领优惠券</view>
                 <PromotionCoupon @getCoupon="getCoupon" :res="PromotionList" />
               </view>
@@ -225,13 +327,29 @@
         </u-popup>
 
         <!-- 配送地址弹窗 -->
-        <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id"
-          :goodsId="goodsDetail.id" :addressFlag="addressFlag" />
+        <popupAddress
+          @closeAddress="closePopupAddress"
+          @deliveryData="deliveryFun"
+          v-if="goodsDetail.id"
+          :goodsId="goodsDetail.id"
+          :addressFlag="addressFlag"
+        />
 
         <!-- 商品规格  商品详情，以及默认参与活动的id-->
-        <popupGoods :addr="delivery" ref="popupGoods" @changed="changedGoods" @closeBuy="closePopupBuy"
-          @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :id="productId"
-          v-if="goodsDetail.id " :pointDetail="pointDetail" @handleClickSku="selectSku" :buyMask="buyMask" />
+        <popupGoods
+          :addr="delivery"
+          ref="popupGoods"
+          @changed="changedGoods"
+          @closeBuy="closePopupBuy"
+          @queryCart="cartCount()"
+          :goodsDetail="goodsDetail"
+          :goodsSpec="goodsSpec"
+          :id="productId"
+          v-if="goodsDetail.id"
+          :pointDetail="pointDetail"
+          @handleClickSku="selectSku"
+          :buyMask="buyMask"
+        />
       </view>
     </view>
   </div>
@@ -239,12 +357,7 @@
 
 <script>
 /************接口API***************/
-import {
-  getGoods,
-  getGoodsList,
-  getMpScene,
-  getGoodsDistribution,
-} from "@/api/goods.js";
+import { getGoods, getGoodsList, getMpScene, getGoodsDistribution } from "@/api/goods.js";
 import * as API_trade from "@/api/trade.js";
 import * as API_Members from "@/api/members.js";
 import * as API_store from "@/api/store.js";
@@ -473,16 +586,11 @@ export default {
       getMpScene(this.routerVal.scene).then((res) => {
         if (res.data.success) {
           let data = res.data.result.split(","); // skuId,goodsId,distributionId
-          console.warn(data);
           this.init(data[0], data[1], data[2]);
         }
       });
     } else {
-      this.init(
-        this.routerVal.id,
-        this.routerVal.goodsId,
-        this.routerVal.distributionId
-      );
+      this.init(this.routerVal.id, this.routerVal.goodsId, this.routerVal.distributionId);
     }
   },
   // #ifdef MP-WEIXIN
@@ -530,7 +638,6 @@ export default {
 
       let response = await getGoods(id, goodsId);
 
-      console.log(response);
       if (!response.data.success) {
         setTimeout(() => {
           uni.navigateBack();
@@ -540,7 +647,6 @@ export default {
       if (distributionId || this.$store.state.distributionId) {
         let disResult = await getGoodsDistribution(distributionId);
         if (!disResult.data.success || disResult.statusCode == 403) {
-          console.log("绑定成功!");
           this.$store.state.distributionId = distributionId;
         }
       }
@@ -749,7 +855,6 @@ export default {
         category: this.goodsDetail.categoryId,
         keyword: this.goodsDetail.name,
       }).then((res) => {
-        console.warn(this.likeGoodsList )
         this.likeGoodsList = res.data.result.content;
       });
     },

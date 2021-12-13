@@ -4,12 +4,21 @@
       <view class="goods-detail">
         <view class="detail_padding">
           <div class="goods-detail-box">
-            <div class="goods-detail-item goods-active">商品介绍
-            </div>
+            <div class="goods-detail-item goods-active">商品介绍</div>
           </div>
-          <u-empty class="empty" text="暂无商品介绍" mode="data" v-if="!res.mobileIntro"></u-empty>
-          <u-parse class="vhtml" :lazy-load="true" :use-cache="true" :show-with-animation="true"
-            :html="res.mobileIntro"></u-parse>
+          <u-empty
+            class="empty"
+            text="暂无商品介绍"
+            mode="data"
+            v-if="!res.mobileIntro"
+          ></u-empty>
+          <u-parse
+            class="vhtml"
+            :lazy-load="true"
+            :use-cache="true"
+            :show-with-animation="true"
+            :html="res.mobileIntro"
+          ></u-parse>
         </view>
       </view>
     </view>
@@ -24,12 +33,22 @@
           <div class="param-list" v-if="goodsParams.length == 0">
             <u-empty text="暂无商品参数" mode="list"></u-empty>
           </div>
-          <div class="params-group" v-for="(group,groupIndex) in goodsParams" :key="groupIndex">
-            <view style="font-weight: bold;margin-left: 10px;">{{group.groupName}}</view>
+          <div
+            class="params-group"
+            v-for="(group, groupIndex) in goodsParams"
+            :key="groupIndex"
+          >
+            <view style="font-weight: bold; margin-left: 10px">{{
+              group.groupName
+            }}</view>
             <div class="param-list">
-              <div class="param-item" v-for="(param,index) in group.goodsParamsItemDTOList" :key="index">
-                <div class="param-left">{{param.paramName}}</div>
-                <div class="param-right">{{param.paramValue}}</div>
+              <div
+                class="param-item"
+                v-for="(param, index) in group.goodsParamsItemDTOList"
+                :key="index"
+              >
+                <div class="param-left">{{ param.paramName }}</div>
+                <div class="param-right">{{ param.paramValue }}</div>
               </div>
             </div>
           </div>
@@ -49,7 +68,6 @@ export default {
   },
   props: ["res", "goodsId", "goodsParams"],
   async mounted() {
-    console.log(this.res);
     let res = await getGoodsMessage(this.goodsId);
     if (res.data.success) {
       this.goodsDetail = res.data.result;
@@ -131,11 +149,7 @@ export default {
       width: 52rpx;
       height: 6rpx;
 
-      background-image: linear-gradient(
-        90deg,
-        $price-color,
-        $price-light-color
-      );
+      background-image: linear-gradient(90deg, $price-color, $price-light-color);
     }
   }
   > .goods-detail-item {

@@ -1,35 +1,48 @@
 <template>
   <div class="wrapper">
-    <u-popup class="popup" v-model="buyMask" :height="setup.height" closeable :mode="setup.mode"
-    :border-radius="setup.radius" @close="closeMask()">
+    <u-popup
+      class="popup"
+      v-model="buyMask"
+      :height="setup.height"
+      closeable
+      :mode="setup.mode"
+      :border-radius="setup.radius"
+      @close="closeMask()"
+    >
       <!-- 商品 -->
       <view class="goods-box bottom">
         <view class="goods-header">
           <view class="goods-img">
-            <u-image width="200rpx" border-radius="20" class="uimage" height="200rpx"
-              :src="selectedSpecImg ? selectedSpecImg : goodsDetail.thumbnail"></u-image>
+            <u-image
+              width="200rpx"
+              border-radius="20"
+              class="uimage"
+              height="200rpx"
+              :src="selectedSpecImg ? selectedSpecImg : goodsDetail.thumbnail"
+            ></u-image>
           </view>
           <view class="goods-skus">
-
             <!-- 有活动商品价格 -->
-            <view class="goods-price " v-if="goodsDetail.promotionPrice">
+            <view class="goods-price" v-if="goodsDetail.promotionPrice">
               <span v-if="goodsDetail.promotionPrice && !pointDetail">
                 ￥
-                <span
-                  class="goods-price-promotionShow goods-price-bigshow">{{ formatPrice(goodsDetail.promotionPrice)[0] }}</span>
+                <span class="goods-price-promotionShow goods-price-bigshow">{{
+                  formatPrice(goodsDetail.promotionPrice)[0]
+                }}</span>
                 .{{ formatPrice(goodsDetail.promotionPrice)[1] }}
               </span>
               <span v-if="pointDetail.points">
-                <span class="goods-price-promotionShow goods-price-bigshow">{{ pointDetail.points }}</span>
+                <span class="goods-price-promotionShow goods-price-bigshow">{{
+                  pointDetail.points
+                }}</span>
                 积分
               </span>
               <div class="promotion-box">
                 ￥
                 <span class="goods-price-bigshow">{{
-                formatPrice(goodsDetail.price)[0]
-              }}</span>
+                  formatPrice(goodsDetail.price)[0]
+                }}</span>
                 .{{ formatPrice(goodsDetail.price)[1] }}
-
               </div>
             </view>
             <!-- 正常商品的价格 -->
@@ -37,10 +50,9 @@
               <span>
                 ￥
                 <span class="goods-price-bigshow">{{
-                formatPrice(goodsDetail.price)[0]
-              }}</span>
+                  formatPrice(goodsDetail.price)[0]
+                }}</span>
                 .{{ formatPrice(goodsDetail.price)[1] }}
-
               </span>
             </view>
             <view class="goods-check-skus">
@@ -55,36 +67,61 @@
         <!-- 商品信息 -->
         <scroll-view class="goods-skus-box" :scroll-y="true">
           <!-- 规格 -->
-          <view class="goods-skus-view" :key="specIndex" v-for="(spec, specIndex) in formatList">
+          <view
+            class="goods-skus-view"
+            :key="specIndex"
+            v-for="(spec, specIndex) in formatList"
+          >
             <view class="skus-view-list">
               <view class="view-class-title">{{ spec.name }}</view>
 
-
               <!-- 正常逻辑 循环出sku -->
-              <view v-if="!parentOrder"  :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item"
-                v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
-                @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }} </view>
+              <view
+                v-if="!parentOrder"
+                :class="{ active: spec_val.value == currentSelceted[specIndex] }"
+                class="skus-view-item"
+                v-for="(spec_val, spec_index) in spec.values"
+                :key="spec_index"
+                @click="handleClickSpec(spec, specIndex, spec_val)"
+                >{{ spec_val.value }}
+              </view>
 
               <!-- 拼团购买，仅筛选出当前拼团类型商品 -->
-              <view v-if="parentOrder  && spec_val.skuId == goodsDetail.id"  :class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item"
-                v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
-                @click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }} </view>
+              <view
+                v-if="parentOrder && spec_val.skuId == goodsDetail.id"
+                :class="{ active: spec_val.value == currentSelceted[specIndex] }"
+                class="skus-view-item"
+                v-for="(spec_val, spec_index) in spec.values"
+                :key="spec_index"
+                @click="handleClickSpec(spec, specIndex, spec_val)"
+                >{{ spec_val.value }}
+              </view>
             </view>
           </view>
           <!-- 数量 -->
           <view class="goods-skus-number">
             <view class="view-class-title">数量</view>
-            <u-number-box :bg-color="numberBox.bgColor" :max="200" :color="numberBox.color"
-              :input-width="numberBox.width" :input-height="numberBox.height" :size="numberBox.size" :min="1"
-              v-model="num">
+            <u-number-box
+              :bg-color="numberBox.bgColor"
+              :max="200"
+              :color="numberBox.color"
+              :input-width="numberBox.width"
+              :input-height="numberBox.height"
+              :size="numberBox.size"
+              :min="1"
+              v-model="num"
+            >
             </u-number-box>
           </view>
         </scroll-view>
         <!-- 按钮 -->
         <view class="btns">
-
-          <view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType!='VIRTUAL_GOODS'"
-            @click="addToCartOrBuy('cart')">加入购物车</view>
+          <view
+            class="box-btn card"
+            v-if="buyType != 'PINTUAN' && goodsDetail.goodsType != 'VIRTUAL_GOODS'"
+            @click="addToCartOrBuy('cart')"
+            >加入购物车</view
+          >
           <view class="box-btn buy" @click="addToCartOrBuy('buy')">立即购买</view>
         </view>
       </view>
@@ -140,10 +177,10 @@ export default {
       default: "",
       type: null,
     },
-    pointDetail:{
+    pointDetail: {
       default: "",
       type: null,
-    }
+    },
   },
   watch: {
     buyType: {
@@ -161,8 +198,6 @@ export default {
   },
 
   methods: {
-    
-
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
       if (typeof val == "undefined") {
@@ -215,7 +250,7 @@ export default {
       }
     },
 
-     /**
+    /**
      * 直接购买
      */
     buy(data) {
@@ -231,7 +266,6 @@ export default {
         }
       });
     },
-
 
     /**
      * 添加到购物车或购买
@@ -276,9 +310,7 @@ export default {
             uni.navigateTo({
               url: `/pages/order/fillorder?way=${data.cartType}&addr=${
                 this.addr.id || ""
-              }&parentOrder=${encodeURIComponent(
-                JSON.stringify(this.parentOrder)
-              )}`,
+              }&parentOrder=${encodeURIComponent(JSON.stringify(this.parentOrder))}`,
             });
           }
         });
@@ -286,7 +318,6 @@ export default {
     },
     formatSku(list) {
       // 格式化数据
-      console.log(list);
       let arr = [{}];
       list.forEach((item, index) => {
         item.specValues.forEach((spec, specIndex) => {
@@ -315,7 +346,6 @@ export default {
               return key.name;
             });
             if (!keys.includes(name)) {
-              console.log(name, values);
               arr.push({
                 name: name,
                 values: [values],

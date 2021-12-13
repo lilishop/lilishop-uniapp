@@ -1,23 +1,23 @@
 <template>
   <view class="group-list">
     <view class="group-name">拼购列表</view>
-    <view v-if="assembleOrder.length !=0">
-      <view class="group-item" v-for="(order,index) in assembleOrder" :key="index">
+    <view v-if="assembleOrder.length != 0">
+      <view class="group-item" v-for="(order, index) in assembleOrder" :key="index">
         <view class="group-item-user">
           <u-image shape="circle" width="40px" height="40px" :src="order.face"></u-image>
-          <span class="group-item-name">{{order.nickName | noPassByName}}</span>
+          <span class="group-item-name">{{ order.nickName | noPassByName }}</span>
         </view>
         <view>
-          <span class="group-item-name">还差{{ order.toBeGroupedNum}}人成团</span>
+          <span class="group-item-name">还差{{ order.toBeGroupedNum }}人成团</span>
         </view>
         <view>
-          <u-button size="mini" :custom-style="customStyle" @click="buy(order)">去参团</u-button>
+          <u-button size="mini" :custom-style="customStyle" @click="buy(order)"
+            >去参团</u-button
+          >
         </view>
       </view>
-
     </view>
     <view v-else class="nomore">
-
       <u-empty text="暂无拼团信息" mode="list"></u-empty>
     </view>
   </view>

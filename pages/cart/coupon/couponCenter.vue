@@ -28,7 +28,7 @@
                   <span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
                   <view v-else>{{  item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用</view>
                 </view>
-                <view>有效期至：{{  item.endTime.split(" ")[0] }}</view>
+                <view v-if="item.endTime">有效期至：{{  item.endTime.split(" ")[0] }}</view>
               </view>
               <view class="receive" @click="receive(item)">
                 <text>点击</text><br />
