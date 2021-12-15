@@ -19,13 +19,13 @@
           <view class="index-items">
             <view class="index-item" v-for="(item, key) in nav.goods" :key="key" @click="toGoods(item)">
               <view class="index-item-img">
-                <u-image :src="item.goodsSku.thumbnail" mode="aspectFill">
+                <u-image :src="item.thumbnail" mode="aspectFill">
                   <u-loading slot="loading"></u-loading>
                 </u-image>
-                <view class="index-item-title">{{ item.goodsSku.goodsName }}</view>
+                <view class="index-item-title">{{ item.goodsName }}</view>
                 <view class="index-item-price">
                   {{ item.points }}积分
-                  <span class="tipsMkt">¥{{ item.goodsSku.price | unitPrice }}</span>
+                  <span class="tipsMkt">¥{{ item.price | unitPrice }}</span>
                 </view>
               </view>
             </view>
