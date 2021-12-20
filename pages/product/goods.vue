@@ -221,7 +221,7 @@
               </view>
             </view>
             <view class="card-flex" @click="shutMask(3)">
-              <view class="card-title"> 送至 </view>
+              <view class="card-title"> 送至</view>
               <view class="card-content">
                 <span v-if="delivery">{{
                   delivery.consigneeAddressPath | clearStrComma
@@ -362,6 +362,7 @@ import { getGoods, getGoodsList, getMpScene, getGoodsDistribution } from "@/api/
 import * as API_trade from "@/api/trade.js";
 import * as API_Members from "@/api/members.js";
 import * as API_store from "@/api/store.js";
+import { getIMDetail } from '@/api/common'
 import { modelNavigateTo } from "@/pages/tabbar/home/template/tpl.js";
 /************请求存储***************/
 import storage from "@/utils/storage.js";
@@ -522,7 +523,15 @@ export default {
       startTimer: false, //未开启 是false
 
       routerVal: "",
+      IMLink:"", // IM地址
+
     };
+  },
+
+  computed:{
+    IM() {
+      return this.IMLink + this.storeDetail.merchantEuid;
+    },
   },
 
   watch: {
@@ -679,7 +688,7 @@ export default {
       this.cartCount();
 
       // 获取店铺推荐商品
-      this.getstoreRecommend();
+      this.getStoreRecommend();
 
       // 获取商品列表
       this.getOtherLikeGoods();
@@ -688,37 +697,55 @@ export default {
       if (this.$options.filters.isLogin("auth")) {
         this.getGoodsCollectionFun(this.goodsDetail.id);
       }
-    },
-    linkMsgDetail() {
-      // 客服
-      // #ifdef MP-WEIXIN
+      // 获取IM 需要的话使用
+      // this.getIMDetailMethods();
 
-      const params = {
-        storeName: this.storeDetail.storeName,
-        goodsName: this.goodsDetail.goodsName,
-        goodsId: this.goodsDetail.goodsId,
-        goodsImg: this.goodsDetail.thumbnail,
-        price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
-        // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
-        uuid: storage.getUuid(),
-        token: storage.getAccessToken(),
-        sign: this.storeDetail.yzfSign,
-        mpSign: this.storeDetail.yzfMpSign,
-      };
-      uni.navigateTo({
-        url:
-          "/pages/product/customerservice/index?params=" +
-          encodeURIComponent(JSON.stringify(params)),
-      });
-      // #endif
-      // #ifndef MP-WEIXIN
-      const sign = this.storeDetail.yzfSign;
-      uni.navigateTo({
-        url:
-          "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-          sign,
-      });
-      // #endif
+    },
+
+    async getIMDetailMethods(){
+     let res = await getIMDetail()
+     if(res.data.success){
+       this.IMLink = res.data.result
+     }
+    },
+
+    linkMsgDetail() {
+     
+      if(this.storeDetail.merchantEuid){
+        uni.navigateTo({
+           url:`/pages/tabbar/home/web-view?src=${this.IM}`
+        });
+      }
+      else{
+        // 客服
+        // #ifdef MP-WEIXIN
+        const params = {
+          storeName: this.storeDetail.storeName,
+          goodsName: this.goodsDetail.goodsName,
+          goodsId: this.goodsDetail.goodsId,
+          goodsImg: this.goodsDetail.thumbnail,
+          price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
+          // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+          uuid: storage.getUuid(),
+          token: storage.getAccessToken(),
+          sign: this.storeDetail.yzfSign,
+          mpSign: this.storeDetail.yzfMpSign,
+        };
+        uni.navigateTo({
+          url:
+            "/pages/product/customerservice/index?params=" +
+            encodeURIComponent(JSON.stringify(params)),
+        });
+        // #endif
+        // #ifndef MP-WEIXIN
+        const sign = this.storeDetail.yzfSign;
+        uni.navigateTo({
+          url:
+            "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+            sign,
+        });
+        // #endif
+      }
     },
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
@@ -834,7 +861,7 @@ export default {
     /**
      * 获取店铺推荐商品列表
      */
-    getstoreRecommend() {
+    getStoreRecommend() {
       getGoodsList({
         pageNumber: 1,
         pageSize: 6,
