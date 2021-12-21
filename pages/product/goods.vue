@@ -116,7 +116,7 @@
 
           <view class="card-box top-radius-0" id="main2">
             <!-- 活动不显示价钱 -->
-            <view v-if="!isPromotion" class="desc-bold -goods-msg">
+            <view v-if="!promotionFlag" class="desc-bold -goods-msg">
               <view class="-goods-flex">
                 <view class="desc-bold">
                   {{ goodsDetail.goodsName || "" }}
@@ -442,7 +442,7 @@ export default {
       popupsSwitch: false, //导航栏列表栏开关
       shareFlage: false,
       selectedGoods: "", //选择的商品规格昵称
-      isPromotion: true, //判断显示拼团活动文字
+      promotionFlag: true, //判断显示拼团活动文字
       isGroup: false, // 是否是拼团活动
       pointDetail: "", // 是否是积分商品
       assemble: "", //拼团的sku
@@ -533,9 +533,9 @@ export default {
           clearInterval(timer);
         }, 100);
 
-        this.isPromotion = false;
+        this.promotionFlag = false;
       } else {
-        this.isPromotion = true;
+        this.promotionFlag = true;
         this.$refs.popupGoods.buyType = "";
       }
     },

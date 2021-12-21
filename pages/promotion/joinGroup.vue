@@ -42,7 +42,7 @@
                   ￥{{groupItem.price | unitPrice }}
                 </view>
                 <view class="view-content-original_price">
-                  ￥{{ groupItem.originPrice | unitPrice }}
+                  ￥{{ groupItem.originalPrice | unitPrice }}
                 </view>
               </view>
 
