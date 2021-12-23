@@ -303,11 +303,11 @@
       <view class="spec">
         <!-- 促销弹窗 -->
         <u-popup
-          v-model="promotionFlag"
+          v-model="promotionShow"
           :height="setup.height"
           :mode="setup.mode"
           :border-radius="setup.radius"
-          @close="promotionFlag = false"
+          @close="promotionShow = false"
           :mask-close-able="setup.close"
           closeable
         >
@@ -404,7 +404,8 @@ export default {
   data() {
     return {
       setup,
-      promotionFlag: false,
+      promotionShow: false, //弹窗开关
+      promotionFlag: true, //活动开关
       // #ifdef H5
       navbarListX: 110, //导航栏列表栏x轴
       navbarListY: 80, //导航栏列表栏y轴
@@ -914,13 +915,13 @@ export default {
      * 规格弹窗开关
      */
     shutMask(flag, buyFlag, type) {
-      this.promotionFlag = false;
+      this.promotionShow = false;
       this.buyMask = false;
       this.addressFlag = false;
       if (flag) {
         switch (flag) {
           case 1: //优惠券弹窗
-            this.promotionFlag = true;
+            this.promotionShow = true;
 
             break;
           case 3:

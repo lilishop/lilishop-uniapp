@@ -1,5 +1,5 @@
 <template>
-  <u-popup class="popup" v-model="addressFlag" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius" @close="closeAddress()" :mask-close-able="setup.close"  closeable>
+  <u-popup class="popup" v-model="addressFlag" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius" @close="closeAddress()"   closeable>
     <view class="header-title">选择地址</view>
     <view class="view-box" v-if="addressDetail">
       <view class="view-item" v-for="(item, index) in addressDetail" :key="index" @click="clickAddress(item)">
