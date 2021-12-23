@@ -362,7 +362,7 @@ import { getGoods, getGoodsList, getMpScene, getGoodsDistribution } from "@/api/
 import * as API_trade from "@/api/trade.js";
 import * as API_Members from "@/api/members.js";
 import * as API_store from "@/api/store.js";
-import { getIMDetail } from '@/api/common'
+import { getIMDetail } from "@/api/common";
 import { modelNavigateTo } from "@/pages/tabbar/home/template/tpl.js";
 /************请求存储***************/
 import storage from "@/utils/storage.js";
@@ -443,7 +443,6 @@ export default {
       popupsSwitch: false, //导航栏列表栏开关
       shareFlage: false,
       selectedGoods: "", //选择的商品规格昵称
-      promotionFlag: true, //判断显示拼团活动文字
       isGroup: false, // 是否是拼团活动
       pointDetail: "", // 是否是积分商品
       assemble: "", //拼团的sku
@@ -523,12 +522,11 @@ export default {
       startTimer: false, //未开启 是false
 
       routerVal: "",
-      IMLink:"", // IM地址
-
+      IMLink: "", // IM地址
     };
   },
 
-  computed:{
+  computed: {
     IM() {
       return this.IMLink + this.storeDetail.merchantEuid;
     },
@@ -699,24 +697,21 @@ export default {
       }
       // 获取IM 需要的话使用
       // this.getIMDetailMethods();
-
     },
 
-    async getIMDetailMethods(){
-     let res = await getIMDetail()
-     if(res.data.success){
-       this.IMLink = res.data.result
-     }
+    async getIMDetailMethods() {
+      let res = await getIMDetail();
+      if (res.data.success) {
+        this.IMLink = res.data.result;
+      }
     },
 
     linkMsgDetail() {
-     
-      if(this.storeDetail.merchantEuid){
+      if (this.storeDetail.merchantEuid) {
         uni.navigateTo({
-           url:`/pages/tabbar/home/web-view?src=${this.IM}`
+          url: `/pages/tabbar/home/web-view?src=${this.IM}`,
         });
-      }
-      else{
+      } else {
         // 客服
         // #ifdef MP-WEIXIN
         const params = {
