@@ -93,6 +93,7 @@
 					"style": {
 						"navigationBarTitleText": "收藏",
 						"enablePullDownRefresh": true, //下拉刷新
+						"navigationStyle": "custom",
 						"app-plus": {
 							"scrollIndicator": "none"
 						}
