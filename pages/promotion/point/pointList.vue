@@ -25,7 +25,7 @@
                 <view class="index-item-title">{{ item.goodsName }}</view>
                 <view class="index-item-price">
                   {{ item.points }}积分
-                  <span class="tipsMkt">¥{{ item.price | unitPrice }}</span>
+                  <span class="tipsMkt">¥{{ item.originalPrice | unitPrice }}</span>
                 </view>
               </view>
             </view>

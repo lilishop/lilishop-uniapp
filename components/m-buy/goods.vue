@@ -323,6 +323,10 @@ export default {
     formatSku(list) {
       // 格式化数据
       let arr = [{}];
+      
+      if(!Array.isArray(list)){
+        return false
+      }
       list.forEach((item, index) => {
         item.specValues.forEach((spec, specIndex) => {
           let name = spec.specName;

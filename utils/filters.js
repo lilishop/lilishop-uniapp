@@ -106,6 +106,33 @@ export function isLogin(val) {
 }
 
 /**
+ * 验证是否登录如果没登录则去登录
+ * @param {*} val
+ * @returns
+ */
+
+export function forceLogin() {
+  let userInfo = storage.getUserInfo();
+  if (!userInfo.id) {
+    // #ifdef MP-WEIXIN
+
+    uni.navigateTo({
+      url: "/pages/passport/wechatMPLogin",
+    });
+
+    // #endif
+
+    // #ifndef MP-WEIXIN
+
+    uni.navigateTo({
+      url: "/pages/passport/login",
+    });
+
+    //  #endif
+  }
+}
+
+/**
  * 获取当前加载的页面对象
  * @param val
  */
@@ -168,7 +195,7 @@ export function orderStatusList(val) {
     PAID: "已付款",
     DELIVERED: "已发货",
     CANCELLED: "已取消",
-    COMPLETED:"已完成",
+    COMPLETED: "已完成",
     COMPLETE: "已完成",
     TAKE: "待核验",
   };

@@ -333,7 +333,7 @@ export default {
      */
     navigateToStore(val) {
       uni.navigateTo({
-        url: "../product/shopPage?id=" + val.storeId,
+        url: "/pages/product/shopPage?id=" + val.storeId,
       });
     },
 
@@ -396,6 +396,8 @@ export default {
      * 验证是否选中商品
      */
     whetherChecked() {
+    this.$options.filters.forceLogin()
+
       let canBuy = false;
       this.cartDetail.cartList.forEach((item) => {
         if (item.checked) {

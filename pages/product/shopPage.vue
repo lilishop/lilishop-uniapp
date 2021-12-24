@@ -64,7 +64,7 @@
         <u-image width="100%" height="330rpx" mode="aspectFit" :src="item.content.thumbnail">
           <u-loading slot="loading"></u-loading>
         </u-image>
-        <div class="name">{{ item.content.goodsName }}</div>
+        <div class="name wes-2">{{ item.content.goodsName }}</div>
         <div class="price">
           <div>￥{{ item.content.price | unitPrice }}</div>
         </div>
@@ -126,7 +126,7 @@ export default {
   },
   watch: {
     current(val) {
-      val == 0 ? this.getGoodsData() : this.getCategoryData();
+      val == 0 ? ()=>{ this.goodsList = []; this.getGoodsData()} : this.getCategoryData();
     },
   },
 
@@ -421,8 +421,7 @@ export default {
       color: #333;
       padding: 0 20rpx;
       margin-top: 20rpx;
-      line-height: 1.4em;
-      max-height: 2.8em; //height是line-height的整数倍，防止文字显示不全
+      height: 80rpx;
       overflow: hidden;
     }
     .price {
