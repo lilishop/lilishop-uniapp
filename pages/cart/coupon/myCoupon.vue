@@ -116,6 +116,7 @@ export default {
   },
 
   onShow() {
+    this.navList[this.tabCurrentIndex].params.pageNumber = 1
     this.navList[this.tabCurrentIndex].dataList = [];
     this.getData();
   },

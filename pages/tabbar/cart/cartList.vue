@@ -27,10 +27,11 @@
               <!-- #endif -->
             </u-checkbox-group>
             <span class="store-name store-line-desc" @click.stop="navigateToStore(item)">{{
-              item.storeName
+              item.storeName 
             }}</span>
+            <u-icon @click="navigateToStore(item)"  size="24" style="margin-left:10rpx;"  name="arrow-right"></u-icon>
           </view>
-          <view class="right-col" @click="navigateToConpon(item)">
+          <view class="right-col" v-if="item.canReceiveCoupon" @click="navigateToConpon(item)">
             <div class="right-line"></div>
             <span>领劵</span>
           </view>
@@ -213,6 +214,10 @@ export default {
     // 小程序默认分享
     uni.showShareMenu({ withShareTicket: true });
     // #endif
+  },
+  onPullDownRefresh(){
+    console.log("132")
+    this.getCardData();
   },
   /**
    * 初始化信息
@@ -508,6 +513,7 @@ export default {
         });
         API_Trade.getCarts()
           .then((result) => {
+            uni.stopPullDownRefresh();
             if (result.data.success) {
               this.cartDetail = result.data.result;
               this.checkout = true;
@@ -596,6 +602,7 @@ page {
 
 .store-name {
   font-weight: bold;
+  font-size: 28rpx;
 }
 .invalid {
   filter: grayscale(1);

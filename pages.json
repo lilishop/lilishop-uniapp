@@ -19,7 +19,8 @@
 			"path": "pages/tabbar/cart/cartList",
 			"style": {
 				"navigationBarTitleText": "购物车",
-				"navigationBarBackgroundColor": "#fff"
+				"navigationBarBackgroundColor": "#fff",
+				"enablePullDownRefresh":true    //实现下拉刷新样式
 
 			}
 		}, {
