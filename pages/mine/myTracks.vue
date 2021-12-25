@@ -170,11 +170,19 @@ export default {
     /**
      * 点击后判断是不是全选
      */
+    
     changeChecked(val) {
+      var opt = null;
       const isCheckedAll = this.trackList.every((key) => {
-        return key.___isDel == val.___isDel;
+        key.___isDel == val.___isDel;  
+        opt = key.___isDel;
+        return opt;
       });
-      this.allChecked = isCheckedAll;
+      if(opt){
+        this.allChecked = isCheckedAll;
+      }else{
+        this.allChecked = false;
+      }     
     },
 
     /**
