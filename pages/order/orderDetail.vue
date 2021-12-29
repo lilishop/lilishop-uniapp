@@ -324,7 +324,7 @@ export default {
     },
     gotoGoodsDetail(sku) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${sku.id}&goodsId=${sku.goodsId}`,
+        url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId}`,
       });
     },
     onCopy(sn) {

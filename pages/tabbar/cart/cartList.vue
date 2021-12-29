@@ -204,7 +204,7 @@ export default {
       cartDetail: "", //购物车详情
       goodsVal: "", //单个商品详情
       isEdit: false, // 是否是编辑
-      checkout: true, //全选按钮
+      checkout: false, //全选按钮
       WEIXIN_num: "", //购物车兼容微信步进器
     };
   },
@@ -516,16 +516,20 @@ export default {
             uni.stopPullDownRefresh();
             if (result.data.success) {
               this.cartDetail = result.data.result;
-              this.checkout = true;
+              let checkouted = true;
               for (let i = 0; i < this.cartDetail.cartList.length; i++) {
                 let item = this.cartDetail.cartList[i];
+                console.log(item);
                 // 循环出当前商品是否全选
                 if (item.checked == 0) {
-                  this.checkout = false;
+                  checkouted = false;
                 }
                 // 如果有拼团活动顺便删除
                 item.skuList &&
                   item.skuList.forEach((sku) => {
+                    if (sku.checked == 0) {
+                      checkouted = false;
+                    }
                     if(Object.keys(sku.promotionMap).length != 0)
                     {
                       Object.keys(sku.promotionMap).forEach((pro, proIndex) => {
@@ -538,6 +542,7 @@ export default {
                 
                   });
               }
+              this.checkout = checkouted;
               uni.stopPullDownRefresh();
             }
           })
@@ -574,6 +579,7 @@ page {
   box-shadow: 0 4rpx 12rpx 0 rgba(0, 0, 0, 0.05);
 }
 .promotion-notice {
+  margin-top: 10px;
   margin-left: 68rpx;
   font-size: 24rpx;
   color: #333;
