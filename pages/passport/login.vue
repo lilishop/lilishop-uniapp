@@ -438,7 +438,6 @@ export default {
       storage.setHasLogin(false);
       storage.setAccessToken("");
       storage.setRefreshToken("");
-      storage.setUuid(this.uuid.v1());
       storage.setUserInfo({});
       /**
        * 执行登录
