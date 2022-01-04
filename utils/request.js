@@ -107,6 +107,11 @@ http.interceptors.response.use(
   async (response) => {
     /* 请求之后拦截器。可以使用async await 做异步操作  */
     // token存在并且token过期
+    if (isRefreshing && response.statusCode === 403) {
+      cleanStorage();
+      isRefreshing = false;
+    }
+    
     let token = storage.getAccessToken();
     if (
       (token && response.statusCode === 403) ||
