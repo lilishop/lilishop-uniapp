@@ -189,7 +189,9 @@ export default {
   watch: {
     buyType: {
       handler(val) {
-        this.buyType = val;
+        if (val) {
+          this.buyType = val;
+        }
       },
       immediate: true,
     },

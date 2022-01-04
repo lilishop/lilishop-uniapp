@@ -147,6 +147,7 @@ export default {
         pageNumber: 1,
         pageSize: 10,
         sort: "createTime",
+        flowPrice:  1,
         order: "desc",
       },
 
