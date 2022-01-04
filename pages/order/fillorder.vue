@@ -510,6 +510,11 @@ export default {
       this.notSupportFreight = []
       // 获取结算参数
       API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
+        if (res.data.result.skuList.length <= 0) {
+          uni.redirectTo({
+            url: "/pages/order/myOrder?status=0",
+          });
+        }
         res.data.result.cartList.forEach((item, index) => {
           this.remarkVal[index] = {
             remark: item.remark,
