@@ -11,8 +11,12 @@
               <div class="flex flex-a-c">
                 <span class="default" v-if="address.isDefault">默认</span>
                 <div class="address-list" v-if="address.consigneeAddressPath.length != 0">
-                  <span class="address-item" v-for="(item,index) in address.consigneeAddressPath" :key="index">
-                    {{item}}
+                  <span
+                    class="address-item"
+                    v-for="(item, index) in address.consigneeAddressPath"
+                    :key="index"
+                  >
+                    {{ item }}
                   </span>
                 </div>
               </div>
@@ -38,23 +42,46 @@
     <view class="group-box" v-if="isAssemble">
       <view class="group-title">
         <span v-if="pintuanFlage">你正在开团购买</span>
-        <span v-else>为你加入仅差<span>{{routerVal.parentOrder.toBeGroupedNum }}</span>人的团购买</span>
+        <span v-else
+          >为你加入仅差<span>{{ routerVal.parentOrder.toBeGroupedNum }}</span
+          >人的团购买</span
+        >
       </view>
       <view class="group">
         <view>
-          <u-image borderRadius="50%" shape="square" class="head-img" width="81rpx" height="81rpx"
-            :src="masterWay.face || '/static/missing-face.png'"></u-image>
+          <u-image
+            borderRadius="50%"
+            shape="square"
+            class="head-img"
+            width="81rpx"
+            height="81rpx"
+            :src="masterWay.face || '/static/missing-face.png'"
+          ></u-image>
           <view class="btn-one">团长</view>
         </view>
         <view class="line"> </view>
         <view>
           <!-- 如果有最后一名，显示最后一名，没有最后一名，显示等待参团 -->
-          <u-image class="head-img" v-if="endWay.face" :src="endWay.face" borderRadius="50%" shape="square"
-            width="81rpx" height="81rpx">
+          <u-image
+            class="head-img"
+            v-if="endWay.face"
+            :src="endWay.face"
+            borderRadius="50%"
+            shape="square"
+            width="81rpx"
+            height="81rpx"
+          >
             <view slot="loading"></view>
           </u-image>
-          <u-image class="head-img" borderRadius="50%" shape="square" v-else width="81rpx" height="81rpx"
-            :src="endWay.face || '/static/missing-face.png'"></u-image>
+          <u-image
+            class="head-img"
+            borderRadius="50%"
+            shape="square"
+            v-else
+            width="81rpx"
+            height="81rpx"
+            :src="endWay.face || '/static/missing-face.png'"
+          ></u-image>
 
           <view class="wait">{{ endWay.nickname || "等待参团" }}</view>
         </view>
@@ -68,43 +95,88 @@
           <span>{{ item.storeName }}</span>
         </div>
       </div>
-      <div class="promotionNotice">{{ item.promotionNotice || '' }}</div>
+      <div class="promotionNotice">{{ item.promotionNotice || "" }}</div>
       <div class="flex goods-item" v-for="(val, i) in item.skuList" :key="i">
-        <div class="goods-image"
-          @click="navigateTo('/pages/product/goods?id=' + val.goodsSku.id+'&goodsId='+val.goodsSku.goodsId)" :span="3">
-          <u-image borderRadius="10rpx" width="200rpx" height="200rpx" :src="val.goodsSku.thumbnail" alt />
+        <div
+          class="goods-image"
+          @click="
+            navigateTo(
+              '/pages/product/goods?id=' +
+                val.goodsSku.id +
+                '&goodsId=' +
+                val.goodsSku.goodsId
+            )
+          "
+          :span="3"
+        >
+          <u-image
+            borderRadius="10rpx"
+            width="200rpx"
+            height="200rpx"
+            :src="val.goodsSku.thumbnail"
+            alt
+          />
         </div>
-        <div @click="navigateTo('/pages/product/goods?id=' + val.goodsSku.id+'&goodsId='+val.goodsSku.goodsId)"
-          class="goods-detail">
+        <div
+          @click="
+            navigateTo(
+              '/pages/product/goods?id=' +
+                val.goodsSku.id +
+                '&goodsId=' +
+                val.goodsSku.goodsId
+            )
+          "
+          class="goods-detail"
+        >
           <div class="flex">
             <p class="goods-name">{{ val.goodsSku.goodsName }}</p>
             <span class="nums">x{{ val.num }}</span>
           </div>
           <p class="goods-prices">
             <span>￥</span>
-            <span class="goods-price">{{formatPrice(val.goodsSku.price)[0]}}</span>
-            <span>.{{formatPrice(val.goodsSku.price)[1] }}</span>
+            <span class="goods-price">{{ formatPrice(val.goodsSku.price)[0] }}</span>
+            <span>.{{ formatPrice(val.goodsSku.price)[1] }}</span>
           </p>
         </div>
       </div>
       <u-row>
         <u-col :offset="0" :span="4">发票信息</u-col>
         <u-col :span="8" class="tipsColor" textAlign="right" @click.native="invoice()">
-          <span v-if="receiptList">{{receiptList.receiptTitle}} - {{receiptList.receiptContent}}</span>
+          <span v-if="receiptList"
+            >{{ receiptList.receiptTitle }} - {{ receiptList.receiptContent }}</span
+          >
           <span v-else>不开发票</span>
         </u-col>
       </u-row>
       <u-row>
-        <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :offset="0" :span="9" @click="shippingFlag = true">配送
+        <u-col
+          v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
+          :offset="0"
+          :span="9"
+          @click="shippingFlag = true"
+          >配送
         </u-col>
-        <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="3" textAlign="right" @click="shippingFlag = true">
-          {{shippingMethod.find(e=>{  return e.value == shippingText; }).label }}
+        <u-col
+          v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
+          :span="3"
+          textAlign="right"
+          @click="shippingFlag = true"
+        >
+          {{
+            shippingMethod.find((e) => {
+              return e.value == shippingText;
+            }).label
+          }}
         </u-col>
       </u-row>
       <u-row>
         <u-col :offset="0" :span="4" class="tl" style="text-align: left">备注信息</u-col>
         <u-col :span="8" textAlign="right">
-          <u-input style="text-align:right;" class="uinput" v-model="remarkVal[index].remark" />
+          <u-input
+            style="text-align: right"
+            class="uinput"
+            v-model="remarkVal[index].remark"
+          />
         </u-col>
       </u-row>
     </div>
@@ -125,20 +197,31 @@
       <div>
         <u-row>
           <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="7">运费</u-col>
-          <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="5" class="tr tipsColor" textAlign="right">
+          <u-col
+            v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
+            :span="5"
+            class="tr tipsColor"
+            textAlign="right"
+          >
             <span v-if="orderMessage.priceDetailDTO.freightPrice == 0">包邮</span>
-            <span v-else>￥{{
-                orderMessage.priceDetailDTO.freightPrice | unitPrice
-              }}</span>
+            <span v-else
+              >￥{{ orderMessage.priceDetailDTO.freightPrice | unitPrice }}</span
+            >
           </u-col>
         </u-row>
       </div>
       <u-row>
         <u-col :offset="0" :span="9" @click="GET_Discount()">优惠券</u-col>
 
-        <u-col :span="3" v-if="orderMessage.priceDetailDTO && orderMessage.priceDetailDTO.couponPrice" textAlign="right"
-          @click="GET_Discount()">
-          <span class="main-color">-￥{{orderMessage.priceDetailDTO.couponPrice | unitPrice}}</span>
+        <u-col
+          :span="3"
+          v-if="orderMessage.priceDetailDTO && orderMessage.priceDetailDTO.couponPrice"
+          textAlign="right"
+          @click="GET_Discount()"
+        >
+          <span class="main-color"
+            >-￥{{ orderMessage.priceDetailDTO.couponPrice | unitPrice }}</span
+          >
         </u-col>
         <!--  orderMessage.priceDetailDTO.couponPrice | unitPrice  -->
         <u-col :span="3" v-else textAlign="right" @click="GET_Discount()">
@@ -149,8 +232,15 @@
       <div>
         <u-row>
           <u-col :span="9">优惠金额</u-col>
-          <u-col :span="3" textAlign="right" v-if=" orderMessage.priceDetailDTO.couponPrice">
-           <span class="main-color"> -￥{{ orderMessage.priceDetailDTO.couponPrice | unitPrice }}</span></u-col>
+          <u-col
+            :span="3"
+            textAlign="right"
+            v-if="orderMessage.priceDetailDTO.couponPrice"
+          >
+            <span class="main-color">
+              -￥{{ orderMessage.priceDetailDTO.couponPrice | unitPrice }}</span
+            ></u-col
+          >
           <u-col :span="3" textAlign="right" v-else>0.00</u-col>
         </u-row>
       </div>
@@ -158,18 +248,23 @@
         <u-row>
           <u-col :span="6">活动优惠</u-col>
           <u-col :span="6" class="tr tipsColor" textAlign="right">
-            <span
-              v-if="orderMessage.priceDetailDTO.discountPrice">-￥{{orderMessage.priceDetailDTO.discountPrice | unitPrice}}</span>
+            <span v-if="orderMessage.priceDetailDTO.discountPrice"
+              >-￥{{ orderMessage.priceDetailDTO.discountPrice | unitPrice }}</span
+            >
             <span v-else>0.00</span>
           </u-col>
         </u-row>
       </div>
-
     </div>
 
     <!-- 配送地区没有提示 -->
-    <div class="notSupportFreight" v-if="notSupportFreight.length !=0">
-      <u-notice-bar style="width:100%" :volume-icon="false" mode="horizontal" :list="notSupportFreightGoodsList">
+    <div class="notSupportFreight" v-if="notSupportFreight.length != 0">
+      <u-notice-bar
+        style="width: 100%"
+        :volume-icon="false"
+        mode="horizontal"
+        :list="notSupportFreightGoodsList"
+      >
       </u-notice-bar>
     </div>
 
@@ -179,11 +274,17 @@
       <div class="tabbar-left">
         <div v-if="!orderMessage.priceDetailDTO.payPoint" class="number">
           <span>¥</span>
-          <span class="price">{{ formatPrice(orderMessage.priceDetailDTO.flowPrice)[0] }}</span>
-          <span>.{{formatPrice(orderMessage.priceDetailDTO.flowPrice)[1] }} </span>
+          <span class="price">{{
+            formatPrice(orderMessage.priceDetailDTO.flowPrice)[0]
+          }}</span>
+          <span>.{{ formatPrice(orderMessage.priceDetailDTO.flowPrice)[1] }} </span>
         </div>
-        <span v-else class="number"><span
-            style="margin-right:10rpx;">{{orderMessage.priceDetailDTO.payPoint | unitPrice }}</span>积分</span>
+        <span v-else class="number"
+          ><span style="margin-right: 10rpx">{{
+            orderMessage.priceDetailDTO.payPoint | unitPrice
+          }}</span
+          >积分</span
+        >
       </div>
       <div class="navRiv" @click="createTradeFun()">
         <!-- #ifndef MP-WEIXIN -->
@@ -192,7 +293,6 @@
         <!-- #ifdef MP-WEIXIN -->
         <div class="tabbar-right">微信支付</div>
         <!-- #endif -->
-
       </div>
     </div>
   </div>
@@ -348,9 +448,7 @@ export default {
       this.navigateTo(
         `/pages/mine/address/address?from=cart&way=${
           this.routerVal.way
-        }&parentOrder=${encodeURIComponent(
-          JSON.stringify(this.routerVal.parentOrder)
-        )}`
+        }&parentOrder=${encodeURIComponent(JSON.stringify(this.routerVal.parentOrder))}`
       );
     },
 
@@ -378,6 +476,18 @@ export default {
       // 循环店铺id,商品id获取优惠券
       let store = [];
       let skus = [];
+      let selectedCoupon = [];
+      if (this.orderMessage.platformCoupon)
+        selectedCoupon.push(this.orderMessage.platformCoupon.memberCoupon.id);
+      if (
+        this.orderMessage.storeCoupons &&
+        Object.keys(this.orderMessage.storeCoupons)[0]
+      ) {
+        let storeMemberCouponsId = Object.keys(this.orderMessage.storeCoupons)[0];
+        let storeCouponId = this.orderMessage.storeCoupons[storeMemberCouponsId]
+          .memberCoupon.id;
+        selectedCoupon.push(storeCouponId);
+      }
       this.orderMessage.cartList.forEach((item) => {
         item.skuList.forEach((sku) => {
           store.push(sku.storeId);
@@ -391,7 +501,7 @@ export default {
         data: this.orderMessage.priceDetailDTO.goodsPrice,
       });
       this.navigateTo(
-        `/pages/cart/coupon/index?way=${this.routerVal.way}&storeId=${store}&skuId=${skus}`
+        `/pages/cart/coupon/index?way=${this.routerVal.way}&storeId=${store}&skuId=${skus}&selectedCoupon=${selectedCoupon}`
       );
     },
 
@@ -498,8 +608,9 @@ export default {
       // 如果没有商品选择地址的话 则选择 默认地址
       API_Address.getAddressDefault().then((res) => {
         if (res.data.result) {
-          res.data.result.consigneeAddressPath =
-            res.data.result.consigneeAddressPath.split(",");
+          res.data.result.consigneeAddressPath = res.data.result.consigneeAddressPath.split(
+            ","
+          );
           this.address = res.data.result;
         }
       });
@@ -507,7 +618,7 @@ export default {
 
     // 获取结算参数
     getOrderList() {
-      this.notSupportFreight = []
+      this.notSupportFreight = [];
       // 获取结算参数
       API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
         if (res.data.result.skuList.length <= 0) {
@@ -534,8 +645,9 @@ export default {
           this.getUserAddress();
         } else {
           this.address = res.data.result.memberAddress;
-          res.data.result.memberAddress.consigneeAddressPath =
-            res.data.result.memberAddress.consigneeAddressPath.split(",");
+          res.data.result.memberAddress.consigneeAddressPath = res.data.result.memberAddress.consigneeAddressPath.split(
+            ","
+          );
         }
 
         if (
@@ -581,7 +693,7 @@ page {
 .nums {
   flex: 2;
   color: $light-color;
- 
+
   text-align: center;
 }
 .wait {
@@ -825,7 +937,7 @@ page {
   font-size: 24rpx;
   border-radius: 8rpx;
   padding: 0rpx 12rpx;
-  color: #fff; 
+  color: #fff;
   margin-right: 20rpx;
 }
 .address-box {

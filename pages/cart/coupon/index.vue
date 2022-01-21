@@ -1,12 +1,22 @@
 <template>
   <div class="wrapper">
-    <u-tabs :list="list" :is-scroll="false" :active-color="lightColor" :current="current" @change="(i)=>{current = i}">
+    <u-tabs
+      :list="list"
+      :is-scroll="false"
+      :active-color="lightColor"
+      :current="current"
+      @change="
+        (i) => {
+          current = i;
+        }
+      "
+    >
     </u-tabs>
 
     <div class="empty" v-if="couponsList.length <= 0">
       <u-empty text="暂无优惠券" mode="coupon"></u-empty>
     </div>
-    <view class="coupon-item" v-for="(item, index) in couponsList" :key="index" >
+    <view class="coupon-item" v-for="(item, index) in couponsList" :key="index">
       <view class="left">
         <view class="wave-line">
           <view class="wave" v-for="(item, index) in 12" :key="index"></view>
@@ -26,13 +36,25 @@
           <view v-if="item.scopeType">
             <span v-if="item.scopeType == 'ALL' && item.id == 'platform'">全平台</span>
             <span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
-            <view v-else>{{  item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用</view>
+            <view v-else
+              >{{
+                item.storeName == "platform" ? "全平台" : item.storeName + "店铺"
+              }}使用</view
+            >
           </view>
-          <view class="reason" v-if="item.reason">{{item.reason}}</view>
-          <view class="end-time">有效期至:{{item.endTime}}</view>
+          <view class="reason" v-if="item.reason">{{ item.reason }}</view>
+          <view class="end-time">有效期至:{{ item.endTime }}</view>
         </view>
-        <view class="receive" v-if="current ==0" @click="clickWay(item)">
+        <view
+          class="receive"
+          v-if="current == 0 && !routerVal.selectedCoupon.includes(item.id)"
+          @click="clickWay(item)"
+        >
           <text>立即</text><br />
+          <text>使用</text>
+        </view>
+        <view class="used" v-else @click="clickWay(item)">
+          <text>取消</text><br />
           <text>使用</text>
         </view>
         <view class="bg-quan">券</view>
@@ -69,9 +91,8 @@ export default {
       routerVal: "", //上级传参
     };
   },
-  onLoad(options){
-    this.routerVal = options
-   
+  onLoad(options) {
+    this.routerVal = options;
   },
   watch: {
     current(val) {
@@ -84,6 +105,7 @@ export default {
 
   mounted() {
     this.init();
+    console.log(this.routerVal);
   },
 
   methods: {
@@ -99,7 +121,7 @@ export default {
     clickWay(coupon) {
       useCoupon({
         memberCouponId: coupon.id,
-        used: true,
+        used: !this.routerVal.selectedCoupon.includes(coupon.id),
         way: this.routerVal.way,
       }).then((res) => {
         if (res.data.success) {
@@ -216,7 +238,7 @@ export default {
     > view:nth-child(1) {
       color: #666666;
       margin-left: 20rpx;
-    
+
       > view:nth-child(1) {
         color: #ff6262;
         font-size: 30rpx;
@@ -226,6 +248,20 @@ export default {
     .receive {
       color: #ffffff;
       background-color: $main-color;
+      border-radius: 50%;
+      width: 86rpx;
+      height: 86rpx;
+      text-align: center;
+      margin-right: 30rpx;
+      vertical-align: middle;
+      padding-top: 8rpx;
+      position: relative;
+      z-index: 2;
+    }
+
+    .used {
+      color: #ffffff;
+      background-color: black;
       border-radius: 50%;
       width: 86rpx;
       height: 86rpx;
