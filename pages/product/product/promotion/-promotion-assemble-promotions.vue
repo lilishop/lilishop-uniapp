@@ -149,7 +149,7 @@ export default {
       return val.toFixed(2).split(".");
     },
     getCountDownTime(val) {
-      let date = new Date(val.replace(/-/g, "/"));
+      let date = new Date(val);
       let timeSimple = new Date(date).getTime() / 1000;
       return timeSimple - new Date().getTime() / 1000;
     },
