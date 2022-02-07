@@ -1,39 +1,87 @@
 <template>
   <view>
-    <view v-if="!hid" class="flex-row-center" :style="{ top: scHight }" style="width: 750rpx; position: fixed; z-index: 100; left: 0">
-      <view class="flex-column-center" style="background-color: #fcfcfc; padding: 30rpx; border-radius: 10rpx">
-        <movable-area class="flex" style="width: 100%" animation="false" :style="{ height: originalHeight }">
-          <movable-view scale-value="1" animation="false" damping="5000" :x="moveX" :style="{
+    <view
+      v-if="!hid"
+      class="flex-row-center"
+      :style="{ top: scHight }"
+      style="width: 750rpx; position: fixed; z-index: 100; left: 0"
+    >
+      <view
+        class="flex-column-center"
+        style="background-color: #fcfcfc; padding: 30rpx; border-radius: 10rpx"
+      >
+        <movable-area
+          class="flex"
+          style="width: 100%"
+          animation="false"
+          :style="{ height: originalHeight }"
+        >
+          <movable-view
+            scale-value="1"
+            animation="false"
+            damping="5000"
+            :x="moveX"
+            :style="{
               height: sliderHeight,
               width: sliderWidth,
               'z-index': 101,
-            }" direction="horizontal">
-            <image :src="imgbk" class="image" mode="aspectFit" :style="{
+            }"
+            direction="horizontal"
+          >
+            <image
+              :src="imgbk"
+              class="image"
+              mode="aspectFit"
+              :style="{
                 height: sliderHeight,
                 width: sliderWidth,
                 'margin-top': imgbKH,
-              }"></image>
+              }"
+            ></image>
           </movable-view>
-          <image :src="img" mode="aspectFit" :style="{ height: originalHeight, width: originalWidth }" style="border-radius: 10rpx"></image>
+          <image
+            :src="img"
+            mode="aspectFit"
+            :style="{ height: originalHeight, width: originalWidth }"
+            style="border-radius: 10rpx"
+          ></image>
         </movable-area>
 
-        <movable-area class="flex-row-start" style="
+        <movable-area
+          class="flex-row-start"
+          style="
             width: 100%;
             background-color: #efefef;
             height: 80rpx;
             border-radius: 40rpx;
             margin-top: 30rpx;
-          ">
-          <movable-view scale-value="1" animation="false" damping="50" :x="movePv" class="flex-row-center" style="
+          "
+        >
+          <movable-view
+            scale-value="1"
+            animation="false"
+            damping="50"
+            :x="movePv"
+            class="flex-row-center"
+            style="
               border-radius: 50%;
               height: 100rpx;
               width: 100rpx;
               background-color: #ffffff;
               border: 2rpx solid #e3e3e3;
               margin-top: -13rpx;
-            " direction="horizontal" @change="moveChange" @touchend="end">
-            <view :class="endLoad ? 'cuIcon-right' : 'cuIcon-loading turn-load'" class="loadIcon" style="">
-            </view>
+            "
+            direction="horizontal"
+            @change="moveChange"
+            @touchend="end"
+          >
+            <u-icon
+              :color="mainColor"
+              size="40"
+              v-if="endLoad"
+              name="arrow-right"
+            ></u-icon>
+            <u-icon :color="mainColor" size="40" v-else name="reload"></u-icon>
           </movable-view>
 
           <text style="padding-left: 140rpx" :style="{ color: col }">{{
@@ -41,15 +89,20 @@
           }}</text>
         </movable-area>
         <view class="flex-row-around padding-top" style="width: 100%">
-          <view @click="hide" class="cuIcon-close" style="font-size: 50rpx; color: #e25915">
-          </view>
+          <u-icon
+            @click="hide"
+            :color="mainColor"
+            size="40"
+            name="close"
+          ></u-icon>
 
           <text class="cu-tag bg-cyan round" @click="getCode">刷新拼图</text>
-          <text class="my-neirong-sm cuIcon-safe" style="color: #c1c1c1">Lili-FRAMEWORK</text>
+          <text class="my-neirong-sm cuIcon-safe" style="color: #c1c1c1"
+            >Lili-FRAMEWORK</text
+          >
         </view>
       </view>
     </view>
-
   </view>
 </template>
 
@@ -90,6 +143,7 @@ export default {
   },
   data() {
     return {
+      mainColor: this.$mainColor,
       flage: false,
       key: "", //key
       vsrtx: "点击进行验证", //按钮提示语
@@ -251,10 +305,6 @@ export default {
 
 .border-index {
   border: 1rpx solid $main-color;
-}
-.loadIcon {
-  color: $main-color;
-  font-size: 40rpx;
 }
 
 .status_bar {
