@@ -8,6 +8,7 @@ const USER_INFO = isDev ? "user_info_obj_dev" : "user_info_obj";
 const FACE_LOGIN = isDev ? "face_login_dev" : "face_login";
 const FINGER_LOGIN = isDev ? "finger_login_dev" : "finger_login";
 const CART_BACKBTN = isDev ? "cart_backbtn_dev" : "cart_backbtn";
+const AFTERSALE_DATA = isDev ? "aftersale_data_dev" : "aftersale_data";
 export default {
   // 写入热门搜索时间戳
   setHotWords(val) {
@@ -90,5 +91,17 @@ export default {
   // 删除token
   removeRefreshToken() {
     uni.removeStorageSync(REFRESH_TOKEN);
+  },
+  // 写入刷新token
+  setAfterSaleData(val) {
+    uni.setStorageSync(AFTERSALE_DATA, val);
+  },
+  // 获取刷新token
+  getAfterSaleData() {
+    return uni.getStorageSync(AFTERSALE_DATA);
+  },
+  // 删除token
+  removeAfterSaleData() {
+    uni.removeStorageSync(AFTERSALE_DATA);
   },
 };

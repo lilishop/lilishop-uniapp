@@ -57,6 +57,7 @@
 <script>
 import { getLogistics } from "@/api/address.js";
 import { fillShipInfo } from "@/api/after-sale.js";
+import storage from "@/utils/storage";
 
 export default {
   data() {
@@ -76,7 +77,8 @@ export default {
     };
   },
   onLoad(options) {
-    this.sku = JSON.parse(decodeURIComponent(options.sku));
+    
+    this.sku = storage.getAfterSaleData();
     let navTitle = "服务单详情";
     uni.setNavigationBarTitle({
       title: navTitle, //此处写页面的title

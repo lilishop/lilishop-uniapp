@@ -177,7 +177,7 @@ export function createTrade(params) {
  */
 export function getCashierData(params) {
   return http.request({
-    url: "cashier/tradeDetail",
+    url: "payment/cashier/tradeDetail",
     method: Method.GET,
     needToken: true,
     params,
@@ -194,7 +194,7 @@ export function getCashierData(params) {
  */
 export function initiatePay(paymentMethod, paymentClient, params) {
   return http.request({
-    url: `cashier/pay/${paymentMethod}/${paymentClient}`,
+    url: `payment/cashier/pay/${paymentMethod}/${paymentClient}`,
     method: Method.GET,
     needToken: true,
     params,
@@ -209,7 +209,7 @@ export function initiatePay(paymentMethod, paymentClient, params) {
  */
 export function getExpress(orderSn) {
   return http.request({
-    url: `/orders/getTraces/${orderSn}`,
+    url: `/order/order/getTraces/${orderSn}`,
     method: Method.POST,
     needToken: true,
    

@@ -23,7 +23,7 @@ export function getArticleCategory(category_type) {
  */
 export function getArticleDetail(type) {
   return http.request({
-    url: `/article/get/${type}`,
+    url: `/other/article/get/${type}`,
     method: Method.GET,
   });
 }

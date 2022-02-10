@@ -9,7 +9,7 @@ import { http, Method } from "@/utils/request.js";
  */
  export function getGoodsMessage(goodsId) {
   return http.request({
-    url: `/goods/get/${goodsId}`,
+    url: `/goods/goods/get/${goodsId}`,
     method: Method.GET,
   });
 }
@@ -19,7 +19,7 @@ import { http, Method } from "@/utils/request.js";
  */
 export function getGoodsRelated(params) {
   return http.request({
-    url: `/goods/es/related`,
+    url: `/goods/goods/es/related`,
     method: Method.GET,
     params,
   });
@@ -32,7 +32,7 @@ export function getGoodsRelated(params) {
  */
  export function getGoods(skuId, goodsId) {
   return http.request({
-    url: `/goods/sku/${goodsId}/${skuId}`,
+    url: `/goods/goods/sku/${goodsId}/${skuId}`,
     method: Method.GET,
   });
 }
@@ -56,7 +56,7 @@ export function getGoodsRelated(params) {
  */
 export function getGoodsList(params) {
   return http.request({
-    url: "/goods/es",
+    url: "/goods/goods/es",
     method: Method.GET,
     params,
   });
@@ -112,7 +112,7 @@ export function getPlateformTagGoods(tag_id) {
  */
 export function getCategoryList(id) {
   return http.request({
-    url: `/category/get/${id}`,
+    url: `/goods/category/get/${id}`,
     method: Method.GET,
     loading: false,
   });

@@ -10,7 +10,7 @@ import api from "@/config/api.js";
  */
 export function getRegionsById(id = 0) {
   return http.request({
-    url: `${api.common}/region/item/${id}`,
+    url: `${api.common}/common/region/item/${id}`,
     method: Method.GET,
     message: false,
   });
@@ -29,4 +29,4 @@ export function getIMDetail() {
  * 文件上传地址
  * @type {string}
  */
-export const upload = api.common + "/upload/file";
+export const upload = api.common + "/common/upload/file";

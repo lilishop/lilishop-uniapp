@@ -12,7 +12,7 @@ import api from "@/config/api.js";
  */
 export function getAddressList(pageNumber, pageSize) {
   return http.request({
-    url: "/memberAddress",
+    url: "/member/address",
     method: Method.GET,
     needToken: true,
     params: { pageNumber, pageSize },
@@ -37,7 +37,7 @@ export function getLogistics() {
  */
 export function getAddressCode(cityCode, townName) {
   return http.request({
-    url: api.common + "/region/region",
+    url: api.common + "/common/region/region",
     method: Method.GET,
     needToken: true,
     params: { cityCode, townName },
@@ -51,7 +51,7 @@ export function getAddressCode(cityCode, townName) {
  */
 export function addAddress(data) {
   return http.request({
-    url: "/memberAddress",
+    url: "/member/address",
     method: Method.POST,
     needToken: true,
     header: { "content-type": "application/x-www-form-urlencoded" },
@@ -67,7 +67,7 @@ export function addAddress(data) {
  */
 export function editAddress(params) {
   return http.request({
-    url: `/memberAddress`,
+    url: `/member/address`,
     method: Method.PUT,
     needToken: true,
     header: { "content-type": "application/x-www-form-urlencoded" },
@@ -81,7 +81,7 @@ export function editAddress(params) {
  */
 export function deleteAddress(id) {
   return http.request({
-    url: `/memberAddress/delById/${id}`,
+    url: `/member/address/delById/${id}`,
     method: Method.DELETE,
     needToken: true,
   });
@@ -95,7 +95,7 @@ export function deleteAddress(id) {
  */
 export function getAddressDetail(id) {
   return http.request({
-    url: `/memberAddress/get/${id}`,
+    url: `/member/address/get/${id}`,
     method: Method.GET,
     loading: false,
     needToken: true,
@@ -107,7 +107,7 @@ export function getAddressDetail(id) {
  */
 export function getAddressDefault() {
   return http.request({
-    url: `/memberAddress/get/default`,
+    url: `/member/address/get/default`,
     method: Method.GET,
     loading: false,
     needToken: true,

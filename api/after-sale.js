@@ -40,7 +40,7 @@ export function applyCancelOrder(params) {
  */
 export function getStoreAfterSaleAddress(sn) {
   return http.request({
-    url: `/afterSale/getStoreAfterSaleAddress/${sn}`,
+    url: `/order/afterSale/getStoreAfterSaleAddress/${sn}`,
     method: Method.GET,
     needToken: true,
   });
@@ -50,7 +50,7 @@ export function getStoreAfterSaleAddress(sn) {
  */
 export function cancelAfterSale(afterSaleSn) {
   return http.request({
-    url: `/afterSale/cancel/${afterSaleSn}`,
+    url: `/order/afterSale/cancel/${afterSaleSn}`,
     method: Method.POST,
     needToken: true,
   });
@@ -64,7 +64,7 @@ export function cancelAfterSale(afterSaleSn) {
  */
 export function getAfterSaleList(params) {
   return http.request({
-    url: `/afterSale/page`,
+    url: `/order/afterSale/page`,
     method: Method.GET,
     needToken: true,
     params,
@@ -77,7 +77,7 @@ export function getAfterSaleList(params) {
  */
 export function getServiceDetail(sn) {
   return http.request({
-    url: `/afterSale/get/${sn}`,
+    url: `/order/afterSale/get/${sn}`,
     method: Method.GET,
     needToken: true,
   });
@@ -89,7 +89,7 @@ export function getServiceDetail(sn) {
  */
 export function addComplain(params) {
   return http.request({
-    url: `/complain`,
+    url: `/order/complain`,
     method: Method.POST,
     needToken: true,
     header: {
@@ -104,7 +104,7 @@ export function addComplain(params) {
  */
 export function clearComplain(id, params) {
   return http.request({
-    url: `/complain/status/${id}`,
+    url: `/order/complain/status/${id}`,
     method: Method.PUT,
     needToken: true,
     params,
@@ -116,7 +116,7 @@ export function clearComplain(id, params) {
  */
 export function getAfterSaleLog(sn) {
   return http.request({
-    url: `/afterSale/get/getAfterSaleLog/${sn}`,
+    url: `/order/afterSale/get/getAfterSaleLog/${sn}`,
     method: Method.GET,
     needToken: true,
   });
@@ -127,7 +127,7 @@ export function getAfterSaleLog(sn) {
  */
 export function getComplain(params) {
   return http.request({
-    url: `/complain`,
+    url: `/order/complain`,
     method: Method.GET,
     needToken: true,
     params,
@@ -139,7 +139,7 @@ export function getComplain(params) {
  */
 export function getAfterSaleReason(serviceType) {
   return http.request({
-    url: `/afterSale/get/afterSaleReason/${serviceType}`,
+    url: `/order/afterSale/get/afterSaleReason/${serviceType}`,
     method: Method.GET,
     needToken: true,
   });
@@ -150,7 +150,7 @@ export function getAfterSaleReason(serviceType) {
  */
 export function getClearReason() {
   return http.request({
-    url: `/afterSale/get/afterSaleReason/CANCEL`,
+    url: `/order/afterSale/get/afterSaleReason/CANCEL`,
     method: Method.GET,
     needToken: true,
   });
@@ -161,7 +161,7 @@ export function getClearReason() {
  */
 export function getComplainReason() {
   return http.request({
-    url: `/afterSale/get/afterSaleReason/COMPLAIN`,
+    url: `/order/afterSale/get/afterSaleReason/COMPLAIN`,
     method: Method.GET,
     needToken: true,
   });
@@ -171,7 +171,7 @@ export function getComplainReason() {
  */
 export function getComplainDetail(id) {
   return http.request({
-    url: `/complain/${id}`,
+    url: `/order/complain/${id}`,
     method: Method.GET,
     needToken: true,
   });
@@ -182,7 +182,7 @@ export function getComplainDetail(id) {
  */
 export function getAfterSaleInfo(sn) {
   return http.request({
-    url: `/afterSale/applyAfterSaleInfo/${sn}`,
+    url: `/order/afterSale/applyAfterSaleInfo/${sn}`,
     method: Method.GET,
     needToken: true,
   });
@@ -194,7 +194,7 @@ export function getAfterSaleInfo(sn) {
  */
 export function applyReturn(orderItemSn, params) {
   return http.request({
-    url: `/afterSale/save/${orderItemSn}`,
+    url: `/order/afterSale/save/${orderItemSn}`,
     method: Method.POST,
     header: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -210,7 +210,7 @@ export function applyReturn(orderItemSn, params) {
  */
 export function fillShipInfo(afterSaleSn, params) {
   return http.request({
-    url: `/afterSale/delivery/${afterSaleSn}`,
+    url: `/order/afterSale/delivery/${afterSaleSn}`,
     method: Method.POST,
     header: {
       "Content-Type": "application/x-www-form-urlencoded",
