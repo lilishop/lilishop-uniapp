@@ -275,7 +275,7 @@ export function collectionStore(store_id) {
  */
 export function getUserInfo() {
   return http.request({
-    url: "/members",
+    url: "/passport/member",
     method: Method.GET,
     needToken: true,
   });
@@ -300,7 +300,7 @@ export function getUserWallet() {
  */
 export function saveUserInfo(params) {
   return http.request({
-    url: "/passport/members/editOwn",
+    url: "/passport/member/editOwn",
     method: Method.PUT,
     header: { "content-type": "application/x-www-form-urlencoded" },
     needToken: true,

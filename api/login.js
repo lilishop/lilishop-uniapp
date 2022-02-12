@@ -8,7 +8,7 @@ import api from "@/config/api.js";
  */
 export function resetByMobile(params) {
   return http.request({
-    url: `/members/resetByMobile`,
+    url: `/passport/member/resetByMobile`,
     method: "POST",
     params,
   });
@@ -20,7 +20,7 @@ export function resetByMobile(params) {
  */
 export function sendMobile(mobile,type='LOGIN') {
   return http.request({
-    url: `${api.common}/sms/${type}/${mobile}`,
+    url: `${api.common}/common/sms/${type}/${mobile}`,
     method: "GET",
   });
 }
@@ -32,7 +32,7 @@ export function sendMobile(mobile,type='LOGIN') {
  */
 export function smsLogin(params, clientType) {
   return http.request({
-    url: `/members/smsLogin`,
+    url: `/passport/member/smsLogin`,
     method: "POST",
     data: params,
     header: {
@@ -50,7 +50,7 @@ export function smsLogin(params, clientType) {
 
 export function modifyPass(params) {
   return http.request({
-    url: `/members/modifyPass`,
+    url: `/passport/member/modifyPass`,
     method: "PUT",
     params,
   });
@@ -61,7 +61,7 @@ export function modifyPass(params) {
  */
 export function refreshTokenFn(refresh_token) {
   return http.request({
-    url: `/members/refresh/${refresh_token}`,
+    url: `/passport/member/refresh/${refresh_token}`,
     method: "GET",
   });
 }
@@ -69,7 +69,7 @@ export function refreshTokenFn(refresh_token) {
 // 获取密码状态
 export function logout () {
   return http.request({
-    url: '/members/logout',
+    url: '/passport/member/logout',
     method: "POST",
     needToken: true,
   })

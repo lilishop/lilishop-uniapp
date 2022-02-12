@@ -43,7 +43,7 @@ export function getGoodsRelated(params) {
  */
  export function getGoodsDistribution(distributionId) {
   return http.request({
-    url: `/distribution/bindingDistribution/${distributionId}`,
+    url: `/distribution/distribution/bindingDistribution/${distributionId}`,
     method: Method.GET,
   });
 }
@@ -126,7 +126,7 @@ export function getCategoryList(id) {
  */
 export function distribution() {
   return http.request({
-    url: `/distribution`,
+    url: `/distribution/distribution`,
     method: Method.GET,
   });
 }
@@ -136,7 +136,7 @@ export function distribution() {
  */
 export function applyDistribution(params) {
   return http.request({
-    url: `/distribution`,
+    url: `/distribution/distribution`,
     method: Method.POST,
     params,
   });
@@ -170,7 +170,7 @@ export function cashLog(params) {
  */
 export function distributionOrderList(params) {
   return http.request({
-    url: `/distribution/distributionOrder`,
+    url: `/distribution/distribution/distributionOrder`,
     method: Method.GET,
     params
   });
@@ -181,7 +181,7 @@ export function distributionOrderList(params) {
  */
 export function distributionGoods(params) {
   return http.request({
-    url: `/distributionGoods`,
+    url: `/distribution/goods`,
     method: Method.GET,
     params,
   });
@@ -191,7 +191,7 @@ export function distributionGoods(params) {
  */
 export function checkedDistributionGoods(params) {
   return http.request({
-    url: `/distributionGoods/checked/${params.id}`,
+    url: `/distribution/goods/checked/${params.id}`,
     method: Method.GET,
     params
   });
@@ -202,7 +202,7 @@ export function checkedDistributionGoods(params) {
  */
  export function getMpCode(params){
   return http.request({
-    url:`/mini-program/mp/unlimited`,
+    url:`/passport/connect/miniProgram/mp/unlimited`,
     method:Method.GET,
     params
   })
@@ -213,7 +213,7 @@ export function checkedDistributionGoods(params) {
  */
  export function getMpScene(id){
   return http.request({
-    url:`/mini-program/mp/unlimited/scene?id=${id}`,
+    url:`/passport/connect/miniProgram/mp/unlimited/scene?id=${id}`,
     method:Method.GET,
 
   })
