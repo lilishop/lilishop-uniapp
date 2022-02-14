@@ -25,7 +25,7 @@ export function getStoreList(params) {
  */
  export function getStoreBaseInfo(storeId) {
   return http.request({
-    url: `/store/get/detail/${storeId}`,
+    url: `/store/store/get/detail/${storeId}`,
     method: Method.GET,
     loading: false,
   });
@@ -37,7 +37,7 @@ export function getStoreList(params) {
  */
  export function getStoreCategory(id) {
   return http.request({
-    url: `/store/label/get/${id}`,
+    url: `/store/store/label/get/${id}`,
     method: Method.GET,
   });
 }
@@ -49,7 +49,7 @@ export function getStoreList(params) {
  */
  export function getLicencePhoto(id) {
   return http.request({
-    url: `/store/get/licencePhoto/${id}`,
+    url: `/store/store/get/licencePhoto/${id}`,
     method: Method.GET,
   });
 }

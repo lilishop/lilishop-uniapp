@@ -198,7 +198,7 @@ export default {
         storage.setUuid(uuid.v1());
       }
       uni.request({
-        url: api.common + "/slider/" + this.business,
+        url: api.common + "/common/slider/" + this.business,
         header: {
           uuid: storage.getUuid(),
         },
@@ -233,7 +233,7 @@ export default {
         method: "POST",
         url:
           api.common +
-          "/slider/" +
+          "/common/slider/" +
           this.business +
           "?xPos=" +
           parseInt(this.moveCode * this.tl),

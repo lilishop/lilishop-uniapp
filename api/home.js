@@ -32,7 +32,7 @@ export function getCategory(parent_id = 0) {
  */
 export function getHotKeywords(count) {
   return http.request({
-    url: "/goods/hot-words",
+    url: "/goods/goods/hot-words",
     method: Method.GET,
     loading: false,
     params: { count },
@@ -46,7 +46,7 @@ export function getHotKeywords(count) {
  */
 export function getFloorData() {
   return http.request({
-    url: `/pageData/getIndex?clientType=H5`,
+    url: `/other/pageData/getIndex?clientType=H5`,
     method: "get",
   });
 }
@@ -56,7 +56,7 @@ export function getFloorData() {
  */
 export function getCategoryIndexData(parentId = 0) {
   return http.request({
-    url: `/category/get/${parentId}`,
+    url: `/goods/category/get/${parentId}`,
     method: "get",
   });
 }

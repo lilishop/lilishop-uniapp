@@ -6,7 +6,7 @@ import { http, Method } from "@/utils/request.js";
  */
 export function feedBack(params) {
   return http.request({
-    url: "/feedback",
+    url: "/other/feedback",
     method: Method.POST,
     needToken: true,
     params,
@@ -16,7 +16,7 @@ export function feedBack(params) {
 // 提现
 export function withdrawalApply(params) {
   return http.request({
-    url: "/members/wallet/withdrawal",
+    url: "/wallet/wallet/withdrawal",
     method: Method.POST,
     needToken: true,
     params,
@@ -30,7 +30,7 @@ export function withdrawalApply(params) {
  */
 export function payCallback(params) {
   return http.request({
-    url: `/cashier/result`,
+    url: `/payment/cashier/result`,
     method: Method.GET,
     params,
   });
@@ -117,7 +117,7 @@ export function getPointsData(params) {
  */
 export function getComments(params) {
   return http.request({
-    url: "/memberEvaluation",
+    url: "/member/evaluation",
     method: Method.GET,
     needToken: true,
     params,
@@ -131,7 +131,7 @@ export function getComments(params) {
  */
 export function getFootprintNum(params) {
   return http.request({
-    url: "/footprint/getFootprintNum",
+    url: "/member/footprint/getFootprintNum",
     method: Method.GET,
     needToken: true,
     params,
@@ -144,7 +144,7 @@ export function getFootprintNum(params) {
  */
 export function commentsMemberOrder(params) {
   return http.request({
-    url: "/memberEvaluation",
+    url: "/member/evaluation",
     method: Method.POST,
     needToken: true,
     header: { "content-type": "application/x-www-form-urlencoded" },
@@ -275,7 +275,7 @@ export function collectionStore(store_id) {
  */
 export function getUserInfo() {
   return http.request({
-    url: "/members",
+    url: "/passport/member",
     method: Method.GET,
     needToken: true,
   });
@@ -287,7 +287,7 @@ export function getUserInfo() {
  */
 export function getUserWallet() {
   return http.request({
-    url: "/members/wallet",
+    url: "/wallet/wallet",
     method: Method.GET,
     needToken: true,
   });
@@ -300,7 +300,7 @@ export function getUserWallet() {
  */
 export function saveUserInfo(params) {
   return http.request({
-    url: "/members/editOwn",
+    url: "/passport/member/editOwn",
     method: Method.PUT,
     header: { "content-type": "application/x-www-form-urlencoded" },
     needToken: true,
@@ -328,7 +328,7 @@ export function addReceipt(params) {
  */
 export function getGoodsComments(goodsId, params) {
   return http.request({
-    url: `/memberEvaluation/${goodsId}/goodsEvaluation`,
+    url: `/member/evaluation/${goodsId}/goodsEvaluation`,
     method: Method.GET,
     loading: false,
     params,
@@ -341,7 +341,7 @@ export function getGoodsComments(goodsId, params) {
  */
 export function getGoodsCommentsCount(goodsId) {
   return http.request({
-    url: `/memberEvaluation/${goodsId}/evaluationNumber`,
+    url: `/member/evaluation/${goodsId}/evaluationNumber`,
     method: Method.GET,
     loading: false,
   });
@@ -365,7 +365,7 @@ export function getNoReadMessageNum() {
  */
 export function myTrackList(params) {
   return http.request({
-    url: `/footprint`,
+    url: `/member/footprint`,
     method: Method.GET,
     needToken: true,
     params,
@@ -378,7 +378,7 @@ export function myTrackList(params) {
  */
 export function deleteHistoryListId(ids) {
   return http.request({
-    url: `/footprint/delByIds/${ids}`,
+    url: `/member/footprint/delByIds/${ids}`,
     method: Method.DELETE,
     needToken: true,
   });

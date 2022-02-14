@@ -90,9 +90,10 @@
           serviceDetail.afterSaleImage &&
           serviceDetail.afterSaleImage.split(',').length != 0
         ">
-        <image :src="img" @click="preview(serviceDetail.afterSaleImage.split(','), index)"
-          v-for="(img, index) in serviceDetail.afterSaleImage.split(',')" :key="index"
-          style="width: 50px; height: 50px; margin: 0px 5px"></image>
+        <view v-for="(img, index) in serviceDetail.afterSaleImage.split(',')" :key="index">
+          <u-image width="100" height="100" :src="img" @click="preview(serviceDetail.afterSaleImage.split(','), index)"
+            ></u-image>
+        </view>
       </view>
       <!-- 如果服务类型为退款则不显示 -->
       <view class="detail-item"

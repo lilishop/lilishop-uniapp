@@ -56,6 +56,7 @@
 
 <script>
 import { getAfterSaleInfo } from "@/api/after-sale";
+import storage from "@/utils/storage";
 export default {
   data() {
     return {
@@ -66,10 +67,7 @@ export default {
   },
   onLoad(options) {
     this.sn = options.sn;
-    let dData = decodeURIComponent(options.sku);
-    let newData = JSON.parse(dData);
-    this.sku = newData;
-
+    this.sku = storage.getAfterSaleData();
     // 查看当前商品是否支持退款退货
     this.init()
   },
@@ -88,9 +86,7 @@ export default {
      */
     onSelect(value) {
       uni.redirectTo({
-        url: `./afterSalesDetail?sn=${this.sn}&sku=${encodeURIComponent(
-          JSON.stringify(this.sku)
-        )}&value=${value}`,
+        url: `./afterSalesDetail?sn=${this.sn}&value=${value}`,
       });
     },
 

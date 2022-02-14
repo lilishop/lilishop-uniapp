@@ -119,6 +119,7 @@
 import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
 import { getAfterSaleList, cancelAfterSale } from "@/api/after-sale.js";
 import { getOrderList } from "@/api/order.js";
+import storage from "@/utils/storage";
 
 export default {
   components: {
@@ -295,11 +296,9 @@ export default {
         ...order,
         ...sku,
       };
-
+      storage.setAfterSaleData(data);
       uni.navigateTo({
-        url: `/pages/order/afterSales/afterSalesSelect?sn=${sn}&sku=${encodeURIComponent(
-          JSON.stringify(data)
-        )}`,
+        url: `/pages/order/afterSales/afterSalesSelect?sn=${sn}`,
       });
     },
 
@@ -309,10 +308,9 @@ export default {
     onExpress(order, sku) {
       sku.storeName = order.storeName;
 
+      storage.setAfterSaleData(data);
       uni.navigateTo({
-        url: `./afterSalesDetailExpress?serviceSn=${
-          order.sn
-        }&sku=${encodeURIComponent(JSON.stringify(sku))}`,
+        url: `./afterSalesDetailExpress?serviceSn=${order.sn}`,
       });
     },
 

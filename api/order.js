@@ -51,7 +51,7 @@ export function selectedShipMethod(params) {
  */
 export function getOrderList(params) {
   return http.request({
-    url: "/orders",
+    url: "/order/order",
     method: Method.GET,
     needToken: true,
     params,
@@ -64,7 +64,7 @@ export function getOrderList(params) {
  */
 export function getOrderDetail(orderSn) {
   return http.request({
-    url: `/orders/${orderSn}`,
+    url: `/order/order/${orderSn}`,
     method: Method.GET,
     needToken: true,
   });
@@ -77,7 +77,7 @@ export function getOrderDetail(orderSn) {
  */
 export function cancelOrder(orderSn, reason) {
   return http.request({
-    url: `/orders/${orderSn}/cancel`,
+    url: `/order/order/${orderSn}/cancel`,
     method: Method.POST,
     needToken: true,
     header: { "content-type": "application/x-www-form-urlencoded" },
@@ -91,7 +91,7 @@ export function cancelOrder(orderSn, reason) {
  */
 export function confirmReceipt(orderSn) {
   return http.request({
-    url: `/orders/${orderSn}/receiving`,
+    url: `/order/order/${orderSn}/receiving`,
     method: Method.POST,
     needToken: true,
   });

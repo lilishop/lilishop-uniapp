@@ -195,9 +195,7 @@ export default {
       title: navTitle, //此处写页面的title
     });
     this.sn = options.sn;
-    let dsku = decodeURIComponent(options.sku);
-    let newSku = JSON.parse(dsku);
-    this.sku = newSku;
+    this.sku = storage.getAfterSaleData();;
 
     this.form.orderItemSn = options.sn;
     this.form.skuId = this.sku.skuId;
