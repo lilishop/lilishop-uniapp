@@ -484,7 +484,7 @@ export default {
       // #ifdef H5
       let code = connectLogin.code;
       let buyer = api.buyer;
-      window.open(buyer + `/passport/connect/login/web/` + code, "_self");
+      window.open(buyer + `/passport/connect/connect/login/web/` + code, "_self");
       // #endif
       // #ifdef APP-PLUS
       this.nonH5OpenId(connectLogin);

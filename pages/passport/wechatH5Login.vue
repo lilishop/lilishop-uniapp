@@ -43,7 +43,7 @@ export default {
     getUserProfile() {
       let code = "WECHAT";
       let buyer = api.buyer;
-      window.open(buyer + `/passport/connect/login/web/` + code, "_self");
+      window.open(buyer + `/passport/connect/connect/login/web/` + code, "_self");
     },
     backToHome() {
       uni.switchTab({
