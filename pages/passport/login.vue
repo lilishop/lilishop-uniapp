@@ -3,46 +3,108 @@
     <div v-if="!wechatLogin">
       <u-navbar :is-back="showBack" :border-bottom="false"></u-navbar>
       <div>
-        <div class="title">{{loginTitleWay[current].title}}</div>
-        <div :class="current == 1 ? 'desc-light':'desc'">{{loginTitleWay[current].desc}}<span
-            v-if="current == 1">{{mobile | secrecyMobile}}</span></div>
+        <div class="title">{{ loginTitleWay[current].title }}</div>
+        <div :class="current == 1 ? 'desc-light' : 'desc'">
+          {{ loginTitleWay[current].desc
+          }}<span v-if="current == 1">{{ mobile | secrecyMobile }}</span>
+        </div>
       </div>
       <!-- 手机号 -->
-      <div v-show="current==0">
-        <u-input :custom-style="inputStyle" :placeholder-style="placeholderStyle" placeholder="请输入手机号 (11位)"
-          class='mobile' focus v-model="mobile" type="number" maxlength="11" />
-        <div :class="!enabuleFetchCode ?'disable':'fetch'" @click="fetchCode" class=" btn">获取验证码</div>
+      <div v-show="current == 0">
+        <u-input
+          :custom-style="inputStyle"
+          :placeholder-style="placeholderStyle"
+          placeholder="请输入手机号 (11位)"
+          class="mobile"
+          focus
+          v-model="mobile"
+          type="number"
+          maxlength="11"
+        />
+        <div
+          :class="!enabuleFetchCode ? 'disable' : 'fetch'"
+          @click="fetchCode"
+          class="btn"
+        >
+          获取验证码
+        </div>
         <div class="flex">
           <u-checkbox-group :icon-size="24" width="45rpx">
-            <u-checkbox shape="circle" v-model="enabulePrivacy" active-color="#FF5E00"></u-checkbox>
+            <u-checkbox
+              shape="circle"
+              v-model="enabulePrivacy"
+              active-color="#FF5E00"
+            ></u-checkbox>
           </u-checkbox-group>
-          <div class="tips">未注册的手机号验证后将自动创建用户账号，登录即代表您已同意<span @click="navigateToPrivacy('privacy')">《使用条款及隐私协议》</span>
+          <div class="tips">
+            未注册的手机号验证后将自动创建用户账号，登录即代表您已同意<span
+              @click="navigateToPrivacy('privacy')"
+              >《使用条款及隐私协议》</span
+            >
           </div>
         </div>
-
       </div>
       <!-- 输入验证码 -->
-      <div v-show="current==1" class="box-code">
-        <verifyCode type="bottom" @confirm="submit" boxActiveColor="#D8D8D8" v-model="code" isFocus
-          boxNormalColor="#D8D8D8" cursorColor="#D8D8D8" />
+      <div v-show="current == 1" class="box-code">
+        <verifyCode
+          type="bottom"
+          @confirm="submit"
+          boxActiveColor="#D8D8D8"
+          v-model="code"
+          isFocus
+          boxNormalColor="#D8D8D8"
+          cursorColor="#D8D8D8"
+        />
 
         <div class="fetch-btn">
-          <u-verification-code change-text="验证码已发送（x）" end-text="重新获取验证码"  unique-key="page-login"
-            :seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange"></u-verification-code>
-          <span @tap="fetchCode" :style="{color:codeColor}"> {{tips}}</span>
+          <u-verification-code
+            change-text="验证码已发送（x）"
+            end-text="重新获取验证码"
+            unique-key="page-login"
+            :seconds="seconds"
+            @end="end"
+            @start="start"
+            ref="uCode"
+            @change="codeChange"
+          ></u-verification-code>
+          <span @tap="fetchCode" :style="{ color: codeColor }"> {{ tips }}</span>
         </div>
       </div>
 
       <!-- 循环出当前可使用的第三方登录模式 -->
       <div class="flex login-list">
-        <div v-if="item.code" :style="{background:item.color}" class="login-item" v-for="(item,index) in loginList" :key="index">
-          <u-icon v-if="item.title!='APPLE'" color="#fff" size="42" :name="item.icon" @click="navigateLogin(item)">
+        <div
+          v-if="item.code"
+          :style="{ background: item.color }"
+          class="login-item"
+          v-for="(item, index) in loginList"
+          :key="index"
+        >
+          <u-icon
+            v-if="item.title != 'APPLE'"
+            color="#fff"
+            size="42"
+            :name="item.icon"
+            @click="navigateLogin(item)"
+          >
           </u-icon>
-          <u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" @click="navigateLogin(item)" width="80"
-            height="80" />
+          <u-image
+            v-else
+            src="/static/appleidButton@2x.png"
+            :lazy-load="false"
+            @click="navigateLogin(item)"
+            width="80"
+            height="80"
+          />
         </div>
       </div>
-      <myVerification v-if="codeFlag" @send="verification" class="verification" ref="verification" business="LOGIN" />
+      <myVerification
+        v-if="codeFlag"
+        @send="verification"
+        class="verification"
+        ref="verification"
+        business="LOGIN"
+      />
     </div>
     <view v-else>
       <wechatH5Login />
@@ -136,7 +198,6 @@ export default {
     }
     //#endif
   },
-  
 
   mounted() {
     // #ifndef APP-PLUS
@@ -423,7 +484,7 @@ export default {
       // #ifdef H5
       let code = connectLogin.code;
       let buyer = api.buyer;
-      window.open(buyer + `/connect/login/web/` + code, "_self");
+      window.open(buyer + `/passport/connect/login/web/` + code, "_self");
       // #endif
       // #ifdef APP-PLUS
       this.nonH5OpenId(connectLogin);
@@ -442,43 +503,41 @@ export default {
       /**
        * 执行登录
        */
-      smsLogin({ mobile: this.mobile, code: this.code }, this.clientType).then(
-        (res) => {
-          if (res.data.success) {
-            storage.setAccessToken(res.data.result.accessToken);
-            storage.setRefreshToken(res.data.result.refreshToken);
+      smsLogin({ mobile: this.mobile, code: this.code }, this.clientType).then((res) => {
+        if (res.data.success) {
+          storage.setAccessToken(res.data.result.accessToken);
+          storage.setRefreshToken(res.data.result.refreshToken);
 
-            /**
-             * 登录成功后获取个人信息
-             */
-            getUserInfo().then((user) => {
-              if (user.data.success) {
-                /**
-                 * 个人信息存储到缓存userInfo中
-                 */
-                storage.setUserInfo(user.data.result);
-                storage.setHasLogin(true);
-                // 登录成功
-                uni.showToast({
-                  title: "登录成功!",
-                  icon: "none",
-                });
+          /**
+           * 登录成功后获取个人信息
+           */
+          getUserInfo().then((user) => {
+            if (user.data.success) {
+              /**
+               * 个人信息存储到缓存userInfo中
+               */
+              storage.setUserInfo(user.data.result);
+              storage.setHasLogin(true);
+              // 登录成功
+              uni.showToast({
+                title: "登录成功!",
+                icon: "none",
+              });
 
-                /**
-                 * 计算出当前router路径
-                 * 1.如果跳转的链接为登录页面或跳转的链接为空页面。则会重新跳转到首页
-                 * 2.都不满足返回跳转页面
-                 */
-                whetherNavigate();
-              } else {
-                uni.switchTab({
-                  url: "/pages/tabbar/home/index",
-                });
-              }
-            });
-          }
+              /**
+               * 计算出当前router路径
+               * 1.如果跳转的链接为登录页面或跳转的链接为空页面。则会重新跳转到首页
+               * 2.都不满足返回跳转页面
+               */
+              whetherNavigate();
+            } else {
+              uni.switchTab({
+                url: "/pages/tabbar/home/index",
+              });
+            }
+          });
         }
-      );
+      });
     },
     // 验证码验证
     verification(val) {
@@ -551,7 +610,7 @@ export default {
   },
 };
 </script>
-<style >
+<style>
 page {
   background: #fff;
 }
@@ -636,7 +695,6 @@ page {
   bottom: 20px;
   align-items: center;
   justify-content: center;
- 
 }
 
 .login-item {
@@ -647,8 +705,7 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
- 
-    margin: 0 20rpx;
-  
+
+  margin: 0 20rpx;
 }
 </style>

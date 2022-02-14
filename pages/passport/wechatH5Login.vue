@@ -43,7 +43,7 @@ export default {
     getUserProfile() {
       let code = "WECHAT";
       let buyer = api.buyer;
-      window.open(buyer + `/connect/login/web/` + code, "_self");
+      window.open(buyer + `/passport/connect/login/web/` + code, "_self");
     },
     backToHome() {
       uni.switchTab({
@@ -55,11 +55,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
-
 .wx-auth-container {
   width: 100%;
-  
+
   margin-top: 20%;
 }
 
