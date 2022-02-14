@@ -54,7 +54,7 @@ export function loginCallback(state) {
  */
 export function mpAutoLogin(params) {
 	return http.request({
-		url: 'passport/connect/mini-program/auto-login',
+		url: 'passport/connect/miniProgram/auto-login',
 		method: Method.GET,
 		params
 	});
