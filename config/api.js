@@ -7,8 +7,8 @@ const dev = {
   // common: "https://common-api.pickmall.cn",
   // buyer: "https://buyer-api.pickmall.cn",
   
-        common: "http://127.0.0.1:8888",
-        buyer: "http://127.0.0.1:8888",
+        common: "http://192.168.111:8890",
+        buyer: "http://192.168.111:8888",
 
 };
 // 生产环境
