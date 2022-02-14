@@ -15,7 +15,7 @@ const request = http.request;
  */
 export function webConnect(code) {
 	return http.request({
-		url: `connect/login/web/${code}`,
+		url: `passport/connect/connect/login/web/${code}`,
 		method: Method.GET,
 		needToken: true,
 		header: {
@@ -25,7 +25,7 @@ export function webConnect(code) {
 }
 export function openIdLogin(params, clientType) {
 	return http.request({
-		url: `connect/app/login`,
+		url: `passport/connect/connect/app/login`,
 		method: Method.GET,
 		needToken: true,
 		data: params,
@@ -40,7 +40,7 @@ export function openIdLogin(params, clientType) {
  */
 export function loginCallback(state) {
 	return http.request({
-		url: `connect/result?state=${state}`,
+		url: `passport/connect/connect/result?state=${state}`,
 		method: Method.GET,
 		needToken: false
 	});
@@ -54,7 +54,7 @@ export function loginCallback(state) {
  */
 export function mpAutoLogin(params) {
 	return http.request({
-		url: 'mini-program/auto-login',
+		url: 'passport/connect/mini-program/auto-login',
 		method: Method.GET,
 		params
 	});
