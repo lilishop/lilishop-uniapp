@@ -4,11 +4,9 @@
  */
 // 开发环境
 const dev = {
-  // common: "https://common-api.pickmall.cn",
-  // buyer: "https://buyer-api.pickmall.cn",
-  
-        common: "http://192.168.111:8890",
-        buyer: "http://192.168.111:8888",
+  common: "https://common-api.pickmall.cn",
+  buyer: "https://buyer-api.pickmall.cn",
+
 
 };
 // 生产环境

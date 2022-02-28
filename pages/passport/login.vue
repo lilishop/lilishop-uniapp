@@ -312,6 +312,7 @@ export default {
               icon: "none",
             });
             this.flage = false;
+            this.$refs.verification.getCode();
           }
         } else {
           this.$u.toast("请倒计时结束后再发送");
