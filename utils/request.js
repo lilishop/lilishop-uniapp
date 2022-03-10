@@ -7,6 +7,9 @@ import api from "@/config/api.js";
 
 import uuid from "@/utils/uuid.modified.js";
 
+
+let isNavigateTo = false
+
 function cleanStorage() {
   uni.showToast({
     title: "你的登录状态已过期，请重新登录",
@@ -24,24 +27,21 @@ function cleanStorage() {
   storage.setUuid("");
   storage.setUserInfo({});
 
-
-
-  // 防抖处理跳转
-  // #ifdef MP-WEIXIN
-
-  uni.navigateTo({
-    url: "/pages/passport/wechatMPLogin",
-  });
-
-  // #endif
-
-  // #ifndef MP-WEIXIN
-
-  uni.navigateTo({
-    url: "/pages/passport/login",
-  });
-
+	
+  if(!isNavigateTo){
+	  isNavigateTo= true
+	  // 防抖处理跳转
+	  // #ifdef MP-WEIXIN
+	  uni.navigateTo({
+		url: "/pages/passport/wechatMPLogin",
+	  });
+	  // #endif
+	  // #ifndef MP-WEIXIN
+	  uni.navigateTo({
+		url: "/pages/passport/login",
+	  });
   //  #endif
+  }
 }
 
 let http = new Request();
@@ -105,6 +105,7 @@ let requests = [];
 // 必须使用异步函数，注意
 http.interceptors.response.use(
   async (response) => {
+	isNavigateTo = false
     /* 请求之后拦截器。可以使用async await 做异步操作  */
     // token存在并且token过期
     if (isRefreshing && response.statusCode === 403) {

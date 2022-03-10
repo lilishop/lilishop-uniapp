@@ -1,31 +1,53 @@
 <template>
   <view class="content">
     <view class="u-tabs-box">
-      <u-tabs bg-color="#fff" :list="list" :is-scroll="false" :current="current" @change="change"
-        :active-color="$lightColor"></u-tabs>
+      <u-tabs
+        bg-color="#fff"
+        :list="list"
+        :is-scroll="false"
+        :current="current"
+        @change="change"
+        :active-color="$lightColor"
+      ></u-tabs>
     </view>
     <div class="u-tabs-search">
-      <u-search placeholder="请输入订单编号" @search="handleGetOrderList(current)" @clear="handleGetOrderList(current)"
-        @custom="handleGetOrderList(current)" v-model="params.orderSn"></u-search>
+      <u-search
+        placeholder="请输入订单编号"
+        @search="submitSearchOrderList(current)"
+        @clear="submitSearchOrderList(current)"
+        @custom="submitSearchOrderList(current)"
+        v-model="orderSn"
+      ></u-search>
     </div>
     <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
-      <view class="seller-view" v-for="(order, orderIndex) in orderList" :key="orderIndex">
+      <view
+        class="seller-view"
+        v-for="(order, orderIndex) in orderList"
+        :key="orderIndex"
+      >
         <!-- 店铺名称 -->
         <view class="seller-info u-flex u-row-between" v-if="current == 0">
           <view class="seller-name">
             <view class="name">{{ order.storeName }}</view>
           </view>
-          <view class="order-sn">订单编号:{{order.sn}}</view>
+          <view class="order-sn">订单编号:{{ order.sn }}</view>
         </view>
         <!-- 申请记录 选项卡 -->
         <view class="seller-info u-flex u-row-between" v-if="current != 0">
-          <view class="order-sn">售后单号：{{ order.service_sn || order.sn }}</view>
+          <view class="order-sn"
+            >售后单号：{{ order.service_sn || order.sn }}</view
+          >
           <view class="order-sn">{{ order.serviceType_text }}</view>
         </view>
         <view v-for="(sku, goodsIndex) in order.orderItems" :key="goodsIndex">
-          <view class="goods-item-view" @click="onDetail(order,sku)">
+          <view class="goods-item-view" @click="onDetail(order, sku)">
             <view class="goods-img">
-              <u-image border-radius="6" width="100%" height="100%" :src="sku.image"></u-image>
+              <u-image
+                border-radius="6"
+                width="100%"
+                height="100%"
+                :src="sku.image"
+              ></u-image>
             </view>
             <view class="goods-info">
               <view class="goods-title u-line-2">{{ sku.name }}</view>
@@ -41,77 +63,136 @@
           <view class="btn-view u-flex u-row-between">
             <view class="description">
               <!-- 售后申请 -->
-              <view v-if="
-                  current === 0 &&  order.groupAfterSaleStatus &&
-                 order.groupAfterSaleStatus.includes('ALREADY_APPLIED') 
-                " class="cannot_apply">
+              <view
+                v-if="
+                  current === 0 &&
+                  order.groupAfterSaleStatus &&
+                  order.groupAfterSaleStatus.includes('ALREADY_APPLIED')
+                "
+                class="cannot_apply"
+              >
                 <u-icon class="icon" name="info-circle-fill"></u-icon>
                 该商品已申请售后服务
               </view>
-              <view class="cannot_apply"
-                v-if="current === 0 && order.groupAfterSaleStatus && order.groupAfterSaleStatus.includes('EXPIRED')  "
-                @click="tipsShow = true">
+              <view
+                class="cannot_apply"
+                v-if="
+                  current === 0 &&
+                  order.groupAfterSaleStatus &&
+                  order.groupAfterSaleStatus.includes('EXPIRED')
+                "
+                @click="tipsShow = true"
+              >
                 <u-icon class="icon" name="info-circle-fill"></u-icon>
                 该商品无法申请售后
               </view>
 
               <div v-if="current === 1 || current === 2">
                 <!-- 申请中 -->
-                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_GOODS'">
-                  退货处理-{{ order.serviceStatus | serviceStatusList  }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'">
-                  补发商品-{{ order.serviceStatus | serviceStatusList  }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'RETURN_MONEY'">
-                  退款-{{ order.serviceStatus | serviceStatusList  }}</view>
-                <view class="cannot_apply" v-if="order.serviceType == 'EXCHANGE_GOODS'">
-                  换货-{{ order.serviceStatus | serviceStatusList  }}</view>
+                <view
+                  class="cannot_apply"
+                  v-if="order.serviceType == 'RETURN_GOODS'"
+                >
+                  退货处理-{{ order.serviceStatus | serviceStatusList }}</view
+                >
+                <view
+                  class="cannot_apply"
+                  v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'"
+                >
+                  补发商品-{{ order.serviceStatus | serviceStatusList }}</view
+                >
+                <view
+                  class="cannot_apply"
+                  v-if="order.serviceType == 'RETURN_MONEY'"
+                >
+                  退款-{{ order.serviceStatus | serviceStatusList }}</view
+                >
+                <view
+                  class="cannot_apply"
+                  v-if="order.serviceType == 'EXCHANGE_GOODS'"
+                >
+                  换货-{{ order.serviceStatus | serviceStatusList }}</view
+                >
                 <view class="cannot_apply" v-if="order.serviceType == 'CANCEL'">
-                  取消订单-{{ order.serviceStatus | serviceStatusList  }}</view>
+                  取消订单-{{ order.serviceStatus | serviceStatusList }}</view
+                >
               </div>
-             
+
               <!-- 申请记录 -->
             </view>
-             <!-- 售后申请 -->
-              <div v-if="current === 0 && sku.afterSaleStatus && (sku.afterSaleStatus.includes('NOT_APPLIED') || sku.afterSaleStatus.includes('PART_AFTER_SALE')) "  @click="applyService(sku.sn, order, sku)" class="sale">
-                <view class=" default-btn border" >
-                  申请售后
-                </view>
-              </div>
+            <!-- 售后申请 -->
+            <div
+              v-if="
+                current === 0 &&
+                sku.afterSaleStatus &&
+                (sku.afterSaleStatus.includes('NOT_APPLIED') ||
+                  sku.afterSaleStatus.includes('PART_AFTER_SALE'))
+              "
+              @click="applyService(sku.sn, order, sku)"
+              class="sale"
+            >
+              <view class="default-btn border"> 申请售后 </view>
+            </div>
             <view class="after-line">
-
               <!-- 申请中 -->
-              <view class="default-btn border" v-if="
+              <view
+                class="default-btn border"
+                v-if="
                   current === 2 &&
                   order.serviceStatus &&
                   order.serviceStatus == 'PASS' &&
                   order.serviceType != 'RETURN_MONEY'
-                " @click="onExpress(order, sku)">
+                "
+                @click="onExpress(order, sku)"
+              >
                 提交物流
               </view>
-              <view @click="close(order,sku)" v-if="current === 1" class="default-btn close">
+              <view
+                @click="close(order, sku)"
+                v-if="current === 1"
+                class="default-btn close"
+              >
                 取消售后
               </view>
-              <view @click="afterDetails(order, sku)" v-if="current === 1 || current === 2" class="default-btn border">
+              <view
+                @click="afterDetails(order, sku)"
+                v-if="current === 1 || current === 2"
+                class="default-btn border"
+              >
                 售后详情
               </view>
             </view>
           </view>
         </view>
-        <view v-if="
-            current === 0 && order.groupAfterSaleStatus &&
+        <view
+          v-if="
+            current === 0 &&
+            order.groupAfterSaleStatus &&
             order.groupAfterSaleStatus != 'ALREADY_APPLIED' &&
             order.orderItems.length >= 1
-          " class="btn-view u-flex u-row-between">
+          "
+          class="btn-view u-flex u-row-between"
+        >
           <!-- 多个商品显示订单总价格 -->
           <view class="cannot_apply">
-            订单总金额:<span class="countMoney">￥{{ order.flowPrice | unitPrice }}</span>
+            订单总金额:<span class="countMoney"
+              >￥{{ order.flowPrice | unitPrice }}</span
+            >
           </view>
         </view>
       </view>
       <u-loadmore bg-color="#f8f8f8" :status="status" />
     </scroll-view>
-    <u-modal show-cancel-button @confirm="closeService" v-model="cancelShow" content="确认取消售后"></u-modal>
-    <u-modal v-model="tipsShow" content="当订单未确认收货|已过售后服务有效期|已申请售后服务时，不能申请售后"></u-modal>
+    <u-modal
+      show-cancel-button
+      @confirm="closeService"
+      v-model="cancelShow"
+      content="确认取消售后"
+    ></u-modal>
+    <u-modal
+      v-model="tipsShow"
+      content="当订单未确认收货|已过售后服务有效期|已申请售后服务时，不能申请售后"
+    ></u-modal>
   </view>
 </template>
 
@@ -148,7 +229,7 @@ export default {
         pageNumber: 1,
         pageSize: 10,
         sort: "createTime",
-        flowPrice:  1,
+        flowPrice: 1,
         order: "desc",
       },
 
@@ -157,21 +238,27 @@ export default {
         pageSize: 10,
       },
       status: "loadmore",
+      orderSn: "", // 搜索订单sn
     };
   },
   onLoad(options) {
     this.orderList = [];
     this.params.pageNumber = 1;
     if (options.orderSn) this.params.orderSn = options.orderSn;
-    this.getOrderList(this.current);
+    this.searchOrderList(this.current);
   },
   onPullDownRefresh() {
     this.change(this.current);
   },
   methods: {
-    handleGetOrderList(current) {
+    /**
+     * 点击搜索执行搜索
+     */
+    submitSearchOrderList(current) {
+      this.params.pageNumber = 1;
+      this.logParams.pageNumber = 1;
       this.orderList = [];
-      this.getOrderList(current);
+      this.searchOrderList(current);
     },
     /**
      * 切换tab页时，初始化数据
@@ -184,8 +271,18 @@ export default {
       };
       this.orderList = [];
       //如果是2 则读取售后申请记录列表
+      this.searchOrderList(index);
+      uni.stopPullDownRefresh();
+    },
+
+    /**
+     * 搜索初始化
+     * 根据当前tab传值的索引进行更改
+     */
+    searchOrderList(index) {
       if (index == 0) {
-        this.getOrderList(index);
+        this.orderSn ? (this.params.orderSn = this.orderSn) : "";
+        this.getOrderList();
       } else {
         this.logParams = {
           pageNumber: 1,
@@ -196,16 +293,16 @@ export default {
         if (index === 1) {
           this.logParams.serviceStatus = "APPLY";
         }
+        this.orderSn ? (this.logParams.orderSn = this.orderSn) : "";
         this.orderList = [];
         this.getAfterSaleLogList();
       }
-      uni.stopPullDownRefresh();
     },
 
     /**
      * 获取订单列表
      */
-    getOrderList(index) {
+    getOrderList() {
       uni.showLoading({
         title: "加载中",
         mask: true,
@@ -245,7 +342,7 @@ export default {
         });
       }
       this.orderList = [];
-      this.getOrderList(this.current);
+      this.searchOrderList(this.current);
 
       uni.hideLoading();
     },

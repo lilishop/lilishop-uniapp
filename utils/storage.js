@@ -92,11 +92,11 @@ export default {
   removeRefreshToken() {
     uni.removeStorageSync(REFRESH_TOKEN);
   },
-  // 写入刷新token
+
   setAfterSaleData(val) {
     uni.setStorageSync(AFTERSALE_DATA, val);
   },
-  // 获取刷新token
+
   getAfterSaleData() {
     return uni.getStorageSync(AFTERSALE_DATA);
   },
