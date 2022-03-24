@@ -73,7 +73,7 @@ export function getLogisticsMessages(params) {
  */	
  export function getAppVersion(appType) {
   return http.request({
-    url: `/appVersion/${appType}`,
+    url: `/other/appVersion/${appType}`,
     method: Method.GET,
     type:"manager"
   });
@@ -86,7 +86,7 @@ export function getLogisticsMessages(params) {
  */	
  export function getAppVersionList(type,data) {
   return http.request({
-    url: `/appVersion/appVersion/${type}`,
+    url: `/other/appVersion/appVersion/${type}`,
     method: Method.GET,
     type:"manager",
     data
