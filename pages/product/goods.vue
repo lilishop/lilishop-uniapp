@@ -382,7 +382,6 @@ import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
 import popupAddress from "./product/popup/address"; //地址选择模块
 import shares from "@/components/m-share/index"; //分享
 import popups from "@/components/popups/popups"; //气泡框
-
 import setup from "./product/popup/popup";
 export default {
   components: {
@@ -528,6 +527,7 @@ export default {
   },
 
   computed: {
+	// udesk IM 
     IM() {
       return this.IMLink + this.storeDetail.merchantEuid;
     },
@@ -708,40 +708,49 @@ export default {
     },
 
     linkMsgDetail() {
-      if (this.storeDetail.merchantEuid) {
-        uni.navigateTo({
-          url: `/pages/tabbar/home/web-view?src=${this.IM}`,
-        });
-      } else {
-        // 客服
-        // #ifdef MP-WEIXIN
-        const params = {
-          storeName: this.storeDetail.storeName,
-          goodsName: this.goodsDetail.goodsName,
-          goodsId: this.goodsDetail.goodsId,
-          goodsImg: this.goodsDetail.thumbnail,
-          price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
-          // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
-          uuid: storage.getUuid(),
-          token: storage.getAccessToken(),
-          sign: this.storeDetail.yzfSign,
-          mpSign: this.storeDetail.yzfMpSign,
-        };
-        uni.navigateTo({
-          url:
-            "/pages/product/customerservice/index?params=" +
-            encodeURIComponent(JSON.stringify(params)),
-        });
-        // #endif
-        // #ifndef MP-WEIXIN
-        const sign = this.storeDetail.yzfSign;
-        uni.navigateTo({
-          url:
-            "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-            sign,
-        });
-        // #endif
-      }
+      // lili 基础客服
+	
+	  uni.navigateTo({
+		url: `/pages/tabbar/home/web-view?IM=${this.storeDetail.storeId}`,
+	  });
+		
+		// udesk 代码  
+		// if (this.storeDetail.merchantEuid) {
+		//   uni.navigateTo({
+		//     url: `/pages/tabbar/home/web-view?src=${this.IM}`,
+		//   });
+		// }
+		  
+		  
+        // 客服 云智服代码 
+        // // #ifdef MP-WEIXIN
+        // const params = {
+        //   storeName: this.storeDetail.storeName,
+        //   goodsName: this.goodsDetail.goodsName,
+        //   goodsId: this.goodsDetail.goodsId,
+        //   goodsImg: this.goodsDetail.thumbnail,
+        //   price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
+        //   // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+        //   uuid: storage.getUuid(),
+        //   token: storage.getAccessToken(),
+        //   sign: this.storeDetail.yzfSign,
+        //   mpSign: this.storeDetail.yzfMpSign,
+        // };
+        // uni.navigateTo({
+        //   url:
+        //     "/pages/product/customerservice/index?params=" +
+        //     encodeURIComponent(JSON.stringify(params)),
+        // });
+        // // #endif
+        // // #ifndef MP-WEIXIN
+        // const sign = this.storeDetail.yzfSign;
+        // uni.navigateTo({
+        //   url:
+        //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+        //     sign,
+        // });
+        // // #endif
+    
     },
     // 格式化金钱  1999 --> [1999,00]
     formatPrice(val) {
