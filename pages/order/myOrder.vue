@@ -1,15 +1,43 @@
 <template>
   <view class="content">
     <view class="navbar">
-      <view v-for="(item, index) in navList" :key="index" class="nav-item" :class="{ current: tabCurrentIndex === index }" @click="tabClick(index)">{{ item.text }}</view>
+      <view
+        v-for="(item, index) in navList"
+        :key="index"
+        class="nav-item"
+        :class="{ current: tabCurrentIndex === index }"
+        @click="tabClick(index)"
+        >{{ item.text }}</view
+      >
     </view>
-    <swiper :current="tabCurrentIndex" class="swiper-box" duration="300" @change="changeTab">
-      <swiper-item class="tab-content" v-for="(tabItem, tabIndex) in navList" :key="tabIndex">
-        <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData(tabIndex)">
+    <swiper
+      :current="tabCurrentIndex"
+      class="swiper-box"
+      duration="300"
+      @change="changeTab"
+    >
+      <swiper-item
+        class="tab-content"
+        v-for="(tabItem, tabIndex) in navList"
+        :key="tabIndex"
+      >
+        <scroll-view
+          class="list-scroll-content"
+          scroll-y
+          @scrolltolower="loadData(tabIndex)"
+        >
           <!-- 空白页 -->
-          <u-empty text="暂无订单" mode="list" v-if="tabItem.loaded === true && tabItem.orderList.length === 0"></u-empty>
+          <u-empty
+            text="暂无订单"
+            mode="list"
+            v-if="tabItem.loaded === true && tabItem.orderList.length === 0"
+          ></u-empty>
           <!-- 订单列表 -->
-          <view class="seller-view" :key="oderIndex" v-for="(order, oderIndex) in tabItem.orderList">
+          <view
+            class="seller-view"
+            :key="oderIndex"
+            v-for="(order, oderIndex) in tabItem.orderList"
+          >
             <!-- 店铺名称 -->
             <view class="seller-info u-flex u-row-between">
               <view class="seller-name" @click="navigateToStore(order)">
@@ -21,13 +49,32 @@
             </view>
             <view>
               <view>
-                <view class="goods-item-view" @click="navigateToOrderDetail(order.sn)">
-                  <view class="goods-img" v-for="(goods, goodsIndex) in order.orderItems" :key="goodsIndex">
-                    <u-image border-radius="6" width="100%" height="100%" :src="goods.image"></u-image>
+                <view
+                  class="goods-item-view"
+                  @click="navigateToOrderDetail(order.sn)"
+                >
+                  <view
+                    class="goods-img"
+                    v-for="(goods, goodsIndex) in order.orderItems"
+                    :key="goodsIndex"
+                  >
+                    <u-image
+                      border-radius="6"
+                      width="100%"
+                      height="100%"
+                      :src="goods.image"
+                    ></u-image>
                   </view>
                   <view class="goods-info">
-                    <view v-if="order.orderItems.length <= 1" class="goods-title u-line-2">{{ order.groupName }}</view>
-                    <view v-if="order.orderItems.length <= 1" class="goods-price">
+                    <view
+                      v-if="order.orderItems.length <= 1"
+                      class="goods-title u-line-2"
+                      >{{ order.groupName }}</view
+                    >
+                    <view
+                      v-if="order.orderItems.length <= 1"
+                      class="goods-price"
+                    >
                       ￥{{ order.flowPrice | unitPrice }}
                     </view>
                   </view>
@@ -45,19 +92,56 @@
                 </view>
                 <view>
                   <!-- 全部 -->
-                  <u-button ripple class="pay-btn" shape="circle" size="mini" v-if="order.allowOperationVO.pay" @click="waitPay(order)">立即付款</u-button>
+                  <u-button
+                    ripple
+                    class="pay-btn"
+                    shape="circle"
+                    size="mini"
+                    v-if="order.allowOperationVO.pay"
+                    @click="waitPay(order)"
+                    >立即付款</u-button
+                  >
                   <!-- 取消订单 -->
-                  <u-button ripple class="cancel-btn" shape="circle" size="mini" v-if="order.allowOperationVO.cancel" @click="onCancel(order.sn)">
+                  <u-button
+                    ripple
+                    class="cancel-btn"
+                    shape="circle"
+                    size="mini"
+                    v-if="order.allowOperationVO.cancel"
+                    @click="onCancel(order.sn)"
+                  >
                     取消订单
                   </u-button>
                   <!-- 等待收货 -->
-                  <u-button ripple shape="circle" class="rebuy-btn" size="mini" v-if="order.allowOperationVO.showLogistics" @click="navigateToLogistics(order)">
+                  <u-button
+                    ripple
+                    shape="circle"
+                    class="rebuy-btn"
+                    size="mini"
+                    v-if="order.allowOperationVO.showLogistics"
+                    @click="navigateToLogistics(order)"
+                  >
                     查看物流
                   </u-button>
-                  <u-button ripple :customStyle="{'background':lightColor,'color':'#fff' }" shape="circle" class="pay-btn" size="mini" v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
+                  <u-button
+                    ripple
+                    :customStyle="{ background: lightColor, color: '#fff' }"
+                    shape="circle"
+                    class="pay-btn"
+                    size="mini"
+                    v-if="order.allowOperationVO.rog"
+                    @click="onRog(order.sn)"
+                  >
                     确认收货
                   </u-button>
-                  <u-button ripple shape="circle" class="cancel-btn" size="mini" v-if="order.groupAfterSaleStatus.includes('NOT_APPLIED')" @click="applyService(order)">
+                  <u-button
+                    ripple
+                    shape="circle"
+                    class="cancel-btn"
+                    size="mini"
+                    v-if="order.groupAfterSaleStatus.includes('NOT_APPLIED')"
+                    @click="applyService(order)"
+                  >
                     退款/售后
                   </u-button>
                   <!-- TODO 后续完善 -->
@@ -75,26 +159,57 @@
         </scroll-view>
       </swiper-item>
     </swiper>
-    <u-popup class="cancel-popup" v-model="cancelShow" mode="bottom" length="60%">
+    <u-popup
+      class="cancel-popup"
+      v-model="cancelShow"
+      mode="bottom"
+      length="60%"
+    >
       <view class="header">取消订单</view>
       <view class="body">
-        <view class="title">取消订单后，本单享有的优惠可能会一并取消，是否继续？</view>
+        <view class="title"
+          >取消订单后，本单享有的优惠可能会一并取消，是否继续？</view
+        >
         <view>
           <u-radio-group v-model="reason">
             <view class="value">
-              <view class="radio-view" :key="index" v-for="(item, index) in cancelList">
-                <u-radio :active-color="lightColor" label-size="25" shape="circle" :name="item.reason" @change="reasonChange">{{ item.reason }}</u-radio>
+              <view
+                class="radio-view"
+                :key="index"
+                v-for="(item, index) in cancelList"
+              >
+                <u-radio
+                  :active-color="lightColor"
+                  label-size="25"
+                  shape="circle"
+                  :name="item.reason"
+                  @change="reasonChange"
+                  >{{ item.reason }}</u-radio
+                >
               </view>
             </view>
           </u-radio-group>
         </view>
       </view>
       <view class="footer">
-        <u-button size="medium" ripple v-if="reason" shape="circle" @click="submitCancel">提交</u-button>
+        <u-button
+          size="medium"
+          ripple
+          v-if="reason"
+          shape="circle"
+          @click="submitCancel"
+          >提交</u-button
+        >
       </view>
     </u-popup>
     <u-toast ref="uToast" />
-    <u-modal :confirm-color="lightColor" v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" @confirm="confirmRog"></u-modal>
+    <u-modal
+      :confirm-color="lightColor"
+      v-model="rogShow"
+      :show-cancel-button="true"
+      :content="'是否确认收货?'"
+      @confirm="confirmRog"
+    ></u-modal>
   </view>
 </template>
 
@@ -203,10 +318,21 @@ export default {
     }
   },
   onPullDownRefresh() {
+    if (this.tabCurrentIndex) {
+      this.initData(this.tabCurrentIndex);
+    } else {
+      this.initData(0);
+    }
     this.loadData(this.status);
   },
-
-  
+  onShow() {
+    if (this.tabCurrentIndex) {
+      this.initData(this.tabCurrentIndex);
+    } else {
+      this.initData(0);
+    }
+    this.loadData(this.status);
+  },
 
   onLoad(options) {
     /**
@@ -219,7 +345,6 @@ export default {
     if (status == 0) {
       this.loadData(status);
     }
-  
   },
 
   watch: {
@@ -236,16 +361,11 @@ export default {
     },
   },
   methods: {
-
-
     // 售后
-    applyService(order){
-      
-      
+    applyService(order) {
       uni.navigateTo({
-         url: `/pages/order/afterSales/afterSales?orderSn=${order.sn}`
+        url: `/pages/order/afterSales/afterSales?orderSn=${order.sn}`,
       });
-
     },
 
     // 店铺详情
