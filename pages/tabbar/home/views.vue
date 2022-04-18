@@ -1,10 +1,15 @@
 <template>
   <div class="wrapper">
     <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
-    <div v-for="(item,index) in pageData.list" :key="index">
+    <div v-for="(item, index) in pageData.list" :key="index">
       <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
-      <u-navbar class="navbar" v-if="item.type == 'search'" :is-back="false" :is-fixed="index ===1 ? false : true">
-        <search style="width:100%" :res="item.options" />
+      <u-navbar
+        class="navbar"
+        v-if="item.type == 'search'"
+        :is-back="false"
+        :is-fixed="index === 1 ? false : true"
+      >
+        <search style="width: 100%" :res="item.options" />
         <!-- #ifndef H5 -->
         <!-- 扫码功能 不兼容h5 详情文档: https://uniapp.dcloud.io/api/system/barcode?id=scancode -->
         <div slot="right" class="navbar-right">
@@ -14,10 +19,22 @@
       </u-navbar>
       <carousel v-if="item.type == 'carousel'" :res="item.options" />
       <titleLayout v-if="item.type == 'title'" :res="item.options" />
-      <leftOneRightTwo v-if="item.type == 'leftOneRightTwo'" :res="item.options" />
-      <leftTwoRightOne v-if="item.type == 'leftTwoRightOne'" :res="item.options" />
-      <topOneBottomTwo v-if="item.type == 'topOneBottomTwo'" :res="item.options" />
-      <topTwoBottomOne v-if="item.type == 'topTwoBottomOne'" :res="item.options" />
+      <leftOneRightTwo
+        v-if="item.type == 'leftOneRightTwo'"
+        :res="item.options"
+      />
+      <leftTwoRightOne
+        v-if="item.type == 'leftTwoRightOne'"
+        :res="item.options"
+      />
+      <topOneBottomTwo
+        v-if="item.type == 'topOneBottomTwo'"
+        :res="item.options"
+      />
+      <topTwoBottomOne
+        v-if="item.type == 'topTwoBottomOne'"
+        :res="item.options"
+      />
       <flexThree v-if="item.type == 'flexThree'" :res="item.options" />
       <flexFive v-if="item.type == 'flexFive'" :res="item.options" />
       <flexFour v-if="item.type == 'flexFour'" :res="item.options" />
@@ -25,14 +42,13 @@
       <textPicture v-if="item.type == 'textPicture'" :res="item.options" />
       <menuLayout v-if="item.type == 'menu'" :res="item.options" />
       <flexOne v-if="item.type == 'flexOne'" :res="item.options" />
-
       <goods v-if="item.type == 'goods'" :res="item.options" />
-
       <group v-if="item.type == 'group'" :res="item.options" />
+      <notice v-if="item.type == 'notice'" :res="item.options" />
+      <promotions v-if="item.type == 'promotionDetail'" :res="item.options" />
       <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
       <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
       <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
-
     </div>
     <u-no-network></u-no-network>
   </div>
@@ -60,10 +76,8 @@ import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类�
 import { getFloorData } from "@/api/home"; //获取楼层装修接口
 import permision from "@/js_sdk/wa-permission/permission.js"; //权限工具类
 import config from "@/config/config";
-// TODO 后续开发
-// import tpl_join_group from "@/pages/tabbar/home/template/tpl_join_group";
-// import tpl_integral from "@/pages/tabbar/home/template/tpl_integral";
-// import tpl_spike from "@/pages/tabbar/home/template/tpl_spike";
+import tpl_notice from "@/pages/tabbar/home/template/tpl_notice"; //标题栏模块
+import tpl_promotions from "@/pages/tabbar/home/template/tpl_promotions_detail"; //标题栏模块
 
 export default {
   data() {
@@ -90,9 +104,8 @@ export default {
     flexOne: tpl_flex_one,
     goods: tpl_goods,
     group: tpl_group,
-    // spike: tpl_spike,
-    // joinGroup: tpl_join_group,
-    // integral: tpl_integral,
+    notice: tpl_notice,
+    promotions: tpl_promotions,
   },
 
   mounted() {
@@ -131,7 +144,7 @@ export default {
 
           // WX_CODE 为小程序码
           if (res.scanType == "WX_CODE") {
-            console.log(res)
+            console.log(res);
             uni.navigateTo({
               url: `/${res.path}`,
             });
