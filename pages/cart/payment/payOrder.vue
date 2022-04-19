@@ -226,13 +226,18 @@
 				const paymentMethod = payment;
 				// 客户端类型 APP/NATIVE/JSAPI/H5
 				const paymentClient = this.paymentClient;
-
+				
+				uni.showLoading({
+				  title: "正在唤起支付...",
+				  mask:true
+				});
+				
 				// #ifdef APP-PLUS
 				//APP pay
 				// 初始化支付签名
 				await API_Trade.initiatePay(paymentMethod, paymentClient, params).then(
 					(signXml) => {
-
+						uni.hideLoading();
 						//如果支付异常
 						if (!signXml.data.success) {
 							uni.showToast({
@@ -241,33 +246,39 @@
 							});
 							return;
 						}
-
+						
 						let payForm = signXml.data.result;
-
+						
 						let paymentType = paymentMethod === "WECHAT" ? "wxpay" : "alipay";
-						uni.requestPayment({
-							provider: paymentType,
-							orderInfo: payForm,
-							success: (e) => {
-								console.log(e);
-								uni.showToast({
-									icon: "none",
-									title: "支付成功!",
-								});
-
-								this.callback(paymentMethod)
-								
-								 
-							},
-							fail: (e) => {
-								console.log(this);
-								this.exception = e;
-								uni.showModal({
-									content: "支付失败,如果您已支付，请勿反复支付",
-									showCancel: false,
-								});
-							},
-						});
+						
+						if(paymentMethod === "WALLET"){
+							uni.showToast({
+								icon: "none",
+								title: "支付成功!",
+							});
+							this.callback(paymentMethod)
+						}
+						else{
+							uni.requestPayment({
+								provider: paymentType,
+								orderInfo: payForm || '',
+								success: (e) => {
+									uni.showToast({
+										icon: "none",
+										title: "支付成功!",
+									});
+									this.callback(paymentMethod)
+								},
+								fail: (e) => {
+									console.log(this);
+									this.exception = e;
+									uni.showModal({
+										content: "支付失败,如果您已支付，请勿反复支付",
+										showCancel: false,
+									});
+								},
+							});
+						}
 					}
 				);
 				//APP pay
