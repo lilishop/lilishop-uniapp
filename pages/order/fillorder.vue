@@ -96,7 +96,7 @@
         </div>
       </div>
       <div class="promotionNotice">{{ item.promotionNotice || "" }}</div>
-      <div class="flex goods-item" v-for="(val, i) in item.skuList" :key="i">
+      <div class="flex goods-item" v-for="(val, i) in item.checkedSkuList" :key="i">
         <div
           class="goods-image"
           @click="
