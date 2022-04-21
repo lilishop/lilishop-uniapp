@@ -5,7 +5,7 @@
         {{ res.list[0].title }}
       </div>
       <div style="position: absolute;right: 10px;top:2px;color: #fff;line-height: 42px;font-size: 10px">
-        <a  :href="res.list[0].url"  :style="{ color: res.list[0].color1 }" style="text-decoration: none">{{ res.list[0].title1 }}</a>
+        <a  :style="{ color: res.list[0].color1 }" style="text-decoration: none">{{ res.list[0].title1 }}</a>
       </div>
     </div>
   </div>
