@@ -102,6 +102,14 @@ export function modelNavigateTo(item) {
             url: `/pages/product/shopList`,
           });
           break;
+        case "外部链接":
+          // #ifdef H5
+          window.location.href = val.url;
+          // #endif
+          // #ifdef APP-PLUS
+          plus.runtime.openURL(val.url) //不需要拼接\
+          // #endif
+          break;
       }
 
       break;

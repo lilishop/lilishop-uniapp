@@ -1,5 +1,5 @@
 <template>
-  <div class="layout" :style="{textAlign: res.list[0].textAlign}">
+  <div class="layout" :style="{textAlign: res.list[0].textAlign}"  @click="modelNavigateTo(res.list[0])" >
     <div class="background" :style="{ backgroundColor: res.list[0].bk_color}">
       <div class="title" :style="{ color: res.list[0].color }">
         {{ res.list[0].title }}
@@ -13,9 +13,15 @@
 
 
 <script>
+import { modelNavigateTo } from "./tpl";
 export default {
   title: "标题栏",
   props: ["res"],
+  data() {
+    return {
+      modelNavigateTo,
+    };
+  },
   mounted() {},
 };
 </script>

@@ -15,7 +15,7 @@
               <span v-if="res[prom].freeFreightFlag">赠送包邮服务</span>
             </span>
           </div>
-          <div class="res_prom_item" v-if="res[prom].fullRate">
+          <div class="res_prom_item" v-if="res[prom].fullRate && res[prom].fullRateFlag">
             <u-tag text="打折" type="error"></u-tag>
             <span class="pro-text"
               >满{{ res[prom].fullMoney }}元，立享<span class="price"
