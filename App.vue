@@ -64,9 +64,18 @@ export default {
     // #endif
   },
 
-  onShow() {
+   onShow() {
     // #ifndef H5
-    this.getClipboard();
+    // this.getClipboard();
+    // #endif
+    // #ifdef APP-PLUS
+    console.log(storage.getShow());
+    if (storage.getShow()) {
+      if(uni.getSystemInfoSync().platform == 'ios'){
+      this.$u.route("/pages/tabbar/screen/fullScreen");
+      // uni.reLaunch({ url: "/pages/tabbar/screen/fullScreen" });
+      }
+    }
     // #endif
   },
   methods: {
