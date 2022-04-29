@@ -99,7 +99,7 @@
               >
                 <div class="promotions-item-seckill" v-if="getPromotion(skuItem).includes('SECKILL')">
                   距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
-                    font-size="24" :timestamp="getCountDownTime(seckill.endTime)">
+                    font-size="24" :timestamp="getCountDownTime(skuItem)">
                   </u-count-down>
                 </div>
               </div>
