@@ -68,6 +68,8 @@ export default {
       params: {
         pageNumber: 1,
         pageSize: 10,
+        order: "desc",
+        sort: "updateTime",
       },
 
       trackList: [], //足迹列表

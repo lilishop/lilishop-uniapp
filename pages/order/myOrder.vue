@@ -139,7 +139,7 @@
                     shape="circle"
                     class="cancel-btn"
                     size="mini"
-                    v-if="order.groupAfterSaleStatus.includes('NOT_APPLIED')"
+                    v-if="order.groupAfterSaleStatus && order.groupAfterSaleStatus.includes('NOT_APPLIED')"
                     @click="applyService(order)"
                   >
                     退款/售后
@@ -323,7 +323,7 @@ export default {
     } else {
       this.initData(0);
     }
-    this.loadData(this.status);
+    // this.loadData(this.status);
   },
   onShow() {
     if (this.tabCurrentIndex) {
@@ -331,7 +331,7 @@ export default {
     } else {
       this.initData(0);
     }
-    this.loadData(this.status);
+    // this.loadData(this.status);
   },
 
   onLoad(options) {
@@ -342,9 +342,9 @@ export default {
     let status = Number(options.status);
     this.status = status;
     this.tabCurrentIndex = status;
-    if (status == 0) {
-      this.loadData(status);
-    }
+    // if (status == 0) {
+    //   this.loadData(status);
+    // }
   },
 
   watch: {

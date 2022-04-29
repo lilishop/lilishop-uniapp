@@ -159,7 +159,7 @@ export default {
       let recommendLives = await getLiveList(this.recommendParams);
       if (recommendLives.data.success) {
         // 推荐直播间
-        if (recommendLives.data.result.records.length != 0) {
+        if (recommendLives.data.result.records.length ) {
           this.status = "loadmore";
           this.recommendLives = recommendLives.data.result.records;
         } else {
@@ -172,7 +172,7 @@ export default {
          * 2.如果没有直播间设置一个默认图片
          */
 
-        if (this.recommendLives.length == 0) {
+        if (!this.recommendLives.length) {
           if (this.liveList[0].shareImg) {
             this.$set(this, "swiperImg", [
               {
@@ -199,7 +199,7 @@ export default {
       let res = await getLiveList(this.params[this.current]);
       // 直播间
       if (res.data.success) {
-        if (res.data.result.records.length != 0) {
+        if (res.data.result.records.length ) {
           this.status = "loadmore";
           this.liveList.push(...res.data.result.records);
         } else {
@@ -211,7 +211,7 @@ export default {
           ? (this.status = "loadmore")
           : (this.status = "noMore");
 
-        console.log(this.status);
+      
         this.liveList.forEach((item) => {
           if (item.roomGoodsList) {
             item.roomGoodsList = JSON.parse(item.roomGoodsList);

@@ -11,11 +11,11 @@
     <u-row class="portrait-box2">
       <u-col span="6" class="portrait-box2-col" :gutter="16">
         <text>累计获得：</text>
-        <text class="pcolor">{{ pointData.point || 0 }}</text>
+        <text class="pcolor">{{ pointData.totalPoint || 0 }}</text>
       </u-col>
       <u-col span="6" class="portrait-box2-col">
-        <text>未使用：</text>
-        <text class="pcolor">{{ pointData.variablePoint || 0 }}</text>
+        <text>剩余积分：</text>
+        <text class="pcolor">{{ pointData.point || 0 }}</text>
       </u-col>
     </u-row>
 

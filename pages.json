@@ -14,7 +14,18 @@
 				"enablePullDownRefresh":true  
 			}
 		}, 
-		
+		{
+			"path":"pages/tabbar/screen/fullScreen",
+			"style": {
+				"navigationStyle": "custom", // 隐藏系统导航栏
+				"app-plus":{
+					"animationType": "fade-in", // 设置fade-in淡入动画，为最合理的动画类型
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		},
 		{
 			"path": "pages/tabbar/cart/cartList",
 			"style": {

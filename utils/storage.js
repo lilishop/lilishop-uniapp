@@ -18,7 +18,16 @@ export default {
   getHotWords() {
     return uni.getStorageSync(`hotWords`);
   },
-
+  //写入 展示还是不展示
+  setShow(val) {
+    uni.setStorageSync("show", val);
+  },
+  getShow() {
+    if (uni.getStorageSync(`show`) === "" || uni.getStorageSync(`show`) === undefined) {
+      return true;
+    }
+    return uni.getStorageSync(`show`);
+  },
   // 获取face id登录
   getFaceLogin() {
     return uni.getStorageSync(FACE_LOGIN);

@@ -10,7 +10,10 @@
               <!-- 省市区 -->
               <div class="flex flex-a-c">
                 <span class="default" v-if="address.isDefault">默认</span>
-                <div class="address-list" v-if="address.consigneeAddressPath.length != 0">
+                <div
+                  class="address-list"
+                  v-if="address.consigneeAddressPath.length != 0"
+                >
                   <span
                     class="address-item"
                     v-for="(item, index) in address.consigneeAddressPath"
@@ -89,100 +92,124 @@
     </view>
 
     <!-- 店铺商品信息 -->
-    <div class="box box2" v-for="(item, index) in orderMessage.cartList" :key="index">
-      <div @click="navigateToStore(item)">
-        <div class="store-name">
-          <span>{{ item.storeName }}</span>
-        </div>
-      </div>
-      <div class="promotionNotice">{{ item.promotionNotice || "" }}</div>
-      <div class="flex goods-item" v-for="(val, i) in item.skuList" :key="i">
-        <div
-          class="goods-image"
-          @click="
-            navigateTo(
-              '/pages/product/goods?id=' +
-                val.goodsSku.id +
-                '&goodsId=' +
-                val.goodsSku.goodsId
-            )
-          "
-          :span="3"
-        >
-          <u-image
-            borderRadius="10rpx"
-            width="200rpx"
-            height="200rpx"
-            :src="val.goodsSku.thumbnail"
-            alt
-          />
-        </div>
-        <div
-          @click="
-            navigateTo(
-              '/pages/product/goods?id=' +
-                val.goodsSku.id +
-                '&goodsId=' +
-                val.goodsSku.goodsId
-            )
-          "
-          class="goods-detail"
-        >
-          <div class="flex">
-            <p class="goods-name">{{ val.goodsSku.goodsName }}</p>
-            <span class="nums">x{{ val.num }}</span>
+    <div
+      class="box box2"
+      v-for="(item, index) in orderMessage.cartList"
+      :key="index"
+    >
+      <div v-if="item.checked">
+        <div @click="navigateToStore(item)">
+          <div class="store-name">
+            <span>{{ item.storeName }}</span>
           </div>
-          <p class="goods-prices">
-            <span>￥</span>
-            <span class="goods-price">{{ formatPrice(val.goodsSku.price)[0] }}</span>
-            <span>.{{ formatPrice(val.goodsSku.price)[1] }}</span>
-          </p>
         </div>
-      </div>
-      <u-row>
-        <u-col :offset="0" :span="4">发票信息</u-col>
-        <u-col :span="8" class="tipsColor" textAlign="right" @click.native="invoice()">
-          <span v-if="receiptList"
-            >{{ receiptList.receiptTitle }} - {{ receiptList.receiptContent }}</span
-          >
-          <span v-else>不开发票</span>
-        </u-col>
-      </u-row>
-      <u-row>
-        <u-col
-          v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
-          :offset="0"
-          :span="9"
-          @click="shippingFlag = true"
-          >配送
-        </u-col>
-        <u-col
-          v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
-          :span="3"
-          textAlign="right"
-          @click="shippingFlag = true"
+        <div class="promotionNotice">{{ item.promotionNotice || "" }}</div>
+        <div
+          class="flex goods-item"
+          v-for="(val, i) in item.checkedSkuList"
+          :key="i"
         >
-          {{
-            shippingMethod.find((e) => {
-              return e.value == shippingText;
-            }).label
-          }}
-        </u-col>
-      </u-row>
-      <u-row>
-        <u-col :offset="0" :span="4" class="tl" style="text-align: left">备注信息</u-col>
-        <u-col :span="8" textAlign="right">
-          <u-input
-            style="text-align: right"
-            class="uinput"
-            v-model="remarkVal[index].remark"
-          />
-        </u-col>
-      </u-row>
+          <div
+            class="goods-image"
+            @click="
+              navigateTo(
+                '/pages/product/goods?id=' +
+                  val.goodsSku.id +
+                  '&goodsId=' +
+                  val.goodsSku.goodsId
+              )
+            "
+            :span="3"
+          >
+            <u-image
+              borderRadius="10rpx"
+              width="200rpx"
+              height="200rpx"
+              :src="val.goodsSku.thumbnail"
+              alt
+            />
+          </div>
+          <div
+            @click="
+              navigateTo(
+                '/pages/product/goods?id=' +
+                  val.goodsSku.id +
+                  '&goodsId=' +
+                  val.goodsSku.goodsId
+              )
+            "
+            class="goods-detail"
+          >
+            <div class="flex">
+              <p class="goods-name">{{ val.goodsSku.goodsName }}</p>
+              <span class="nums">x{{ val.num }}</span>
+            </div>
+            <p class="goods-prices">
+              <span>￥</span>
+              <span class="goods-price">{{
+                formatPrice(val.goodsSku.price)[0]
+              }}</span>
+              <span>.{{ formatPrice(val.goodsSku.price)[1] }}</span>
+            </p>
+          </div>
+        </div>
+        <u-row>
+          <u-col :offset="0" :span="4">发票信息</u-col>
+          <u-col
+            :span="8"
+            class="tipsColor"
+            textAlign="right"
+            @click.native="invoice()"
+          >
+            <span v-if="receiptList"
+              >{{ receiptList.receiptTitle }} -
+              {{ receiptList.receiptContent }}</span
+            >
+            <span v-else>不开发票</span>
+          </u-col>
+        </u-row>
+        <u-row>
+          <u-col
+            v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
+            :offset="0"
+            :span="9"
+            @click="shippingFlag = true"
+            >配送
+          </u-col>
+          <u-col
+            v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
+            :span="3"
+            textAlign="right"
+            @click="shippingFlag = true"
+          >
+            {{
+              shippingMethod.find((e) => {
+                return e.value == shippingText;
+              }).label
+            }}
+          </u-col>
+        </u-row>
+        <u-row>
+          <u-col :offset="0" :span="4" class="tl" style="text-align: left"
+            >备注信息</u-col
+          >
+          <u-col :span="8" textAlign="right">
+            <u-input
+              style="text-align: right"
+              class="uinput"
+              v-model="remarkVal[index].remark"
+            />
+          </u-col>
+        </u-row>
+      </div>
     </div>
 
     <!-- 发票信息 -->
-    <invoices :res="receiptList" @callbackInvoice="callbackInvoice" v-if="invoiceFlag" />
+    <invoices
+      :res="receiptList"
+      @callbackInvoice="callbackInvoice"
+      v-if="invoiceFlag"
+    />
     <u-select v-model="shippingFlag" :list="shippingMethod"></u-select>
 
     <div class="box box5" v-if="orderMessage.priceDetailDTO">
@@ -190,22 +217,30 @@
         <u-row>
           <u-col :span="9">商品合计</u-col>
           <u-col :span="3" textAlign="right">
-            <span>￥{{ orderMessage.priceDetailDTO.goodsPrice | unitPrice }}</span>
+            <span
+              >￥{{ orderMessage.priceDetailDTO.goodsPrice | unitPrice }}</span
+            >
           </u-col>
         </u-row>
       </div>
       <div>
         <u-row>
-          <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="7">运费</u-col>
+          <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="7"
+            >运费</u-col
+          >
           <u-col
             v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
             :span="5"
             class="tr tipsColor"
             textAlign="right"
           >
-            <span v-if="orderMessage.priceDetailDTO.freightPrice == 0">包邮</span>
+            <span v-if="orderMessage.priceDetailDTO.freightPrice == 0"
+              >包邮</span
+            >
             <span v-else
-              >￥{{ orderMessage.priceDetailDTO.freightPrice | unitPrice }}</span
+              >￥{{
+                orderMessage.priceDetailDTO.freightPrice | unitPrice
+              }}</span
             >
           </u-col>
         </u-row>
@@ -215,7 +250,10 @@
 
         <u-col
           :span="3"
-          v-if="orderMessage.priceDetailDTO && orderMessage.priceDetailDTO.couponPrice"
+          v-if="
+            orderMessage.priceDetailDTO &&
+            orderMessage.priceDetailDTO.couponPrice
+          "
           textAlign="right"
           @click="GET_Discount()"
         >
@@ -249,7 +287,9 @@
           <u-col :span="6">活动优惠</u-col>
           <u-col :span="6" class="tr tipsColor" textAlign="right">
             <span v-if="orderMessage.priceDetailDTO.discountPrice"
-              >-￥{{ orderMessage.priceDetailDTO.discountPrice | unitPrice }}</span
+              >-￥{{
+                orderMessage.priceDetailDTO.discountPrice | unitPrice
+              }}</span
             >
             <span v-else>0.00</span>
           </u-col>
@@ -277,7 +317,9 @@
           <span class="price">{{
             formatPrice(orderMessage.priceDetailDTO.flowPrice)[0]
           }}</span>
-          <span>.{{ formatPrice(orderMessage.priceDetailDTO.flowPrice)[1] }} </span>
+          <span
+            >.{{ formatPrice(orderMessage.priceDetailDTO.flowPrice)[1] }}
+          </span>
         </div>
         <span v-else class="number"
           ><span style="margin-right: 10rpx">{{
@@ -448,7 +490,9 @@ export default {
       this.navigateTo(
         `/pages/mine/address/address?from=cart&way=${
           this.routerVal.way
-        }&parentOrder=${encodeURIComponent(JSON.stringify(this.routerVal.parentOrder))}`
+        }&parentOrder=${encodeURIComponent(
+          JSON.stringify(this.routerVal.parentOrder)
+        )}`
       );
     },
 
@@ -483,9 +527,11 @@ export default {
         this.orderMessage.storeCoupons &&
         Object.keys(this.orderMessage.storeCoupons)[0]
       ) {
-        let storeMemberCouponsId = Object.keys(this.orderMessage.storeCoupons)[0];
-        let storeCouponId = this.orderMessage.storeCoupons[storeMemberCouponsId]
-          .memberCoupon.id;
+        let storeMemberCouponsId = Object.keys(
+          this.orderMessage.storeCoupons
+        )[0];
+        let storeCouponId =
+          this.orderMessage.storeCoupons[storeMemberCouponsId].memberCoupon.id;
         selectedCoupon.push(storeCouponId);
       }
       this.orderMessage.cartList.forEach((item) => {
@@ -608,9 +654,8 @@ export default {
       // 如果没有商品选择地址的话 则选择 默认地址
       API_Address.getAddressDefault().then((res) => {
         if (res.data.result) {
-          res.data.result.consigneeAddressPath = res.data.result.consigneeAddressPath.split(
-            ","
-          );
+          res.data.result.consigneeAddressPath =
+            res.data.result.consigneeAddressPath.split(",");
           this.address = res.data.result;
         }
       });
@@ -621,6 +666,14 @@ export default {
       this.notSupportFreight = [];
       // 获取结算参数
       API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
+        if (
+          !res.data.result.checkedSkuList ||
+          res.data.result.checkedSkuList.length === 0
+        ) {
+          uni.switchTab({
+            url: "/pages/tabbar/cart/cartList",
+          });
+        }
         if (res.data.result.skuList.length <= 0) {
           uni.redirectTo({
             url: "/pages/order/myOrder?status=0",
@@ -645,9 +698,8 @@ export default {
           this.getUserAddress();
         } else {
           this.address = res.data.result.memberAddress;
-          res.data.result.memberAddress.consigneeAddressPath = res.data.result.memberAddress.consigneeAddressPath.split(
-            ","
-          );
+          res.data.result.memberAddress.consigneeAddressPath =
+            res.data.result.memberAddress.consigneeAddressPath.split(",");
         }
 
         if (
