@@ -236,12 +236,15 @@ export default {
   },
   methods: {
     /**
-     * 倒数计时
-     */
+			 * 倒数计时
+			 */
     getCountDownTime(val) {
-      let date = new Date(val.replace(/-/g, "/"));
-      let timeSimple = new Date(date).getTime() / 1000;
-      return timeSimple - new Date().getTime() / 1000;
+      if (val.promotionMap) {
+        let key = Object.keys(val.promotionMap).find((child, index) => {
+          return child.split("-")[0] == 'SECKILL'
+        });
+        return val.promotionMap[key].endTime / 1000 - (new Date().getTime() / 1000)
+      }
     },
 
     /**
