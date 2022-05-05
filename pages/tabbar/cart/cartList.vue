@@ -51,7 +51,7 @@
           <view class="goods-row" :class="{ invalid: isInvalid(skuItem) }">
             <view class="goods-config">
               <view>
-                <u-checkbox-group v-if="skuItem.invalid == 0">
+                <u-checkbox-group v-if="skuItem.invalid == 0 && !skuItem.errorMessage">
                   <!-- #ifndef MP-WEIXIN -->
                   <u-checkbox shape="circle" :active-color="lightColor" class="c-left" v-model="skuItem.checked"
                     @change="checkboxChange(skuItem)"></u-checkbox>
@@ -110,7 +110,9 @@
                 预估到手价 ￥<span>{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
                 <span>.{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
               </div>
-
+							<div style='margin-left: 20rpx;' v-if="!skuItem.checked && skuItem.errorMessage">
+								{{skuItem.errorMessage}}
+							</div>
             </view>
           </view>
         </u-swipe-action>
@@ -192,8 +194,8 @@ export default {
         },
       ],
       isInvalid(val) {
-        //是否无效商品
-        if (val.invalid == 1) {
+        //是否无效商品/没库存商品
+        if (val.invalid == 1 || (!val.checked && val.errorMessage)) {
           return true;
         } else {
           return false;
