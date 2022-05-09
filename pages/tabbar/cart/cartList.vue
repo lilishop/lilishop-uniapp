@@ -51,7 +51,7 @@
           <view class="goods-row" :class="{ invalid: isInvalid(skuItem) }">
             <view class="goods-config">
               <view>
-                <u-checkbox-group v-if="skuItem.invalid == 0">
+                <u-checkbox-group v-if="skuItem.invalid == 0 && !skuItem.errorMessage">
                   <!-- #ifndef MP-WEIXIN -->
                   <u-checkbox shape="circle" :active-color="lightColor" class="c-left" v-model="skuItem.checked"
                     @change="checkboxChange(skuItem)"></u-checkbox>
@@ -99,7 +99,7 @@
               >
                 <div class="promotions-item-seckill" v-if="getPromotion(skuItem).includes('SECKILL')">
                   距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
-                    font-size="24" :timestamp="getCountDownTime(seckill.endTime)">
+                    font-size="24" :timestamp="getCountDownTime(skuItem)">
                   </u-count-down>
                 </div>
               </div>
@@ -110,7 +110,9 @@
                 预估到手价 ￥<span>{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
                 <span>.{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
               </div>
-
+							<div style='margin-left: 20rpx;' v-if="!skuItem.checked && skuItem.errorMessage">
+								{{skuItem.errorMessage}}
+							</div>
             </view>
           </view>
         </u-swipe-action>
@@ -192,8 +194,8 @@ export default {
         },
       ],
       isInvalid(val) {
-        //是否无效商品
-        if (val.invalid == 1) {
+        //是否无效商品/没库存商品
+        if (val.invalid == 1 || (!val.checked && val.errorMessage)) {
           return true;
         } else {
           return false;
@@ -236,12 +238,15 @@ export default {
   },
   methods: {
     /**
-     * 倒数计时
-     */
+			 * 倒数计时
+			 */
     getCountDownTime(val) {
-      let date = new Date(val.replace(/-/g, "/"));
-      let timeSimple = new Date(date).getTime() / 1000;
-      return timeSimple - new Date().getTime() / 1000;
+      if (val.promotionMap) {
+        let key = Object.keys(val.promotionMap).find((child, index) => {
+          return child.split("-")[0] == 'SECKILL'
+        });
+        return val.promotionMap[key].endTime / 1000 - (new Date().getTime() / 1000)
+      }
     },
 
     /**

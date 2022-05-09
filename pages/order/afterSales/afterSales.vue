@@ -17,7 +17,8 @@
         @clear="submitSearchOrderList(current)"
         @custom="submitSearchOrderList(current)"
         v-model="orderSn"
-      ></u-search>
+      >
+      </u-search>
     </div>
     <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
       <view
@@ -60,78 +61,77 @@
               <view>x{{ sku.num }}</view>
             </view>
           </view>
-          <view class="btn-view u-flex u-row-between">
-            <view class="description">
-              <!-- 售后申请 -->
+          <view class="description">
+            <!-- 售后申请  -->
+            <view v-if="current === 0 && order.groupAfterSaleStatus">
               <view
-                v-if="
-                  current === 0 &&
-                  order.groupAfterSaleStatus &&
-                  order.groupAfterSaleStatus.includes('ALREADY_APPLIED')
-                "
-                class="cannot_apply"
+                v-if="order.groupAfterSaleStatus.includes('ALREADY_APPLIED')"
+                class="cannot_apply not_center"
               >
                 <u-icon class="icon" name="info-circle-fill"></u-icon>
                 该商品已申请售后服务
               </view>
+            </view>
+            <view v-if="current === 0 && order.groupAfterSaleStatus">
               <view
-                class="cannot_apply"
-                v-if="
-                  current === 0 &&
-                  order.groupAfterSaleStatus &&
-                  order.groupAfterSaleStatus.includes('EXPIRED')
-                "
+                v-if="order.groupAfterSaleStatus.includes('EXPIRED')"
+                class="cannot_apply not_center"
                 @click="tipsShow = true"
               >
                 <u-icon class="icon" name="info-circle-fill"></u-icon>
                 该商品无法申请售后
               </view>
-
-              <div v-if="current === 1 || current === 2">
-                <!-- 申请中 -->
-                <view
-                  class="cannot_apply"
-                  v-if="order.serviceType == 'RETURN_GOODS'"
-                >
-                  退货处理-{{ order.serviceStatus | serviceStatusList }}</view
-                >
-                <view
-                  class="cannot_apply"
-                  v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'"
-                >
-                  补发商品-{{ order.serviceStatus | serviceStatusList }}</view
-                >
-                <view
-                  class="cannot_apply"
-                  v-if="order.serviceType == 'RETURN_MONEY'"
-                >
-                  退款-{{ order.serviceStatus | serviceStatusList }}</view
-                >
-                <view
-                  class="cannot_apply"
-                  v-if="order.serviceType == 'EXCHANGE_GOODS'"
-                >
-                  换货-{{ order.serviceStatus | serviceStatusList }}</view
-                >
-                <view class="cannot_apply" v-if="order.serviceType == 'CANCEL'">
-                  取消订单-{{ order.serviceStatus | serviceStatusList }}</view
-                >
-              </div>
-
-              <!-- 申请记录 -->
             </view>
-            <!-- 售后申请 -->
-            <div
-              v-if="
-                current === 0 &&
-                sku.afterSaleStatus &&
-                (sku.afterSaleStatus.includes('NOT_APPLIED') ||
-                  sku.afterSaleStatus.includes('PART_AFTER_SALE'))
-              "
-              @click="applyService(sku.sn, order, sku)"
-              class="sale"
-            >
-              <view class="default-btn border"> 申请售后 </view>
+
+            <div v-if="current === 1 || current === 2">
+              <!-- 申请中 -->
+              <view
+                class="cannot_apply not_center"
+                v-if="order.serviceType == 'RETURN_GOODS'"
+              >
+                退货处理-{{ order.serviceStatus | serviceStatusList }}</view
+              >
+              <view
+                class="cannot_apply not_center"
+                v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'"
+              >
+                补发商品-{{ order.serviceStatus | serviceStatusList }}</view
+              >
+              <view
+                class="cannot_apply not_center"
+                v-if="order.serviceType == 'RETURN_MONEY'"
+              >
+                退款-{{ order.serviceStatus | serviceStatusList }}</view
+              >
+              <view
+                class="cannot_apply not_center"
+                v-if="order.serviceType == 'EXCHANGE_GOODS'"
+              >
+                换货-{{ order.serviceStatus | serviceStatusList }}</view
+              >
+              <view
+                class="cannot_apply not_center"
+                v-if="order.serviceType == 'CANCEL'"
+              >
+                取消订单-{{ order.serviceStatus | serviceStatusList }}</view
+              >
+            </div>
+
+            <!-- 申请记录 -->
+          </view>
+          <view class="btn-view u-flex u-row-right">
+            <!-- 售后申请  -->
+
+            <div class="sale" v-if="current === 0 && sku.afterSaleStatus">
+              <div
+                v-if="
+                  sku.afterSaleStatus.includes('NOT_APPLIED') ||
+                  sku.afterSaleStatus.includes('PART_AFTER_SALE')
+                "
+                @click="applyService(sku.sn, order, sku)"
+              >
+                <view class="default-btn border"> 申请售后 </view>
+              </div>
             </div>
             <view class="after-line">
               <!-- 申请中 -->
@@ -229,7 +229,7 @@ export default {
         pageNumber: 1,
         pageSize: 10,
         sort: "createTime",
-        flowPrice: 1,
+        flowPrice: 0,
         order: "desc",
       },
 
@@ -404,6 +404,10 @@ export default {
      */
     onExpress(order, sku) {
       sku.storeName = order.storeName;
+      let data = {
+        ...order,
+        ...sku,
+      };
 
       storage.setAfterSaleData(data);
       uni.navigateTo({
@@ -458,31 +462,38 @@ page,
   overflow-y: auto;
   height: calc(100vh - 44px - 80rpx - 104rpx);
 }
+
 .u-tabs-search {
   padding: 20rpx;
   background: #fff;
 }
+
 .countMoney {
   margin-left: 7rpx;
   color: $main-color;
   font-size: 28rpx;
 }
+
 .seller-view {
   background-color: #fff;
   margin: 20rpx 0rpx;
   padding: 0rpx 20rpx;
   border-radius: 20rpx;
+
   .seller-info {
     height: 70rpx;
+
     .seller-name {
       font-size: 28rpx;
       display: flex;
       flex-direction: row;
+
       .name {
         margin-left: 15rpx;
         margin-top: -2rpx;
       }
     }
+
     .order-sn {
       font-size: 22rpx;
       color: #909399;
@@ -526,6 +537,7 @@ page,
       color: $main-color;
     }
   }
+
   .btn-view {
     padding: 16rpx 0;
 
@@ -535,10 +547,12 @@ page,
     }
   }
 }
+
 .description {
   color: #909399;
   size: 25rpx;
 }
+
 .cannot_apply {
   text-align: center;
   font-size: 22rpx;
@@ -547,6 +561,10 @@ page,
   height: 70rpx;
   line-height: 70rpx;
 }
+.not_center {
+  text-align: left;
+}
+
 .icon {
   margin-right: 10rpx;
 }
@@ -556,6 +574,7 @@ page,
   display: flex;
   justify-content: flex-end;
 }
+
 .default-btn {
   background-color: #ffffff;
   margin-left: 15rpx;
@@ -566,9 +585,11 @@ page,
   padding: 0 24rpx;
   border-radius: 200px;
 }
+
 .close {
   color: $light-color;
 }
+
 .border {
   border: 2rpx solid $light-color;
   color: $light-color;

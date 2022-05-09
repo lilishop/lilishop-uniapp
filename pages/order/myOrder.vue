@@ -139,7 +139,7 @@
                     shape="circle"
                     class="cancel-btn"
                     size="mini"
-                    v-if="order.groupAfterSaleStatus.includes('NOT_APPLIED')"
+                    v-if="order.groupAfterSaleStatus && order.groupAfterSaleStatus.includes('NOT_APPLIED')"
                     @click="applyService(order)"
                   >
                     退款/售后
