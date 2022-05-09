@@ -10,65 +10,109 @@
         </div>
       </div>
       <!-- 手机号 -->
-      <div v-show="current == 0">
-        <u-input
-          :custom-style="inputStyle"
-          :placeholder-style="placeholderStyle"
-          placeholder="请输入手机号 (11位)"
-          class="mobile"
-          focus
-          v-model="mobile"
-          type="number"
-          maxlength="11"
-        />
-        <div
-          :class="!enabuleFetchCode ? 'disable' : 'fetch'"
-          @click="fetchCode"
-          class="btn"
-        >
-          获取验证码
+      <div v-show="!enableUserPwdBox">
+        <div v-show="current == 0">
+          <u-input
+            :custom-style="inputStyle"
+            :placeholder-style="placeholderStyle"
+            placeholder="请输入手机号 (11位)"
+            class="mobile"
+            focus
+            v-model="mobile"
+            type="number"
+            maxlength="11"
+          />
+          <div
+            :class="!enableFetchCode ? 'disable' : 'fetch'"
+            @click="fetchCode"
+            class="btn"
+          >
+            获取验证码
+          </div>
         </div>
-        <div class="flex">
-          <u-checkbox-group :icon-size="24" width="45rpx">
-            <u-checkbox
-              shape="circle"
-              v-model="enabulePrivacy"
-              active-color="#FF5E00"
-            ></u-checkbox>
-          </u-checkbox-group>
-          <div class="tips">
-            未注册的手机号验证后将自动创建用户账号，登录即代表您已同意<span
-              @click="navigateToPrivacy('privacy')"
-              >《使用条款及隐私协议》</span
+        <!-- 输入验证码 -->
+        <div v-show="current == 1" class="box-code">
+          <verifyCode
+            type="bottom"
+            @confirm="submit"
+            boxActiveColor="#D8D8D8"
+            v-model="code"
+            isFocus
+            boxNormalColor="#D8D8D8"
+            cursorColor="#D8D8D8"
+          />
+
+          <div class="fetch-btn">
+            <u-verification-code
+              change-text="验证码已发送（x）"
+              end-text="重新获取验证码"
+              unique-key="page-login"
+              :seconds="seconds"
+              @end="end"
+              @start="start"
+              ref="uCode"
+              @change="codeChange"
+            ></u-verification-code>
+            <span @tap="fetchCode" :style="{ color: codeColor }">
+              {{ tips }}</span
             >
           </div>
         </div>
       </div>
-      <!-- 输入验证码 -->
-      <div v-show="current == 1" class="box-code">
-        <verifyCode
-          type="bottom"
-          @confirm="submit"
-          boxActiveColor="#D8D8D8"
-          v-model="code"
-          isFocus
-          boxNormalColor="#D8D8D8"
-          cursorColor="#D8D8D8"
+
+      <!-- 帐号密码登录 -->
+      <div v-show="enableUserPwdBox">
+        <u-input
+          :custom-style="inputStyle"
+          :placeholder-style="placeholderStyle"
+          placeholder="请输入用户名"
+          class="mobile"
+          focus
+          v-model="userData.username"
+        />
+        <u-input
+          :custom-style="inputStyle"
+          :placeholder-style="placeholderStyle"
+          placeholder="请输入密码"
+          class="mobile"
+          focus
+          v-model="userData.password"
+          type="password"
         />
 
-        <div class="fetch-btn">
-          <u-verification-code
-            change-text="验证码已发送（x）"
-            end-text="重新获取验证码"
-            unique-key="page-login"
-            :seconds="seconds"
-            @end="end"
-            @start="start"
-            ref="uCode"
-            @change="codeChange"
-          ></u-verification-code>
-          <span @tap="fetchCode" :style="{ color: codeColor }"> {{ tips }}</span>
+        <div
+          :class="!enableUserBtnColor ? 'disable' : 'fetch'"
+          @click="passwordLogin"
+          class="btn"
+        >
+          帐号密码登录
         </div>
+      </div>
+
+      <div class="flex" v-show="current != 1">
+        <u-checkbox-group :icon-size="24" width="45rpx">
+          <u-checkbox
+            shape="circle"
+            v-model="enablePrivacy"
+            active-color="#FF5E00"
+          ></u-checkbox>
+        </u-checkbox-group>
+        <div class="tips">
+          未注册的手机号验证后将自动创建用户账号，登录即代表您已同意<span
+            @click="navigateToPrivacy('privacy')"
+            >《隐私协议》</span>
+             <span @click="navigateToPrivacys('user')">
+            《用户协议》
+            </span>
+        </div>
+      </div>
+
+      <div
+        v-if="current != 1"
+        class="user-password-tips"
+        @click="enableUserPwdBox = !enableUserPwdBox"
+      >
+        {{ !enableUserPwdBox ? "帐号密码" : "手机号" }}登录
       </div>
 
       <!-- 循环出当前可使用的第三方登录模式 -->
@@ -115,7 +159,7 @@
 <script>
 import { openIdLogin, loginCallback } from "@/api/connect.js";
 import api from "@/config/api.js";
-import { sendMobile, smsLogin } from "@/api/login";
+import { sendMobile, smsLogin, userLogin } from "@/api/login";
 import myVerification from "@/components/verification/verification.vue"; //验证码模块
 import uuid from "@/utils/uuid.modified.js"; // uuid
 import verifyCode from "@/components/verify-code/verify-code";
@@ -124,6 +168,8 @@ import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
 import storage from "@/utils/storage.js"; //缓存
 import wechatH5Login from "./wechatH5Login.vue";
 import { webConnect } from "@/api/connect.js";
+import { md5 } from "@/utils/md5.js";
+
 export default {
   components: { myVerification, verifyCode, wechatH5Login },
 
@@ -134,6 +180,7 @@ export default {
       flage: false, //是否验证码验证
       codeFlag: true, //验证开关，用于是否展示验证码
       tips: "",
+      enableUserPwdBox: false, //帐号密码登录
       current: 0,
       codeColor: "#999", //按钮验证码颜色
       lightColor: this.$lightColor,
@@ -148,9 +195,14 @@ export default {
           desc: "已经发送验证码至",
         },
       ],
+      userData: {
+        username: "",
+        password: "",
+      },
       showBack: false,
-      enabuleFetchCode: false,
-      enabulePrivacy: false, //隐私政策
+      enableFetchCode: false,
+      enableUserBtnColor:false,
+      enablePrivacy: false, //隐私政策
       mobile: "", //手机号
       code: "", //验证码
       inputStyle: {
@@ -186,6 +238,15 @@ export default {
     };
   },
   onShow() {
+		
+		// 只要是app登录的全部清除内容
+		// #ifdef APP-PLUS 
+		storage.setAccessToken("");
+		storage.setRefreshToken("");
+		storage.setUserInfo({});
+		// #endif
+		
+		
     //#ifdef H5
     let isWXBrowser = /micromessenger/i.test(navigator.userAgent);
     if (isWXBrowser) {
@@ -286,10 +347,21 @@ export default {
     current(val) {
       val ? (this.showBack = true) : (this.showBack = false);
     },
+    userData:{
+      handler(val){
+        if(this.userData.username && this.userData.password) {
+          this.enableUserBtnColor = true;
+        }else{
+            this.enableUserBtnColor = false;
+        }
+      },
+      deep:true,
+
+    },
     mobile: {
       handler(val) {
         if (val.length == 11) {
-          this.enabuleFetchCode = true;
+          this.enableFetchCode = true;
         }
       },
     },
@@ -297,25 +369,31 @@ export default {
     async flage(val) {
       if (val) {
         if (this.$refs.uCode.canGetCode) {
-          // 向后端请求验证码
-          uni.showLoading({});
-          let res = await sendMobile(this.mobile);
-          uni.hideLoading();
-          // 这里此提示会被this.start()方法中的提示覆盖
-          if (res.data.success) {
-            this.current = 1;
-            this.$refs.uCode.start();
+          if (this.enableUserPwdBox) {
+            this.submitUserLogin();
+            return;
+            // 执行登录
           } else {
-            uni.showToast({
-              title: res.data.message,
-              duration: 2000,
-              icon: "none",
-            });
-            this.flage = false;
-            this.$refs.verification.getCode();
+            // 向后端请求验证码
+            uni.showLoading({});
+            let res = await sendMobile(this.mobile);
+            uni.hideLoading();
+            // 这里此提示会被this.start()方法中的提示覆盖
+            if (res.data.success) {
+              this.current = 1;
+              this.$refs.uCode.start();
+            } else {
+              uni.showToast({
+                title: res.data.message,
+                duration: 2000,
+                icon: "none",
+              });
+              this.flage = false;
+              this.$refs.verification.getCode();
+            }
           }
         } else {
-          this.$u.toast("请倒计时结束后再发送");
+          !this.enableUserPwdBox ? this.$u.toast("请倒计时结束后再发送") : "";
         }
       } else {
         this.$refs.verification.hide();
@@ -464,7 +542,13 @@ export default {
                * 1.如果跳转的链接为登录页面或跳转的链接为空页面。则会重新跳转到首页
                * 2.都不满足返回跳转页面
                */
-              whetherNavigate();
+             if (user.data.result.mobile) {
+                whetherNavigate();
+              } else {
+                uni.navigateTo({
+                  url: "/pages/passport/bindUserPhone",
+                });
+              }
             } else {
               uni.switchTab({
                 url: "/pages/tabbar/home/index",
@@ -485,7 +569,10 @@ export default {
       // #ifdef H5
       let code = connectLogin.code;
       let buyer = api.buyer;
-      window.open(buyer + `/passport/connect/connect/login/web/` + code, "_self");
+      window.open(
+        buyer + `/passport/connect/connect/login/web/` + code,
+        "_self"
+      );
       // #endif
       // #ifdef APP-PLUS
       this.nonH5OpenId(connectLogin);
@@ -504,42 +591,48 @@ export default {
       /**
        * 执行登录
        */
-      smsLogin({ mobile: this.mobile, code: this.code }, this.clientType).then((res) => {
-        if (res.data.success) {
-          storage.setAccessToken(res.data.result.accessToken);
-          storage.setRefreshToken(res.data.result.refreshToken);
-
-          /**
-           * 登录成功后获取个人信息
-           */
-          getUserInfo().then((user) => {
-            if (user.data.success) {
-              /**
-               * 个人信息存储到缓存userInfo中
-               */
-              storage.setUserInfo(user.data.result);
-              storage.setHasLogin(true);
-              // 登录成功
-              uni.showToast({
-                title: "登录成功!",
-                icon: "none",
-              });
-
-              /**
-               * 计算出当前router路径
-               * 1.如果跳转的链接为登录页面或跳转的链接为空页面。则会重新跳转到首页
-               * 2.都不满足返回跳转页面
-               */
-              whetherNavigate();
-            } else {
-              uni.switchTab({
-                url: "/pages/tabbar/home/index",
-              });
-            }
-          });
+      smsLogin({ mobile: this.mobile, code: this.code }, this.clientType).then(
+        (res) => {
+          this.getUserInfoMethods(res);
         }
-      });
+      );
     },
+
+    // 登录成功之后获取用户信息
+    getUserInfoMethods(res) {
+      console.log(res);
+      if (res.data.success) {
+        storage.setAccessToken(res.data.result.accessToken);
+        storage.setRefreshToken(res.data.result.refreshToken);
+
+        /**
+         * 登录成功后获取个人信息
+         */
+        getUserInfo().then((user) => {
+          if (user.data.success) {
+            /**
+             * 个人信息存储到缓存userInfo中
+             */
+            storage.setUserInfo(user.data.result);
+            storage.setHasLogin(true);
+            // 登录成功
+            uni.showToast({
+              title: "登录成功!",
+              icon: "none",
+            });
+
+           
+                whetherNavigate();
+              
+          } else {
+            uni.switchTab({
+              url: "/pages/tabbar/home/index",
+            });
+          }
+        });
+      }
+    },
+
     // 验证码验证
     verification(val) {
       this.flage = val == this.$store.state.verificationKey ? true : false;
@@ -549,6 +642,12 @@ export default {
       uni.navigateTo({
         url: "/pages/mine/help/tips?type=" + val,
       });
+      console.log(val)
+    },
+    navigateToPrivacys(val){
+      uni.navigateTo({
+        url:"/pages/mine/help/tips?type="+ val,
+      })
     },
     // 点击获取验证码
     start() {
@@ -569,9 +668,63 @@ export default {
       this.codeFlag = true;
       console.log(this.codeColor);
     },
+
+    passwordLogin() {
+      if (!this.enablePrivacy) {
+        uni.showToast({
+          title: "请同意用户隐私",
+          duration: 2000,
+          icon: "none",
+        });
+        return false;
+      }
+
+      if (!this.userData.username) {
+        uni.showToast({
+          title: "请填写用户名",
+          duration: 2000,
+          icon: "none",
+        });
+        return false;
+      }
+
+      if (!this.userData.password) {
+        uni.showToast({
+          title: "请填写密码",
+          duration: 2000,
+          icon: "none",
+        });
+        return false;
+      }
+
+      if (!this.flage) {
+        this.$refs.verification.error(); //发送
+
+        return false;
+      }
+    },
+
+    // 提交用户登录
+    async submitUserLogin() {
+      const params = JSON.parse(JSON.stringify(this.userData));
+      params.password = md5(params.password);
+      try {
+        let res = await userLogin(params);
+        if (res.data.success) {
+          console.log("zhixing ")
+          this.getUserInfoMethods(res);
+        } else {
+          this.$refs.verification.getCode();
+          this.flage = false;
+        }
+      } catch (error) {
+        this.$refs.verification.getCode();
+      }
+    },
+
     // 发送验证码
     fetchCode() {
-      if (!this.enabulePrivacy) {
+      if (!this.enablePrivacy) {
         uni.showToast({
           title: "请同意用户隐私",
           duration: 2000,
@@ -700,7 +853,6 @@ page {
 
 .login-item {
   width: 80rpx;
-
   border-radius: 10rpx;
   height: 80rpx;
   display: flex;
@@ -708,5 +860,11 @@ page {
   align-items: center;
 
   margin: 0 20rpx;
+}
+
+.user-password-tips {
+  text-align: center;
+  color: $main-color;
+  margin: 20px 0;
 }
 </style>
