@@ -21,11 +21,7 @@ export default {
     };
   },
   onLoad(params) {
-    params.IM
-      ? (this.src = `${configs.imWebSrc}?token=${storage.getAccessToken()}&id=${
-          params.IM
-        }`)
-      : (this.src = decodeURIComponent(params.src));
+    params.IM ? (this.src = `${configs.imWebSrc}?token=${storage.getAccessToken()}&id=${params.IM}`): (this.src = decodeURIComponent(params.src));
     console.log(this.src);
   },
 };
