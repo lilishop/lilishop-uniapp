@@ -200,7 +200,7 @@ export default {
             this.tabCurrentIndex++;
 
             // 当前距离重新为最上面
-            this.scrollTop = 0;
+						this.$set(this,'scrollTop',0)
           }
         } else {
           this.$emit("funcValue", this.tabbars);

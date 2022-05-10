@@ -1,19 +1,16 @@
 <template>
 	<view class="myTracks">
 		<u-navbar title="我的足迹">
-			
+
 		</u-navbar>
 		<u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
 		<div v-else>
-
-
-
 			<view v-for="(item, index) in trackList" :key="index">
 				<view class="myTracks-title" @click="navgaiteToStore(item)">{{item.storeName}}</view>
 				<view class="myTracks-items">
 
-					<u-swipe-action style="width: 100%;" :show="item.show" :index="index" :key="item.id" @click="delTracks"
-						@open="open" :options="options">
+					<u-swipe-action style="width: 100%;" :show="item.show" :index="index" :key="item.id"
+						@click="delTracks" @open="open" :options="options">
 						<view class="myTracks-item">
 							<view class="myTracks-item-img" @click.stop="navgaiteToDetail(item)">
 								<image :src="item.thumbnail"></image>
@@ -34,9 +31,9 @@
 				<view class="myTracks-divider"></view>
 
 			</view>
-			<uni-load-more :status="loadStatus"></uni-load-more>
+
 		</div>
-	
+
 	</view>
 </template>
 
@@ -49,7 +46,7 @@
 	export default {
 		data() {
 			return {
-				loadStatus: "more", //底部下拉加载状态
+
 				whetherEmpty: false, //是否数据为空
 				params: {
 					pageNumber: 1,
@@ -57,14 +54,12 @@
 					order: "desc",
 					sort: "updateTime",
 				},
-				options: [
-					{
-						text: '删除',
-						style: {
-							backgroundColor: '#dd524d'
-						}
+				options: [{
+					text: '删除',
+					style: {
+						backgroundColor: '#dd524d'
 					}
-				],
+				}],
 				trackList: [], //足迹列表
 			};
 		},
@@ -73,12 +68,11 @@
 		 * 滑到底部加载下一页数据
 		 */
 		onReachBottom() {
-			if (this.loadStatus != "noMore") {
-				this.params.pageNumber++;
-				this.getList();
-			}
+			this.params.pageNumber++;
+			this.getList();
 		},
-		onLoad() {
+		onShow() {
+			this.trackList = [];
 			this.getList();
 		},
 		onPullDownRefresh() {
@@ -130,12 +124,8 @@
 						let data = res.data.result;
 						if (data.total == 0) {
 							this.whetherEmpty = true;
-						} else if (data.total < 10) {
-							this.loadStatus = "noMore";
-							this.trackList.push(...data);
 						} else {
 							this.trackList.push(...data);
-							if (data.length < 10) this.loadStatus = "noMore";
 						}
 					}
 				});
