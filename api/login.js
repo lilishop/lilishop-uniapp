@@ -15,6 +15,23 @@ export function resetByMobile(params) {
 }
 
 /**
+ * 账号密码登陆
+ * @params  password
+ * @params  username
+ */
+ export function userLogin(params){
+  return http.request({
+    method: "POST",
+    url:`/passport/member/userLogin`,
+    data: params,
+    header: {
+      "content-type": "application/x-www-form-urlencoded",
+    },
+  })
+}
+
+
+/**
  * 发送验证码
  * @param  mobile
  */
