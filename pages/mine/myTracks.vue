@@ -116,12 +116,12 @@
 					uni.stopPullDownRefresh();
 					uni.hideLoading();
 					if (res.statusCode == 200) {
-						res.data.result &&
-							res.data.result.forEach((item) => {
+						res.data.result.records.length &&
+							res.data.result.records.forEach((item) => {
 								item.show = false;
 							});
 
-						let data = res.data.result;
+						let data = res.data.result.records;
 						if (data.total == 0) {
 							this.whetherEmpty = true;
 						} else {
