@@ -36,29 +36,30 @@
 						</view>
 						<!-- 正常商品的价格 -->
 						<view v-else>
-							<div class="goods-price">
+							
+							<!-- 批发价格 -->
+							<div class='price-row flex' v-if="wholesaleList.length">
+								<div class='goods-price' v-for="(item,index) in wholesaleList" :key="index">
+									<span>
+										￥
+										<span class="goods-price-bigshow">{{
+									    formatPrice(item.price)[0]
+									  }}</span>
+										.{{ formatPrice(item.price)[1] }}
+									</span>
+									<span class='wholesale-item'>
+										{{item.num}}{{goodsDetail.goodsUnit}}
+									</span>
+								</div>
+							</div>
+							<div class="goods-price" v-else>
 								<span>
 									￥
 									<span class="goods-price-bigshow">{{
-                  formatPrice(goodsDetail.price)[0]
-                }}</span>
+							    formatPrice(goodsDetail.price)[0]
+							  }}</span>
 									.{{ formatPrice(goodsDetail.price)[1] }}
 								</span>
-							</div>
-							<!-- 批发价格 -->
-							<div class='price-row'>
-								<div class='goods-price'>
-									<span >
-										￥
-										<span class="goods-price-bigshow">{{
-									    formatPrice(goodsDetail.price)[0]
-									  }}</span>
-										.{{ formatPrice(goodsDetail.price)[1] }}
-									</span>
-								</div>
-								<div>
-									23-30
-								</div>
 							</div>
 						</view>
 						<view class="goods-check-skus">
@@ -133,9 +134,14 @@
 				currentSelceted: [],
 				skuList: "",
 				isClose: false, //是否可以点击遮罩关闭
+				
 			};
 		},
 		props: {
+			wholesaleList:{
+				type: null,
+				default: false,
+			},
 			buyMask: {
 				type: Boolean,
 				default: false,
@@ -164,6 +170,14 @@
 				default: "",
 				type: null,
 			},
+		},
+		computed: {
+			wholesalePrice(key){
+				return this.wholesaleList.length ? this.wholesaleList.map(item=>{ return item.price }) :[]
+			},
+			wholesaleNum(key){
+				return this.wholesaleList.length ? this.wholesaleList.map(item=>{ return item.num }) :[]
+			}
 		},
 		watch: {
 			num(val){
@@ -454,6 +468,11 @@
 				border-radius: 30rpx;
 			}
 		}
+	}
+	.wholesale-item{
+		color: #999 !important;
+		font-size: 24rpx;
+		margin:0 20rpx;
 	}
 
 	.goods-header {

@@ -164,12 +164,16 @@
                 </view>
 
                 <div class="promotion" @click="navigateToDetailPage(item)">
+									<div v-if="item.content.salesModel == 'WHOLESALE'">
+										<span>批</span>
+									</div>
                   <div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
                     <span v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
                     <span v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
                     <span v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
                   </div>
                 </div>
+                
                 <div class="count-config" @click="navigateToDetailPage(item)">
                   <span>已售 {{ item.content.buyCount || "0" }}</span>
                   <span>{{ item.content.commentNum || "0" }}条评论</span>

@@ -348,6 +348,7 @@
           :id="productId"
           v-if="goodsDetail.id"
           :pointDetail="pointDetail"
+					:wholesaleList="wholesaleList"
           @handleClickSku="selectSku"
           :buyMask="buyMask"
         />
@@ -523,6 +524,7 @@ export default {
 
       routerVal: "",
       IMLink: "", // IM地址
+			wholesaleList:[]
     };
   },
 
@@ -661,6 +663,7 @@ export default {
       }
       /**商品信息以及规格信息存储 */
       this.goodsDetail = response.data.result.data;
+      this.wholesaleList = response.data.result.wholesaleList;
       this.goodsSpec = response.data.result.specs;
       this.PromotionList = response.data.result.promotionMap;
       this.goodsParams = response.data.result.goodsParamsDTOList || [];
