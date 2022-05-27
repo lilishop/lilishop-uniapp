@@ -129,18 +129,6 @@
           <uni-load-more :status="loadingType" @loadmore="loadmore()"></uni-load-more>
         </scroll-view>
       </div>
-      <div class="empty" v-if="goodsList == [] || goodsList == '' || goodsList == null">
-        <view>
-          <image style="width: 320rpx; height: 240rpx" src="/static/nodata.png">
-
-          </image>
-        </view>
-        <view>
-          <p>没有找到相关的商品信息</p>
-          <p>请换一个关键词试试吧</p>
-        </view>
-      </div>
-
       <!-- 一行两个商品展示 -->
       <div v-if="
           !isSWitch &&
@@ -268,6 +256,17 @@
         </view>
       </view>
     </u-popup>
+	<div class="empty" v-if="empty">
+		<view>
+			<image style="width: 320rpx; height: 240rpx" src="/static/nodata.png">
+	
+			</image>
+		</view>
+		<view>
+			<p>没有找到相关的商品信息</p>
+			<p>请换一个关键词试试吧</p>
+		</view>
+	</div>
     <u-back-top :scroll-top="scrollTop"></u-back-top>
   </view>
 </template>
@@ -281,6 +280,7 @@ import storage from "@/utils/storage";
 export default {
   data() {
     return {
+	  empty:false,
       scrollTop: 0,
       loadIndex: 10,
       oldKeywordIndex: "",
@@ -709,8 +709,11 @@ export default {
       let goodsList = await getGoodsList(this.params);
 
       if (goodsList.data.result.content.length < 10) {
-        this.loadingType = "noMore";
-      }
+		  this.loadingType = "noMore";
+		  this.empty = true
+	    } else {
+		  this.empty = false
+	    }
       this.goodsList.push(...goodsList.data.result.content);
       this.initSortGoods();
       uni.hideLoading();
