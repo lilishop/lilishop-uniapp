@@ -1,27 +1,11 @@
 <template>
   <div>
     <div class="goods-recommend">{{title ? `--${title}-- `:''}}</div>
-    <div class="goods-list">
-      <div @click="handleClick(item)" class="goods-item" v-for="(item, item_index) in goodsList" :key="item_index">
-        <div class="goods-img">
-          <u-image :src="item.content.thumbnail" mode="aspectFill" height="350rpx" width="100%">
-            <u-loading slot="loading"></u-loading>
-          </u-image>
-        </div>
-        <div class="goods-desc">
-          <div class="goods-title">
-            {{ item.content.goodsName }}
-          </div>
-          <div class="goods-bottom">
-            <div class="goods-price">￥{{ item.content.price | unitPrice }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+		 <goodsTemplate :res='goodsList' />
   </div>
 </template>
-
 <script>
+	import goodsTemplate from '@/components/m-goods-list/list'
 import { getGoodsList } from "@/api/goods.js";
 export default {
   data() {
@@ -50,6 +34,7 @@ export default {
       default: "",
     },
   },
+	components:{goodsTemplate},
   mounted() {
     this.initGoods();
   },
