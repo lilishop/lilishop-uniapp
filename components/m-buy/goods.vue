@@ -473,6 +473,8 @@
 		color: #999 !important;
 		font-size: 24rpx;
 		margin:0 20rpx;
+		display: flex;
+		justify-content: center;
 	}
 
 	.goods-header {
@@ -493,6 +495,7 @@
 	.goods-price {
 		color: $price-color;
 		line-height: 80rpx;
+		margin-right: 20rpx;
 		>* {
 			color: $price-color;
 			line-height: 80rpx;
