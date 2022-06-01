@@ -179,30 +179,34 @@ export default {
      * 联系客服
      */
     linkKefuDetail() {
-      // 客服
-      // #ifdef MP-WEIXIN
+      // // 客服
+      // // #ifdef MP-WEIXIN
 
-      const params = {
-        // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
-        uuid: storage.getUuid(),
-        token: storage.getAccessToken(),
-        sign: this.storeInfo.yzfSign,
-        mpSign: this.storeInfo.yzfMpSign,
-      };
-      uni.navigateTo({
-        url:
-          "/pages/product/customerservice/index?params=" +
-          encodeURIComponent(JSON.stringify(params)),
-      });
-      // #endif
-      // #ifndef MP-WEIXIN
-      const sign = this.storeInfo.yzfSign;
-      uni.navigateTo({
-        url:
-          "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-          sign,
-      });
-      // #endif
+      // const params = {
+      //   // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+      //   uuid: storage.getUuid(),
+      //   token: storage.getAccessToken(),
+      //   sign: this.storeInfo.yzfSign,
+      //   mpSign: this.storeInfo.yzfMpSign,
+      // };
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/product/customerservice/index?params=" +
+      //     encodeURIComponent(JSON.stringify(params)),
+      // });
+      // // #endif
+      // // #ifndef MP-WEIXIN
+      // const sign = this.storeInfo.yzfSign;
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+      //     sign,
+      // });
+      // // #endif
+			
+			uni.navigateTo({
+			   url: `/pages/tabbar/home/web-view?IM=${this.storeId}`,
+			 });
     },
 
     /** 获取店铺分类 */
