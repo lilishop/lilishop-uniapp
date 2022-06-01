@@ -1,7 +1,7 @@
 <template>
   <view class="recommend-box" >
     <h4 class="goods-recommend-title">宝贝推荐</h4>
-		<goodsList :res='res' :storeName="false" />
+		<goodsList :res='res' v-if="res" :storeName="false" />
 	 </view>
 </template>
 
