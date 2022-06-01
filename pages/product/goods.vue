@@ -7,7 +7,7 @@
 
     <!-- 分享 -->
     <shares
-      v-if="shareFlage && goodsDetail.id"
+      v-if="enableShare && goodsDetail.id"
       :skuId="this.routerVal.id"
       :goodsId="this.routerVal.goodsId"
       :link="
@@ -19,7 +19,7 @@
       :thumbnail="goodsDetail.thumbnail"
       :goodsName="goodsDetail.goodsName"
       type="goods"
-      @close="shareFlage = false"
+      @close="enableShare = false"
     />
     <popups
       v-model="popupsSwitch"
@@ -116,7 +116,7 @@
 
           <view class="card-box top-radius-0" id="main2">
             <!-- 活动不显示价钱 -->
-            <view v-if="!promotionFlag" class="desc-bold -goods-msg">
+            <view v-if="isSeckill || isGroup" class="desc-bold -goods-msg">
               <view class="-goods-flex">
                 <view class="desc-bold">
                   {{ goodsDetail.goodsName || "" }}
@@ -410,7 +410,6 @@ export default {
     return {
       setup,
       promotionShow: false, //弹窗开关
-      promotionFlag: true, //活动开关
       // #ifdef H5
       navbarListX: 110, //导航栏列表栏x轴
       navbarListY: 80, //导航栏列表栏y轴
@@ -447,9 +446,10 @@ export default {
         },
       ],
       popupsSwitch: false, //导航栏列表栏开关
-      shareFlage: false,
+      enableShare: false,
       selectedGoods: "", //选择的商品规格昵称
       isGroup: false, // 是否是拼团活动
+      isSeckill:false, // 是否秒杀活动
       pointDetail: "", // 是否是积分商品
       assemble: "", //拼团的sku
       navbarOnlyBack: {
@@ -485,7 +485,6 @@ export default {
           id: "4",
         },
       ],
-      oldtabScrollTop: 0,
       tabScrollTop: null,
       scrollArr: [],
       scrollId: "1",
@@ -547,10 +546,7 @@ export default {
           this.$refs.popupGoods.buyType = "PINTUAN";
           clearInterval(timer);
         }, 100);
-
-        this.promotionFlag = false;
       } else {
-        this.promotionFlag = true;
         this.$refs.popupGoods.buyType = "";
       }
     },
@@ -683,6 +679,10 @@ export default {
           // 积分
           if (item.indexOf("POINTS_GOODS") == 0) {
             this.pointDetail = this.PromotionList[item];
+          }
+          // 秒杀
+          if (item.indexOf("SECKILL") == 0) {
+            this.isSeckill = true
           }
         });
       // 轮播图
@@ -1074,7 +1074,7 @@ export default {
      * 点击分享
      */
     async shareChange() {
-      this.shareFlage = true;
+      this.enableShare = true;
     },
   },
 };
