@@ -150,14 +150,14 @@
                     </span>
 
                     <span v-else>
-												<!-- 	<span v-if="wholesaleList.length">
+													<span v-if="wholesaleList.length">
 														<span>¥</span><span class="price">{{ formatPrice(wholesaleList[wholesaleList.length-1].price)[0] }}</span>.{{ formatPrice(wholesaleList[wholesaleList.length-1].price)[1] }}
 														~
 														<span>¥</span><span class="price">{{ formatPrice(wholesaleList[0].price)[0] }}</span>.{{ formatPrice(wholesaleList[0].price)[1] }}
 													</span>
 													<span v-else>
 														<span>¥</span><span class="price">{{ formatPrice(goodsDetail.price)[0] }}</span>.{{ formatPrice(goodsDetail.price)[1] }}
-													</span> -->
+													</span>
                     </span>
                   </view>
                   <view class="-goods-price" v-else>
