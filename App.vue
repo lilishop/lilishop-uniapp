@@ -5,8 +5,9 @@
 import { mapMutations } from "vuex";
 import APPUpdate from "@/plugins/APPUpdate";
 import { getClipboardData } from "@/js_sdk/h5-copy/h5-copy.js";
+<<<<<<< HEAD
 import config from "@/config/config";
-import storage from "@/utils/storage.js";
+import storage from "@/utils/storage";
 // 悬浮球
 
 export default {
@@ -65,14 +66,14 @@ export default {
 
    onShow() {
     // #ifndef H5
-    // this.getClipboard();
+    this.getClipboard();
     // #endif
     // #ifdef APP-PLUS
-    console.log(storage.getShow());
+  
     if (storage.getShow()) {
       if(uni.getSystemInfoSync().platform == 'ios'){
       this.$u.route("/pages/tabbar/screen/fullScreen");
-      // uni.reLaunch({ url: "/pages/tabbar/screen/fullScreen" });
+
       }
     }
     // #endif
