@@ -1,5 +1,3 @@
-
-
 <script>
 /**
  * vuex管理登录状态，具体可以参考官方登录模板示例
@@ -8,6 +6,7 @@ import { mapMutations } from "vuex";
 import APPUpdate from "@/plugins/APPUpdate";
 import { getClipboardData } from "@/js_sdk/h5-copy/h5-copy.js";
 import config from "@/config/config";
+import storage from "@/utils/storage.js";
 // 悬浮球
 
 export default {
