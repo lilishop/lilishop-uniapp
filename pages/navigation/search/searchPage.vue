@@ -82,65 +82,10 @@
       <div v-if="isSWitch">
         <scroll-view :style="{ height: goodsHeight }" enableBackToTop="true" lower-threshold="250"
           @scrolltolower="loadmore()" scroll-with-animation scroll-y class="scoll-page">
-          <div class="goods-class">
-            <div v-for="(item, index) in goodsList" :key="index" class="goods-row">
-              <div class="flex goods-col">
-                <div class="goods-img" @click="navigateToDetailPage(item)">
-                  <u-image width="230rpx" height="230rpx" :src="item.content.thumbnail">
-                    <u-loading slot="loading"></u-loading>
-                  </u-image>
-                </div>
-                <div class="goods-detail">
-                  <div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.content.goodsName }}</div>
-                  <view class="price-box" @click="navigateToDetailPage(item)">
-                    <div class="price" v-if="item.content.price!=undefined">
-                      ¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
-                      formatPrice(item.content.price )[1]
-                    }}
-                    </div>
-                  </view>
-                  <div class="promotion" @click="navigateToDetailPage(item)">
-                    <div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
-                      <span v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
-                      <span v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
-                      <span v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
-                    </div>
-                  </div>
-                  <div style="overflow: hidden" @click="navigateToDetailPage(item)" class="count-config">
-                    <span style="float: left; font-size: 22rpx">已售 {{ item.content.buyCount || '0' }}</span>
-                    <span style="float: right; font-size: 22rpx">{{ item.content.commentNum || '0' }}条评论</span>
-                  </div>
-                  <div style="overflow: hidden" @click="navigateToStoreDetailPage(item)" class="count-config">
-                    <div class="text-hidden">
-                      <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营"
-                        type="error" />
-                      <span class="line1-store-name">{{ item.content.storeName }}</span>
-                      <span class="to-store">进店<u-icon size="24" name="arrow-right" color="#666"></u-icon></span>
-                    </div>
-                    <span>
-                      <u-icon name="arrow-right" color="#c5c5c5"></u-icon>
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
+          <goodsList :res='goodsList' type='oneColumns' />
           <uni-load-more :status="loadingType" @loadmore="loadmore()"></uni-load-more>
         </scroll-view>
       </div>
-      <div class="empty" v-if="goodsList == [] || goodsList == '' || goodsList == null">
-        <view>
-          <image style="width: 320rpx; height: 240rpx" src="/static/nodata.png">
-
-          </image>
-        </view>
-        <view>
-          <p>没有找到相关的商品信息</p>
-          <p>请换一个关键词试试吧</p>
-        </view>
-      </div>
-
       <!-- 一行两个商品展示 -->
       <div v-if="
           !isSWitch &&
@@ -148,45 +93,7 @@
         ">
         <scroll-view :style="{ height: goodsHeight }" scroll-anchoring enableBackToTop="true"
           @scrolltolower="loadmore()" scroll-with-animation scroll-y lower-threshold="250" class="scoll-page">
-          <view class="goods-list">
-            <view v-for="(item, index) in goodsList" :key="index" class="goods-item">
-              <view class="image-wrapper" @click="navigateToDetailPage(item)">
-                <image :src="item.content.thumbnail" mode="aspectFill"></image>
-              </view>
-              <view class="goods-detail">
-                <div class="title clamp" @click="navigateToDetailPage(item)">{{ item.content.goodsName }}</div>
-                <view class="price-box" @click="navigateToDetailPage(item)">
-                  <div class="price" v-if="item.content.price!=undefined">
-                    ¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
-                      formatPrice(item.content.price )[1]
-                    }}
-                  </div>
-                </view>
-
-                <div class="promotion" @click="navigateToDetailPage(item)">
-                  <div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
-                    <span v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
-                    <span v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
-                    <span v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
-                  </div>
-                </div>
-                <div class="count-config" @click="navigateToDetailPage(item)">
-                  <span>已售 {{ item.content.buyCount || "0" }}</span>
-                  <span>{{ item.content.commentNum || "0" }}条评论</span>
-                </div>
-                <div class="store-seller-name" @click="navigateToStoreDetailPage(item)">
-                  <div class="text-hidden">
-                    <u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated" text="自营"
-                      type="error" />
-                    <span>{{ item.content.storeName || "暂无" }}</span>
-                  </div>
-                  <span>
-                    <u-icon name="arrow-right"></u-icon>
-                  </span>
-                </div>
-              </view>
-            </view>
-          </view>
+					<goodsList :res='goodsList' />
           <uni-load-more :status="loadingType"></uni-load-more>
         </scroll-view>
       </div>
@@ -268,19 +175,31 @@
         </view>
       </view>
     </u-popup>
+	<div class="empty" v-if="empty">
+		<view>
+			<image style="width: 320rpx; height: 240rpx" src="/static/nodata.png">
+	
+			</image>
+		</view>
+		<view>
+			<p>没有找到相关的商品信息</p>
+			<p>请换一个关键词试试吧</p>
+		</view>
+	</div>
     <u-back-top :scroll-top="scrollTop"></u-back-top>
   </view>
 </template>
 
 <script>
 import { getGoodsList, getGoodsRelated } from "@/api/goods.js";
-
+import goodsList from '@/components/m-goods-list/list.vue'
 import { getHotKeywords } from "@/api/home.js";
 import mSearch from "@/components/m-search-revision/m-search-revision.vue";
 import storage from "@/utils/storage";
 export default {
   data() {
     return {
+	  empty:false,
       scrollTop: 0,
       loadIndex: 10,
       oldKeywordIndex: "",
@@ -339,6 +258,7 @@ export default {
       routerVal: "",
     };
   },
+	
   onPageScroll(e) {
     console.log(e);
     this.scrollTop = e.scrollTop;
@@ -371,6 +291,7 @@ export default {
   },
   components: {
     mSearch,
+		goodsList
   },
   watch: {
     /**
@@ -709,8 +630,11 @@ export default {
       let goodsList = await getGoodsList(this.params);
 
       if (goodsList.data.result.content.length < 10) {
-        this.loadingType = "noMore";
-      }
+		  this.loadingType = "noMore";
+		  this.empty = true
+	    } else {
+		  this.empty = false
+	    }
       this.goodsList.push(...goodsList.data.result.content);
       this.initSortGoods();
       uni.hideLoading();
@@ -759,6 +683,9 @@ export default {
     doSearchSwitch() {
       this.isSWitch = !this.isSWitch;
       this.isShowSeachGoods = true;
+			this.params.pageNumber = 1 
+			this.params.pageSize = 10
+			this.loadData("refresh", 1);
     },
 
     /**

@@ -60,18 +60,7 @@
     <!-- 商品 -->
     <div class="contant" v-if="current == 0">
       <view v-if="!goodsList.length" class="empty">暂无商品信息</view>
-      <view v-else class="item" v-for="(item,index) in goodsList" :key="index" @click="navigateToGoodsDetail(item)">
-        <u-image width="100%" height="330rpx" mode="aspectFit" :src="item.content.thumbnail">
-          <u-loading slot="loading"></u-loading>
-        </u-image>
-        <div class="name wes-2">{{ item.content.goodsName }}</div>
-        <div class="price">
-          <div>￥{{ item.content.price | unitPrice }}</div>
-        </div>
-        <view class="buyCount">
-          <div>已售 {{ item.content.buyCount || "0" }}</div>
-        </view>
-      </view>
+			<goodsTemplate :res="goodsList" :storeName="false" />
     </div>
     <!-- 全部分类 -->
     <div class="category" v-if="current == 1">
@@ -95,6 +84,7 @@
 
 <script>
 import { getStoreBaseInfo, getStoreCategory } from "@/api/store.js";
+import goodsTemplate from '@/components/m-goods-list/list'
 import {
   receiveCoupons,
   deleteStoreCollection,
@@ -129,6 +119,7 @@ export default {
       val == 0 ? ()=>{ this.goodsList = []; this.getGoodsData()} : this.getCategoryData();
     },
   },
+	components:{goodsTemplate},
 
   /**
    * 加载
@@ -188,30 +179,34 @@ export default {
      * 联系客服
      */
     linkKefuDetail() {
-      // 客服
-      // #ifdef MP-WEIXIN
+      // // 客服
+      // // #ifdef MP-WEIXIN
 
-      const params = {
-        // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
-        uuid: storage.getUuid(),
-        token: storage.getAccessToken(),
-        sign: this.storeInfo.yzfSign,
-        mpSign: this.storeInfo.yzfMpSign,
-      };
-      uni.navigateTo({
-        url:
-          "/pages/product/customerservice/index?params=" +
-          encodeURIComponent(JSON.stringify(params)),
-      });
-      // #endif
-      // #ifndef MP-WEIXIN
-      const sign = this.storeInfo.yzfSign;
-      uni.navigateTo({
-        url:
-          "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-          sign,
-      });
-      // #endif
+      // const params = {
+      //   // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+      //   uuid: storage.getUuid(),
+      //   token: storage.getAccessToken(),
+      //   sign: this.storeInfo.yzfSign,
+      //   mpSign: this.storeInfo.yzfMpSign,
+      // };
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/product/customerservice/index?params=" +
+      //     encodeURIComponent(JSON.stringify(params)),
+      // });
+      // // #endif
+      // // #ifndef MP-WEIXIN
+      // const sign = this.storeInfo.yzfSign;
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+      //     sign,
+      // });
+      // // #endif
+			
+			uni.navigateTo({
+			   url: `/pages/tabbar/home/web-view?IM=${this.storeId}`,
+			 });
     },
 
     /** 获取店铺分类 */
@@ -275,15 +270,6 @@ export default {
       if (res.data.success) {
         this.couponList.push(...res.data.result.records);
       }
-    },
-
-    /**
-     * 跳转到商品详情
-     */
-    navigateToGoodsDetail(val) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${val.content.id}&goodsId=${val.content.goodsId}`,
-      });
     },
 
     /**
@@ -403,42 +389,6 @@ export default {
     display: flex;
     justify-content: center;
     margin-top: 40rpx;
-  }
-  .item {
-    overflow: hidden;
-
-    background: #fff;
-    width: 49%;
-    height: 484rpx;
-    font-size: 26rpx;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #f8f8f8;
-    margin-bottom: 20rpx;
-
-    .name {
-      text-align: left !important;
-      color: #333;
-      padding: 0 20rpx;
-      margin-top: 20rpx;
-      height: 80rpx;
-      overflow: hidden;
-    }
-    .price {
-      font-weight: 500;
-      color: $main-color;
-      font-size: 30rpx;
-      padding: 0 20rpx;
-      margin-top: 20rpx;
-      white-space: nowrap;
-    }
-    .buyCount {
-      display: flex;
-      padding: 0 20rpx;
-      font-size: 24upx;
-      justify-content: space-between;
-      color: #999;
-    }
   }
 }
 .discount {

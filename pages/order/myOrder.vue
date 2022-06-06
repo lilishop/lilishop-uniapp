@@ -326,10 +326,10 @@ export default {
     // this.loadData(this.status);
   },
   onShow() {
-    if (this.tabCurrentIndex) {
-      this.initData(this.tabCurrentIndex);
+    if (!this.tabCurrentIndex) {
+     this.initData(0);
     } else {
-      this.initData(0);
+      
     }
     // this.loadData(this.status);
   },
@@ -341,6 +341,7 @@ export default {
      */
     let status = Number(options.status);
     this.status = status;
+		
     this.tabCurrentIndex = status;
     // if (status == 0) {
     //   this.loadData(status);
@@ -434,6 +435,7 @@ export default {
      */
     loadData(index) {
       this.params.pageNumber = this.navList[index].pageNumber;
+      // this.params.tag = this.orderStatus[index].orderStatus;
       getOrderList(this.params).then((res) => {
         uni.stopPullDownRefresh();
         if (!res.data.success) {
