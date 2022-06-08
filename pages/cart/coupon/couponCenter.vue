@@ -1,47 +1,48 @@
 <template>
-  <view class="coupon-center">
-    <swiper class="swiper-box">
-      <swiper-item class="swiper-item">
-        <scroll-view class="scroll-v" enableBackToTop="true" scroll-y @scrolltolower="loadMore">
-          <u-empty mode="coupon" text="没有优惠券了" v-if="whetherEmpty"></u-empty>
-          <view v-else class="coupon-item" v-for="(item, index) in couponList" :key="index">
-            <view class="left">
-              <view class="wave-line">
-                <view class="wave" v-for="(item, index) in 12" :key="index"></view>
-              </view>
-              <view class="message">
-                <view>
-                  <!--判断当前优惠券类型  couponType  PRICE || DISCOUNT -->
-                  <span v-if="item.couponType == 'DISCOUNT'">{{ item.couponDiscount }}折</span>
-                  <span v-else>{{ item.price }}元</span>
-                </view>
-                <view>满{{ item.consumeThreshold | unitPrice }}元可用</view>
-              </view>
-              <view class="circle circle-top"></view>
-              <view class="circle circle-bottom"></view>
-            </view>
-            <view class="right">
-              <view>
-                <!-- 根据scopeType 判断是否是 平台、品类或店铺  -->
-                <view v-if="item.scopeType">
-                  <span v-if="item.scopeType == 'ALL' && item.storeId == '0'">全平台</span>
-                  <span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
-                  <view v-else>{{  item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用</view>
-                </view>
-                <view v-if="item.endTime">有效期至：{{  item.endTime.split(" ")[0] }}</view>
-              </view>
-              <view class="receive" @click="receive(item)">
-                <text>点击</text><br />
-                <text>领取</text>
-              </view>
-              <view class="bg-quan"> 券 </view>
-            </view>
-          </view>
-          <uni-load-more :status="loadStatus"></uni-load-more>
-        </scroll-view>
-      </swiper-item>
-    </swiper>
-  </view>
+	<view class="coupon-center">
+		<div class="swiper-box">
+			<div class="swiper-item">
+				<div class="scroll-v" enableBackToTop="true" scroll-y>
+					<u-empty mode="coupon" style='margin-top: 20%;' text="没有优惠券了" v-if="whetherEmpty"></u-empty>
+					<view v-else class="coupon-item" v-for="(item, index) in couponList" :key="index">
+						<view class="left">
+							<view class="wave-line">
+								<view class="wave" v-for="(item, index) in 12" :key="index"></view>
+							</view>
+							<view class="message">
+								<view>
+									<!--判断当前优惠券类型  couponType  PRICE || DISCOUNT -->
+									<span v-if="item.couponType == 'DISCOUNT'">{{ item.couponDiscount }}折</span>
+									<span v-else>{{ item.price }}元</span>
+								</view>
+								<view>满{{ item.consumeThreshold | unitPrice }}元可用</view>
+							</view>
+							<view class="circle circle-top"></view>
+							<view class="circle circle-bottom"></view>
+						</view>
+						<view class="right">
+							<view>
+								<!-- 根据scopeType 判断是否是 平台、品类或店铺  -->
+								<view class="coupon-title wes-3" v-if="item.scopeType">
+									<span v-if="item.scopeType == 'ALL' && item.storeId == 'platform'">全平台</span>
+									<span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
+									<view v-else>{{ item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用
+									</view>
+								</view>
+								<view v-if="item.endTime">有效期至：{{ item.endTime.split(" ")[0] }}</view>
+							</view>
+							<view class="receive" @click="receive(item)">
+								<text>点击</text><br />
+								<text>领取</text>
+							</view>
+							<view class="bg-quan"> 券 </view>
+						</view>
+					</view>
+
+				</div>
+			</div>
+		</div>
+	</view>
 </template>
 
 <script>
