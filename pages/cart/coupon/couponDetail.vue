@@ -14,7 +14,7 @@
       </view>
       <view class="bottom-view">
         <view class="text">• 使用平台：{{
-                    coupon.scopeType == 'ALL' && coupon.id == 'platform'
+                    coupon.scopeType == 'ALL' && coupon.storeId == '0'
                       ? "全平台"
                       : coupon.scopeType == "PORTION_CATEGORY"
                       ? "仅限品类"

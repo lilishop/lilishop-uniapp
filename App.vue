@@ -5,7 +5,6 @@
 import { mapMutations } from "vuex";
 import APPUpdate from "@/plugins/APPUpdate";
 import { getClipboardData } from "@/js_sdk/h5-copy/h5-copy.js";
-<<<<<<< HEAD
 import config from "@/config/config";
 import storage from "@/utils/storage";
 // 悬浮球
