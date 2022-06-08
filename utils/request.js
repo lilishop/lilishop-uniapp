@@ -119,9 +119,11 @@ http.interceptors.response.use(
       response.data.status === 403
     ) {
       if (!isRefreshing) {
+		console.log('旧token',token) 
         isRefreshing = true;
+		let oldRefreshToken = storage.getRefreshToken();
         //调用刷新token的接口
-        return refreshTokenFn(storage.getRefreshToken())
+        return refreshTokenFn(oldRefreshToken)
           .then((res) => {
             let { accessToken, refreshToken } = res.data.result;
             storage.setAccessToken(accessToken);
@@ -129,11 +131,13 @@ http.interceptors.response.use(
 
             response.header.accessToken = `${accessToken}`;
             // token 刷新后将数组的方法重新执行
+			console.log('接口队列',requests,'新token',accessToken) 
             requests.forEach((cb) => cb(accessToken));
             requests = []; // 重新请求完清空
             return http.request(response.config);
           })
           .catch((err) => {
+			console.log('刷新token报错'+oldRefreshToken,err)
             cleanStorage();
             return Promise.reject(err);
           })
@@ -153,9 +157,10 @@ http.interceptors.response.use(
 
       // 如果当前返回没登录
     } else if (
-      (!token && response.statusCode === 403) ||
+      (!token && !storage.getRefreshToken() && response.statusCode === 403) ||
       response.data.code === 403
     ) {
+	  console.log('没有token 以及刷新token 内容',token,storage.getRefreshToken())
       cleanStorage();
 
       // 如果当前状态码为正常但是success为不正常时

@@ -27,7 +27,7 @@ export function modelNavigateTo(item) {
     // 活动
     case "marketing":
       uni.navigateTo({
-        url: "/pages/product/goods?id=" + val.skuId + "goodsId=" + val.goodsId,
+        url: "/pages/product/goods?id=" + val.id + "goodsId=" + val.goodsId,
       });
       break;
     case "pages":

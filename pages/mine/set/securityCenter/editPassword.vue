@@ -1,12 +1,13 @@
 <template>
   <view class="box">
     <view class="box-tips">
-      <h2>
+      <h2 class='h2'>
         {{verificationTitle[validateFlage==false ? 0 : 1].title}}
       </h2>
       <view class="verification">{{verificationTitle[step].desc}}</view>
     </view>
-    <u-form :model="codeForm" class="form" ref="validateCodeForm">
+		<view class="form">
+			<u-form :model="codeForm"  ref="validateCodeForm">
       <view v-if="!validateFlage">
         <u-form-item label-width="120" label="手机号" prop="mobile">
           <u-input maxlength="11" v-model="codeForm.mobile" placeholder="请输入您的手机号" />
@@ -35,7 +36,8 @@
         <view class="submit" @click="updatePassword">修改密码</view>
       </view>
     </u-form>
-  </view>
+		</view>
+	</view>
 </template>
 
 <script>
@@ -221,14 +223,18 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import url("../../../passport/login.scss");
-.u-form-item {
+@import url("@/pages/passport/login.scss");
+/deep/ .u-form-item {
   margin: 40rpx 0;
 }
 .sendCode {
   /deep/ .u-form-item--right__content__slot {
     display: flex;
   }
+}
+.h2{
+	font-size: 40rpx;
+	font-weight: bold;
 }
 page {
   background: #fff;
@@ -248,4 +254,5 @@ page {
   color: #999;
   margin-top: 10rpx;
 }
+
 </style>
