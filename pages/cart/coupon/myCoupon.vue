@@ -32,7 +32,7 @@
               <view class="content">
                 <view class="title-1">{{ coupon.title }}</view>
                 <view class="title-2">使用平台：{{
-                    coupon.scopeType == 'ALL' && coupon.id == 'platform'
+                    coupon.scopeType == 'ALL' && coupon.storeId == '0'
                       ? "全平台"
                       : coupon.scopeType == "PORTION_CATEGORY"
                       ? "仅限品类"
@@ -188,7 +188,7 @@ export default {
      * 立即使用优惠券
      */
     useItNow(item) {
-      if (item.storeId && item.storeId!='platform') {
+      if (item.storeId && item.storeId!='0') {
         uni.navigateTo({
           url: `/pages/product/shopPage?id=${item.storeId}`,
         });
