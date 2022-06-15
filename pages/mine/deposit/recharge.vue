@@ -1,3 +1,4 @@
+
 <template>
   <view>
     <view class="-list">
@@ -5,7 +6,8 @@
       <view class="content">
         <view class="price">
           <span> ￥</span>
-          <u-input v-model="price" placeholder="" type="number" />
+          <u-input v-model="price" placeholder='金额' type="number" />
+					
         </view>
 
       </view>
