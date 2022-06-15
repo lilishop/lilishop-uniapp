@@ -139,6 +139,7 @@
 					// 判断当前是否是充值
 					this.sn = this.routerVal.recharge_sn;
 					this.orderType = "RECHARGE";
+					
 				} else if (this.routerVal.trade_sn) {
 					this.sn = this.routerVal.trade_sn;
 					this.orderType = "TRADE";
@@ -161,7 +162,7 @@
 					});
 					// #endif
 
-					// #ifndef MP-WEIXIN
+					
 				    if(this.routerVal.recharge_sn){
 					 this.payList = res.data.result.support.filter((item) => {
 						return item != "WALLET";
@@ -170,7 +171,7 @@
 					 else{
 						this.payList = res.data.result.support;
 					}
-					// #ifndef APP-PLUS
+					// #ifdef H5
 					//判断是否微信浏览器
 					var ua = window.navigator.userAgent.toLowerCase();
 					if (ua.match(/MicroMessenger/i) == 'micromessenger') {
@@ -182,7 +183,7 @@
 					}
 					// #endif
 					
-					// #endif
+				
 					
 
 					this.walletValue = res.data.result.walletValue;
