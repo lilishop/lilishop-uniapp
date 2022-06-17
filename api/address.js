@@ -25,7 +25,7 @@ export function getAddressList(pageNumber, pageSize) {
  */
 export function getLogistics() {
   return http.request({
-    url: "/logistics",
+    url: "/other/logistics",
     method: Method.GET,
     needToken: true,
     params: { pageNumber: 1, pageSize: 200, disabled: "OPEN" },
