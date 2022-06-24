@@ -59,6 +59,11 @@
 				return this.zIndex ? this.zIndex : this.$u.zIndex.noNetwork;
 			}
 		},
+		watch:{
+			isConnected(val){
+					this.$emit('isConnected',val)
+			}
+		},
 		mounted() {
 			this.isIOS = (uni.getSystemInfoSync().platform === 'ios');
 			uni.onNetworkStatusChange((res) => {
