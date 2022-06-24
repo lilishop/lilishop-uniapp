@@ -50,7 +50,7 @@
       <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
       <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
     </div>
-    <u-no-network></u-no-network>
+    <u-no-network @retry='init' @isConnected='isConnected'></u-no-network>
   </div>
 </template>
 
@@ -128,6 +128,10 @@ export default {
         }
       });
     },
+		// 是否有网络链接
+		isConnected(val){
+			val ? this.init() : ''
+		},
 
     /**
      * TODO 扫码功能后续还会后续增加
