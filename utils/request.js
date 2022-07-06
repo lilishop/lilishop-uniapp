@@ -27,20 +27,20 @@ function cleanStorage() {
   storage.setUuid("");
   storage.setUserInfo({});
 
-	
-  if(!isNavigateTo){
-	  isNavigateTo= true
-	  // 防抖处理跳转
-	  // #ifdef MP-WEIXIN
-	  uni.navigateTo({
-		url: "/pages/passport/wechatMPLogin",
-	  });
-	  // #endif
-	  // #ifndef MP-WEIXIN
-	  uni.navigateTo({
-		url: "/pages/passport/login",
-	  });
-  //  #endif
+
+  if (!isNavigateTo) {
+    isNavigateTo = true
+    // 防抖处理跳转
+    // #ifdef MP-WEIXIN
+    uni.navigateTo({
+      url: "/pages/passport/wechatMPLogin",
+    });
+    // #endif
+    // #ifndef MP-WEIXIN
+    uni.navigateTo({
+      url: "/pages/passport/login",
+    });
+    //  #endif
   }
 }
 
@@ -84,7 +84,7 @@ http.interceptors.request.use(
       config.params = params;
       config.header.accessToken = accessToken;
 
-      
+
     }
     config.header = {
       ...config.header,
@@ -105,23 +105,23 @@ let requests = [];
 // 必须使用异步函数，注意
 http.interceptors.response.use(
   async (response) => {
-	isNavigateTo = false
+    isNavigateTo = false
     /* 请求之后拦截器。可以使用async await 做异步操作  */
     // token存在并且token过期
     // if (isRefreshing && response.statusCode === 403) {
     //   cleanStorage();
     //   isRefreshing = false;
     // }
-    
+    console.log(response)
     let token = storage.getAccessToken();
     if (
       (token && response.statusCode === 403) ||
       response.data.status === 403
     ) {
       if (!isRefreshing) {
-		console.log('旧token',token) 
+        console.log('旧token', token)
         isRefreshing = true;
-		let oldRefreshToken = storage.getRefreshToken();
+        let oldRefreshToken = storage.getRefreshToken();
         //调用刷新token的接口
         return refreshTokenFn(oldRefreshToken)
           .then((res) => {
@@ -131,13 +131,13 @@ http.interceptors.response.use(
 
             response.header.accessToken = `${accessToken}`;
             // token 刷新后将数组的方法重新执行
-			console.log('接口队列',requests,'新token',accessToken) 
+            // console.log('接口队列', requests, '新token', accessToken)
             requests.forEach((cb) => cb(accessToken));
             requests = []; // 重新请求完清空
             return http.request(response.config);
           })
           .catch((err) => {
-			console.log('刷新token报错'+oldRefreshToken,err)
+            console.log('刷新token报错' + oldRefreshToken, err)
             cleanStorage();
             return Promise.reject(err);
           })
@@ -154,13 +154,12 @@ http.interceptors.response.use(
           });
         });
       }
-
       // 如果当前返回没登录
     } else if (
       (!token && !storage.getRefreshToken() && response.statusCode === 403) ||
-      response.data.code === 403
+      response.data.code === 403 || response.data.code === 20004
     ) {
-	  console.log('没有token 以及刷新token 内容',token,storage.getRefreshToken())
+      // console.log('没有token 以及刷新token 内容', token, storage.getRefreshToken())
       cleanStorage();
 
       // 如果当前状态码为正常但是success为不正常时
