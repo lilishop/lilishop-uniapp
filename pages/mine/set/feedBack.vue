@@ -16,9 +16,9 @@
     <!-- 上传凭证 -->
     <div class="feedBack-box">
       <view class="opt-view">
-        <view class="img-title">上传凭证（最多5张）</view>
+        <view class="img-title">上传凭证（最多2张）</view>
         <view class="images-view">
-          <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150" @on-uploaded="onUploaded" :max-count="5" :show-progress="false"></u-upload>
+          <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150" @on-uploaded="onUploaded" :max-count="2" :show-progress="false"></u-upload>
         </view>
       </view>
     </div>
