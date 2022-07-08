@@ -2,9 +2,11 @@
   <view class="add-address">
     <div class="uForm">
       <u-form :border-bottom="false" :model="form" ref="uForm" :error-type="['toast']" :rule="rules">
+				<!-- #ifndef H5 -->
         <view class="selectAddress" @click="clickUniMap">
           选择收货地址
         </view>
+				<!-- #endif -->
         <u-form-item class="border" label="收货人" label-width="130" prop="name">
           <u-input v-model="form.name" clearable placeholder="请输入收货人姓名" />
         </u-form-item>
