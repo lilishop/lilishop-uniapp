@@ -82,7 +82,7 @@
       <div v-if="isSWitch">
         <scroll-view :style="{ height: goodsHeight }" enableBackToTop="true" lower-threshold="250"
           @scrolltolower="loadmore()" scroll-with-animation scroll-y class="scoll-page">
-          <goodsList :res='goodsList' type='oneColumns' />
+          <goodsList :res='goodsList' type='oneColumns' :keyword='keyword' />
           <uni-load-more :status="loadingType" @loadmore="loadmore()"></uni-load-more>
         </scroll-view>
       </div>
@@ -93,7 +93,7 @@
         ">
         <scroll-view :style="{ height: goodsHeight }" scroll-anchoring enableBackToTop="true"
           @scrolltolower="loadmore()" scroll-with-animation scroll-y lower-threshold="250" class="scoll-page">
-					<goodsList :res='goodsList' />
+					<goodsList :res='goodsList' :keyword='keyword' />
           <uni-load-more :status="loadingType"></uni-load-more>
         </scroll-view>
       </div>
