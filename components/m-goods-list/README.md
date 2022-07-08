@@ -7,4 +7,5 @@
 | `res`       | 显示数据                                                   | Array   | 是   |
 | `type`      | 商品展示类型 oneColumns twoColumns  ，默认展示一行两列商品 | String  | 否   |
 | `storeName` | 是否展示店铺名称，默认展示                                 | Boolean | 否   |
+| `keywords` | 高亮展示搜索内容                                 | String | 否   |
 

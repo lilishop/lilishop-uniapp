@@ -42,7 +42,6 @@
         </view>
         <view class="log-item-footer">
           <view>会员名称：{{ item.memberName }}</view>
-          <view>订单金额：{{ item.flowPrice | unitPrice }}</view>
         </view>
         <view class="log-item-footers">
           <view>订单号：{{ item.orderSn }}</view>

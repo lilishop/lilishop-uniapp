@@ -5,11 +5,14 @@
 			<view v-for="(item, index) in res" :key="index" class="goods-item">
 				<view class="image-wrapper" @click="navigateToDetailPage(item)">
 					<u-image :src="item.content.thumbnail" width="100%" height='330rpx' mode="aspectFill">
-						  <u-loading slot="loading"></u-loading>
+						<u-loading slot="loading"></u-loading>
 					</u-image>
 				</view>
 				<view class="goods-detail">
-					<div class="title clamp" @click="navigateToDetailPage(item)">{{ item.content.goodsName }}</div>
+					<div class="title clamp" v-html="lightSearchStr(keyword,item.content.goodsName)"
+						@click="navigateToDetailPage(item)">
+
+					</div>
 					<view class="price-box" @click="navigateToDetailPage(item)">
 						<div class="price" v-if="item.content.price!=undefined">
 							¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
@@ -32,10 +35,10 @@
 						<span>{{ item.content.commentNum || "0" }}条评论</span>
 					</div>
 					<div class="store-seller-name" v-if="storeName" @click="navigateToStoreDetailPage(item)">
-						<div class="text-hidden" >
+						<div class="text-hidden">
 							<u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated"
 								text="自营" type="error" />
-							<span >{{ item.content.storeName || "暂无" }}</span>
+							<span>{{ item.content.storeName || "暂无" }}</span>
 						</div>
 						<span>
 							<u-icon name="arrow-right"></u-icon>
@@ -100,7 +103,9 @@
 <script>
 	export default {
 		data() {
-			return {}
+			return {
+				lightColor: this.$mainColor
+			}
 		},
 		props: {
 			// 遍历的数据
@@ -121,10 +126,56 @@
 			storeName: {
 				type: Boolean,
 				default: true
+			},
+			keyword: {
+				type: null,
+				default: ''
 			}
 
 		},
+		watch: {
+			keyword(val) {
+				if (val) {
+					this.lightSearchStr(val)
+				}
+			}
+		},
 		methods: {
+
+			// 高亮显示搜索内容	
+			lightSearchStr(keyword, str) {
+				if (!keyword) {
+					return str
+				} else {
+					let unicodes = '';
+					for (let i of Array.from(keyword)) {
+						unicodes += this.unicode(i) + "|"
+					}
+					const rule = '(' + unicodes + ')'
+					const reg = new RegExp(rule, 'gi');
+					return str ? str.replace(reg, matchValue =>
+						`<span style="color:${this.lightColor}">${matchValue}</span>`
+					) : ''
+				}
+			},
+			//  转换为unicode
+			unicode(str) {
+				var value = '';
+				for (var i = 0; i < str.length; i++) {
+					value += '\\u' + this.left_zero_4(parseInt(str.charCodeAt(i)).toString(16));
+				}
+				return value;
+			},
+			left_zero_4(str) {
+				if (str != null && str != '' && str != 'undefined') {
+					if (str.length == 2) {
+						return '00' + str;
+					}
+				}
+				return str;
+			},
+
+
 			// 格式化金钱  1999 --> [1999,00]
 			formatPrice(val) {
 				if (typeof val == "undefined") {
