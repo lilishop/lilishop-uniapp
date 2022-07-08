@@ -163,10 +163,10 @@
 					// #endif
 
 					
-				    if(this.routerVal.recharge_sn){
-					 this.payList = res.data.result.support.filter((item) => {
+				  if(this.routerVal.recharge_sn){
+						this.payList = res.data.result.support.filter((item) => {
 						return item != "WALLET";
-					 })
+					})
 					}
 					 else{
 						this.payList = res.data.result.support;
@@ -179,6 +179,12 @@
 						this.payList = res.data.result.support.filter((item) => {
 							return item != "ALIPAY";
 						});
+						// 充值的话仅保留微信支付
+						if(this.orderType == "RECHARGE"){
+							this.payList = res.data.result.support.filter((item) => {
+								return item == "WECHAT";
+							});
+						}
 						
 					}
 					// #endif
