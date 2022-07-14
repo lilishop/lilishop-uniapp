@@ -846,7 +846,7 @@ page {
   display: flex;
   width: 590rpx;
   position: absolute;
-  bottom: 20px;
+  top: 1200rpx;
   align-items: center;
   justify-content: center;
 }
