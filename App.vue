@@ -67,8 +67,8 @@ export default {
 
    onShow() {
     // #ifndef H5
-    this.getClipboard();
-    // #endif
+      this.getClipboard();
+		// #endif
     // #ifdef APP-PLUS
   
     if (storage.getShow()) {
@@ -150,10 +150,13 @@ export default {
      */
     async getClipboard() {
       let res = await getClipboardData();
+	
       /**
        * 解析粘贴板数据
        */
-      if (res.indexOf(config.shareLink) != -1) {
+		
+      if (res.indexOf(config.shareLink) != -1 && (res!= this.$store.state.shareLink)) {
+        this.$store.state.shareLink = res
         uni.showModal({
           title: "提示",
           content: "检测到一个分享链接是否跳转？",
