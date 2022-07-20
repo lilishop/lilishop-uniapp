@@ -50,7 +50,7 @@ export default {
      * 跳转
      */
     navgition(url) {
-      uni.navigateTo({
+      this.$navigateTo({
         url,
       });
     },

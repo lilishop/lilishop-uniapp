@@ -74,7 +74,7 @@ export default {
 
     // 跳转到砍价详情
     navigateToBargainDetail(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/promotion/bargain/detail?id=${val.id}`,
       });
     },

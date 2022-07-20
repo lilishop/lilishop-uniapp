@@ -84,7 +84,7 @@
 			 * 导航到店铺
 			 */
 			navgaiteToStore(val) {
-				uni.navigateTo({
+				this.$navigateTo({
 					url: "/pages/product/shopPage?id=" + val.storeId,
 				});
 			},
@@ -100,7 +100,7 @@
 			 * 跳转详情
 			 */
 			navgaiteToDetail(item) {
-				uni.navigateTo({
+				this.$navigateTo({
 					url: "/pages/product/goods?id=" + item.id + "&goodsId=" + item.goodsId,
 				});
 			},

@@ -62,7 +62,7 @@ export default {
       this.goodsList.push(...goodsList.data.result.content);
     },
     handleClick(item) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/product/goods?id=${item.content.id}&goodsId=${item.content.goodsId}`,
       });
     },

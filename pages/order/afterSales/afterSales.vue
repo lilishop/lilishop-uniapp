@@ -351,7 +351,7 @@ export default {
      * 售后详情
      */
     afterDetails(order) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "./applyDetail?sn=" + order.sn,
       });
     },
@@ -394,7 +394,7 @@ export default {
         ...sku,
       };
       storage.setAfterSaleData(data);
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/order/afterSales/afterSalesSelect?sn=${sn}`,
       });
     },
@@ -410,7 +410,7 @@ export default {
       };
 
       storage.setAfterSaleData(data);
-      uni.navigateTo({
+      this.$navigateTo({
         url: `./afterSalesDetailExpress?serviceSn=${order.sn}`,
       });
     },
@@ -421,13 +421,13 @@ export default {
     onDetail(goods, sku) {
       // 售后申请
       if (this.current == 0) {
-        uni.navigateTo({
+        this.$navigateTo({
           url: `/pages/product/goods?id=${sku.skuId}&goodsId=${
             sku.goodsId || sku.goodsId
           }`,
         });
       } else {
-        uni.navigateTo({
+        this.$navigateTo({
           url: `/pages/product/goods?id=${goods.skuId}&goodsId=${
             goods.goodsId || goods.goodsId
           }`,

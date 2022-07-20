@@ -145,7 +145,7 @@ export default {
     },
     //新建。编辑地址
     addAddress(id) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/mine/address/add${id ? "?id=" + id : ""}`,
       });
     },

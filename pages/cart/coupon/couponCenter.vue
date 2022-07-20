@@ -145,7 +145,7 @@
 			},
 		},
 		onNavigationBarButtonTap(e) {
-			uni.navigateTo({
+			this.$navigateTo({
 				url: "/pages/cart/coupon/couponIntro",
 			});
 		},

@@ -343,7 +343,7 @@ export default {
      * 跳转到店铺
      */
     navigateToStore(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "/pages/product/shopPage?id=" + val.storeId,
       });
     },
@@ -352,7 +352,7 @@ export default {
      * 跳转到优惠券
      */
     navigateToConpon(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "/pages/cart/coupon/couponCenter?storeId=" + val.storeId,
       });
     },
@@ -361,7 +361,7 @@ export default {
      * 跳转到商品
      */
     navigateToGoods(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url:
           "/pages/product/goods?id=" +
           val.goodsSku.id +
@@ -437,7 +437,7 @@ export default {
      * 跳转
      */
     navigateTo(url) {
-      uni.navigateTo({
+      this.$navigateTo({
         url,
       });
     },

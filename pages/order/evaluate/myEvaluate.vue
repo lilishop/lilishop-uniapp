@@ -219,7 +219,7 @@ export default {
      */
     talkCommont(sku) {
       console.log(sku);
-      uni.navigateTo({
+      this.$navigateTo({
         url: `./releaseEvaluate?sn=${sku.sn}&sku=${encodeURIComponent(
           JSON.stringify(sku)
         )}`,
@@ -270,7 +270,7 @@ export default {
      * 评价详情
      */
     onDetail(comment) {
-      uni.navigateTo({
+      this.$navigateTo({
         url:
           "./evaluateDetail?comment=" +
           encodeURIComponent(JSON.stringify(comment)),

@@ -56,7 +56,7 @@
 		methods: {
 			...mapMutations(["logout"]),
 			navigateTo(url) {
-				uni.navigateTo({
+				this.$navigateTo({
 					url
 				});
 			},

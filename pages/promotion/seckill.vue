@@ -151,7 +151,7 @@ export default {
       ) {
         return;
       } else {
-        uni.navigateTo({
+        this.$navigateTo({
           url: `/pages/product/goods?id=${item.skuId}&goodsId=${item.goodsId}`,
         });
       }

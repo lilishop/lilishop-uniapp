@@ -69,7 +69,7 @@ import { distribution } from "@/api/goods";
 export default {
   methods: {
     navigateTo(url) {
-      uni.navigateTo({
+      this.$navigateTo({
         url,
       });
     },
@@ -78,11 +78,11 @@ export default {
         if (res.data.result) {
           let type = res.data.result.distributionStatus;
           if (type == "PASS") {
-            uni.navigateTo({
+            this.$navigateTo({
               url: "/pages/mine/distribution/home",
             });
           } else if (type == "REFUSE") {
-            uni.navigateTo({
+            this.$navigateTo({
               url: "/pages/mine/distribution/auth",
             });
           } else if (type == "RETREAT") {
@@ -106,7 +106,7 @@ export default {
           });
         } else {
           // 没有资格申请 先去实名认证
-          uni.navigateTo({
+          this.$navigateTo({
             url: "/pages/mine/distribution/auth",
           });
         }

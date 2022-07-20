@@ -57,7 +57,7 @@ export default {
      * 查询
      */
     search() {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "/pages/navigation/search/searchPage",
       });
     },
@@ -90,7 +90,7 @@ export default {
     },
 
     navigateToList(sid, tid) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/navigation/search/searchPage?category=${tid}`,
       });
     },

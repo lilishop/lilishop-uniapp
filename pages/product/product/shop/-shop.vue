@@ -57,13 +57,13 @@ export default {
     },
     // 点击商品
     clickGoods(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/product/goods?id=${val.content.id}&goodsId=${val.content.goodsId}`,
       });
     },
 
     tostorePage(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "../product/shopPage?id=" + val.storeId,
       });
     },

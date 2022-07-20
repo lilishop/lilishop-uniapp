@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     goDetail(sn,logi_id,ship_no){
-		uni.navigateTo({
+		this.$navigateTo({
 			url:'/pages/msgTips/packagemsg/logisticsDetail?order_sn=' + sn +'&logi_id='+logi_id+'&ship_no='+ship_no,
 		})
 	},

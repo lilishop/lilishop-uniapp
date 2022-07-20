@@ -86,7 +86,7 @@ export default {
   methods: {
     // 点击跳转到商品
     handleToGoods(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
       });
     },
@@ -120,7 +120,7 @@ export default {
      * 查看详情
      */
     handleInfo(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "./complainInfo?id=" + val.id,
       });
     },

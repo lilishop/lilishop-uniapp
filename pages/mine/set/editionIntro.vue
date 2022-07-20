@@ -88,7 +88,7 @@ export default {
     },
 
     navigateTo(url) {
-      uni.navigateTo({
+      this.$navigateTo({
         url,
       });
     },

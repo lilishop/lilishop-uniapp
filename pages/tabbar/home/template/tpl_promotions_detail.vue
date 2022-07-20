@@ -145,22 +145,22 @@ export default {
     goToDetail(type) {
       switch(type) {
         case "SECKILL":
-          uni.navigateTo({
+          this.$navigateTo({
             url: `/pages/promotion/seckill`,
           });
           break;
         case "PINTUAN":
-          uni.navigateTo({
+          this.$navigateTo({
             url: `/pages/promotion/joinGroup`,
           });
           break;
         case "LIVE":
-          uni.navigateTo({
+          this.$navigateTo({
             url: `/pages/promotion/lives`,
           });
           break;
         case "KANJIA":
-          uni.navigateTo({
+          this.$navigateTo({
             url: `/pages/promotion/bargain/list`,
           });
           break;

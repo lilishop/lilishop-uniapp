@@ -114,7 +114,7 @@
 							url: this.config.url
 						});
 					} else {
-						uni.navigateTo({
+						this.$navigateTo({
 							url: this.config.url
 						});
 					}

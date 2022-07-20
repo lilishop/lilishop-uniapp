@@ -58,12 +58,12 @@ export default {
   },
   methods: {
     handleClick(url) {
-      uni.navigateTo({
+      this.$navigateTo({
         url,
       });
     },
     queryGoods(src) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/mine/distribution/${src}`,
       });
     },

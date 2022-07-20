@@ -16,7 +16,7 @@ export default {
 
   methods: {
     navigateTo(url) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: url,
       });
     },

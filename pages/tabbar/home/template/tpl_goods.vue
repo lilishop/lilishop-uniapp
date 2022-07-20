@@ -57,7 +57,7 @@ export default {
   mounted() {},
   methods: {
     handleClick(item) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
       });
     },

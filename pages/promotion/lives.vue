@@ -229,7 +229,7 @@ export default {
       let customParams = encodeURIComponent(
         JSON.stringify({ path: "pages/index/index", pid: 1 })
       ); // 开发者在直播间页面路径上携带自定义参数，后续可以在分享卡片链接和跳转至商详页时获取，详见【获取自定义参数】、【直播间到商详页面携带参数】章节（上限600个字符，超过部分会被截断）
-      uni.navigateTo({
+      this.$navigateTo({
         url:
           "plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=" +
           roomId +

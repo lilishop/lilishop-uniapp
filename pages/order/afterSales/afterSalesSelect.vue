@@ -94,7 +94,7 @@ export default {
      * 跳转到商品信息
      */
     navigateToGoodsDetail(id) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/product/goods?id=${id}&goodsId=${goodsId}`,
       });
     },

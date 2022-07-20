@@ -364,14 +364,14 @@ export default {
   methods: {
     // 售后
     applyService(order) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/order/afterSales/afterSales?orderSn=${order.sn}`,
       });
     },
 
     // 店铺详情
     navigateToStore(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "/pages/product/shopPage?id=" + val.storeId,
       });
     },
@@ -423,7 +423,7 @@ export default {
         }).pay();
         // #endif
         // #ifndef MP-WEIXIN
-        uni.navigateTo({
+        this.$navigateTo({
           url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
         });
         // #endif
@@ -522,7 +522,7 @@ export default {
      * 跳转到订单详情
      */
     navigateToOrderDetail(sn) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "./orderDetail?sn=" + sn,
       });
     },
@@ -588,7 +588,7 @@ export default {
      * 评价商品
      */
     onComment(sn) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "./evaluate/myEvaluate",
       });
     },
@@ -599,7 +599,7 @@ export default {
     reBuy(order) {
       console.log(order);
       return;
-      uni.navigateTo({
+      this.$navigateTo({
         url:
           "/pages/product/goods?id=" + order.id + "&goodsId=" + order.goodsId,
       });
@@ -609,7 +609,7 @@ export default {
      * 查看物流
      */
     navigateToLogistics(order) {
-      uni.navigateTo({
+      this.$navigateTo({
         url:
           "/pages/mine/msgTips/packageMsg/logisticsDetail?order_sn=" + order.sn,
       });

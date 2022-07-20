@@ -481,7 +481,7 @@ export default {
 
     // 跳转到店铺
     navigateToStore(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "/pages/product/shopPage?id=" + val.storeId,
       });
     },
@@ -555,7 +555,7 @@ export default {
      * 跳转
      */
     navigateTo(url) {
-      uni.navigateTo({
+      this.$navigateTo({
         url,
       });
     },

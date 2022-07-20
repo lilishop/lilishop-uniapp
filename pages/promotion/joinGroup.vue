@@ -113,7 +113,7 @@ export default {
     },
 
     toHref(goods) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/product/goods?id=${goods.skuId}&goodsId=${goods.goodsId}`,
       });
     },

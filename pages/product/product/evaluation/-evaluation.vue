@@ -94,7 +94,7 @@ export default {
       );
     },
     toComment(id, grade) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/product/comment?id=${id}&grade=${grade}`,
       });
     },

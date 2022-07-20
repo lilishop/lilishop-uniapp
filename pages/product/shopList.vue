@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     handleClickStore(val){
-      uni.navigateTo({
+      this.$navigateTo({
          url: `/pages/product/shopPage?id=${val.id}`
       });
     },

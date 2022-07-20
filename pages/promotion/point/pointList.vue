@@ -137,14 +137,14 @@ export default {
   methods: {
     // 跳转
     navigateTo(url) {
-      uni.navigateTo({
+      this.$navigateTo({
         url,
       });
     },
 
     toGoods(item) {
       //跳转详情
-      uni.navigateTo({
+      this.$navigateTo({
         url: `/pages/promotion/point/detail?id=${item.id}`,
       });
     },

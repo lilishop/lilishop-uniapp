@@ -162,7 +162,7 @@ export default {
             delete this.form.updateTime;
             editAddress(this.form).then((res) => {
               if (res.data.success) {
-                uni.navigateTo({
+                this.$navigateTo({
                   url: `/${beforePage.route}`,
                 });
               }

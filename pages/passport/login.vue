@@ -545,7 +545,7 @@ export default {
              if (user.data.result.mobile) {
                 whetherNavigate();
               } else {
-                uni.navigateTo({
+                this.$navigateTo({
                   url: "/pages/passport/bindUserPhone",
                 });
               }
@@ -639,13 +639,13 @@ export default {
     },
     // 跳转
     navigateToPrivacy(val) {
-      uni.navigateTo({
+      this.$navigateTo({
         url: "/pages/mine/help/tips?type=" + val,
       });
       console.log(val)
     },
     navigateToPrivacys(val){
-      uni.navigateTo({
+      this.$navigateTo({
         url:"/pages/mine/help/tips?type="+ val,
       })
     },

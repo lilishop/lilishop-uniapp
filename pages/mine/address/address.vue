@@ -129,7 +129,7 @@ export default {
     //新建。编辑地址
     addAddress(id) {
       if (id) {
-        uni.navigateTo({
+        this.$navigateTo({
           url:
             "/pages/mine/address/add?id=" +
             id +
@@ -138,7 +138,7 @@ export default {
             "&type=order",
         });
       } else {
-        uni.navigateTo({
+        this.$navigateTo({
           url:
             "/pages/mine/address/add?way=" + this.routerVal.way + "&type=order",
         });
