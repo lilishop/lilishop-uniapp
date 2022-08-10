@@ -29,7 +29,7 @@
 
       <view>
         <view style="margin:20rpx 0; color:#003a8c;" @click="navigateTo('/pages/mine/help/tips?type=user')">《{{config.name}}用户协议》</view>
-        <view>CopyRight @{{config.name}} </view>
+        <view>CopyRight ©{{config.name}} </view>
       </view>
     </view>
   </view>
