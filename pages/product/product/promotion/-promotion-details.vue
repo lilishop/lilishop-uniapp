@@ -10,7 +10,7 @@
               >满{{ res[prom].fullMoney }}元 立减现金
               <span class="price">{{ res[prom].fullMinus }}元</span>
               <span v-if="res[prom].couponFlag"> 赠送<span>优惠券</span></span>
-              <span v-if="res[prom].pointFlag"> 赠送{{ res[prom].point }}积分</span>
+              <span v-if="res[prom].pointFlag"> 赠送{{ res[prom].points }}积分</span>
               <span v-if="res[prom].giftFlag"> 赠送商品</span>
               <span v-if="res[prom].freeFreightFlag">赠送包邮服务</span>
             </span>

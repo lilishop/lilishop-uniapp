@@ -15,7 +15,7 @@
       </u-col>
       <u-col span="6" class="portrait-box2-col">
         <text>剩余积分：</text>
-        <text class="pcolor">{{ pointData.point || 0 }}</text>
+        <text class="pcolor">{{ pointData.points || 0 }}</text>
       </u-col>
     </u-row>
 
