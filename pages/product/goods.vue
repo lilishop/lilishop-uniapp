@@ -605,15 +605,7 @@ export default {
       this.init(this.routerVal.id, this.routerVal.goodsId, this.routerVal.distributionId);
     }
   },
-  // #ifdef MP-WEIXIN
-  onShareAppMessage(res) {
-    return {
-      path: this.share(),
-      title: `[好友推荐]${this.goodsDetail.goodsName}`,
-      imageUrl: this.goodsDetail.goodsGalleryList[0],
-    };
-  },
-  // #endif
+ 
   methods: {
     share() {
       return `/pages/product/goods?id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`;
