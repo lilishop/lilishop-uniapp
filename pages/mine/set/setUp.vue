@@ -65,8 +65,14 @@ export default {
      * 清除缓存重新登录
      */
     async confirm() {
-      await logout();
-      this.clear();
+			try{
+				await logout();
+				this.clear();
+			}catch(e){
+				//TODO handle the exception
+				this.clear();
+			}
+      
     },
 
     /**
