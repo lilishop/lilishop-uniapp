@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <div class="box">
-      <u-swiper @click="clickSwiper" interval="5000" duration="500" height="300" v-if="res" name="img" :list="res.list">
+      <u-swiper @click="clickSwiper" interval="5000" duration="500" height="350" v-if="res" name="img" :list="res.list">
         <u-loading slot="loading"></u-loading>
       </u-swiper>
     </div>
