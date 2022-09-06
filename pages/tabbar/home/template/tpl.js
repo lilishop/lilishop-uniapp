@@ -1,8 +1,9 @@
 /** 配置楼层模块的跳转 */
 export function modelNavigateTo(item) {
-  let val = item.url;
-
-  switch (val.___type) {
+  let val = item.url || item;
+  console.log(item);
+  // return;
+  switch (val.___type || item.type) {
     case "goods":
       uni.navigateTo({
         url: "/pages/product/goods?id=" + val.id + "&goodsId=" + val.goodsId,
@@ -36,7 +37,7 @@ export function modelNavigateTo(item) {
       });
       break;
     case "other":
-      switch (val.title) {
+      switch (val.title || item.title) {
         case "首页":
           uni.switchTab({
             url: `/pages/tabbar/home/index`,
@@ -102,12 +103,12 @@ export function modelNavigateTo(item) {
             url: `/pages/product/shopList`,
           });
           break;
-        case "外部链接":
+        default:
           // #ifdef H5
-          window.location.href = val.url;
+          window.location.href = val.url || item.link;
           // #endif
           // #ifdef APP-PLUS
-          plus.runtime.openURL(val.url) //不需要拼接\
+          plus.runtime.openURL(val.url || item.link) //不需要拼接\
           // #endif
           break;
       }
