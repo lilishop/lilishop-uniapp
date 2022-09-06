@@ -335,12 +335,6 @@ export default {
             type: "error",
           });
           return false;
-        } else if (checkBankno(this.form.bankAccountNumber) === false) {
-          this.$refs.uToast.show({
-            title: "银行卡卡号不正确",
-            type: "error",
-          });
-          return false;
         } else if (this.$u.test.chinese(this.form.bankAccountName) === false) {
           this.$refs.uToast.show({
             title: "银行开户名输入错误",
