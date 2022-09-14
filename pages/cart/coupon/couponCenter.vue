@@ -24,7 +24,7 @@
 							<view>
 								<!-- 根据scopeType 判断是否是 平台、品类或店铺  -->
 								<view class="coupon-title wes-3" v-if="item.scopeType">
-									<span v-if="item.scopeType == 'ALL' && item.storeId == 'platform'">全平台</span>
+									<span v-if="item.scopeType == 'ALL' && item.storeId == '0'">全平台</span>
 									<span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
 									<view v-else>{{ item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用
 									</view>

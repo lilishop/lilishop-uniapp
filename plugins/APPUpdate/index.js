@@ -854,7 +854,8 @@ function downloadPopup(data, callback, cancelCallback, rebootCallback) {
 export default function (isPrompt = false) {
   getCurrentNo((version) => {
     getServerNo((res) => {
-      if (res.versionCode.replace(/\./g, "") <= version.version.replace(/\./g, "") ) {
+
+      if (res.versionCode.replace(/\./g, "") <= version.version.replace(/\./g, "")) {
         return false;
       }
 
