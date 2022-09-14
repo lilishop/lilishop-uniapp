@@ -88,10 +88,10 @@ page {
 </style>
 <style lang="scss" scoped>
 .wrapper {
-  background: url("https://lilishop-oss.oss-cn-beijing.aliyuncs.com/aac88f4e8eff452a8010af42c4560b04.png");
+  background: url("https://lili-system.oss-cn-beijing.aliyuncs.com/kanjia.png");
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  height: 700rpx;
+  height: 600rpx;
   width: 100%;
 }
 
@@ -99,7 +99,7 @@ page {
   background: #fff;
   border-radius: 20rpx;
   position: relative;
-  top: 750rpx;
+  top: 650rpx;
   width: 94%;
   margin: 0 auto;
   > .bargain {
