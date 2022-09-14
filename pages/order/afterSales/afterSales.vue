@@ -125,6 +125,7 @@
             <div class="sale" v-if="current === 0 && sku.afterSaleStatus">
               <div
                 v-if="
+									order.flowPrice != 0 &&
                   sku.afterSaleStatus.includes('NOT_APPLIED') ||
                   sku.afterSaleStatus.includes('PART_AFTER_SALE')
                 "
