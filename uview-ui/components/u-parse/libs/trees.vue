@@ -215,7 +215,7 @@
 				if (jump) {
 					// #ifdef MP
 					if (attrs['app-id']) {
-						return this.$navigateToMiniProgram({
+						return uni.navigateToMiniProgram({
 							appId: attrs['app-id'],
 							path: attrs.path
 						})
@@ -241,7 +241,7 @@
 							})
 							// #endif
 						} else
-							this.$navigateTo({
+							uni.navigateTo({
 								url: attrs.href,
 								fail() {
 									uni.switchTab({

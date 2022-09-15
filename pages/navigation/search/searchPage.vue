@@ -488,13 +488,13 @@ export default {
     },
     // 跳转到商品详情
     navigateToDetailPage(item) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/product/goods?id=${item.content.id}&goodsId=${item.content.goodsId}`,
       });
     },
     // 跳转地址
     navigateToStoreDetailPage(item) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/product/shopPage?id=${item.content.storeId}`,
       });
     },

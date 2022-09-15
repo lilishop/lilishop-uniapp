@@ -1,5 +1,7 @@
 import Foundation from "./Foundation.js";
 import storage from "@/utils/storage.js";
+import { getUserInfo } from '@/api/members';
+import Vue from "vue";
 /**
  * 金钱单位置换  2999 --> 2,999.00
  * @param val
@@ -99,10 +101,44 @@ export function clearStrComma(str) {
 export function isLogin(val) {
   let userInfo = storage.getUserInfo();
   if (val == "auth") {
-    return userInfo.id ? true : false;
+    return userInfo && userInfo.id ? true : false;
   } else {
     return storage.getUserInfo();
   }
+}
+
+
+export function tipsToLogin(){
+if(!isLogin('auth')){
+  uni.showModal({
+    title: "提示",
+    content: "当前用户未登录是否登录？",
+    confirmText: "确定",
+    cancelText: "取消",
+    confirmColor:Vue.prototype.$mainColor,
+    success: res => {
+      if (res.confirm) {
+        navigateToLogin()
+      } else if (res.cancel) {
+        uni.navigateBack()
+      }
+    },
+  })
+    return
+	}
+}
+
+
+
+/**
+ * 获取用户信息并重新添加到缓存里面
+ */
+export async function userInfo(){
+	let res = await getUserInfo();
+	if(res.data.success){
+		storage.setUserInfo(res.data.result);
+		return res.data.result 
+	}
 }
 
 /**
@@ -113,7 +149,7 @@ export function isLogin(val) {
 
 export function forceLogin() {
   let userInfo = storage.getUserInfo();
-  if (!userInfo.id) {
+  if (!userInfo ||  !userInfo.id) {
     // #ifdef MP-WEIXIN
 
     uni.navigateTo({

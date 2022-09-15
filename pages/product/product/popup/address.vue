@@ -54,7 +54,7 @@ export default {
       this.getShippingAddress()
     }
     else{
-      this.$navigateTo({
+      uni.navigateTo({
          url: 'pages/passport/login'
       });
     }
@@ -71,7 +71,7 @@ export default {
 
     getpicker() {
       // this.$refs.cityPicker.show();
-      this.$navigateTo({
+      uni.navigateTo({
         url: "/pages/mine/address/add",
       });
       this.closeAddress();

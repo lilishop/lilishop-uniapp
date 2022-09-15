@@ -120,7 +120,7 @@
 			 * 支付成功后跳转
 			 */
 			callback(paymentMethod){
-				this.$navigateTo({
+				uni.navigateTo({
 					url: "/pages/cart/payment/success?paymentMethod=" +
 					paymentMethod +
 					"&payPrice=" +

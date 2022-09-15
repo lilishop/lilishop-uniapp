@@ -221,7 +221,7 @@ export default {
      * 查看图片
      */
     handleNavgationGoods(val) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/product/goods?id=${val.skuId}&goodsId=${val.goodsId}`,
       });
     },

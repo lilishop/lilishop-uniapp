@@ -189,7 +189,7 @@ export default {
      */
     useItNow(item) {
       if (item.storeId && item.storeId!='0') {
-        this.$navigateTo({
+        uni.navigateTo({
           url: `/pages/product/shopPage?id=${item.storeId}`,
         });
       } else {
@@ -203,7 +203,7 @@ export default {
      * 优惠券详情
      */
     couponDetail(item) {
-      this.$navigateTo({
+      uni.navigateTo({
         url:
           "/pages/cart/coupon/couponDetail?item=" +
           encodeURIComponent(JSON.stringify(item)),

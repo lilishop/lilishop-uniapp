@@ -73,7 +73,7 @@
 				})
 			},
 			goDetail(item) {
-				this.$navigateTo({
+				uni.navigateTo({
 					url: '/pages/product/goods?id=' + item.content.id + "&goodsId=" +item.content.goodsId
 				})
 			},

@@ -152,7 +152,7 @@ export default {
 
   methods: {
     getStoreLicencePhoto() {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/product/licencePhoto?id=${this.storeId}`,
       });
     },
@@ -190,7 +190,7 @@ export default {
       //   sign: this.storeInfo.yzfSign,
       //   mpSign: this.storeInfo.yzfMpSign,
       // };
-      // this.$navigateTo({
+      // uni.navigateTo({
       //   url:
       //     "/pages/product/customerservice/index?params=" +
       //     encodeURIComponent(JSON.stringify(params)),
@@ -198,14 +198,14 @@ export default {
       // // #endif
       // // #ifndef MP-WEIXIN
       // const sign = this.storeInfo.yzfSign;
-      // this.$navigateTo({
+      // uni.navigateTo({
       //   url:
       //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
       //     sign,
       // });
       // // #endif
 			
-			this.$navigateTo({
+			uni.navigateTo({
 			   url: `/pages/tabbar/home/web-view?IM=${this.storeId}`,
 			 });
     },
@@ -227,7 +227,7 @@ export default {
 
     /**商品分类中商品集合 */
     getCategoryGoodsList(val) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/product/shopPageGoods?title=${val.labelName}&id=${val.id}&storeId=${this.storeId}`,
       });
     },
@@ -237,7 +237,7 @@ export default {
      */
     search() {
 			console.log("点击")
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/navigation/search/searchPage?storeId=${this.storeId}&keyword=${this.keyword}`,
       });
     },

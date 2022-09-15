@@ -263,7 +263,7 @@
 			buy(data) {
 				API_trade.addToCart(data).then((res) => {
 					if (res.data.success) {
-						this.$navigateTo({
+						uni.navigateTo({
 							url: `/pages/order/fillorder?way=${
               data.cartType
             }&addr=${""}&parentOrder=${encodeURIComponent(
@@ -314,7 +314,7 @@
 
 					API_trade.addToCart(data).then((res) => {
 						if (res.data.code == 200) {
-							this.$navigateTo({
+							uni.navigateTo({
 								url: `/pages/order/fillorder?way=${data.cartType}&addr=${
                 this.addr.id || ""
               }&parentOrder=${encodeURIComponent(JSON.stringify(this.parentOrder))}`,

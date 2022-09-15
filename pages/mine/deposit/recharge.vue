@@ -38,7 +38,7 @@ export default {
        
         let res = await recharge({ price: this.price });
         if (res.data.success) {
-          this.$navigateTo({
+          uni.navigateTo({
             url: `/pages/cart/payment/payOrder?orderType=RECHARGE&recharge_sn=${res.data.result.rechargeSn}`,
           });
         }

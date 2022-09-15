@@ -331,7 +331,7 @@
 							} else if (href.indexOf('http') == 0 || href.indexOf('//') == 0)
 								return true;
 							else
-								this.$navigateTo({
+								uni.navigateTo({
 									url: href
 								})
 						}
@@ -578,7 +578,7 @@
 							} else if (href.includes('://'))
 								plus.runtime.openWeb(href);
 							else
-								this.$navigateTo({
+								uni.navigateTo({
 									url: href
 								})
 						}

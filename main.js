@@ -3,7 +3,7 @@ import App from "./App";
 import * as filters from "./utils/filters.js"; // global filter
 import uView from "uview-ui";
 import store from "./store";
-import {navigateTo} from '@/utils/navigateRoute.js'
+
 
 /**
  * 仅在h5中显示唤醒app功能
@@ -32,8 +32,6 @@ Object.keys(filters).forEach((key) => {
 Vue.prototype.$store = store;
 
 
-// // 引入Vuex
-Vue.prototype.$navigateTo = navigateTo;
 Vue.use(uView);
 Vue.config.productionTip = false;
 

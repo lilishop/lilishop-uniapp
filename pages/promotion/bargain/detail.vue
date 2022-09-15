@@ -3,7 +3,7 @@
     <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false">
     </u-navbar>
 
-    <div class="wrapper">
+    <div class="wrapper-box">
       <!-- 砍价列表 -->
       <div class="box box1">
         <div class="bargain">
@@ -106,10 +106,6 @@
       <popupGoods ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail"
         :goodsSpec="goodsSpec" v-if="bargainDetail.id " @handleClickSku="getGoodsDetail" />
 
-      <!-- 产品详情 -->
-      <div class=" box4">
-
-      </div>
     </div>
   </div>
 </template>
@@ -352,11 +348,11 @@ page {
   align-items: center;
   padding: 10rpx 0;
 }
-.wrapper {
-  background: url("https://lilishop-oss.oss-cn-beijing.aliyuncs.com/aac88f4e8eff452a8010af42c4560b04.png");
+.wrapper-box {
+  background: url("https://lili-system.oss-cn-beijing.aliyuncs.com/kanjia.png");
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  height: 700rpx;
+  height: 506rpx;
   width: 100%;
 }
 
@@ -371,16 +367,16 @@ page {
   }
 }
 .box1 {
-  top: 750rpx;
+  top: 560rpx;
 }
 .box2 {
-  top: 770rpx;
+  top: 580rpx;
 }
 .box3 {
-  top: 790rpx;
+  top: 600rpx;
 }
 .box4 {
-  top: 810rpx;
+  top: 620  rpx;
   height: 200rpx;
 }
 .bargain-item {

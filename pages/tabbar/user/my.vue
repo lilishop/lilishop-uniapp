@@ -122,7 +122,7 @@ export default {
      * navigator标签现在默认没有转场动画，所以用view
      */
     navigateTo(url) {
-      this.$navigateTo({
+      uni.navigateTo({
         url,
       });
     },

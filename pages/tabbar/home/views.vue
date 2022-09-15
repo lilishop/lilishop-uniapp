@@ -150,18 +150,18 @@ export default {
           // WX_CODE 为小程序码
           if (res.scanType == "WX_CODE") {
             console.log(res);
-            this.$navigateTo({
+            uni.navigateTo({
               url: `/${res.path}`,
             });
           } else {
             config.scanAuthNavigation.forEach((src) => {
               if (res.result.indexOf(src) != -1) {
-                this.$navigateTo({
+                uni.navigateTo({
                   url: `/${res.result.substring(src.length)}`,
                 });
               } else {
                 setTimeout(() => {
-                  this.$navigateTo({
+                  uni.navigateTo({
                     url: "/pages/tabbar/home/web-view?src=" + path,
                   });
                 }, 100);

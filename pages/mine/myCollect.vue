@@ -174,7 +174,7 @@
 			 */
 			goGoodsDetail(val) {
 				//商品详情
-				this.$navigateTo({
+				uni.navigateTo({
 					url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
 				});
 			},
@@ -184,7 +184,7 @@
 			 */
 			goStoreMainPage(id) {
 				//店铺主页
-				this.$navigateTo({
+				uni.navigateTo({
 					url: "/pages/product/shopPage?id=" + id,
 				});
 			},

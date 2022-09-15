@@ -86,23 +86,9 @@ export default {
    * 进入页面检测当前账户是否登录
    */
   onShow() {
-    let that = this;
-    if (this.$options.filters.isLogin("auth")) {
+    if (this.$options.filters.tipsToLogin()) {
       this.getAddressList();
-    } else {
-      uni.showModal({
-        title: "提示",
-        content: "检测到您的账号还未登录,是否去登录？",
-        confirmColor: this.$lightColor,
-        success: function (res) {
-          if (res.confirm) {
-            that.$options.filters.navigateToLogin();
-          } else if (res.cancel) {
-            uni.navigateBack();
-          }
-        },
-      });
-    }
+    } 
   },
   methods: {
     //获取地址列表
@@ -145,7 +131,7 @@ export default {
     },
     //新建。编辑地址
     addAddress(id) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/mine/address/add${id ? "?id=" + id : ""}`,
       });
     },

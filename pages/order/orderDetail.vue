@@ -277,7 +277,7 @@ export default {
   },
   methods: {
     tostore(val) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: "/pages/product/shopPage?id=" + val.storeId,
       });
     },
@@ -294,7 +294,7 @@ export default {
     },
     // #TODO 这块需要写一下 目前没有拼团的详细信息
     ByUserMessage(order) {
-      this.$navigateTo({
+      uni.navigateTo({
         url:
           "/pages/cart/payment/shareOrderGoods?sn=" +
           order.sn +
@@ -318,12 +318,12 @@ export default {
       });
     },
     onReceipt(val) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: "/pages/order/invoice/invoiceDetail?id=" + val.id,
       });
     },
     gotoGoodsDetail(sku) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId}`,
       });
     },
@@ -363,7 +363,7 @@ export default {
      * 投诉
      */
     complaint(sku) {
-      this.$navigateTo({
+      uni.navigateTo({
         url:
           "/pages/order/complain/complain?sn=" +
           this.sn +
@@ -373,7 +373,7 @@ export default {
     },
     //售后按钮
     onAfterSales(sn, sku) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `./afterSales/afterSalesSelect?sn=${sn}&sku=${encodeURIComponent(
           JSON.stringify(sku)
         )}`,
@@ -382,7 +382,7 @@ export default {
     // 去支付
     toPay(val) {
       val.sn
-        ? this.$navigateTo({
+        ? uni.navigateTo({
             url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
           })
         : false;
@@ -459,12 +459,12 @@ export default {
     },
     //评价商品
     onComment(sn) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: "./evaluate/myEvaluate",
       });
     }, //查看物流
     onLogistics(order) {
-      this.$navigateTo({
+      uni.navigateTo({
         url:
           "/pages/mine/msgTips/packageMsg/logisticsDetail?logi_id=" +
           order.logi_id +
@@ -480,7 +480,7 @@ export default {
       this.reason = reason;
     },
     reBuy(order) {
-      this.$navigateTo({
+      uni.navigateTo({
         url:
           "/pages/product/goods?id=" + order.id + "&goodsId=" + order.goodsId,
       });

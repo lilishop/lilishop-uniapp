@@ -381,7 +381,7 @@ export default {
      * 访问商品详情
      */
     navgiateToGoodsDetail(item) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
       });
     },
@@ -390,7 +390,7 @@ export default {
      * 进度
      */
     onProgress() {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `./applyProgress?sn=${
           this.serviceDetail.sn
         }&createTime=${encodeURIComponent(this.serviceDetail.createTime)}

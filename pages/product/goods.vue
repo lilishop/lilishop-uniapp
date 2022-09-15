@@ -710,13 +710,13 @@ export default {
     linkMsgDetail() {
       // lili 基础客服
 	
-	  this.$navigateTo({
+	  uni.navigateTo({
 		url: `/pages/tabbar/home/web-view?IM=${this.storeDetail.storeId}`,
 	  });
 		
 		// udesk 代码  
 		// if (this.storeDetail.merchantEuid) {
-		//   this.$navigateTo({
+		//   uni.navigateTo({
 		//     url: `/pages/tabbar/home/web-view?src=${this.IM}`,
 		//   });
 		// }
@@ -736,7 +736,7 @@ export default {
         //   sign: this.storeDetail.yzfSign,
         //   mpSign: this.storeDetail.yzfMpSign,
         // };
-        // this.$navigateTo({
+        // uni.navigateTo({
         //   url:
         //     "/pages/product/customerservice/index?params=" +
         //     encodeURIComponent(JSON.stringify(params)),
@@ -744,7 +744,7 @@ export default {
         // // #endif
         // // #ifndef MP-WEIXIN
         // const sign = this.storeDetail.yzfSign;
-        // this.$navigateTo({
+        // uni.navigateTo({
         //   url:
         //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
         //     sign,
@@ -908,7 +908,7 @@ export default {
      * 跳转到店铺页面
      */
     navigateToStore(store_id) {
-      this.$navigateTo({
+      uni.navigateTo({
         url: `/pages/product/shopPage?id=` + store_id,
       });
     },

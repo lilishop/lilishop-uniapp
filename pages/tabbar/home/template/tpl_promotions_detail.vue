@@ -147,22 +147,22 @@ export default {
     goToDetail(type) {
       switch(type) {
         case "SECKILL":
-          this.$navigateTo({
+          uni.navigateTo({
             url: `/pages/promotion/seckill`,
           });
           break;
         case "PINTUAN":
-          this.$navigateTo({
+          uni.navigateTo({
             url: `/pages/promotion/joinGroup`,
           });
           break;
         case "LIVE":
-          this.$navigateTo({
+          uni.navigateTo({
             url: `/pages/promotion/lives`,
           });
           break;
         case "KANJIA":
-          this.$navigateTo({
+          uni.navigateTo({
             url: `/pages/promotion/bargain/list`,
           });
           break;

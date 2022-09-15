@@ -189,7 +189,7 @@
 										url: path,
 									});
 								} else {
-									this.$navigateTo({
+									uni.navigateTo({
 										url: path,
 									});
 								}
@@ -214,7 +214,7 @@
 								url: `/${path}`,
 							});
 						} else {
-							this.$navigateTo({
+							uni.navigateTo({
 								url: `/${path}`,
 							});
 						}

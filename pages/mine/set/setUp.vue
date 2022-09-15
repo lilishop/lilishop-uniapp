@@ -49,7 +49,7 @@ export default {
       if (url == "/pages/set/securityCenter/securityCenter") {
         url += `?mobile=${this.userInfo.mobile}`;
       }
-      this.$navigateTo({
+      uni.navigateTo({
         url: url,
       });
     },
