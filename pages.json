@@ -244,6 +244,8 @@
 						"navigationBarTitleText": "面容登录"
 					}
 				},
+				
+				
 				{
 					"path": "set/securityCenter/editPassword",
 					"style": {
@@ -452,6 +454,14 @@
 					"path": "wechatMPLogin",
 					"style": {
 						"navigationBarTitleText": "小程序登录",
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "black"
+					}
+				},
+				{
+					"path": "scannerCodeLoginConfirm",
+					"style": {
+						"navigationBarTitleText": "扫码登录",
 						"navigationStyle": "custom",
 						"navigationBarTextStyle": "black"
 					}
