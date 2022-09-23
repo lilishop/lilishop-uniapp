@@ -146,6 +146,18 @@ export default {
       uni.scanCode({
         success: function (res) {
           let path = encodeURIComponent(res.result);
+          
+
+          
+          if(path!=undefined && path.indexOf("QR_CODE_LOGIN_SESSION")==0){
+            console.log(path)
+            //app扫码登录
+            uni.navigateTo({
+              url:"/pages/passport/scannerCodeLoginConfirm?token="+path
+            });
+            return;
+          }
+
 
           // WX_CODE 为小程序码
           if (res.scanType == "WX_CODE") {
