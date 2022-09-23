@@ -326,10 +326,10 @@ export default {
     // this.loadData(this.status);
   },
   onShow() {
-    if (!this.tabCurrentIndex) {
-     this.initData(0);
-    } else {
-      
+    if(this.$options.filters.tipsToLogin()){
+      if (!this.tabCurrentIndex) {
+        this.initData(0);
+      }
     }
     // this.loadData(this.status);
   },

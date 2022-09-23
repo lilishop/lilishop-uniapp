@@ -2,8 +2,8 @@
     "name" : "lili商城",
     "appid" : "__UNI__EC9FD60",
     "description" : "",
-    "versionName" : "4.2.6",
-    "versionCode" : 4000260,
+    "versionName" : "4.2.5",
+    "versionCode" : 4000250,
     "transformPx" : false,
     "app-plus" : {
         "compatible" : {

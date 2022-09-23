@@ -30,6 +30,8 @@ Object.keys(filters).forEach((key) => {
 
 // 引入Vuex
 Vue.prototype.$store = store;
+
+
 Vue.use(uView);
 Vue.config.productionTip = false;
 

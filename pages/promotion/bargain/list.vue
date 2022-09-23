@@ -6,22 +6,7 @@
       <!-- 砍价列表 -->
       <div class="box">
         <!-- 已砍的商品 -->
-        <div class="bargain" v-if="bargainList.length!=0">
-          <div class="flex bargain-item" v-for="(item,index) in bargainList" :key="index">
-            <div class="goods-img">
-              <u-image width="150" height="150" :src="item.thumbnail"></u-image>
-            </div>
-            <div class="goods-config">
-              <div class="goods-title wes-2">
-                {{item.goodsName}}
-              </div>
-              <div class="flex goods-buy">
-                <div class="max-price">最低：<span>￥{{item.purchasePrice | unitPrice}}</span></div>
-                <div class="bargaining" @click="navigateToBargainDetail(item)">参与砍价</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <goodsTemplate type="kanJia" v-if="bargainList.length!=0" :res="bargainList" />
         <div class="bargain empty" v-else>
           <u-empty text="暂无活动" mode="list"></u-empty>
         </div>
@@ -32,7 +17,9 @@
 
 <script>
 import { getBargainList } from "@/api/promotions";
+import goodsTemplate from '@/components/m-goods-list/promotion'
 export default {
+  components:{goodsTemplate},
   data() {
     return {
       background: {
@@ -91,7 +78,7 @@ page {
   background: url("https://lili-system.oss-cn-beijing.aliyuncs.com/kanjia.png");
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  height: 600rpx;
+  height: 506rpx;
   width: 100%;
 }
 
@@ -99,7 +86,7 @@ page {
   background: #fff;
   border-radius: 20rpx;
   position: relative;
-  top: 650rpx;
+  top: 560rpx;
   width: 94%;
   margin: 0 auto;
   > .bargain {

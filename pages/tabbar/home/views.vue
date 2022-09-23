@@ -129,10 +129,10 @@ export default {
         }
       });
     },
-    // 是否有网络链接
-    isConnected(val) {
-      val ? this.init() : "";
-    },
+		// 是否有网络链接
+		isConnected(val){
+			val ? this.init() : ''
+		},
 
     /**
      * TODO 扫码功能后续还会后续增加

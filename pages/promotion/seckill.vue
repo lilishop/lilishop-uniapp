@@ -1,7 +1,8 @@
 <template>
 	<view class="sale">
-		<view class="sale-head">
-			<image src="@/pages/promotion/static/head-sample.png"></image>
+		<u-navbar title='限时抢购'></u-navbar>
+		<view class="header-wraper">
+				<image mode="widthFix" src="/static/seckill.png"></image>
 		</view>
 		<scroll-view scroll-x>
 			<view class="index-navs">
@@ -14,10 +15,7 @@
 					</view>
 				</view>
 			</view>
-			<view class="trailer" v-if="timeLine[nav] && times">
-				{{ timeLine[nav].distanceStartTime === 0 ? (onlyOne ? '距结束' : '距下一轮') : '距开始' }}
-				{{ times.hours == '00' ? '0' : times.hours }}小时{{ times.minutes }}分{{ times.seconds }}秒
-			</view>
+			
 		</scroll-view>
 		<view class="sale-items" v-if="goodsList.length > 0">
 			<goodsTemplate :res="goodsList" />
@@ -39,7 +37,7 @@
 		getSeckillTimeGoods
 	} from "@/api/promotions.js";
 	import Foundation from "@/utils/Foundation.js";
-	import goodsTemplate from '@/components/m-goods-list/seckill.vue'
+	import goodsTemplate from '@/components/m-goods-list/promotion.vue'
 	export default {
 		components: {
 			goodsTemplate
@@ -184,10 +182,15 @@
 		}
 	}
 
-	.sale-head {
-		image {
-			width: 100%;
-			height: 280rpx;
+	.header-wraper {
+		background: url('/static/bg.png');
+		height: 200rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		>image{
+			width: 300rpx;
+			height: 100rpx;
 		}
 	}
 
@@ -195,22 +198,8 @@
 		padding-top: 20rpx;
 	}
 
-	.trailer {
-		height: 100rpx;
-		background: #ffffff;
-		display: -webkit-box;
-		display: -webkit-flex;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		font-size: 22rpx;
-		color: #666666;
-		box-sizing: border-box;
-		position: relative;
-		z-index: 0;
-	}
-
 	.index-navs {
+		background: #fff;
 		background-color: #f7f7f7;
 		display: -webkit-box;
 		display: -webkit-flex;
@@ -241,17 +230,19 @@
 		height: 115rpx;
 		line-height: 1em;
 		position: relative;
+		font-size: 32rpx;
+		font-weight: bold;
 
 		&-active {
-			background-image: url(/static/seckill/active.png);
-			background-size: 100% 115rpx;
-			background-repeat: no-repeat;
-			color: #ffffff;
+			color: $main-color;
 			position: relative;
 			z-index: 30;
-
 			.index-nav-desc {
-				color: #ffffff;
+				color: #fff;
+				font-weight: bold;
+				background: $main-color;
+				padding: 6rpx 16rpx;
+				border-radius: 50px;
 			}
 		}
 	}
