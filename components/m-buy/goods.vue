@@ -99,10 +99,10 @@
 						</view>
 					</view>
 					<!-- 数量 -->
-					<view class="goods-skus-number">
+					<view class="goods-skus-number flex flex-a-c flex-j-sb">
 						<view class="view-class-title">数量</view>
 						
-						<u-input style='text-align: right;' v-model="num" type="number"  />
+						<u-input  class="view-class-input" v-model="num" type="number"  />
 					</view>
 				</scroll-view>
 				<!-- 按钮 -->
@@ -183,7 +183,6 @@
 			num(val){
 				if(val){
 					if(val > this.goodsDetail.quantity){
-						console.log(val)
 						this.val = this.goodsDetail.quantity
 					}
 				}
@@ -423,7 +422,13 @@
 	.goods-skus-number {
 		justify-content: space-between;
 		display: flex;
-		text-align: right
+		
+		>.view-class-title{
+			flex: 8;
+		}
+		>.view-class-input{
+			flex:1
+		}
 	}
 
 	/deep/ .uni-scroll-view {

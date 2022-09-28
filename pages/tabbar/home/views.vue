@@ -50,7 +50,7 @@
       <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
       <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
     </div>
-    <u-no-network @retry='init' @isConnected='isConnected'></u-no-network>
+    <u-no-network @retry="init" @isConnected="isConnected"></u-no-network>
   </div>
 </template>
 
@@ -125,6 +125,7 @@ export default {
       getFloorData().then((res) => {
         if (res.data.success) {
           this.pageData = JSON.parse(res.data.result.pageData);
+          console.log(this.pageData);
         }
       });
     },
@@ -145,6 +146,18 @@ export default {
       uni.scanCode({
         success: function (res) {
           let path = encodeURIComponent(res.result);
+          
+
+          
+          if(path!=undefined && path.indexOf("QR_CODE_LOGIN_SESSION")==0){
+            console.log(path)
+            //app扫码登录
+            uni.navigateTo({
+              url:"/pages/passport/scannerCodeLoginConfirm?token="+path
+            });
+            return;
+          }
+
 
           // WX_CODE 为小程序码
           if (res.scanType == "WX_CODE") {

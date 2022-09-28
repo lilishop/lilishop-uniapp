@@ -1,15 +1,20 @@
 <template>
   <div class="layout">
-    <div class="flex-one" @click="modelNavigateTo(res.list[0])">
-      <u-image width="100%" mode="aspectFit" height="280rpx" :src="res.list[0].img" alt=""></u-image>
+    <div class="flex-one">
+      <!-- <u-image width="100%" mode="aspectFit" height="280rpx" :src="res.list[0].img" alt=""></u-image> -->
+      <hotzone :res="res"></hotzone>
     </div>
   </div>
 </template>
 <script>
 import { modelNavigateTo } from "./tpl";
+import hotzone from "@/pages/tabbar/home/template/tpl_hot_zone.vue";
 
 export default {
   title: "单行图片模块",
+  components: {
+    hotzone,
+  },
   data() {
     return {
       modelNavigateTo,

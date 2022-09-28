@@ -23,8 +23,8 @@
                   <u-loading slot="loading"></u-loading>
                 </u-image>
                 <view class="index-item-title">{{ item.goodsName }}</view>
-                <view class="index-item-price">
-                  {{ item.points }}积分
+                <view class="index-item-price flex flex-a-c flex-j-sb">
+                  <div class="point"><span>{{ item.points }}</span>积分</div> 
                   <span class="tipsMkt">¥{{ item.originalPrice | unitPrice }}</span>
                 </view>
               </view>
@@ -194,46 +194,12 @@ page {
   height: 100%;
 }
 .tipsMkt {
-  float: right;
   color: #c0c4cc;
-  font-size: 24rpx;
+  font-size: 24rpx !important;
   text-decoration: line-through;
-  margin-right: 20rpx;
+  margin-right: 20rpx !important;
 }
 
-.header {
-  background: $light-color;
-  position: relative;
-  color: #fff;
-  display: flex;
-  height: 80rpx;
-  align-items: center;
-  justify-content: center;
-  font-size: 26rpx;
-  font-size: 34rpx;
-
-  .left,
-  .right {
-    position: absolute;
-    width: max-content;
-    height: max-content;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-  }
-
-  .left {
-    float: left;
-    top: 0;
-    bottom: 0;
-    left: 20rpx;
-  }
-
-  .right {
-    float: right;
-    right: 20rpx;
-  }
-}
 
 .index {
   height: 100vh;
@@ -341,15 +307,19 @@ page {
   overflow: hidden;
 }
 
-.index-item-title-desc {
-  font-size: 25rpx;
-  color: #999999;
-  margin-top: 10rpx;
-}
+
 
 .index-item-price {
   font-size: 28rpx;
-  color: #ff5a10;
+  overflow: hidden;
+  color: $main-color;
   padding: 20rpx 0 0 20rpx;
+  >.point{
+    >span{
+      font-size: 42rpx;
+      font-weight: bold;
+      margin-right:10rpx;
+    }
+  }
 }
 </style>

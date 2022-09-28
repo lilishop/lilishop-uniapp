@@ -22,9 +22,9 @@
       <!-- #endif -->
       <u-cell-item :title="`关于${config.name}`" @click="navigateTo('/pages/mine/set/editionIntro')"></u-cell-item>
     </u-cell-group>
-    <view class="submit" @click="showModalDialog">{{userInfo.id ?'退出登录':'返回登录'}}</view>
+    <view class="submit" @click="showModalDialog">{{userInfo.id ?'退出登录':'登录'}}</view>
     <u-modal show-cancel-button v-model="quitShow" @confirm="confirm" :confirm-color="lightColor" :async-close="true"
-      :content="userInfo.id ? '确定要退出登录么？' : '确定要返回登录么？'"></u-modal>
+      :content="userInfo.id ? '确定要退出登录么？' : '确定要登录么？'"></u-modal>
   </view>
 </template>
 
@@ -65,8 +65,14 @@ export default {
      * 清除缓存重新登录
      */
     async confirm() {
-      await logout();
-      this.clear();
+			try{
+				await logout();
+				this.clear();
+			}catch(e){
+				//TODO handle the exception
+				this.clear();
+			}
+      
     },
 
     /**

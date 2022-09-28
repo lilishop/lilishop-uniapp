@@ -244,6 +244,8 @@
 						"navigationBarTitleText": "面容登录"
 					}
 				},
+				
+				
 				{
 					"path": "set/securityCenter/editPassword",
 					"style": {
@@ -455,6 +457,14 @@
 						"navigationStyle": "custom",
 						"navigationBarTextStyle": "black"
 					}
+				},
+				{
+					"path": "scannerCodeLoginConfirm",
+					"style": {
+						"navigationBarTitleText": "扫码登录",
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "black"
+					}
 				}
 			]
 
@@ -466,6 +476,8 @@
 					"path": "seckill",
 					"style": {
 						"navigationBarTitleText": "限时抢购",
+						"navigationStyle": "custom", // 隐藏系统导航栏
+						"navigationBarTextStyle": "white" ,
 						"app-plus": {
 							"titleNView": {
 								"homeButton":true
@@ -479,6 +491,7 @@
 					"style": {
 						"navigationBarTitleText": "拼团活动",
 						"navigationStyle": "custom", // 隐藏系统导航栏
+						"navigationBarTextStyle": "white" ,
 						"app-plus": {
 							// 将回弹属性关掉
 							"bounce": "none"

@@ -16,6 +16,9 @@ let btn = Vue.component("airBtn", airBtn); //全局注册
 document.body.appendChild(new btn().$mount().$el);
 // #endif
 
+// 引入uView对小程序分享的mixin封装
+let mpShare = require('uview-ui/libs/mixin/mpShare.js');
+Vue.mixin(mpShare)
 
 /**
  * 全局filters
@@ -27,6 +30,8 @@ Object.keys(filters).forEach((key) => {
 
 // 引入Vuex
 Vue.prototype.$store = store;
+
+
 Vue.use(uView);
 Vue.config.productionTip = false;
 

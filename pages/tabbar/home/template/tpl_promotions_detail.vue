@@ -39,8 +39,10 @@
               :key="_index"
             >
               <div class="item-img-box">
-                <img
+                <u-image
                   class="item-img"
+                  width="156rpx"
+                  height="156rpx"
                   :src="i.thumbnail ? i.thumbnail : i.goodsImage"
                   alt
                 />

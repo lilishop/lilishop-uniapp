@@ -6,8 +6,6 @@
 const dev = {
   common: "https://common-api.pickmall.cn",
   buyer: "https://buyer-api.pickmall.cn",
-
-
 };
 // 生产环境
 const prod = {

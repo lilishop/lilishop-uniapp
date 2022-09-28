@@ -91,3 +91,20 @@ export function logout () {
     needToken: true,
   })
 }
+
+export function scannerCodeLogin(params){
+	return http.request({
+	  url: '/passport/member/app_scanner',
+	  method: "POST",
+	  params,
+	  needToken: true,
+	});
+}
+export function scannerCodeLoginConfirm(params){
+	return http.request({
+	  url: '/passport/member/app_confirm',
+	  method: "POST",
+	  params,
+	  needToken: true,
+	});
+}
