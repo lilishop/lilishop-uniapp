@@ -105,7 +105,7 @@
       >
         <view>
           <!-- 轮播图 -->
-          <GoodsSwiper id="main1" :res="imgList" />
+          <GoodsSwiper id="main1" :res="imgList" :video='goodsDetail.goodsVideo' />
 
           <!-- 促销活动条 -->
           <PromotionAssembleLayout
@@ -656,6 +656,7 @@ export default {
       }
       /**商品信息以及规格信息存储 */
       this.goodsDetail = response.data.result.data;
+      console.log(this.goodsDetail )
       this.wholesaleList = response.data.result.wholesaleList;
       this.goodsSpec = response.data.result.specs;
       this.PromotionList = response.data.result.promotionMap;
