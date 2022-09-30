@@ -43,7 +43,8 @@
 				if (typeof val == "undefined") {
 					return val;
 				}
-				return val.toFixed(2).split(".");
+				
+				return parseInt(val).toFixed(2).split(".");
 			},
 
 			// 数据去重一下 只显示一次 减免 劵 什么的

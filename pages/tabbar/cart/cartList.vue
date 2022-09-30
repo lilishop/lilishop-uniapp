@@ -264,7 +264,7 @@ export default {
       if (typeof val == "undefined") {
         return val;
       }
-      return val.toFixed(2).split(".");
+      return parseInt(val).toFixed(2).split(".");
     },
 
     /**

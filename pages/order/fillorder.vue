@@ -460,7 +460,7 @@ export default {
       if (typeof val == "undefined") {
         return val;
       }
-      return val.toFixed(2).split(".");
+      return parseInt(val).toFixed(2).split(".");
     },
     //发票回调 选择发票之后刷新购物车
     async callbackInvoice(val) {
