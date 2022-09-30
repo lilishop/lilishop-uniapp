@@ -98,18 +98,18 @@
 		},
 		onBackPress(e) {
 			if (e.from == "backbutton") {
-				if(this.routerVal.recharge_sn){
-					uni.switchTab({
-						 url: '/pages/tabbar/user/my'
-					});
-				}
-				else{
-				uni.redirectTo({
-					url: "/pages/order/myOrder?status=0",
-				});
-				}
-				return true; //阻止默认返回行为
-			}
+							if(this.routerVal.recharge_sn){
+								uni.switchTab({
+									 url: '/pages/tabbar/user/my'
+								});
+							}
+							else{
+							uni.navigateTo({
+								url: "/pages/order/myOrder?status=0",
+							});
+							}
+							return true; //阻止默认返回行为
+							}
 		},
 		mounted() {
 			this.cashierData();

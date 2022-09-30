@@ -3,7 +3,7 @@
 		<div v-for="(item, index) in res" :key="index" class="goods-row">
 			<div class="flex goods-col">
 				<div class="goods-img" @click="navigateToDetailPage(item)">
-					<u-image width="230rpx" border-radius='16' height="230rpx" :src="item.goodsImage">
+					<u-image width="230rpx" border-radius='16' height="230rpx" :src="item.goodsImage || item.thumbnail">
 						<u-loading slot="loading"></u-loading>
 					</u-image>
 				</div>
@@ -54,6 +54,14 @@
 				default: () => {
 					return []
 				}
+			},
+		},
+		methods:{
+			// 跳转到商品详情
+			navigateToDetailPage(item) {
+				uni.navigateTo({
+					url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
+				});
 			},
 		}
 	}
