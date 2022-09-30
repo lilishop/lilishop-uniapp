@@ -202,7 +202,7 @@ export function checkedDistributionGoods(params) {
  */
  export function getMpCode(params){
   return http.request({
-    url:`/passport/connect/miniProgram/mp/unlimited`,
+    url:`/passport/connect/mini-program/mp/unlimited`,
     method:Method.GET,
     params
   })
@@ -213,7 +213,7 @@ export function checkedDistributionGoods(params) {
  */
  export function getMpScene(id){
   return http.request({
-    url:`/passport/connect/miniProgram/mp/unlimited/scene?id=${id}`,
+    url:`/passport/connect/mini-program/mp/unlimited/scene?id=${id}`,
     method:Method.GET,
 
   })

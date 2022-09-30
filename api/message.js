@@ -14,7 +14,7 @@ import api from '@/config/api.js';
  */
 export function getWeChatMpMessage() { 
   return http.request({
-    url: 'passport/connect/miniProgram/subscribeMessage',
+    url: 'passport/connect/mini-program/subscribeMessage',
     method: Method.GET
   });
 }
