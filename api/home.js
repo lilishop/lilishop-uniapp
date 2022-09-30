@@ -13,6 +13,22 @@ export function getAdvertisement() {
 }
 
 
+ export function toSpecial(data) {
+  return http.request({
+    url: `/other/pageData/getSpecial`,
+    method: Method.GET,
+    data
+  });
+}
+/**
+ * 专题内容
+ */
+ export function getSpecial(id) {
+  return http.request({
+    url: `/other/pageData/get/${id}`,
+    method: Method.GET,
+  });
+}
 
 /**
  * 获取首页商品分类

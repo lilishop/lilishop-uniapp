@@ -79,6 +79,12 @@
 			"style": {
 				
 			}
+		},
+		{
+			"path": "pages/tabbar/special/special",
+			"style": {
+					"navigationBarTitleText": "专题"
+			}
 		}
 
 	],
