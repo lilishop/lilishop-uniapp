@@ -65,6 +65,12 @@
 		methods: {
 			// 跳转到商品详情
 			navigateToDetailPage(item) {
+				if(this.type == 'kanJia'){
+					 uni.navigateTo({
+						url: `/pages/promotion/bargain/detail?id=${item.id}`,
+					});
+					return
+				}
 				uni.navigateTo({
 					url: `/pages/product/goods?id=${item.skuId}&goodsId=${item.goodsId}`,
 				});

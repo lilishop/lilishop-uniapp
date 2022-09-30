@@ -331,7 +331,7 @@ export default {
         this.initData(0);
       }
     }
-    // this.loadData(this.status);
+    this.loadData(this.status);
   },
 
   onLoad(options) {
