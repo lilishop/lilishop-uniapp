@@ -63,7 +63,7 @@ export default {
 				if (typeof val == "undefined") {
 					return val;
 				}
-				return parseInt(val).toFixed(2).split(".");
+				return Number(val).toFixed(2).split(".");
 			},
     handleClick(item) {
       uni.navigateTo({

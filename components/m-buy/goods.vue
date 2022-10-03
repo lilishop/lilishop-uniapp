@@ -209,7 +209,7 @@
 				if (typeof val == "undefined") {
 					return val;
 				}
-				return val.toFixed(2).split(".");
+				return Number(val).toFixed(2).split(".");
 			},
 
 			closeMask() {

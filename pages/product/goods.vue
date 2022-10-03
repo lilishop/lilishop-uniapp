@@ -757,7 +757,7 @@ export default {
       if (typeof val == "undefined") {
         return val;
       }
-      return parseInt(val).toFixed(2).split(".");
+      return Number(val).toFixed(2).split(".");
     },
 
     /**选择商品 */
