@@ -2,6 +2,15 @@
  * base    : 基础业务API
  * buyer   : 买家API
  */
+
+
+/**
+ * 如果项目中使用到了开屏页面，需要单独的在 hybrid/html/advertise.html 中将下面api地址需要单独改成自己的api地址
+ * xhr.open(
+    "GET",
+    "http://192.168.0.102:8888/buyer/other/pageData/getOpenScreenAnimation"
+  );
+ */
 // 开发环境
 const dev = {
   common: "http://192.168.0.102:8888",

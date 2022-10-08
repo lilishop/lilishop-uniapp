@@ -113,8 +113,8 @@ $w_94: 94%;
   padding: 8rpx 0 8rpx 8rpx;
   margin: 0 auto;
   > .goods-title {
-    font-size: 12px;
-    height: 70rpx;
+    font-size: 24rpx;
+    height: 68rpx;
     display: -webkit-box;
     font-weight: 500;
     -webkit-box-orient: vertical;
