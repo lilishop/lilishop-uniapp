@@ -159,7 +159,7 @@ $w_94: 94%;
   margin: 0 auto;
   > .goods-title {
     font-size: 24rpx;
-    height: 70rpx;
+    height: 68rpx;
     display: -webkit-box;
     font-weight: 500;
     -webkit-box-orient: vertical;

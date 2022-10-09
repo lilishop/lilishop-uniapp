@@ -1,7 +1,15 @@
 import { http, Method } from "@/utils/request.js";
 
 
-
+/**
+ * 获取广告图
+ */
+ export function getOpenScreenPage() {
+  return http.request({
+    url: "/other/pageData/getOpenScreenPage",
+    method: Method.GET,
+  });
+}
 /**
  * 获取广告图
  */

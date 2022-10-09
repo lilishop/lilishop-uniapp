@@ -72,8 +72,9 @@
 		},
 		onLaunch: function() {
 			// #ifdef APP-PLUS
+			this.launch()
 			this.checkArguments(); // 检测启动参数
-			APPUpdate();
+		
 
 			// 重点是以下： 一定要监听后台恢复 ！一定要
 			plus.globalEvent.addEventListener("newintent", (e) => {
@@ -131,38 +132,28 @@
 			//  TODO 开屏广告 后续优化添加
 			launch() {
 				try {
-					// 获取本地存储中launchFlag标识 开屏广告
-					const value = uni.getStorageSync("launchFlag");
-					if (!value) {
-						// this.$u.route("/pages/index/agreement");
-					} else {
-						//app启动时打开启动广告页
-						var w = plus.webview.open(
-							"/hybrid/html/advertise/advertise.html",
-							"本地地址", {
-								top: 0,
-								bottom: 0,
-								zindex: 999,
-							},
-							"fade-in",
-							500
-						);
-						//设置定时器，4s后关闭启动广告页
-						setTimeout(function() {
-							plus.webview.close(w);
-							APPUpdate();
-						}, 3000);
-					}
-				} catch (e) {
-					// error
-					uni.setStorage({
-						key: "launchFlag",
-						data: true,
-						success: function() {
-							console.log("error时存储launchFlag");
+					console.log('启动launch');
+					let sys_info = uni.getSystemInfoSync();
+
+					//app启动时打开启动广告页
+					var w = plus.webview.open(
+						'/hybrid/html/advertise/advertise.html',
+						'本地地址',
+						{
+							top: 0,
+							bottom: 0,
+							zindex: 999
 						},
-					});
-				}
+						'fade-in',
+						500
+					);
+					console.log('打开地址');
+					//设置定时器，4s后关闭启动广告页
+					setTimeout(function() {
+						plus.webview.close(w);
+						APPUpdate();
+					}, 3000);
+				} catch (e) {}
 			},
 
 			/**

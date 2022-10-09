@@ -1,123 +1,227 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>广告启动页</title>
-		<link rel="stylesheet" href="../css/advertise.css">
-		<!-- uni 的 SDK -->
-		<script type="text/javascript" src="../js/webView.js"></script>
-	</head>
-	<body>
-		<div class="content">
-			<div class="con">
-				<img id="img" src="../imgs/domain.jpeg">
-			</div>
-			<div class="btn" id="timer">
-				<div id="info">跳过</div>
-				<div class="circleProgress_wrapper btn">
-					<div class="wrapper right">
-						<div class="circleProgress rightcircle"></div>
-					</div>
-					<div class="wrapper left">
-						<div class="circleProgress leftcircle"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</body>
-	<script>
-		
-		// var currentAd = {
-		// 	operation_type: 'NONE'
-		// };
-		
-		
-		// function getRandom(start, end, fixed = 0) {
-		// 	let differ = end - start
-		// 	let random = Math.random()
-		// 	return (start + differ * random).toFixed(fixed)
-		// }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>广告启动页</title>
+    <link rel="stylesheet" href="../css/advertise.css" />
+    <!-- uni 的 SDK -->
+    <script type="text/javascript" src="../js/webView.js"></script>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> -->
+  </head>
+  <body>
+    <div class="content">
+      <div class="con">
+        <img id="img" />
+      </div>
+      <div class="btn" id="timer">
+        <div id="info">跳过</div>
+        <div class="circleProgress_wrapper btn">
+          <div class="wrapper right">
+            <div class="circleProgress rightcircle"></div>
+          </div>
+          <div class="wrapper left">
+            <div class="circleProgress leftcircle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    function getRandom(start, end, fixed = 0) {
+      let differ = end - start;
+      let random = Math.random();
+      return (start + differ * random).toFixed(fixed);
+    }
 
-		// document.addEventListener('plusready', function () {
-		// 	var xhr = new plus.net.XMLHttpRequest();
-		// 	xhr.onreadystatechange = function () {
-		// 		switch (xhr.readyState) {
-		// 			case 0:
-		// 				break;
-		// 			case 1:
-		// 				break;
-		// 			case 2:
-		// 				break;
-		// 			case 3:
-		// 				break;
-		// 			case 4:
-		// 				if (xhr.status == 200) {
-		// 					let res = JSON.parse(xhr.responseText);
-		// 					if (res.length > 0) {
-		// 						currentAd = res[getRandom(0, res.length - 1)];
-		// 						document.getElementById("img").src = currentAd.pic_url;
-		// 					} else {
-		// 						plus.webview.currentWebview().close();
-		// 					}		
-		// 					//alert("xhr请求成功：" + xhr.responseText);
-		// 				} else {
-		// 					plus.webview.currentWebview().close();
-		// 					//alert("xhr请求失败：" + xhr.readyState);
-		// 				}
-		// 				break;
-		// 			default:
-		// 				break;
-		// 		}
-		// 	}
-		// 	// xhr.open("GET", "https://api-buyer-app.yinbei.cn/advertisement");
-		// 	xhr.send();
-		// }, false);
-		
+    function modelNavigateTo(item) {
+      console.log(item);
+      let val = item.url ? item.url : item;
+      //链接跳转到专题
+      if (val && val.id && val.name) {
+        uni.navigateTo({
+          url: `/pages/tabbar/special/special?id=${val.id}?name=${val.name}`,
+        });
+      }
+      switch (val.___type) {
+        case "goods":
+          uni.navigateTo({
+            url:
+              "/pages/product/goods?id=" + val.id + "&goodsId=" + val.goodsId,
+          });
+          break;
+        case "category":
+          if (val.id) {
+            uni.navigateTo({
+              url: `/pages/navigation/search/searchPage?category=${val.id}`,
+            });
+          } else {
+            uni.navigateTo({
+              url: `/pages/navigation/search/searchPage`,
+            });
+          }
+          break;
+        case "shops":
+          uni.navigateTo({
+            url: `/pages/product/shopPage?id=${val.id}`,
+          });
+          break;
+        // 活动
+        case "marketing":
+          uni.navigateTo({
+            url: "/pages/product/goods?id=" + val.id + "goodsId=" + val.goodsId,
+          });
+          break;
+        case "pages":
+          uni.navigateTo({
+            url: val.___path + "?id=" + val.id + "&title=" + val.title,
+          });
+          break;
+        case "other":
+          switch (val.title) {
+            case "首页":
+              uni.switchTab({
+                url: `/pages/tabbar/home/index`,
+              });
+              break;
+            case "购物车":
+              uni.switchTab({
+                url: `/pages/tabbar/cart/cartList`,
+              });
+              return;
+            case "个人中心":
+              uni.switchTab({
+                url: `/pages/tabbar/user/my`,
+              });
+              break;
+            case "收藏商品":
+              uni.navigateTo({
+                url: `/pages/mine/myCollect`,
+              });
+              break;
+            case "我的订单":
+              uni.navigateTo({
+                url: `/pages/order/myOrder?status=0`,
+              });
+              break;
+            case "领券中心":
+              uni.navigateTo({
+                url: `/pages/cart/coupon/couponCenter`,
+              });
+              break;
+            case "签到":
+              uni.navigateTo({
+                url: `/pages/mine/signIn`,
+              });
+              break;
+            case "秒杀频道":
+              uni.navigateTo({
+                url: `/pages/promotion/seckill`,
+              });
+              break;
+            case "拼团频道":
+              uni.navigateTo({
+                url: `/pages/promotion/joinGroup`,
+              });
+              break;
+            case "小程序直播":
+              uni.navigateTo({
+                url: `/pages/promotion/lives`,
+              });
+              break;
+            case "砍价":
+              uni.navigateTo({
+                url: `/pages/promotion/bargain/list`,
+              });
+              break;
+            case "积分商城":
+              uni.navigateTo({
+                url: `/pages/promotion/point/pointList`,
+              });
+              break;
+            case "店铺列表":
+              uni.navigateTo({
+                url: `/pages/product/shopList`,
+              });
+              break;
+            case "外部链接":
+              // #ifdef H5
+              window.location.href = val.url;
+              // #endif
+              // #ifdef APP-PLUS
+              plus.runtime.openURL(val.url); //不需要拼接\
+              // #endif
+              break;
+          }
 
-		// document.addEventListener('UniAppJSBridgeReady', function () {
-		// 	document.querySelector('.con').addEventListener('click', function (e) {
-		// 		if (e.isTrusted) {
-		// 			plus.webview.currentWebview().close();
-		// 			switch (currentAd.operation_type) {
-		// 				// 链接地址
-		// 				case 'URL':
-		// 					plus.webview.open(currentAd.operation_url)
-		// 					break;
-		// 				// 商品
-		// 				case 'GOODS':
-		// 					uni.navigateTo({
-		// 						url: `/pages/product/goods?id=` + currentAd.operation_param
-		// 					});
-		// 					break;
-		// 				// 关键字
-		// 				case 'KEYWORD':
-		// 					uni.navigateTo({
-		// 						url: '/pages/recommend/recommend' + currentAd.operation_param
-		// 					});
-		// 					break;
-		// 				// 店铺
-		// 				case 'store':
-		// 					uni.navigateTo({
-		// 						url: `/pages/product/shopPage?id=` + currentAd.operation_param
-		// 					});
-		// 					break;
-		// 				// 分类
-		// 				case 'CATEGORY':
-		// 					uni.navigateTo({
-		// 						url: '/pages/category/category'
-		// 					});
-		// 					break;
-		// 				default:
-		// 					break;
-		// 			}
-		// 		}
-		// 	});
-		// 	document.querySelector('.btn').addEventListener('click', function (e) {
-		// 		if (e.isTrusted) {
-		// 			plus.webview.currentWebview().close();
-		// 		}
-		// 	});
-		// });
-	</script>
+          break;
+      }
+    }
+    var pageData = "";
+
+    document.addEventListener(
+      "plusready",
+      function () {
+        var xhr = new plus.net.XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+          switch (xhr.readyState) {
+            case 0:
+              break;
+            case 1:
+              break;
+            case 2:
+              break;
+            case 3:
+              break;
+            case 4:
+              if (xhr.status == 200) {
+                var res = JSON.parse(xhr.responseText);
+                if (res.success) {
+                  pageData = JSON.parse(res.result.pageData);
+
+                  document.getElementById("img").src = pageData.img;
+                } else {
+                  plus.webview.currentWebview().close();
+                }
+                //alert("xhr请求成功：" + xhr.responseText);
+              } else {
+                plus.webview.currentWebview().close();
+                //alert("xhr请求失败：" + xhr.readyState);
+              }
+              break;
+            default:
+              break;
+          }
+        };
+        xhr.open(
+          "GET",
+          "http://192.168.0.102:8888/buyer/other/pageData/getOpenScreenAnimation"
+        );
+        xhr.send();
+      },
+      false
+    );
+
+    document.addEventListener("UniAppJSBridgeReady", function () {
+      document.querySelector(".con").addEventListener("click", function (e) {
+        console.log(JSON.stringify(e), "123123123");
+        console.log(pageData.config);
+        if (e.isTrusted) {
+          plus.webview.currentWebview().close();
+
+          modelNavigateTo(pageData.config);
+        }
+      });
+      document.querySelector(".btn").addEventListener("click", function (e) {
+        if (e.isTrusted) {
+          plus.webview.currentWebview().close();
+        }
+      });
+    });
+  </script>
 </html>
+<style>
+  .content {
+   
+  }
+</style>

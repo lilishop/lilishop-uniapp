@@ -51,6 +51,11 @@
       <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
     </div>
     <u-no-network @retry="init" @isConnected="isConnected"></u-no-network>
+    <u-modal :zoom='false' :show-title="false" :mask-close-able="true" :show-confirm-button="false" v-model="show">
+			<view class="u-update-content">
+				<u-image @click="handlerClickOpen" width="612rpx" height="836rpx" :src="openPageData.img"></u-image>
+			</view>
+		</u-modal>
   </div>
 </template>
 
@@ -73,18 +78,22 @@ import tpl_search from "@/pages/tabbar/home/template/tpl_search"; //搜索栏
 import tpl_group from "@/pages/tabbar/home/template/tpl_group"; //
 import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类以及分类中的商品
 // 结束引用组件
-import { getFloorData } from "@/api/home"; //获取楼层装修接口
+import { getFloorData,getOpenScreenPage } from "@/api/home"; //获取楼层装修接口
 import permision from "@/js_sdk/wa-permission/permission.js"; //权限工具类
 import config from "@/config/config";
 import tpl_notice from "@/pages/tabbar/home/template/tpl_notice"; //标题栏模块
 import tpl_promotions from "@/pages/tabbar/home/template/tpl_promotions_detail"; //标题栏模块
-
+import {
+		modelNavigateTo
+	} from "./template/tpl.js";
 export default {
   data() {
     return {
       config,
       pageData: "", //楼层页面数据
       isIos: "",
+      openPageData: "", //开屏数据
+      show: false,
     };
   },
   components: {
@@ -110,6 +119,7 @@ export default {
 
   mounted() {
     this.init();
+    this.openScreenPage()
     // #ifdef MP-WEIXIN
     // 小程序默认分享
     uni.showShareMenu({ withShareTicket: true });
@@ -117,6 +127,9 @@ export default {
   },
 
   methods: {
+    handlerClickOpen() {
+				modelNavigateTo(this.openPageData.config);
+		},
     /**
      * 实例化首页数据楼层
      */
@@ -133,6 +146,20 @@ export default {
 		isConnected(val){
 			val ? this.init() : ''
 		},
+    async openScreenPage() {
+				if (!this.$store.state.openScreenPage) {
+					const res = await getOpenScreenPage();
+					if (res.data.success) {
+						//  && !storage.getOpenPage()
+						if (res.data.result && res.data.result.pageData) {
+							this.$store.state.openScreenPage = true
+							this.openPageData = JSON.parse(res.data.result.pageData);
+							this.show = true;
+							// storage.setOpenPage(true);
+						}
+					}
+				}
+			},
 
     /**
      * TODO 扫码功能后续还会后续增加
