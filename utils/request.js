@@ -169,7 +169,7 @@ http.interceptors.response.use(
 				// 如果当前返回没登录
 			} else if (
 				(!token && !storage.getRefreshToken() && response.statusCode === 403) ||
-				response.data.code === 403
+				response.data.code === 403 || response.data.code === 20004
 			) {
 				console.log('没有token 以及刷新token 内容', token, storage.getRefreshToken())
 				cleanStorage();
