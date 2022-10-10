@@ -58,7 +58,7 @@
     <!-- menu -->
 
     <!-- 商品 -->
-    <div class="contant" v-if="current == 0">
+    <div class="content" v-if="current == 0">
 		
       <u-empty style='margin-top:100rpx' v-if="goodsList.length == 0" class="empty" text='暂无商品信息'></u-empty>
 			<goodsTemplate v-else :res="goodsList" :storeName="false" />
@@ -382,11 +382,11 @@ export default {
   color: #999;
 }
 
-.contant {
+.content {
   margin-top: 20rpx;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  // display: flex;
+  // flex-wrap: wrap;
+  // justify-content: space-between;
   > .empty {
     width: 100%;
     display: flex;

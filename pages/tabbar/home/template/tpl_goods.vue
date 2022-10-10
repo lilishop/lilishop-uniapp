@@ -24,8 +24,8 @@
             {{ item.title }}
           </div>
           <div class="goods-bottom">
-            <div class="goods-price">	¥<span>{{ formatPrice(item.price )[0] }} </span>.{{
-										formatPrice(item.price )[1]
+            <div class="goods-price">	¥<span>{{ $options.filters.goodsFormatPrice(item.price )[0] }} </span>.{{
+										$options.filters.goodsFormatPrice(item.price)[1]
 									}}</div>
           </div>
         </div>
@@ -58,13 +58,6 @@ export default {
   },
   mounted() {},
   methods: {
-    	// 格式化金钱  1999 --> [1999,00]
-			formatPrice(val) {
-				if (typeof val == "undefined") {
-					return val;
-				}
-				return parseInt(val).toFixed(2).split(".");
-			},
     handleClick(item) {
       uni.navigateTo({
         url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,

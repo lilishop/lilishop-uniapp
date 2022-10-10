@@ -32,7 +32,7 @@
             {{ item.content.goodsName }}
           </view>
           <view class="item-price" v-if="item.price != undefined">
-            ￥<span class="item-price-blod">{{ formatPrice(item.content.price)[0] }}</span>.{{ formatPrice(item.content.price)[1] }}
+            ￥<span class="item-price-blod">{{ $options.filters.goodsFormatPrice(item.content.price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(item.content.price)[1] }}
           </view>
         </view>
       </view>
@@ -48,13 +48,6 @@ export default {
   props: ["res", "goodsDetail", "storeDetail"],
   mounted() {},
   methods: {
-    // 格式化金钱  1999 --> [1999,00]
-    formatPrice(val) {
-      if (typeof val == "undefined") {
-        return val;
-      }
-      return parseInt(val).toFixed(2).split(".");
-    },
     // 点击商品
     clickGoods(val) {
       uni.navigateTo({

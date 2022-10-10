@@ -79,8 +79,8 @@
                 <view class="sp-price">
                   <div class="default-color" :class="{'main-color':Object.keys(skuItem.promotionMap).length ==0  }">
                     
-                    ￥<span>{{ formatPrice(skuItem.goodsSku.price)[0] }}</span>
-                    <span>.{{ formatPrice(skuItem.goodsSku.price)[1] }}</span>
+                    ￥<span>{{ $options.filters.goodsFormatPrice(skuItem.goodsSku.price)[0] }}</span>
+                    <span>.{{ $options.filters.goodsFormatPrice(skuItem.goodsSku.price)[1] }}</span>
                   </div>
                 </view>
                 <view>
@@ -108,8 +108,8 @@
               <!-- 如果有活动 并且是选中的状态,显示预估到手价格 -->
               <div class="priceDetail-flowPrice" :class="{'main-color':skuItem.priceDetailDTO}"
                 v-if="skuItem.priceDetailDTO && skuItem.invalid == 0  && Object.keys(skuItem.promotionMap).length != 0 && skuItem.checked && skuItem.checked">
-                预估到手价 ￥<span>{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
-                <span>.{{ formatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
+                预估到手价 ￥<span>{{ $options.filters.goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
+                <span>.{{ $options.filters.goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
               </div>
 							<div style='margin-left: 20rpx;' v-if="!skuItem.checked && skuItem.errorMessage">
 								{{skuItem.errorMessage}}
@@ -131,7 +131,7 @@
             <div class="fullPrice">
               <span class="number" v-if="cartDetail && cartDetail.priceDetailDTO">
                 总计:
-                <span>¥{{ formatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ formatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
+                <span>¥{{ $options.filters.goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ $options.filters.goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
               </span>
               <span class="number" v-else>总计:0.00</span>
             </div>
@@ -256,17 +256,6 @@ export default {
     discountDetails() {
       this.discountDetailsFlag = true;
     },
-
-    /**
-     *  格式化金钱  1999 --> [1999,00]
-     */
-    formatPrice(val) {
-      if (typeof val == "undefined") {
-        return val;
-      }
-      return parseInt(val).toFixed(2).split(".");
-    },
-
     /**
      * 左滑打开删除
      */

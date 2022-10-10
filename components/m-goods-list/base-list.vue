@@ -11,8 +11,8 @@
 					<div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.goodsName }}</div>
 					<view class="price-box" @click="navigateToDetailPage(item)">
 						<div class="price" v-if="item.price!=undefined">
-							¥<span>{{ formatPrice(item.price )[0] }} </span>.{{
-			            formatPrice(item.price )[1]
+							¥<span>{{ $options.filters.goodsFormatPrice(item.price )[0] }} </span>.{{
+			            $options.filters.goodsFormatPrice(item.price )[1]
 			          }}
 						</div>
 					</view>
@@ -135,7 +135,7 @@
 				font-size: $font-base;
 				color: $font-color-dark;
 				line-height: 1.5;
-				height: 84rpx;
+				height: 86rpx;
 				padding: 10rpx 0 0;
 				display: -webkit-box;
 				-webkit-box-orient: vertical;

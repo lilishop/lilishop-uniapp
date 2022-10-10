@@ -22,6 +22,20 @@ export function unitPrice(val, unit, location) {
 }
 
 /**
+ * 格式化价格  1999 --> [1999,00]
+ * @param {*} val 
+ * @returns 
+ */
+export function goodsFormatPrice(val) {
+  if (typeof val == "undefined") {
+    return val;
+  }
+  let valNum = new Number(val);
+  return valNum.toFixed(2).split(".");
+}
+
+
+/**
  * 脱敏姓名
  */
 
