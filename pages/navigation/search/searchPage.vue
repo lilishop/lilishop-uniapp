@@ -370,15 +370,6 @@ export default {
         return array;
       }
     },
-
-    // 格式化金钱  1999 --> [1999,00]
-    formatPrice(val) {
-      if (typeof val == "undefined") {
-        return val;
-      }
-      return val.toFixed(2).split(".");
-    },
-
     // 展示更多数据
     showMore() {
       this.loadOldKeyword(this.oldKeywordIndex);

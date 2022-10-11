@@ -89,7 +89,9 @@
 
 		onShow() {
 			// #ifndef H5
-			this.getClipboard();
+			if(this.config.enableGetClipboard){
+				this.getClipboard();
+			}
 			// #endif
 			// #ifdef APP-PLUS
 

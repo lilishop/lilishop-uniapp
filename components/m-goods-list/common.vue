@@ -36,16 +36,6 @@
 				}
 				return str;
 			},
-
-
-			// 格式化金钱  1999 --> [1999,00]
-			formatPrice(val) {
-				if (typeof val == "undefined") {
-					return val;
-				}
-				return val.toFixed(2).split(".");
-			},
-
 			// 数据去重一下 只显示一次 减免 劵 什么的
 			getPromotion(item) {
 				if (item.promotionMap) {

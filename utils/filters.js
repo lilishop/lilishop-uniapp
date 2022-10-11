@@ -1,6 +1,6 @@
 import Foundation from "./Foundation.js";
 import storage from "@/utils/storage.js";
-import { getUserInfo } from '@/api/members';
+import { getUserInfo } from "@/api/members";
 import Vue from "vue";
 /**
  * 金钱单位置换  2999 --> 2,999.00
@@ -20,6 +20,20 @@ export function unitPrice(val, unit, location) {
   }
   return (unit || "") + price;
 }
+
+/**
+ * 格式化价格  1999 --> [1999,00]
+ * @param {*} val 
+ * @returns 
+ */
+export function goodsFormatPrice(val) {
+  if (typeof val == "undefined") {
+    return val;
+  }
+  let valNum = new Number(val);
+  return valNum.toFixed(2).split(".");
+}
+
 
 /**
  * 脱敏姓名
@@ -107,38 +121,36 @@ export function isLogin(val) {
   }
 }
 
-
-export function tipsToLogin(){
-if(!isLogin('auth')){
-  uni.showModal({
-    title: "提示",
-    content: "当前用户未登录是否登录？",
-    confirmText: "确定",
-    cancelText: "取消",
-    confirmColor:Vue.prototype.$mainColor,
-    success: res => {
-      if (res.confirm) {
-        navigateToLogin()
-      } else if (res.cancel) {
-        uni.navigateBack()
-      }
-    },
-  })
-    return
-	}
+export function tipsToLogin() {
+  if (!isLogin("auth")) {
+    uni.showModal({
+      title: "提示",
+      content: "当前用户未登录是否登录？",
+      confirmText: "确定",
+      cancelText: "取消",
+      confirmColor: Vue.prototype.$mainColor,
+      success: (res) => {
+        if (res.confirm) {
+          navigateToLogin();
+        } else if (res.cancel) {
+          uni.navigateBack();
+        }
+      },
+    });
+    return false;
+  }
+  return true;
 }
-
-
 
 /**
  * 获取用户信息并重新添加到缓存里面
  */
-export async function userInfo(){
-	let res = await getUserInfo();
-	if(res.data.success){
-		storage.setUserInfo(res.data.result);
-		return res.data.result 
-	}
+export async function userInfo() {
+  let res = await getUserInfo();
+  if (res.data.success) {
+    storage.setUserInfo(res.data.result);
+    return res.data.result;
+  }
 }
 
 /**
@@ -149,7 +161,7 @@ export async function userInfo(){
 
 export function forceLogin() {
   let userInfo = storage.getUserInfo();
-  if (!userInfo ||  !userInfo.id) {
+  if (!userInfo || !userInfo.id) {
     // #ifdef MP-WEIXIN
 
     uni.navigateTo({

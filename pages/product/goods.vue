@@ -151,12 +151,12 @@
 
                     <span v-else>
 													<span v-if="wholesaleList.length">
-														<span>¥</span><span class="price">{{ formatPrice(wholesaleList[wholesaleList.length-1].price)[0] }}</span>.{{ formatPrice(wholesaleList[wholesaleList.length-1].price)[1] }}
+														<span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length-1].price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length-1].price)[1] }}
 														~
-														<span>¥</span><span class="price">{{ formatPrice(wholesaleList[0].price)[0] }}</span>.{{ formatPrice(wholesaleList[0].price)[1] }}
+														<span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(wholesaleList[0].price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(wholesaleList[0].price)[1] }}
 													</span>
 													<span v-else>
-														<span>¥</span><span class="price">{{ formatPrice(goodsDetail.price)[0] }}</span>.{{ formatPrice(goodsDetail.price)[1] }}
+														<span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(goodsDetail.price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
 													</span>
                     </span>
                   </view>
@@ -753,14 +753,6 @@ export default {
         // // #endif
     
     },
-    // 格式化金钱  1999 --> [1999,00]
-    formatPrice(val) {
-      if (typeof val == "undefined") {
-        return val;
-      }
-      return val.toFixed(2).split(".");
-    },
-
     /**选择商品 */
     changedGoods(val) {
       this.selectedGoods = val;

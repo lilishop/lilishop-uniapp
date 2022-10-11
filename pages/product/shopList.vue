@@ -82,13 +82,7 @@ export default {
       this.storeList = [];
       this.init();
     },
-    // 格式化金钱  1999 --> [1999,00]
-    formatPrice(val) {
-      if (typeof val == "undefined") {
-        return val;
-      }
-      return val.toFixed(2).split(".");
-    },
+   
     async init() {
       let res = await getStoreList(this.params);
       if (res.data.success) {

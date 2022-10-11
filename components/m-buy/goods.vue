@@ -16,9 +16,9 @@
 							<span v-if="goodsDetail.promotionPrice && !pointDetail">
 								￥
 								<span class="goods-price-promotionShow goods-price-bigshow">{{
-                  formatPrice(goodsDetail.promotionPrice)[0]
+                  $options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[0]
                 }}</span>
-								.{{ formatPrice(goodsDetail.promotionPrice)[1] }}
+								.{{ $options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[1] }}
 							</span>
 							<span v-if="pointDetail.points">
 								<span class="goods-price-promotionShow goods-price-bigshow">{{
@@ -29,9 +29,9 @@
 							<div class="promotion-box">
 								￥
 								<span class="goods-price-bigshow">{{
-                  formatPrice(goodsDetail.price)[0]
+                  $options.filters.goodsFormatPrice(goodsDetail.price)[0]
                 }}</span>
-								.{{ formatPrice(goodsDetail.price)[1] }}
+								.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
 							</div>
 						</view>
 						<!-- 正常商品的价格 -->
@@ -43,9 +43,9 @@
 									<span>
 										￥
 										<span class="goods-price-bigshow">{{
-									    formatPrice(item.price)[0]
+									    $options.filters.goodsFormatPrice(item.price)[0]
 									  }}</span>
-										.{{ formatPrice(item.price)[1] }}
+										.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
 									</span>
 									<span class='wholesale-item'>
 										{{item.num}}{{goodsDetail.goodsUnit}}
@@ -56,9 +56,9 @@
 								<span>
 									￥
 									<span class="goods-price-bigshow">{{
-							    formatPrice(goodsDetail.price)[0]
+							    $options.filters.goodsFormatPrice(goodsDetail.price)[0]
 							  }}</span>
-									.{{ formatPrice(goodsDetail.price)[1] }}
+									.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
 								</span>
 							</div>
 						</view>
@@ -204,14 +204,6 @@
 		},
 
 		methods: {
-			// 格式化金钱  1999 --> [1999,00]
-			formatPrice(val) {
-				if (typeof val == "undefined") {
-					return val;
-				}
-				return val.toFixed(2).split(".");
-			},
-
 			closeMask() {
 				this.$emit("closeBuy", false);
 			},
