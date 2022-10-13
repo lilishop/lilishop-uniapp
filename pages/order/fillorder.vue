@@ -421,7 +421,7 @@ export default {
           item.route == "pages/tabbar/cart/cartList" ||
           item.route.indexOf("pages/product/goods") != -1
         ) {
-          uni.redirectTo({
+          uni.navigateTo({
             url: item.route,
           });
         }
@@ -604,7 +604,7 @@ export default {
             });
             // 如果当前价格为0跳转到订单列表
             if (this.orderMessage.priceDetailDTO.billPrice == 0) {
-              uni.redirectTo({
+              uni.navigateTo({
                 url: "/pages/order/myOrder?status=0",
               });
             } else {
@@ -668,7 +668,7 @@ export default {
           });
         }
         if (res.data.result.skuList.length <= 0) {
-          uni.redirectTo({
+          uni.navigateTo({
             url: "/pages/order/myOrder?status=0",
           });
         }
