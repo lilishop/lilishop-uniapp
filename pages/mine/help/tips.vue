@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <u-parse v-html="res.content"></u-parse>
+    <u-parse :show-with-animation="true" :lazy-load="true" :selectable="true" :html="res.content"></u-parse>
 
   </div>
 </template>
