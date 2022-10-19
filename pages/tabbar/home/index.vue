@@ -15,6 +15,11 @@ export default {
       },
     };
   },
+  onReachBottom(){
+    // 给子级监听触底加载
+    uni.$emit('onReachBottom',true)
+  },
+  
   onPullDownRefresh() {
     this.$refs.tpl.init();
 
