@@ -38,7 +38,7 @@
 						<view v-else>
 							
 							<!-- 批发价格 -->
-							<div class='price-row flex' v-if="wholesaleList.length">
+							<div class='price-row flex' v-if="goodsDetail.salesModel === 'WHOLESALE'">
 								<div class='goods-price' v-for="(item,index) in wholesaleList" :key="index">
 									<span>
 										￥
