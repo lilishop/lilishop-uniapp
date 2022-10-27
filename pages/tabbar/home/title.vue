@@ -15,8 +15,9 @@
                 word-break: break-all;
                 text-overflow: ellipsis;
                 word-wrap: break-word;
-                
-                white-space: pre-wrap;">{{item.title}}
+                white-space: pre-wrap;">
+								<view style="color:black;font-size:30rpx;font-weight:500;">{{item.title}}</view>
+								<view>{{item.content}}</view>
 								<view style="width:400rpx;padding: 10rpx 0;">{{item.createTime}}</view>
 							</view>
 						</template>
@@ -39,8 +40,10 @@
 							  text-overflow: ellipsis;
 							  word-wrap: break-word;
 							  
-							  white-space: pre-wrap;">{{item.title}}
-								<view style="width:400rpx;padding: 10rpx 0;">{{item.createTime}}</view>
+							  white-space: pre-wrap;">
+							  <view style="color:black;font-size:30rpx;font-weight:500;">{{item.title}}</view>
+							  <view>{{item.content}}</view>
+							  <view style="width:400rpx;padding: 10rpx 0;">{{item.createTime}}</view>
 							</view>
 						</template>
 						<!-- <button  style="width:100rpx;height:60rpx;float:right;font-size:20rpx;line-height:60rpx;background:#F3F3FA;color:black;">已读</button> -->
