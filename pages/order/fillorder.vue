@@ -147,9 +147,9 @@
             <p class="goods-prices">
               <span>￥</span>
               <span class="goods-price">{{
-                $options.filters.goodsFormatPrice(val.goodsSku.price)[0]
+                $options.filters.goodsFormatPrice(val.purchasePrice)[0]
               }}</span>
-              <span>.{{ $options.filters.goodsFormatPrice(val.goodsSku.price)[1] }}</span>
+              <span>.{{ $options.filters.goodsFormatPrice(val.purchasePrice)[1] }}</span>
             </p>
           </div>
         </div>
