@@ -13,7 +13,7 @@ import {http, Method} from '@/utils/request.js';
  */
 export function getStoreList(params) {
   return http.request({
-    url: '/store',
+    url: '/store/store',
     method: Method.GET,
     params,
   });
