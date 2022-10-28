@@ -28,3 +28,16 @@ export function getArticleDetail(type) {
   });
 }
 
+/**
+ * 获取文章详情
+ * @param type
+ */
+ export function getArticleDetailByType(type) {
+  return http.request({
+    url: `/other/article/type/${type}`,
+    method: Method.GET,
+  });
+}
+
+
+
