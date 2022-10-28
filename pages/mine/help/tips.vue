@@ -1,11 +1,11 @@
 <template>
   <div class="wrapper">
-    <u-parse :show-with-animation="true" :lazy-load="true" :selectable="true" :html="res.content"></u-parse>
+    <u-parse :show-with-animation="true" :lazy-load="true" :selectable="true" :html="res.content" v-if="res"></u-parse>
 
   </div>
 </template>
 <script>
-import { getArticleDetail } from "@/api/article";
+import { getArticleDetailByType } from "@/api/article";
 export default {
   data() {
     return {
@@ -40,9 +40,10 @@ export default {
 
   methods: {
     init(option) {
-      getArticleDetail(this.way[option.type].type).then((res) => {
+      getArticleDetailByType(this.way[option.type].type).then((res) => {
         if (res.data.success) {
           this.res = res.data.result;
+          console.log(res)
         }
       });
     },
