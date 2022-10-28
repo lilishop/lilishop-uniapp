@@ -12,7 +12,7 @@ export default {
       res: "",
       way: {
         user: {
-          title: "用户协议",
+          title: "服务协议",
           type: "USER_AGREEMENT",
         },
         privacy: {
