@@ -4,7 +4,7 @@
 		<view class="goods-list" v-if="type == 'twoColumns'">
 			<view v-for="(item, index) in res" :key="index" class="goods-item">
 				<view class="image-wrapper" @click="navigateToDetailPage(item)">
-					<u-image :src="item.content.thumbnail" width="100%" height='330rpx' mode="aspectFill">
+					<u-image :src="item.content.thumbnail" width="100%" height='330rpx' mode="aspectFit">
 						<u-loading slot="loading"></u-loading>
 					</u-image>
 				</view>
@@ -52,7 +52,7 @@
 			<div v-for="(item, index) in res" :key="index" class="goods-row">
 				<div class="flex goods-col">
 					<div class="goods-img" @click="navigateToDetailPage(item)">
-						<u-image width="230rpx" border-radius='16' height="230rpx" :src="item.content.thumbnail">
+						<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.content.thumbnail">
 							<u-loading slot="loading"></u-loading>
 						</u-image>
 					</div>

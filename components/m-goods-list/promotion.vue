@@ -3,7 +3,7 @@
 		<div v-for="(item, index) in res" :key="index" class="goods-row" @click="navigateToDetailPage(item)">
 			<div class="flex goods-col">
 				<div class="goods-img">
-					<u-image width="230rpx" border-radius='16' height="230rpx" :src="item.goodsImage || item.thumbnail">
+					<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.goodsImage || item.thumbnail">
 						<u-loading slot="loading"></u-loading>
 					</u-image>
 				</div>

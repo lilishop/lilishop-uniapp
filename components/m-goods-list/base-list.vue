@@ -8,7 +8,7 @@
             :src="item.thumbnail"
             width="100%"
             height="330rpx"
-            mode="aspectFill"
+           mode="aspectFit"
           >
             <u-loading slot="loading"></u-loading>
           </u-image>
@@ -64,6 +64,7 @@
               width="230rpx"
               border-radius="16"
               height="230rpx"
+							mode="aspectFit"
               :src="item.goodsImage || item.thumbnail"
             >
               <u-loading slot="loading"></u-loading>
