@@ -48,6 +48,24 @@ export function messageMarkAsRead(ids) {
   });
 }
 
+//读取站内消息
+export function editMessages(message_id,params){
+  return http.request({
+    url:`/message/member/${message_id}`,
+    method:Method.PUT,
+    needToken:true,
+    params
+  })
+}
+//获取站内消息
+export function messages(params) {
+  return http.request({
+    url: "/message/member",
+    method: Method.GET,
+    needToken: true,
+    params,
+  });
+}
 
 /**
  * 获取物流消息列表

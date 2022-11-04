@@ -4,7 +4,7 @@
 		<view class="goods-list" v-if="type == 'twoColumns'">
 			<view v-for="(item, index) in res" :key="index" class="goods-item">
 				<view class="image-wrapper" @click="navigateToDetailPage(item)">
-					<u-image :src="item.content.thumbnail" width="100%" height='330rpx' mode="aspectFill">
+					<u-image :src="item.content.thumbnail" width="100%" height='330rpx' mode="aspectFit">
 						<u-loading slot="loading"></u-loading>
 					</u-image>
 				</view>
@@ -15,8 +15,8 @@
 					</div>
 					<view class="price-box" @click="navigateToDetailPage(item)">
 						<div class="price" v-if="item.content.price!=undefined">
-							¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
-	            formatPrice(item.content.price )[1]
+							¥<span>{{ $options.filters.goodsFormatPrice(item.content.price )[0] }} </span>.{{
+	            $options.filters.goodsFormatPrice(item.content.price )[1]
 	          }}
 						</div>
 					</view>
@@ -52,7 +52,7 @@
 			<div v-for="(item, index) in res" :key="index" class="goods-row">
 				<div class="flex goods-col">
 					<div class="goods-img" @click="navigateToDetailPage(item)">
-						<u-image width="230rpx" border-radius='16' height="230rpx" :src="item.content.thumbnail">
+						<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.content.thumbnail">
 							<u-loading slot="loading"></u-loading>
 						</u-image>
 					</div>
@@ -60,8 +60,8 @@
 						<div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.content.goodsName }}</div>
 						<view class="price-box" @click="navigateToDetailPage(item)">
 							<div class="price" v-if="item.content.price!=undefined">
-								¥<span>{{ formatPrice(item.content.price )[0] }} </span>.{{
-			            formatPrice(item.content.price )[1]
+								¥<span>{{ $options.filters.goodsFormatPrice(item.content.price )[0] }} </span>.{{
+			            $options.filters.goodsFormatPrice(item.content.price )[1]
 			          }}
 							</div>
 						</view>
@@ -177,16 +177,6 @@
 				}
 				return str;
 			},
-
-
-			// 格式化金钱  1999 --> [1999,00]
-			formatPrice(val) {
-				if (typeof val == "undefined") {
-					return val;
-				}
-				return val.toFixed(2).split(".");
-			},
-
 			// 数据去重一下 只显示一次 减免 劵 什么的
 			getPromotion(item) {
 				if (item.promotionMap) {
@@ -284,7 +274,7 @@
 				font-size: $font-base;
 				color: $font-color-dark;
 				line-height: 1.5;
-				height: 84rpx;
+				height: 86rpx;
 				padding: 10rpx 0 0;
 				display: -webkit-box;
 				-webkit-box-orient: vertical;

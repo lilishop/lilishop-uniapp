@@ -527,7 +527,7 @@ export default {
   color: #999;
 }
 
-.contant {
+.content {
   margin-top: 20rpx;
   display: flex;
   flex-wrap: wrap;

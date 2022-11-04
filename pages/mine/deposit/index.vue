@@ -1,6 +1,6 @@
 <template>
   <view class="wap">
-    <u-navbar back-text="" title="预存款列表">
+    <u-navbar  title="预存款列表">
     </u-navbar>
     <view class="wrapper-show-money">
       <view class="money-view">
@@ -28,7 +28,7 @@
             </view>
 
             <u-empty v-if="datas.length==0" mode="history" text="暂无记录" />
-            <u-loadmore v-else bg-color='#f8f8f8' :status="status" />
+      
           </scroll-view>
 
         </swiper-item>
@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       walletNum: 0,
-      status: "loadmore",
+
       current: 0,
       swiperCurrent: 0,
       userInfo: "", //用户详情信息
@@ -82,27 +82,23 @@ export default {
    
     /**分页获取预存款充值记录 */
     getRecharge() {
-      this.status = "loading";
+
       getUserRecharge(this.params).then((res) => {
         if (res.data.success) {
           if (res.data.result.records.length != 0) {
-            this.status = "loadmore";
+       
             this.datas.push(...res.data.result.records);
-          } else {
-            this.status = "nomore";
           }
         }
       });
     },
 
     getWallet() {
-      this.status = "loading";
+    
       getWalletLog(this.params).then((res) => {
         if (res.data.success) {
           if (res.data.result.records.length != 0) {
             this.datas.push(...res.data.result.records);
-          } else {
-            this.status = "nomore";
           }
         }
       });

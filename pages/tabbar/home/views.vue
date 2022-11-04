@@ -42,7 +42,7 @@
       <textPicture v-if="item.type == 'textPicture'" :res="item.options" />
       <menuLayout v-if="item.type == 'menu'" :res="item.options" />
       <flexOne v-if="item.type == 'flexOne'" :res="item.options" />
-      <goods v-if="item.type == 'goods'" :res="item.options" />
+      <goods :enableBottomLoad="enableLoad" v-if="item.type == 'goods'" :res="item.options" />
       <group v-if="item.type == 'group'" :res="item.options" />
       <notice v-if="item.type == 'notice'" :res="item.options" />
       <promotions v-if="item.type == 'promotionDetail'" :res="item.options" />
@@ -85,6 +85,7 @@ export default {
       config,
       pageData: "", //楼层页面数据
       isIos: "",
+      enableLoad:false, //触底加载 针对于商品模块
     };
   },
   components: {
@@ -124,8 +125,12 @@ export default {
       this.pageData = "";
       getFloorData().then((res) => {
         if (res.data.success) {
-          this.pageData = JSON.parse(res.data.result.pageData);
-          console.log(this.pageData);
+          const result = JSON.parse(res.data.result.pageData)
+          this.pageData = result;
+          if(result.list.length){
+            // 如果最后一个装修模块是商品模块的话 默认启用自动加载
+            result.list[result.list.length-1] ? result.list[result.list.length-1].model == 'goods' ? this.enableLoad = true : '' : ''
+         }
         }
       });
     },

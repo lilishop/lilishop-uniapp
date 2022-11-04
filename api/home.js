@@ -1,6 +1,21 @@
 import { http, Method } from "@/utils/request.js";
 
-
+ export function toSpecial(data) {
+  return http.request({
+    url: `/other/pageData/getSpecial`,
+    method: Method.GET,
+    data
+  });
+}
+/**
+ * 专题内容
+ */
+ export function getSpecial(id) {
+  return http.request({
+    url: `/other/pageData/get/${id}`,
+    method: Method.GET,
+  });
+}
 
 /**
  * 获取广告图

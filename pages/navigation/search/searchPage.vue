@@ -35,7 +35,8 @@
               @click="doSearch(keyword)">
               <span>{{ keyword }} </span>
             </div>
-            <div @click="showMore" v-if=" oldKeywordIndex > loadIndex" class="oldKeyItem">展示更多</div>
+						
+            <div @click="showMore" v-if="oldKeywordIndex > loadIndex" class="oldKeyItem">展示更多</div>
           </div>
         </view>
 
@@ -202,7 +203,7 @@ export default {
 	  empty:false,
       scrollTop: 0,
       loadIndex: 10,
-      oldKeywordIndex: "",
+      oldKeywordIndex: 0,
       selectedWay: {
         brand: [],
         categoryId: [],
@@ -370,15 +371,6 @@ export default {
         return array;
       }
     },
-
-    // 格式化金钱  1999 --> [1999,00]
-    formatPrice(val) {
-      if (typeof val == "undefined") {
-        return val;
-      }
-      return val.toFixed(2).split(".");
-    },
-
     // 展示更多数据
     showMore() {
       this.loadOldKeyword(this.oldKeywordIndex);
@@ -579,7 +571,7 @@ export default {
         key: "OldKeys",
         success: (res) => {
           var OldKeys = JSON.parse(res.data);
-          this.oldKeywordIndex = res.data.length;
+          this.oldKeywordIndex = OldKeys.length;
           for (let i = 0; i < index; i++) {
             this.oldKeywordList.push(OldKeys[i]);
           }

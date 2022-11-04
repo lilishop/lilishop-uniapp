@@ -21,15 +21,15 @@
                   >
                     ￥
                     <span class="flex-price">
-                      {{ formatPrice(detail.promotionPrice)[0] }}.{{
-                        formatPrice(detail.promotionPrice)[1]
+                      {{ $options.filters.goodsFormatPrice(detail.promotionPrice)[0] }}.{{
+                        $options.filters.goodsFormatPrice(detail.promotionPrice)[1]
                       }}</span
                     >
                   </span>
                   <view class="u-group-flex" v-if="detail.price != undefined">
                     <span class="old-price"
-                      >￥{{ formatPrice(detail.price)[0] }}.{{
-                        formatPrice(detail.price)[1]
+                      >￥{{ $options.filters.goodsFormatPrice(detail.price)[0] }}.{{
+                        $options.filters.goodsFormatPrice(detail.price)[1]
                       }}</span
                     >
                     <view class="promotion">限时抢购</view>
@@ -42,8 +42,8 @@
                     <span
                       class="flex-price"
                       v-if="promotion.groupbuy_goods_vo.price != undefined"
-                      >￥{{ formatPrice(promotion.groupbuy_goods_vo.price)[0] }}.{{
-                        formatPrice(promotion.groupbuy_goods_vo.price)[1]
+                      >￥{{ $options.filters.goodsFormatPrice(promotion.groupbuy_goods_vo.price)[0] }}.{{
+                        $options.filters.goodsFormatPrice(promotion.groupbuy_goods_vo.price)[1]
                       }}</span
                     >
                     <!-- <span v-if="promotion.point">+{{promotion.point}}积分</span> -->
@@ -53,9 +53,9 @@
                       class="old-price"
                       v-if="promotion.groupbuy_goods_vo.original_price != undefined"
                       >￥{{
-                        formatPrice(promotion.groupbuy_goods_vo.original_price)[0]
+                        $options.filters.goodsFormatPrice(promotion.groupbuy_goods_vo.original_price)[0]
                       }}.{{
-                        formatPrice(promotion.groupbuy_goods_vo.original_price)[1]
+                        $options.filters.goodsFormatPrice(promotion.groupbuy_goods_vo.original_price)[1]
                       }}</span
                     >
                     <view class="promotion">团购活动</view>
@@ -68,13 +68,13 @@
                     v-if="detail.promotionPrice != undefined"
                   >
                     ￥<span class="flex-price">
-                      {{ formatPrice(detail.promotionPrice)[0] }}.</span
-                    >{{ formatPrice(detail.promotionPrice)[1] }}
+                      {{ $options.filters.goodsFormatPrice(detail.promotionPrice)[0] }}.</span
+                    >{{ $options.filters.goodsFormatPrice(detail.promotionPrice)[1] }}
                   </span>
                   <view class="u-group-flex" v-if="detail.price != undefined">
                     <span class="old-price"
-                      >￥{{ formatPrice(detail.price)[0] }}.{{
-                        formatPrice(detail.price)[1]
+                      >￥{{ $options.filters.goodsFormatPrice(detail.price)[0] }}.{{
+                        $options.filters.goodsFormatPrice(detail.price)[1]
                       }}</span
                     >
                     <view class="promotion">拼团活动</view>
@@ -141,13 +141,6 @@ export default {
   },
   mounted() {},
   methods: {
-    // 格式化金钱  1999 --> [1999,00]
-    formatPrice(val) {
-      if (typeof val == "undefined") {
-        return val;
-      }
-      return val.toFixed(2).split(".");
-    },
     getCountDownTime(val) {
       let date = new Date(val);
       let timeSimple = new Date(date).getTime() / 1000;

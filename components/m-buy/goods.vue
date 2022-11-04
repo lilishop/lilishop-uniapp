@@ -16,9 +16,9 @@
 							<span v-if="goodsDetail.promotionPrice && !pointDetail">
 								￥
 								<span class="goods-price-promotionShow goods-price-bigshow">{{
-                  formatPrice(goodsDetail.promotionPrice)[0]
+                  $options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[0]
                 }}</span>
-								.{{ formatPrice(goodsDetail.promotionPrice)[1] }}
+								.{{ $options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[1] }}
 							</span>
 							<span v-if="pointDetail.points">
 								<span class="goods-price-promotionShow goods-price-bigshow">{{
@@ -29,23 +29,23 @@
 							<div class="promotion-box">
 								￥
 								<span class="goods-price-bigshow">{{
-                  formatPrice(goodsDetail.price)[0]
+                  $options.filters.goodsFormatPrice(goodsDetail.price)[0]
                 }}</span>
-								.{{ formatPrice(goodsDetail.price)[1] }}
+								.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
 							</div>
 						</view>
 						<!-- 正常商品的价格 -->
 						<view v-else>
 							
 							<!-- 批发价格 -->
-							<div class='price-row flex' v-if="wholesaleList.length">
+							<div class='price-row flex' v-if="goodsDetail.salesModel === 'WHOLESALE'">
 								<div class='goods-price' v-for="(item,index) in wholesaleList" :key="index">
 									<span>
 										￥
 										<span class="goods-price-bigshow">{{
-									    formatPrice(item.price)[0]
+									    $options.filters.goodsFormatPrice(item.price)[0]
 									  }}</span>
-										.{{ formatPrice(item.price)[1] }}
+										.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
 									</span>
 									<span class='wholesale-item'>
 										{{item.num}}{{goodsDetail.goodsUnit}}
@@ -56,9 +56,9 @@
 								<span>
 									￥
 									<span class="goods-price-bigshow">{{
-							    formatPrice(goodsDetail.price)[0]
+							    $options.filters.goodsFormatPrice(goodsDetail.price)[0]
 							  }}</span>
-									.{{ formatPrice(goodsDetail.price)[1] }}
+									.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
 								</span>
 							</div>
 						</view>
@@ -102,7 +102,7 @@
 					<view class="goods-skus-number flex flex-a-c flex-j-sb">
 						<view class="view-class-title">数量</view>
 						
-						<u-input  class="view-class-input" v-model="num" type="number"  />
+						<u-input  class="view-class-input" input-align="right" v-model="num" type="number"  />
 					</view>
 				</scroll-view>
 				<!-- 按钮 -->
@@ -204,14 +204,6 @@
 		},
 
 		methods: {
-			// 格式化金钱  1999 --> [1999,00]
-			formatPrice(val) {
-				if (typeof val == "undefined") {
-					return val;
-				}
-				return val.toFixed(2).split(".");
-			},
-
 			closeMask() {
 				this.$emit("closeBuy", false);
 			},

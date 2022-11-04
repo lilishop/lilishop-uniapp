@@ -311,7 +311,7 @@ export default {
    */
   onBackPress(e) {
     if (e.from == "backbutton") {
-      uni.reLaunch({
+      uni.switchTab({
         url: "/pages/tabbar/user/my",
       });
       return true; //阻止默认返回行为
@@ -331,7 +331,7 @@ export default {
         this.initData(0);
       }
     }
-    this.loadData(this.status);
+    // this.loadData(this.status);
   },
 
   onLoad(options) {

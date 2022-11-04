@@ -3,7 +3,7 @@
 		<div v-for="(item, index) in res" :key="index" class="goods-row" @click="navigateToDetailPage(item)">
 			<div class="flex goods-col">
 				<div class="goods-img">
-					<u-image width="230rpx" border-radius='16' height="230rpx" :src="item.goodsImage || item.thumbnail">
+					<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.goodsImage || item.thumbnail">
 						<u-loading slot="loading"></u-loading>
 					</u-image>
 				</div>
@@ -13,15 +13,15 @@
 						<view class="price-box">
 							<!-- 秒杀 / 拼团 -->
 							<div class="price" v-if="!type && item.price!=undefined">
-								¥<span>{{ formatPrice(item.price )[0] }} </span>.{{
-										formatPrice(item.price )[1]
+								¥<span>{{ $options.filters.goodsFormatPrice(item.price )[0] }} </span>.{{
+										$options.filters.goodsFormatPrice(item.price )[1]
 									}}
 							</div>
 							<!-- 砍价 -->
 							<div class="price" v-if="type && item.purchasePrice!=undefined">
 								最低：
-								¥<span>{{ formatPrice(item.purchasePrice )[0] }} </span>.{{
-										formatPrice(item.purchasePrice )[1]
+								¥<span>{{ $options.filters.goodsFormatPrice(item.purchasePrice )[0] }} </span>.{{
+										$options.filters.goodsFormatPrice(item.purchasePrice )[1]
 									}}
 							</div>
 						</view>
@@ -107,7 +107,7 @@
 			font-size: $font-base;
 			color: $font-color-dark;
 			line-height: 1.5;
-			height: 84rpx;
+			height: 86rpx;
 			padding: 10rpx 0 0;
 			display: -webkit-box;
 			-webkit-box-orient: vertical;

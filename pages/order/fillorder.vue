@@ -147,9 +147,9 @@
             <p class="goods-prices">
               <span>￥</span>
               <span class="goods-price">{{
-                formatPrice(val.goodsSku.price)[0]
+                $options.filters.goodsFormatPrice(val.purchasePrice)[0]
               }}</span>
-              <span>.{{ formatPrice(val.goodsSku.price)[1] }}</span>
+              <span>.{{ $options.filters.goodsFormatPrice(val.purchasePrice)[1] }}</span>
             </p>
           </div>
         </div>
@@ -315,10 +315,10 @@
         <div v-if="!orderMessage.priceDetailDTO.payPoint" class="number">
           <span>¥</span>
           <span class="price">{{
-            formatPrice(orderMessage.priceDetailDTO.flowPrice)[0]
+            $options.filters.goodsFormatPrice(orderMessage.priceDetailDTO.flowPrice)[0]
           }}</span>
           <span
-            >.{{ formatPrice(orderMessage.priceDetailDTO.flowPrice)[1] }}
+            >.{{ $options.filters.goodsFormatPrice(orderMessage.priceDetailDTO.flowPrice)[1] }}
           </span>
         </div>
         <span v-else class="number"
@@ -421,7 +421,7 @@ export default {
           item.route == "pages/tabbar/cart/cartList" ||
           item.route.indexOf("pages/product/goods") != -1
         ) {
-          uni.redirectTo({
+          uni.navigateTo({
             url: item.route,
           });
         }
@@ -455,13 +455,6 @@ export default {
   mounted() {},
 
   methods: {
-    // 格式化金钱  1999 --> [1999,00]
-    formatPrice(val) {
-      if (typeof val == "undefined") {
-        return val;
-      }
-      return val.toFixed(2).split(".");
-    },
     //发票回调 选择发票之后刷新购物车
     async callbackInvoice(val) {
       this.invoiceFlag = false;
@@ -611,7 +604,7 @@ export default {
             });
             // 如果当前价格为0跳转到订单列表
             if (this.orderMessage.priceDetailDTO.billPrice == 0) {
-              uni.redirectTo({
+              uni.navigateTo({
                 url: "/pages/order/myOrder?status=0",
               });
             } else {
@@ -675,7 +668,7 @@ export default {
           });
         }
         if (res.data.result.skuList.length <= 0) {
-          uni.redirectTo({
+          uni.navigateTo({
             url: "/pages/order/myOrder?status=0",
           });
         }
