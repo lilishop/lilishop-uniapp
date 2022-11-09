@@ -42,6 +42,13 @@
             <span class="pro-text">限时抢购</span>
           </div>
         </view>
+
+        <view v-if="prom.split('-')[0] == 'POINTS_GOODS'">
+          <div class="res_prom_item">
+            <u-tag text="积分活动" type="error"></u-tag>
+            <span class="pro-text">当前商品参与积分活动。<span @click="handClickToJoinPromotion(prom,prom.split('-')[0])" class="href">点击此处参与活动</span></span>
+          </div>
+        </view>
       </view>
     </view>
     <view v-if="!res">暂无促销活动</view>
@@ -77,7 +84,20 @@ export default {
     },
   },
   mounted() {},
-  methods: {},
+  methods: {
+    // 跳转到参与商品活动的详情列表中
+    handClickToJoinPromotion(val,type){
+    
+      const promotion = {
+        "POINTS_GOODS": `/pages/promotion/point/detail?id=${this.res[val].id}`
+      }
+
+      uni.navigateTo({
+        url:promotion[type]
+      })
+
+    }
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -107,5 +127,8 @@ export default {
 
 .price_image {
   display: block;
+}
+.href{
+  color: $main-color;
 }
 </style>

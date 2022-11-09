@@ -144,12 +144,8 @@
                 <view class="-goods-flex">
                   <!-- 如果有积分显示积分 -->
                   <view class="-goods-price" v-if="goodsDetail.price != undefined">
-                    <span v-if="pointDetail.points">
-                      <span class="price">{{ pointDetail.points }}</span>
-                      <span>积分</span>
-                    </span>
-
-                    <span v-else>
+                   
+                    <span >
 													<span v-if="wholesaleList.length">
 														<span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length-1].price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length-1].price)[1] }}
 														~
@@ -668,10 +664,7 @@ export default {
           if (item.indexOf("PINTUAN") == 0) {
             this.isGroup = true;
           }
-          // 积分
-          if (item.indexOf("POINTS_GOODS") == 0) {
-            this.pointDetail = this.PromotionList[item];
-          }
+         
           // 秒杀
           if (item.indexOf("SECKILL") == 0) {
             this.isSeckill = true

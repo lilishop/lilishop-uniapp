@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <u-navbar :border-bottom="false" title=""></u-navbar>
+    <u-navbar :border-bottom="false" title="积分商品"></u-navbar>
 
     <div class="wrapper">
       <!-- 积分商品列表 -->
