@@ -19,13 +19,14 @@ export function resetByMobile(params) {
  * @params  password
  * @params  username
  */
- export function userLogin(params){
+ export function userLogin(params, clientType){
   return http.request({
     method: "POST",
     url:`/passport/member/userLogin`,
     data: params,
     header: {
       "content-type": "application/x-www-form-urlencoded",
+	  clientType: clientType,
     },
   })
 }
