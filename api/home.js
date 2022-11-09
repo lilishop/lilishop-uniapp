@@ -72,7 +72,18 @@ export function getFloorData(params) {
   return http.request({
     url: `/other/pageData/getIndex?clientType=H5`,
     method: "get",
-	params
+    params
+  });
+}
+
+/**
+ * 获取店铺楼层数据
+ */
+export function getFloorStoreData(params) {
+  return http.request({
+    url: `/other/pageData?pageClientType=H5`,
+    method: "get",
+    params
   });
 }
 

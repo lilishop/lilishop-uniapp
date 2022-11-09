@@ -38,7 +38,7 @@
 						<view v-else>
 							
 							<!-- 批发价格 -->
-							<div class='price-row flex' v-if="wholesaleList.length">
+							<div class='price-row flex' v-if="goodsDetail.salesModel === 'WHOLESALE'">
 								<div class='goods-price' v-for="(item,index) in wholesaleList" :key="index">
 									<span>
 										￥
@@ -102,7 +102,7 @@
 					<view class="goods-skus-number flex flex-a-c flex-j-sb">
 						<view class="view-class-title">数量</view>
 						
-						<u-input  class="view-class-input" v-model="num" type="number"  />
+						<u-input  class="view-class-input" input-align="right" v-model="num" type="number"  />
 					</view>
 				</scroll-view>
 				<!-- 按钮 -->

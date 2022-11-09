@@ -27,6 +27,12 @@
 			}
 		},
 		{
+			"path": "pages/tabbar/home/title",
+			"style": {
+				"navigationBarTitleText": "消息"
+			}
+		},
+		{
 			"path": "pages/tabbar/cart/cartList",
 			"style": {
 				"navigationBarTitleText": "购物车",
