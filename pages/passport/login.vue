@@ -204,6 +204,7 @@
 		},
 
 		mounted() {
+			
 			// #ifndef APP-PLUS
 			//判断是否微信浏览器
 			var ua = window.navigator.userAgent.toLowerCase();
@@ -657,9 +658,8 @@
 				const params = JSON.parse(JSON.stringify(this.userData));
 				params.password = md5(params.password);
 				try {
-					let res = await userLogin(params);
+					let res = await userLogin(params,this.clientType);
 					if (res.data.success) {
-						console.log("zhixing ")
 						this.getUserInfoMethods(res);
 					} else {
 						this.$refs.verification.getCode();
