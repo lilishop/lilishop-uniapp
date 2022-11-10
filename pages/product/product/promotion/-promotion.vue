@@ -47,6 +47,18 @@
         <div
           class="promotion_col"
           v-if="
+            item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'KANJIA'
+          "
+        >
+          <!-- 砍价活动 -->
+          <div class="flex">
+            <view class="deg_tag">{{ promotionItem.title }}</view>
+            <div class="text proText"></div>
+          </div>
+        </div>
+        <div
+          class="promotion_col"
+          v-if="
             item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'SECKILL'
           "
         >
