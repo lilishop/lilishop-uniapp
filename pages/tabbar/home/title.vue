@@ -2,6 +2,10 @@
 	<view>
 		<view>
 			<u-tabs :list="list" :is-scroll="false" :current="current" @change="change"></u-tabs>
+			<view v-if="showLoading" style="width:500rpx;margin:0 auto;text-align: center;height:800rpx;line-height: 800rpx;">
+				<u-loading mode="flower" ></u-loading>
+				<text>正在加载中</text>
+			</view>
 			<u-cell-group v-if="current == 0">
 				<view v-for="(item,index) in lists" :key="index">
 					<u-cell-item :arrow="false" v-if="item.status =='UN_READY'" style="position: relative;"
@@ -63,6 +67,7 @@
 	export default {
 		data() {
 			return {
+				showLoading:true,
 				params: {
 					pageSize: 20,
 					pageNumber: 1,
@@ -131,6 +136,7 @@
 				}
 			},
 			change(e) {
+				this.showLoading = true;
 				console.log(e)
 				this.current = e;
 				if (e == 0) {
@@ -149,6 +155,7 @@
 				messages(this.params).then(res => {
 					console.log(res)
 					if (res.data.success) {
+						this.showLoading = false
 						if (res.data.result.records == '') {
 							console.log(11111)
 							this.status = "nomore"
