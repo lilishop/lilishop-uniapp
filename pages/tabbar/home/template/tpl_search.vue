@@ -12,17 +12,25 @@
 <script>
 export default {
   title:"搜索栏",
-  props: ["res"],
+  props: ["res","storeId"],
   methods: {
     linkMsgDetail(){
       uni.navigateTo({
         url:`/pages/tabbar/home/title`
       })
     },
+ 
     handleSearch() {
-      uni.navigateTo({
-        url: "/pages/navigation/search/searchPage",
+      if(this.storeId){
+        uni.navigateTo({
+        url: `/pages/navigation/search/searchPage?storeId=${this.storeId}`,
       });
+      }else{
+         uni.navigateTo({
+        url: `/pages/navigation/search/searchPage`,
+      });
+      }
+      
     },
   },
 };

@@ -89,7 +89,7 @@
         >
           <div class="navbar-right"></div>
 
-          <search style="width: 100%" :res="item.options" />
+          <search style="width: 100%" :res="item.options" :storeId = "storeId"/>         
         </u-navbar>
         <carousel v-if="item.type == 'carousel'" :res="item.options" />
         <titleLayout v-if="item.type == 'title'" :res="item.options" />
@@ -234,6 +234,8 @@ export default {
    */
   async onLoad(options) {
     this.storeId = options.id;
+    console.log(this.storeId,'this.storeId')
+
     this.goodsParams.storeId = options.id;
     this.couponParams.storeId = options.id;
   },
