@@ -226,6 +226,13 @@
 					}
 				},
 				{
+					"path": "address/storeAddress",
+					"style": {
+						"enablePullDownRefresh": true,
+						"navigationBarTitleText": "自提点"
+					}
+				},
+				{
 					"path": "address/add",
 					"style": {
 						"navigationBarTitleText": "收货人"

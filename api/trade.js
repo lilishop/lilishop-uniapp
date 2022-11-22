@@ -155,6 +155,18 @@ export function setAddressId(addressId,way) {
   
   });
 }
+/**
+ * 设置收货地址ID
+ * @param addressId
+ */
+ export function setStoreAddressId(storeAddressId,way) {
+  return http.request({
+    url: `/trade/carts/storeAddress?storeAddressId=${storeAddressId}&way=${way}`,
+    method: Method.GET,
+    needToken: true,
+  
+  });
+}
 
 
 /**
@@ -279,5 +291,31 @@ export function reBuy(sn) {
     url: `trade/carts/rebuy/${sn}`,
     method: Method.POST,
     needToken: true,
+  });
+}
+
+
+/**
+ * 获取全部配送方式
+ */
+ export function shippingMethodList(params) {
+  return http.request({
+    url: `/buyer/trade/carts/shippingMethodList`,
+    method: Method.GET,
+    needToken: true,
+    params: params,
+  });
+}
+
+/**
+ * 提交配送方式
+ * @param params
+ */
+ export function setShipMethod(params) {
+  return http.request({
+    url: "/buyer/trade/carts/shippingMethod",
+    method: Method.PUT,
+    needToken: true,
+    params,
   });
 }
