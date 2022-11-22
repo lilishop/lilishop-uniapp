@@ -300,7 +300,7 @@ export function reBuy(sn) {
  */
  export function shippingMethodList(params) {
   return http.request({
-    url: `/buyer/trade/carts/shippingMethodList`,
+    url: `/trade/carts/shippingMethodList`,
     method: Method.GET,
     needToken: true,
     params: params,
@@ -313,7 +313,7 @@ export function reBuy(sn) {
  */
  export function setShipMethod(params) {
   return http.request({
-    url: "/buyer/trade/carts/shippingMethod",
+    url: "/trade/carts/shippingMethod",
     method: Method.PUT,
     needToken: true,
     params,
