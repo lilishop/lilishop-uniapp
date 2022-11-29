@@ -1,63 +1,47 @@
 <template>
 	<div class="wrapper">
-		<u-popup class="popup" v-model="buyMask" :height="setup.height" closeable :mode="setup.mode"
-			:border-radius="setup.radius" @close="closeMask()">
+		<u-popup class="popup" v-model="buyMask" :height="setup.height" closeable :mode="setup.mode" :border-radius="setup.radius" @close="closeMask()">
 			<!-- 商品 -->
 			<view class="goods-box bottom">
 				<view class="goods-header">
 					<view class="goods-img">
-						<u-image width="200rpx" border-radius="20" class="uimage" height="200rpx"
-							:src="selectedSpecImg ? selectedSpecImg : goodsDetail.thumbnail"></u-image>
+						<u-image width="200rpx" border-radius="20" class="uimage" height="200rpx" :src="selectedSpecImg ? selectedSpecImg : goodsDetail.thumbnail"></u-image>
 					</view>
 					<view class="goods-skus">
 						<!-- 有活动商品价格 -->
-						<view class="goods-price"
-							v-if="goodsDetail.promotionPrice && ((isGroup && buyType === 'PINTUAN') || !isGroup)">
+						<view class="goods-price" v-if="goodsDetail.promotionPrice && ((isGroup && buyType === 'PINTUAN') || !isGroup)">
 							<span v-if="goodsDetail.promotionPrice && !pointDetail">
 								￥
-								<span class="goods-price-promotionShow goods-price-bigshow">{{
-										$options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[0]
-								}}</span>
+								<span class="goods-price-promotionShow goods-price-bigshow">{{ $options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[0] }}</span>
 								.{{ $options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[1] }}
 							</span>
 							<span v-if="pointDetail.points">
-								<span class="goods-price-promotionShow goods-price-bigshow">{{
-										pointDetail.points
-								}}</span>
+								<span class="goods-price-promotionShow goods-price-bigshow">{{ pointDetail.points }}</span>
 								积分
 							</span>
 							<div class="promotion-box">
 								￥
-								<span class="goods-price-bigshow">{{
-										$options.filters.goodsFormatPrice(goodsDetail.price)[0]
-								}}</span>
+								<span class="goods-price-bigshow">{{ $options.filters.goodsFormatPrice(goodsDetail.price)[0] }}</span>
 								.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
 							</div>
 						</view>
 						<!-- 正常商品的价格 -->
 						<view v-else>
-
 							<!-- 批发价格 -->
-							<div class='price-row flex' v-if="goodsDetail.salesModel === 'WHOLESALE'">
-								<div class='goods-price' v-for="(item, index) in wholesaleList" :key="index">
+							<div class="price-row flex" v-if="goodsDetail.salesModel === 'WHOLESALE'">
+								<div class="goods-price" v-for="(item, index) in wholesaleList" :key="index">
 									<span>
 										￥
-										<span class="goods-price-bigshow">{{
-												$options.filters.goodsFormatPrice(item.price)[0]
-										}}</span>
+										<span class="goods-price-bigshow">{{ $options.filters.goodsFormatPrice(item.price)[0] }}</span>
 										.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
 									</span>
-									<span class='wholesale-item'>
-										{{ item.num }}{{ goodsDetail.goodsUnit }}
-									</span>
+									<span class="wholesale-item">{{ item.num }}{{ goodsDetail.goodsUnit }}</span>
 								</div>
 							</div>
 							<div class="goods-price" v-else>
 								<span>
 									￥
-									<span class="goods-price-bigshow">{{
-											$options.filters.goodsFormatPrice(goodsDetail.price)[0]
-									}}</span>
+									<span class="goods-price-bigshow">{{ $options.filters.goodsFormatPrice(goodsDetail.price)[0] }}</span>
 									.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
 								</span>
 							</div>
@@ -85,16 +69,27 @@
 							<view class="view-class-title">{{ spec.name }}</view>
 
 							<!-- 正常逻辑 循环出sku -->
-							<view v-if="!parentOrder" :class="{ active: spec_val.value == currentSelceted[specIndex] }"
-								class="skus-view-item" v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
-								@click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }}
+							<view
+								v-if="!parentOrder"
+								:class="{ active: spec_val.value == currentSelceted[specIndex] }"
+								class="skus-view-item"
+								v-for="(spec_val, spec_index) in spec.values"
+								:key="spec_index"
+								@click="handleClickSpec(spec, specIndex, spec_val)"
+							>
+								{{ spec_val.value }}
 							</view>
 
 							<!-- 拼团购买，仅筛选出当前拼团类型商品 -->
-							<view v-if="parentOrder && spec_val.skuId == goodsDetail.id"
-								:class="{ active: spec_val.value == currentSelceted[specIndex] }" class="skus-view-item"
-								v-for="(spec_val, spec_index) in spec.values" :key="spec_index"
-								@click="handleClickSpec(spec, specIndex, spec_val)">{{ spec_val.value }}
+							<view
+								v-if="parentOrder && spec_val.skuId == goodsDetail.id"
+								:class="{ active: spec_val.value == currentSelceted[specIndex] }"
+								class="skus-view-item"
+								v-for="(spec_val, spec_index) in spec.values"
+								:key="spec_index"
+								@click="handleClickSpec(spec, specIndex, spec_val)"
+							>
+								{{ spec_val.value }}
 							</view>
 						</view>
 					</view>
@@ -102,14 +97,12 @@
 					<view class="goods-skus-number flex flex-a-c flex-j-sb">
 						<view class="view-class-title">数量</view>
 
-						<u-input class="view-class-input" input-align="right" v-model="num" type="number"
-							@change="numChange()" />
+						<u-input class="view-class-input" input-align="right" v-model="num" type="number" @blur="numCheck()" @change="numChange()" />
 					</view>
 				</scroll-view>
 				<!-- 按钮 -->
 				<view class="btns">
-					<view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType != 'VIRTUAL_GOODS'"
-						@click="addToCartOrBuy('cart')">加入购物车</view>
+					<view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType != 'VIRTUAL_GOODS'" @click="addToCartOrBuy('cart')">加入购物车</view>
 					<view class="box-btn buy" @click="addToCartOrBuy('buy')">立即购买</view>
 				</view>
 			</view>
@@ -117,67 +110,74 @@
 	</div>
 </template>
 <script>
-import * as API_trade from "@/api/trade.js";
-import setup from "./popup";
+import * as API_trade from '@/api/trade.js';
+import setup from './popup';
 
 export default {
 	data() {
 		return {
 			setup,
-			num: 1,
+			num: this.wholesaleList && this.wholesaleList.length > 0 ? this.wholesaleList[0].num : 1,
 
-			selectName: "", //选中商品的昵称
-			selectSkuList: "", //选中商铺sku,
-			selectedSpecImg: "", //选中的图片路径
-			buyType: "", //用于存储促销，拼团等活动类型
-			parentOrder: "", //父级拼团活动的数据 - 如果是团员则有数据
+			selectName: '', //选中商品的昵称
+			selectSkuList: '', //选中商铺sku,
+			selectedSpecImg: '', //选中的图片路径
+			buyType: '', //用于存储促销，拼团等活动类型
+			parentOrder: '', //父级拼团活动的数据 - 如果是团员则有数据
 			formatList: [],
 			currentSelceted: [],
-			skuList: "",
-			isClose: false, //是否可以点击遮罩关闭
-
+			skuList: '',
+			isClose: false //是否可以点击遮罩关闭
 		};
 	},
 	props: {
 		wholesaleList: {
 			type: null,
-			default: false,
+			default: false
 		},
 		buyMask: {
 			type: Boolean,
-			default: false,
+			default: false
 		},
 		isGroup: {
 			type: Boolean,
-			default: false,
+			default: false
 		},
 		goodsDetail: {
-			default: "",
-			type: null,
+			default: '',
+			type: null
 		},
 		selectedSku: {
-			default: "",
-			type: null,
+			default: '',
+			type: null
 		},
 		goodsSpec: {
-			default: "",
-			type: null,
+			default: '',
+			type: null
 		},
 		addr: {
-			default: "",
-			type: null,
+			default: '',
+			type: null
 		},
 		pointDetail: {
-			default: "",
-			type: null,
-		},
+			default: '',
+			type: null
+		}
 	},
 	computed: {
 		wholesalePrice(key) {
-			return this.wholesaleList.length ? this.wholesaleList.map(item => { return item.price }) : []
+			return this.wholesaleList.length
+				? this.wholesaleList.map(item => {
+						return item.price;
+				  })
+				: [];
 		},
 		wholesaleNum(key) {
-			return this.wholesaleList.length ? this.wholesaleList.map(item => { return item.num }) : []
+			return this.wholesaleList.length
+				? this.wholesaleList.map(item => {
+						return item.num;
+				  })
+				: [];
 		}
 	},
 	watch: {
@@ -185,11 +185,10 @@ export default {
 			if (val) {
 				//超过库存后修改回库存
 				if (val > this.goodsDetail.quantity) {
-					this.$nextTick(function () {
-						this.num = this.goodsDetail.quantity
-					})
+					this.$nextTick(function() {
+						this.num = this.goodsDetail.quantity;
+					});
 				}
-
 			}
 		},
 		buyType: {
@@ -198,32 +197,44 @@ export default {
 					this.buyType = val;
 				}
 			},
-			immediate: true,
+			immediate: true
 		},
 		selectSkuList: {
 			handler(val, oldval) {
-				this.$emit("changed", val);
+				this.$emit('changed', val);
 			},
-			deep: true,
-		},
+			deep: true
+		}
 	},
 
 	methods: {
+		numCheck(val) {
+			if (this.wholesaleList && this.wholesaleList.length > 0) {
+				if (this.num <= this.wholesaleList[0].num) {
+					uni.showToast({
+						title: '批发商品购买数量不能小于起批数量!',
+						duration: 2000,
+						icon: 'none'
+					});
+					this.num = this.wholesaleList[0].num;
+				}
+			}
+		},
 		closeMask() {
-			this.$emit("closeBuy", false);
+			this.$emit('closeBuy', false);
 		},
 		numChange() {
 			if (this.num > this.goodsDetail.quantity) {
-				alert(1)
-				this.num = this.goodsDetail.quantity
+				alert(1);
+				this.num = this.goodsDetail.quantity;
 			}
 		},
 		/**点击规格 */
 		handleClickSpec(val, index, specValue) {
 			this.currentSelceted[index] = specValue.value;
-			let selectedSkuId = this.goodsSpec.find((i) => {
+			let selectedSkuId = this.goodsSpec.find(i => {
 				let matched = true;
-				let specValues = i.specValues.filter((j) => j.specName !== "images");
+				let specValues = i.specValues.filter(j => j.specName !== 'images');
 				for (let n = 0; n < specValues.length; n++) {
 					if (specValues[n].specValue !== this.currentSelceted[n]) {
 						matched = false;
@@ -239,21 +250,21 @@ export default {
 				this.selectSkuList = {
 					spec: {
 						specName: val.name,
-						specValue: specValue.value,
+						specValue: specValue.value
 					},
-					data: this.goodsDetail,
+					data: this.goodsDetail
 				};
 				this.selectName = specValue.value;
 
-				this.$emit("handleClickSku", {
+				this.$emit('handleClickSku', {
 					skuId: selectedSkuId.skuId,
-					goodsId: this.goodsDetail.goodsId,
+					goodsId: this.goodsDetail.goodsId
 				});
 			} else {
 				uni.showToast({
-					title: "暂无该商品!",
+					title: '暂无该商品!',
 					duration: 2000,
-					icon: "none",
+					icon: 'none'
 				});
 			}
 		},
@@ -262,13 +273,10 @@ export default {
 		 * 直接购买
 		 */
 		buy(data) {
-			API_trade.addToCart(data).then((res) => {
+			API_trade.addToCart(data).then(res => {
 				if (res.data.success) {
 					uni.navigateTo({
-						url: `/pages/order/fillorder?way=${data.cartType
-							}&addr=${""}&parentOrder=${encodeURIComponent(
-								JSON.stringify(this.parentOrder)
-							)}`,
+						url: `/pages/order/fillorder?way=${data.cartType}&addr=${''}&parentOrder=${encodeURIComponent(JSON.stringify(this.parentOrder))}`
 					});
 				}
 			});
@@ -280,43 +288,42 @@ export default {
 		addToCartOrBuy(val) {
 			if (!this.selectSkuList) {
 				uni.showToast({
-					title: "请选择规格商品",
-					icon: "none",
+					title: '请选择规格商品',
+					icon: 'none'
 				});
 				return;
 			}
 			let data = {
 				skuId: this.goodsDetail.id,
-				num: this.num,
+				num: this.num
 			};
 
-			if (val == "cart") {
-				API_trade.addToCart(data).then((res) => {
+			if (val == 'cart') {
+				API_trade.addToCart(data).then(res => {
 					if (res.data.code == 200) {
 						uni.showToast({
-							title: "商品已添加到购物车",
-							icon: "none",
+							title: '商品已添加到购物车',
+							icon: 'none'
 						});
 
-						this.$emit("queryCart");
+						this.$emit('queryCart');
 						this.closeMask();
 					}
 				});
 			} else {
 				// 判断是否拼团商品
 				if (this.buyType) {
-					data.cartType = "PINTUAN";
-				} else if (this.goodsDetail.goodsType == "VIRTUAL_GOODS") {
-					data.cartType = "VIRTUAL";
+					data.cartType = 'PINTUAN';
+				} else if (this.goodsDetail.goodsType == 'VIRTUAL_GOODS') {
+					data.cartType = 'VIRTUAL';
 				} else {
-					data.cartType = "BUY_NOW";
+					data.cartType = 'BUY_NOW';
 				}
 
-				API_trade.addToCart(data).then((res) => {
+				API_trade.addToCart(data).then(res => {
 					if (res.data.code == 200) {
 						uni.navigateTo({
-							url: `/pages/order/fillorder?way=${data.cartType}&addr=${this.addr.id || ""
-								}&parentOrder=${encodeURIComponent(JSON.stringify(this.parentOrder))}`,
+							url: `/pages/order/fillorder?way=${data.cartType}&addr=${this.addr.id || ''}&parentOrder=${encodeURIComponent(JSON.stringify(this.parentOrder))}`
 						});
 					}
 				});
@@ -327,7 +334,7 @@ export default {
 			let arr = [{}];
 
 			if (!Array.isArray(list)) {
-				return false
+				return false;
 			}
 			list.forEach((item, index) => {
 				item.specValues.forEach((spec, specIndex) => {
@@ -335,9 +342,9 @@ export default {
 					let values = {
 						value: spec.specValue,
 						quantity: item.quantity,
-						skuId: item.skuId,
+						skuId: item.skuId
 					};
-					if (name === "images") {
+					if (name === 'images') {
 						return;
 					}
 
@@ -345,20 +352,20 @@ export default {
 						if (
 							arrItem.name == name &&
 							arrItem.values &&
-							!arrItem.values.find((i) => {
+							!arrItem.values.find(i => {
 								return i.value === values.value;
 							})
 						) {
 							arrItem.values.push(values);
 						}
 
-						let keys = arr.map((key) => {
+						let keys = arr.map(key => {
 							return key.name;
 						});
 						if (!keys.includes(name)) {
 							arr.push({
 								name: name,
-								values: [values],
+								values: [values]
 							});
 						}
 					});
@@ -368,11 +375,11 @@ export default {
 			arr.shift();
 			this.formatList = arr;
 
-			list.forEach((item) => {
+			list.forEach(item => {
 				// 默认选中
 				if (item.skuId === this.goodsDetail.id) {
 					item.specValues
-						.filter((i) => i.specName !== "images")
+						.filter(i => i.specName !== 'images')
 						.forEach((value, _index) => {
 							this.currentSelceted[_index] = value.specValue;
 
@@ -380,7 +387,7 @@ export default {
 
 							this.selectSkuList = {
 								spec: value,
-								data: this.goodsDetail,
+								data: this.goodsDetail
 							};
 						});
 				}
@@ -388,20 +395,19 @@ export default {
 
 			this.skuList = list;
 			// console.log(" this.skuList", this.skuList)
-		},
+		}
 	},
 
 	mounted() {
 		this.formatSku(this.goodsSpec);
-	},
+	}
 };
 </script>
 <style lang="scss" scoped>
-@import "./popup.scss";
+@import './popup.scss';
 
 .price-row {
 	text-align: center;
-
 }
 
 .buy {
@@ -425,12 +431,12 @@ export default {
 	justify-content: space-between;
 	display: flex;
 
-	>.view-class-title {
+	> .view-class-title {
 		flex: 8;
 	}
 
-	>.view-class-input {
-		flex: 1
+	> .view-class-input {
+		flex: 1;
 	}
 }
 
@@ -459,7 +465,7 @@ export default {
 	overflow: hidden;
 
 	.skus-view-list {
-		>.skus-view-item {
+		> .skus-view-item {
 			flex: 1;
 			padding: 0 36rpx;
 
@@ -506,10 +512,9 @@ export default {
 	line-height: 80rpx;
 	margin-right: 20rpx;
 
-	>* {
+	> * {
 		color: $price-color;
 		line-height: 80rpx;
-
 	}
 }
 
@@ -538,11 +543,11 @@ export default {
 	font-size: 24rpx;
 	color: #999;
 
-	>.goods-check-skus-name {
+	> .goods-check-skus-name {
 		margin-left: 4rpx;
 	}
 
-	>span {
+	> span {
 		color: #333;
 	}
 }
