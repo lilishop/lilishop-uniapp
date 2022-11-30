@@ -180,6 +180,7 @@
 </template>
 <script>
 import * as API_Trade from "@/api/trade";
+import { debounce } from "@/utils/tools.js";
 export default {
   data() {
     return {
@@ -370,7 +371,8 @@ export default {
     /**
      * 点击步进器回调
      */
-    numChange(val, nums) {
+     numChange: debounce(function (val, nums) {   
+        // 需要防抖的内容
       // #ifdef MP-WEIXIN
       if (nums && nums == "1") {
         val.num++;
@@ -381,8 +383,7 @@ export default {
       }
       // #endif
       this.updateSkuNumFun(val.goodsSku.id, val.num);
-    },
-
+    }, 1000),
     /**
      * 去结算
      */
