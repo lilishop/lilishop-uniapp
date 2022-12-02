@@ -63,18 +63,18 @@
           </view>
           <view class="description">
             <!-- 售后申请  -->
-            <view v-if="current === 0 && order.groupAfterSaleStatus">
+            <view v-if="current === 0 && sku.afterSaleStatus">
               <view
-                v-if="order.groupAfterSaleStatus.includes('ALREADY_APPLIED')"
+                v-if="sku.afterSaleStatus.includes('ALREADY_APPLIED')"
                 class="cannot_apply not_center"
               >
                 <u-icon class="icon" name="info-circle-fill"></u-icon>
                 该商品已申请售后服务
               </view>
             </view>
-            <view v-if="current === 0 && order.groupAfterSaleStatus">
+            <view v-if="current === 0 && sku.afterSaleStatus">
               <view
-                v-if="order.groupAfterSaleStatus.includes('EXPIRED')"
+                v-if="sku.afterSaleStatus.includes('EXPIRED')"
                 class="cannot_apply not_center"
                 @click="tipsShow = true"
               >
