@@ -64,6 +64,7 @@
                 ],
                 "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ],
                 "schemes" : "lilishop",
+                //安卓自添加 权限  应用市场 过度索取权限
                 "permissionExternalStorage" : {
                     "request" : "none",
                     "prompt" : "应用保存运行状态等信息，需要获取读写手机存储（系统提示为访问设备上的照片、媒体内容和文件）权限，请允许。"
@@ -73,6 +74,7 @@
                     "prompt" : "为保证您正常、安全地使用，需要获取设备识别码（部分手机提示为获取手机号码）使用权限，请允许"
                 },
                 "autoSdkPermissions" : false
+                //安卓自添加 权限  应用市场 过度索取权限
             },
             "ios" : {
                 "idfa" : false,
