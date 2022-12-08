@@ -60,9 +60,10 @@ export default {
      //取消
     cancel(){
       // #ifdef APP-PLUS
-		 	 const threadClass = plus.ios.importClass("NSThread");
-		 	 const mainThread = plus.ios.invoke(threadClass, "mainThread");
-		 	 plus.ios.invoke(mainThread, "exit")
+        //  const threadClass = plus.ios.importClass("NSThread");
+        //  const mainThread = plus.ios.invoke(threadClass, "mainThread");
+        //  plus.ios.invoke(mainThread, "exit")
+       plus.ios.import("UIApplication").sharedApplication().performSelector("exit")
 		 // #endif
     },
     confirm() {
