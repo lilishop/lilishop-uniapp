@@ -120,6 +120,19 @@ export function isLogin(val) {
     return storage.getUserInfo();
   }
 }
+/**
+ * 跳转im
+ */ 
+export function talkIm(storeId){
+  if(isLogin('auth')){
+    uni.navigateTo({
+      url: `/pages/tabbar/home/web-view?IM=${storeId}`,
+    });
+  }
+  else{
+    tipsToLogin()
+  }
+}
 
 export function tipsToLogin() {
   if (!isLogin("auth")) {

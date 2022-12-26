@@ -385,6 +385,7 @@ import popupAddress from "./product/popup/address"; //地址选择模块
 import shares from "@/components/m-share/index"; //分享
 import popups from "@/components/popups/popups"; //气泡框
 import setup from "./product/popup/popup";
+
 export default {
   components: {
     popups,
@@ -702,17 +703,14 @@ export default {
 
     linkMsgDetail() {
       // lili 基础客服
-	
-	  uni.navigateTo({
-		url: `/pages/tabbar/home/web-view?IM=${this.storeDetail.storeId}`,
-	  });
-		
-		// udesk 代码  
-		// if (this.storeDetail.merchantEuid) {
-		//   uni.navigateTo({
-		//     url: `/pages/tabbar/home/web-view?src=${this.IM}`,
-		//   });
-		// }
+      this.$options.filters.talkIm(this.storeDetail.storeId)
+  
+      // udesk 代码  
+      // if (this.storeDetail.merchantEuid) {
+      //   uni.navigateTo({
+      //     url: `/pages/tabbar/home/web-view?src=${this.IM}`,
+      //   });
+      // }
 		  
 		  
         // 客服 云智服代码 

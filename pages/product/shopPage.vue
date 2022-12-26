@@ -49,7 +49,7 @@
         </div>
 
         <!-- 联系客服 -->
-        <div class="kefu" @click="linkKefuDetail">
+        <div class="kefu" @click="talk">
           <u-icon name="kefu-ermai"></u-icon>
           联系客服
         </div>
@@ -156,7 +156,7 @@ import {
   getGoodsIsCollect,
 } from "@/api/members.js";
 import config from "@/config/config";
-import storage from "@/utils/storage";
+
 import { getGoodsList } from "@/api/goods.js";
 import { getAllCoupons } from "@/api/promotions.js";
 import { getFloorStoreData } from "@/api/home"; //获取楼层装修接口
@@ -262,6 +262,9 @@ export default {
   },
 
   methods: {
+    talk(){
+      this.$options.filters.talkIm(this.storeInfo.storeId)
+    },
     back() {
       uni.navigateBack();
     },
@@ -297,35 +300,6 @@ export default {
       }
       // 店铺信息
       this.getStoreData();
-    },
-    /**
-     * 联系客服
-     */
-    linkKefuDetail() {
-      // 客服
-      // #ifdef MP-WEIXIN
-
-      const params = {
-        // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
-        uuid: storage.getUuid(),
-        token: storage.getAccessToken(),
-        sign: this.storeInfo.yzfSign,
-        mpSign: this.storeInfo.yzfMpSign,
-      };
-      uni.navigateTo({
-        url:
-          "/pages/product/customerservice/index?params=" +
-          encodeURIComponent(JSON.stringify(params)),
-      });
-      // #endif
-      // #ifndef MP-WEIXIN
-      const sign = this.storeInfo.yzfSign;
-      uni.navigateTo({
-        url:
-          "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-          sign,
-      });
-      // #endif
     },
 
     /** 获取店铺分类 */
