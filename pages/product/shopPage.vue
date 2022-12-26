@@ -79,50 +79,79 @@
           </view>
         </view>
       </scroll-view>
-      <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
-      <div v-for="(item, index) in pageData.list" :key="index">
-        <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
-        <u-navbar
-          class="navbar"
-          v-if="item.type == 'search'"
-          :is-fixed="index === 1 ? false : true"
-        >
-          <div class="navbar-right"></div>
 
-          <search style="width: 100%" :res="item.options" :storeId = "storeId"/>         
-        </u-navbar>
-        <carousel v-if="item.type == 'carousel'" :res="item.options" />
-        <titleLayout v-if="item.type == 'title'" :res="item.options" />
-        <leftOneRightTwo
-          v-if="item.type == 'leftOneRightTwo'"
-          :res="item.options"
-        />
-        <leftTwoRightOne
-          v-if="item.type == 'leftTwoRightOne'"
-          :res="item.options"
-        />
-        <topOneBottomTwo
-          v-if="item.type == 'topOneBottomTwo'"
-          :res="item.options"
-        />
-        <topTwoBottomOne
-          v-if="item.type == 'topTwoBottomOne'"
-          :res="item.options"
-        />
-        <flexThree v-if="item.type == 'flexThree'" :res="item.options" />
-        <flexFive v-if="item.type == 'flexFive'" :res="item.options" />
-        <flexFour v-if="item.type == 'flexFour'" :res="item.options" />
-        <flexTwo v-if="item.type == 'flexTwo'" :res="item.options" />
-        <textPicture v-if="item.type == 'textPicture'" :res="item.options" />
-        <menuLayout v-if="item.type == 'menu'" :res="item.options" />
-        <flexOne v-if="item.type == 'flexOne'" :res="item.options" />
+      <!-- 基础店铺模式 -->
+      <div v-if="basePageData">
+        <u-tabs :list="tabs" :active-color="mainColor" :is-scroll="false" :current="current" @change="changeTab"></u-tabs>
+        <div class="content" v-if="current == 0">
+          <u-empty style='margin-top:100rpx' v-if="goodsList.length == 0" class="empty" text='暂无商品信息'></u-empty>
+          <goodsTemplate v-else :res="goodsList" :storeName="false" />
+        </div>
+        <!-- 全部分类 -->
+        <div class="category" v-if="current == 1">
+          <div class="category-item" v-for="(item,index) in categoryList" :key="index">
+            <div class="flex" @click="getCategoryGoodsList(item)">
+              <div>{{item.labelName}}</div>
+              <div>
+                <u-icon color="#999" name="arrow-right"></u-icon>
+              </div>
+            </div>
+            <!-- 分类子级 -->
+            <div class="child-list" v-if="item.children && item.children.length!=0">
+              <div class="child" @click="getCategoryGoodsList(child)" :key='i' v-for="(child,i) in item.children">{{child.labelName}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <goods v-if="item.type == 'goods'" :res="item.options" />
+      <!-- 楼层装修模式 -->
+      <div v-if="enablePageData">
+        <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
+        <div v-for="(item, index) in pageData.list" :key="index">
+          <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
+          <u-navbar
+            class="navbar"
+            v-if="item.type == 'search'"
+            :is-fixed="index === 1 ? false : true"
+          >
+            <div class="navbar-right"></div>
 
-        <group v-if="item.type == 'group'" :res="item.options" />
-        <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
-        <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
-        <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
+            <search style="width: 100%" :res="item.options" :storeId = "storeId"/>         
+          </u-navbar>
+          <carousel v-if="item.type == 'carousel'" :res="item.options" />
+          <titleLayout v-if="item.type == 'title'" :res="item.options" />
+          <leftOneRightTwo
+            v-if="item.type == 'leftOneRightTwo'"
+            :res="item.options"
+          />
+          <leftTwoRightOne
+            v-if="item.type == 'leftTwoRightOne'"
+            :res="item.options"
+          />
+          <topOneBottomTwo
+            v-if="item.type == 'topOneBottomTwo'"
+            :res="item.options"
+          />
+          <topTwoBottomOne
+            v-if="item.type == 'topTwoBottomOne'"
+            :res="item.options"
+          />
+          <flexThree v-if="item.type == 'flexThree'" :res="item.options" />
+          <flexFive v-if="item.type == 'flexFive'" :res="item.options" />
+          <flexFour v-if="item.type == 'flexFour'" :res="item.options" />
+          <flexTwo v-if="item.type == 'flexTwo'" :res="item.options" />
+          <textPicture v-if="item.type == 'textPicture'" :res="item.options" />
+          <menuLayout v-if="item.type == 'menu'" :res="item.options" />
+          <flexOne v-if="item.type == 'flexOne'" :res="item.options" />
+
+          <goods v-if="item.type == 'goods'" :res="item.options" />
+
+          <group v-if="item.type == 'group'" :res="item.options" />
+          <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
+          <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
+          <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
+        </div>
       </div>
       <u-no-network></u-no-network>
     </div>
@@ -147,7 +176,7 @@ import tpl_menu from "@/pages/tabbar/home/template/tpl_menu"; //五列菜单模�
 import tpl_search from "@/pages/tabbar/home/template/tpl_search"; //搜索栏
 import tpl_group from "@/pages/tabbar/home/template/tpl_group"; //
 import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类以及分类中的商品
-
+import goodsTemplate from '@/components/m-goods-list/list'
 import { getStoreBaseInfo, getStoreCategory } from "@/api/store.js";
 import {
   receiveCoupons,
@@ -192,7 +221,7 @@ export default {
       },
       goodsParams: {
         pageNumber: 1,
-        pageSize: 50,
+        pageSize: 10,
         storeId: "",
       },
     };
@@ -214,6 +243,7 @@ export default {
     flexOne: tpl_flex_one,
     goods: tpl_goods,
     group: tpl_group,
+    goodsTemplate
     // spike: tpl_spike,
     // joinGroup: tpl_join_group,
     // integral: tpl_integral,
@@ -345,16 +375,21 @@ export default {
       let res = await getStoreBaseInfo(this.storeId);
       if (res.data.success) {
         this.storeInfo = res.data.result;
-
-        // 开启了楼层装修店铺
-        this.initPageData();
-        // 未开启楼层装修店铺
-        // 商品信息
-        this.getGoodsData();
         // 优惠券信息
         this.getCouponsData();
-        // 店铺分类
-        this.getCategoryData();
+        if(res.data.result.pageShow == '1'){
+          // 开启了楼层装修店铺
+          this.initPageData();
+          this.enablePageData = true;
+        }
+        else{
+          // 商品信息
+          this.getGoodsData();
+          // 店铺分类
+          this.getCategoryData();
+          
+          this.basePageData = true;
+        }
       } else {
         uni.reLaunch({
           url: "/",
