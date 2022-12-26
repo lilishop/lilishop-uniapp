@@ -11,19 +11,19 @@ export default {
     return {
       res: "",
       way: {
-        user: {
+        USER_AGREEMENT: {
           title: "服务协议",
           type: "USER_AGREEMENT",
         },
-        privacy: {
+        PRIVACY_POLICY: {
           title: "隐私政策",
           type: "PRIVACY_POLICY",
         },
-        message: {
+        LICENSE_INFORMATION: {
           title: "证照信息",
           type: "LICENSE_INFORMATION",
         },
-        about: {
+        ABOUT: {
           title: "关于我们",
           type: "ABOUT",
         },
@@ -32,6 +32,7 @@ export default {
   },
   mounted() {},
   onLoad(option) {
+    console.log(this.way)
     uni.setNavigationBarTitle({
       title: this.way[option.type].title,
     });
