@@ -6,55 +6,27 @@
     <!-- 仅h5有效 打开App -->
 
     <!-- 分享 -->
-    <shares
-      v-if="enableShare && goodsDetail.id"
-      :skuId="this.routerVal.id"
-      :goodsId="this.routerVal.goodsId"
-      :link="
-        '/pages/product/goods?id=' +
-        this.routerVal.id +
-        '&goodsId=' +
-        this.routerVal.goodsId
-      "
-      :thumbnail="goodsDetail.thumbnail"
-      :goodsName="goodsDetail.goodsName"
-      type="goods"
-      @close="enableShare = false"
-    />
-    <popups
-      v-model="popupsSwitch"
-      @tapPopup="handleNavbarList"
-      :popData="navbarListData"
-      :x="navbarListX"
-      :y="navbarListY"
-      placement="top-start"
-    />
+    <shares v-if="enableShare && goodsDetail.id" :skuId="this.routerVal.id" :goodsId="this.routerVal.goodsId" :link="
+  '/pages/product/goods?id=' +
+  this.routerVal.id +
+  '&goodsId=' +
+  this.routerVal.goodsId
+" :thumbnail="goodsDetail.thumbnail" :goodsName="goodsDetail.goodsName" type="goods" @close="enableShare = false" />
+    <popups v-model="popupsSwitch" @tapPopup="handleNavbarList" :popData="navbarListData" :x="navbarListX"
+      :y="navbarListY" placement="top-start" />
     <view class="index">
       <!-- topBar -->
-      <u-navbar
-        :background="navbar"
-        :is-back="false"
-        :class="headerFlag ? 'header' : 'header bg-none scroll-hide'"
-      >
+      <u-navbar :background="navbar" :is-back="false" :class="headerFlag ? 'header' : 'header bg-none scroll-hide'">
         <div class="headerRow">
           <div class="backs">
             <u-icon @click="back()" name="arrow-left" class="icon-back"></u-icon>
 
-            <u-icon
-              name="list"
-              @click="popupsSwitch = !popupsSwitch"
-              class="icon-list"
-            ></u-icon>
+            <u-icon name="list" @click="popupsSwitch = !popupsSwitch" class="icon-list"></u-icon>
           </div>
           <div class="headerList" :class="headerFlag ? 'tab-bar' : 'tab-bar scroll-hide'">
             <div class="headerRow">
-              <div
-                class="nav-item"
-                v-for="header in headerList"
-                :key="header.id"
-                :class="{ cur: scrollId === header.id }"
-                @click="headerTab(header.id)"
-              >
+              <div class="nav-item" v-for="header in headerList" :key="header.id"
+                :class="{ cur: scrollId === header.id }" @click="headerTab(header.id)">
                 {{ header.text }}
               </div>
             </div>
@@ -62,57 +34,26 @@
         </div>
       </u-navbar>
 
-      <u-navbar
-        :border-bottom="false"
-        v-show="!headerFlag"
-        class="header-only-back"
-        :background="navbarOnlyBack"
-        :is-back="false"
-      >
+      <u-navbar :border-bottom="false" v-show="!headerFlag" class="header-only-back" :background="navbarOnlyBack"
+        :is-back="false">
         <div>
           <div class="bg-back">
-            <u-icon
-              size="40"
-              @click="back()"
-              name="arrow-left"
-              class="icon-back"
-            ></u-icon>
-            <u-icon
-              size="40"
-              @click="popupsSwitch = !popupsSwitch"
-              name="list"
-              class="icon-list"
-            ></u-icon>
+            <u-icon size="40" @click="back()" name="arrow-left" class="icon-back"></u-icon>
+            <u-icon size="40" @click="popupsSwitch = !popupsSwitch" name="list" class="icon-list"></u-icon>
           </div>
         </div>
       </u-navbar>
     </view>
 
-    <view
-      class="product-container"
-      :style="{ height: productRefHeight }"
-      ref="productRef"
-      id="productRef"
-    >
-      <scroll-view
-        scroll-anchoring
-        enableBackToTop="true"
-        scroll-with-animation
-        scroll-y
-        class="scroll-page"
-        :scroll-top="tabScrollTop"
-        @scroll="pageScroll"
-      >
+    <view class="product-container" :style="{ height: productRefHeight }" ref="productRef" id="productRef">
+      <scroll-view scroll-anchoring enableBackToTop="true" scroll-with-animation scroll-y class="scroll-page"
+        :scroll-top="tabScrollTop" @scroll="pageScroll">
         <view>
           <!-- 轮播图 -->
           <GoodsSwiper id="main1" :res="imgList" />
 
           <!-- 促销活动条 -->
-          <PromotionAssembleLayout
-            v-if="PromotionList"
-            :detail="goodsDetail"
-            :res="PromotionList"
-          />
+          <PromotionAssembleLayout v-if="PromotionList" :detail="goodsDetail" :res="PromotionList" />
 
           <view class="card-box top-radius-0" id="main2">
             <!-- 活动不显示价钱 -->
@@ -122,15 +63,11 @@
                   {{ goodsDetail.goodsName || "" }}
                 </view>
                 <view class="favorite" @click="clickFavorite(goodsDetail.id)">
-                  <u-icon
-                    size="30"
-                    :color="favorite ? '#f2270c' : '#262626'"
-                    :name="favorite ? 'heart-fill' : 'heart'"
-                  >
+                  <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'" :name="favorite ? 'heart-fill' : 'heart'">
                   </u-icon>
                   <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{
-                    favorite ? "已收藏" : "收藏"
-                  }}</view>
+    favorite ? "已收藏" : "收藏"
+}}</view>
                 </view>
               </view>
               <!-- 商品描述 -->
@@ -144,16 +81,25 @@
                 <view class="-goods-flex">
                   <!-- 如果有积分显示积分 -->
                   <view class="-goods-price" v-if="goodsDetail.price != undefined">
-                   
-                    <span >
-													<span v-if="wholesaleList.length">
-														<span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length-1].price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length-1].price)[1] }}
-														~
-														<span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(wholesaleList[0].price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(wholesaleList[0].price)[1] }}
-													</span>
-													<span v-else>
-														<span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(goodsDetail.price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
-													</span>
+
+                    <span>
+                      <span v-if="wholesaleList.length">
+                        <span>¥</span><span class="price">{{
+    $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[0]
+}}</span>.{{
+    $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[1]
+}}
+                        ~
+                        <span>¥</span><span class="price">{{
+    $options.filters.goodsFormatPrice(wholesaleList[0].price)[0]
+}}</span>.{{
+    $options.filters.goodsFormatPrice(wholesaleList[0].price)[1]
+}}
+                      </span>
+                      <span v-else>
+                        <span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(goodsDetail.price)[0]
+}}</span>.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
+                      </span>
                     </span>
                   </view>
                   <view class="-goods-price" v-else>
@@ -165,14 +111,11 @@
                     <view>分享</view>
                   </view>
                   <view class="icons" @click="clickFavorite(goodsDetail.id)">
-                    <u-icon
-                      size="30"
-                      :color="favorite ? '#f2270c' : '#262626'"
-                      :name="favorite ? 'heart-fill' : 'heart'"
-                    ></u-icon>
+                    <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'"
+                      :name="favorite ? 'heart-fill' : 'heart'"></u-icon>
                     <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{
-                      favorite ? "已收藏" : "收藏"
-                    }}</view>
+    favorite ? "已收藏" : "收藏"
+}}</view>
                   </view>
                 </view>
                 <view class="-goods-name desc-bold">
@@ -199,22 +142,16 @@
           </view>
 
           <!-- 拼团用户列表 -->
-          <PromotionAssembleListLayout
-            v-if="isGroup"
-            @to-assemble-buy-now="toAssembleBuyNow"
-            :res="PromotionList"
-          />
+          <PromotionAssembleListLayout v-if="isGroup" @to-assemble-buy-now="toAssembleBuyNow" :res="PromotionList" />
 
           <!-- 配置地址 如果是虚拟产品的时候不展示 -->
           <view class="card-box" v-if="goodsDetail.goodsType != 'VIRTUAL_GOODS'">
             <view class="card-flex" @click="shutMask(4)">
               <view class="card-title"> 已选 </view>
               <view class="card-content">
-                <span v-if="selectedGoods.spec"
-                  >{{ selectedGoods.spec.specName }}-{{
-                    selectedGoods.spec.specValue
-                  }}</span
-                >
+                <span v-if="selectedGoods.spec">{{ selectedGoods.spec.specName }}-{{
+    selectedGoods.spec.specValue
+}}</span>
                 <span v-else>默认</span>
               </view>
               <view class="card-bottom">
@@ -225,8 +162,8 @@
               <view class="card-title"> 送至</view>
               <view class="card-content">
                 <span v-if="delivery">{{
-                  delivery.consigneeAddressPath | clearStrComma
-                }}</span>
+    delivery.consigneeAddressPath | clearStrComma
+}}</span>
                 <span v-else>暂无地址信息</span>
               </view>
               <view class="card-bottom">
@@ -239,21 +176,11 @@
           <Evaluation id="main5" :goodsDetail="goodsDetail" />
 
           <!-- 店铺推荐 -->
-          <storeLayout
-            id="main7"
-            :storeDetail="storeDetail"
-            :goodsDetail="goodsDetail"
-            :res="recommendList"
-          />
+          <storeLayout id="main7" :storeDetail="storeDetail" :goodsDetail="goodsDetail" :res="recommendList" />
 
           <!-- 宝贝详情 -->
-          <GoodsIntro
-            id="main9"
-            :res="goodsDetail"
-            :goodsParams="goodsParams"
-            :goodsId="goodsDetail.goodsId"
-            v-if="goodsDetail.id"
-          />
+          <GoodsIntro id="main9" :res="goodsDetail" :goodsParams="goodsParams" :goodsId="goodsDetail.goodsId"
+            v-if="goodsDetail.id" />
 
           <!-- 宝贝推荐 -->
           <GoodsRecommend id="main11" :res="likeGoodsList" />
@@ -278,13 +205,8 @@
         </view>
         <!-- 正常结算页面 -->
         <view class="detail-btn" v-if="!isGroup">
-          <view
-            class="to-store-car to-store-btn"
-            v-if="goodsDetail.goodsType != 'VIRTUAL_GOODS'"
-            @click="shutMask(4)"
-          >
-            加入购物车</view
-          >
+          <view class="to-store-car to-store-btn" v-if="goodsDetail.goodsType != 'VIRTUAL_GOODS'" @click="shutMask(4)">
+            加入购物车</view>
           <view class="to-buy to-store-btn" @click="shutMask(4, 'buy')">立即购买</view>
           <view class="to-store-car to-store-btn" v-if="startTimer">暂未开始</view>
         </view>
@@ -303,15 +225,8 @@
       <!-- 规格-模态层弹窗 -->
       <view class="spec">
         <!-- 促销弹窗 -->
-        <u-popup
-          v-model="promotionShow"
-          :height="setup.height"
-          :mode="setup.mode"
-          :border-radius="setup.radius"
-          @close="promotionShow = false"
-          :mask-close-able="setup.close"
-          closeable
-        >
+        <u-popup v-model="promotionShow" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius"
+          @close="promotionShow = false" :mask-close-able="setup.close" closeable>
           <view class="header-title">优惠</view>
           <view class="cuxiao">
             <scroll-view class="scroll_mask" :scroll-y="true">
@@ -328,31 +243,14 @@
         </u-popup>
 
         <!-- 配送地址弹窗 -->
-        <popupAddress
-          @closeAddress="closePopupAddress"
-          @deliveryData="deliveryFun"
-          v-if="goodsDetail.id"
-          :goodsId="goodsDetail.id"
-          :addressFlag="addressFlag"
-        />
+        <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id"
+          :goodsId="goodsDetail.id" :addressFlag="addressFlag" />
 
         <!-- 商品规格  商品详情，以及默认参与活动的id-->
-        <popupGoods
-          :addr="delivery"
-          ref="popupGoods"
-          @changed="changedGoods"
-          @closeBuy="closePopupBuy"
-          @queryCart="cartCount()"
-          :goodsDetail="goodsDetail"
-          :goodsSpec="goodsSpec"
-          :isGroup="isGroup"
-          :id="productId"
-          v-if="goodsDetail.id"
-          :pointDetail="pointDetail"
-					:wholesaleList="wholesaleList"
-          @handleClickSku="selectSku"
-          :buyMask="buyMask"
-        />
+        <popupGoods :addr="delivery" ref="popupGoods" @changed="changedGoods" @closeBuy="closePopupBuy"
+          @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :isGroup="isGroup" :id="productId"
+          v-if="goodsDetail.id" :pointDetail="pointDetail" :wholesaleList="wholesaleList" @handleClickSku="selectSku"
+          :buyMask="buyMask" />
       </view>
     </view>
   </div>
@@ -402,7 +300,7 @@ export default {
     popupGoods,
     popupAddress,
   },
-  data() {
+  data () {
     return {
       setup,
       promotionShow: false, //弹窗开关
@@ -445,7 +343,7 @@ export default {
       enableShare: false,
       selectedGoods: "", //选择的商品规格昵称
       isGroup: false, // 是否是拼团活动
-      isSeckill:false, // 是否秒杀活动
+      isSeckill: false, // 是否秒杀活动
       pointDetail: "", // 是否是积分商品
       assemble: "", //拼团的sku
       navbarOnlyBack: {
@@ -524,19 +422,19 @@ export default {
 
       routerVal: "",
       IMLink: "", // IM地址
-			wholesaleList:[]
+      wholesaleList: []
     };
   },
 
   computed: {
-	// udesk IM 
-    IM() {
+    // udesk IM 
+    IM () {
       return this.IMLink + this.storeDetail.merchantEuid;
     },
   },
 
   watch: {
-    isGroup(val) {
+    isGroup (val) {
       if (val) {
         let timer = setInterval(() => {
           this.$refs.popupGoods.buyType = "PINTUAN";
@@ -547,7 +445,7 @@ export default {
       }
     },
   },
-  mounted() {
+  mounted () {
     const { windowHeight } = uni.getSystemInfoSync();
     let bottomHeight = 0;
     let topHeight = 0;
@@ -577,7 +475,7 @@ export default {
 
     this.productRefHeight = windowHeight - bottomHeight + "px";
   },
-  async onLoad(options) {
+  async onLoad (options) {
     this.routerVal = options;
     // #ifdef MP-WEIXIN
     // 小程序默认分享
@@ -587,7 +485,7 @@ export default {
     });
     // #endif
   },
-  async onShow() {
+  async onShow () {
     this.goodsDetail = {};
     //如果有参数ids说明事分销短连接，需要获取参数
     if (this.routerVal.scene) {
@@ -601,22 +499,22 @@ export default {
       this.init(this.routerVal.id, this.routerVal.goodsId, this.routerVal.distributionId);
     }
   },
- 
+
   methods: {
-    share() {
+    share () {
       return `/pages/product/goods?id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`;
     },
     /**
      * 导航栏列表栏
      */
-    handleNavbarList(val) {
+    handleNavbarList (val) {
       modelNavigateTo({ url: val });
     },
 
     /**
      * 循环出当前促销是否为空
      */
-    emptyPromotion() {
+    emptyPromotion () {
       if (
         this.PromotionList == "" ||
         this.PromotionList == null ||
@@ -625,13 +523,13 @@ export default {
         return true;
       }
     },
-    selectSku(idObj) {
+    selectSku (idObj) {
       this.init(idObj.skuId, idObj.goodsId);
     },
     /**
      * 初始化信息
      */
-    async init(id, goodsId, distributionId = "") {
+    async init (id, goodsId, distributionId = "") {
       this.isGroup = false; //初始化拼团
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
@@ -664,7 +562,7 @@ export default {
           if (item.indexOf("PINTUAN") == 0) {
             this.isGroup = true;
           }
-         
+
           // 秒杀
           if (item.indexOf("SECKILL") == 0) {
             this.isSeckill = true
@@ -693,90 +591,90 @@ export default {
       // this.getIMDetailMethods();
     },
 
-    async getIMDetailMethods() {
+    async getIMDetailMethods () {
       let res = await getIMDetail();
       if (res.data.success) {
         this.IMLink = res.data.result;
       }
     },
 
-    linkMsgDetail() {
+    linkMsgDetail () {
       // lili 基础客服
-	
-	  uni.navigateTo({
-		url: `/pages/mine/im/index?userId=`+this.goodsDetail.storeId,
-	  });
-		
-		// udesk 代码  
-		// if (this.storeDetail.merchantEuid) {
-		//   uni.navigateTo({
-		//     url: `/pages/tabbar/home/web-view?src=${this.IM}`,
-		//   });
-		// }
-		  
-		  
-        // 客服 云智服代码 
-        // // #ifdef MP-WEIXIN
-        // const params = {
-        //   storeName: this.storeDetail.storeName,
-        //   goodsName: this.goodsDetail.goodsName,
-        //   goodsId: this.goodsDetail.goodsId,
-        //   goodsImg: this.goodsDetail.thumbnail,
-        //   price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
-        //   // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
-        //   uuid: storage.getUuid(),
-        //   token: storage.getAccessToken(),
-        //   sign: this.storeDetail.yzfSign,
-        //   mpSign: this.storeDetail.yzfMpSign,
-        // };
-        // uni.navigateTo({
-        //   url:
-        //     "/pages/product/customerservice/index?params=" +
-        //     encodeURIComponent(JSON.stringify(params)),
-        // });
-        // // #endif
-        // // #ifndef MP-WEIXIN
-        // const sign = this.storeDetail.yzfSign;
-        // uni.navigateTo({
-        //   url:
-        //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-        //     sign,
-        // });
-        // // #endif
-    
+
+      uni.navigateTo({
+        url: `/pages/mine/im/index?userId=${this.goodsDetail.storeId}&goodsid=${this.routerVal.goodsId}&skuid=${this.routerVal.id}`
+      });
+
+      // udesk 代码  
+      // if (this.storeDetail.merchantEuid) {
+      //   uni.navigateTo({
+      //     url: `/pages/tabbar/home/web-view?src=${this.IM}`,
+      //   });
+      // }
+
+
+      // 客服 云智服代码 
+      // // #ifdef MP-WEIXIN
+      // const params = {
+      //   storeName: this.storeDetail.storeName,
+      //   goodsName: this.goodsDetail.goodsName,
+      //   goodsId: this.goodsDetail.goodsId,
+      //   goodsImg: this.goodsDetail.thumbnail,
+      //   price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
+      //   // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+      //   uuid: storage.getUuid(),
+      //   token: storage.getAccessToken(),
+      //   sign: this.storeDetail.yzfSign,
+      //   mpSign: this.storeDetail.yzfMpSign,
+      // };
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/product/customerservice/index?params=" +
+      //     encodeURIComponent(JSON.stringify(params)),
+      // });
+      // // #endif
+      // // #ifndef MP-WEIXIN
+      // const sign = this.storeDetail.yzfSign;
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+      //     sign,
+      // });
+      // // #endif
+
     },
     /**选择商品 */
-    changedGoods(val) {
+    changedGoods (val) {
       this.selectedGoods = val;
     },
 
     /**  点击子级地址回调参数*/
-    deliveryFun(val) {
+    deliveryFun (val) {
       this.delivery = val;
     },
     /**
      * 地址子级关闭回调
      */
-    closePopupAddress(val) {
+    closePopupAddress (val) {
       this.addressFlag = val;
       // this.maskFlag = false;
     },
     /**
      * 商品规格子级关闭回调
      */
-    closePopupBuy(val) {
+    closePopupBuy (val) {
       this.buyMask = val;
       // this.maskFlag = false;
     },
 
     /** 参与拼团  创建拼团 */
-    toAssembleBuyNow(order) {
+    toAssembleBuyNow (order) {
       this.shutMask(4, "PINTUAN", order);
     },
     /**
      * 查看购物车
      */
-    reluchToCart() {
+    reluchToCart () {
       let obj = {
         from: "product",
         id: this.productId,
@@ -790,7 +688,7 @@ export default {
     /**
      * 查询购物车总数量
      */
-    cartCount() {
+    cartCount () {
       if (storage.getHasLogin()) {
         API_trade.getCartNum().then((res) => {
           this.nums = res.data.result;
@@ -801,7 +699,7 @@ export default {
     /**
      * 返回
      */
-    back() {
+    back () {
       if (getCurrentPages().length == 1) {
         uni.switchTab({
           url: "/pages/tabbar/home/index",
@@ -814,7 +712,7 @@ export default {
     /**
      * 获取店铺信息
      */
-    getStoreBaseInfoFun(id) {
+    getStoreBaseInfoFun (id) {
       API_store.getStoreBaseInfo(id).then((res) => {
         if (res.data.success) {
           this.storeDetail = res.data.result;
@@ -825,7 +723,7 @@ export default {
     /**
      * 删除收藏店铺
      */
-    deleteGoodsCollectionFun(id) {
+    deleteGoodsCollectionFun (id) {
       API_Members.deleteGoodsCollection(id).then((res) => {
         if (res.statusCode == 200) {
           uni.showToast({
@@ -840,7 +738,7 @@ export default {
     /**
      * 获取商品是否已被收藏
      */
-    getGoodsCollectionFun(goodsId) {
+    getGoodsCollectionFun (goodsId) {
       if (storage.getHasLogin()) {
         API_Members.getGoodsIsCollect("GOODS", goodsId).then((res) => {
           this.favorite = res.data.result;
@@ -851,7 +749,7 @@ export default {
     /**
      * 获取店铺推荐商品列表
      */
-    getStoreRecommend() {
+    getStoreRecommend () {
       getGoodsList({
         pageNumber: 1,
         pageSize: 6,
@@ -866,7 +764,7 @@ export default {
      * 获取相似商品列表
      *
      */
-    getOtherLikeGoods() {
+    getOtherLikeGoods () {
       getGoodsList({
         pageNumber: 1,
         pageSize: 10,
@@ -880,7 +778,7 @@ export default {
     /**
      * 领取优惠券
      */
-    receiveCouponsFun(id) {
+    receiveCouponsFun (id) {
       API_Members.receiveCoupons(id).then((res) => {
         uni.showToast({
           title: res.data.message,
@@ -892,7 +790,7 @@ export default {
     /**
      * 跳转到店铺页面
      */
-    navigateToStore(store_id) {
+    navigateToStore (store_id) {
       uni.navigateTo({
         url: `/pages/product/shopPage?id=` + store_id,
       });
@@ -901,14 +799,14 @@ export default {
     /**
      * 获取优惠券按钮
      */
-    getCoupon(item) {
+    getCoupon (item) {
       this.receiveCouponsFun(item.id);
     },
 
     /**
      * 规格弹窗开关
      */
-    shutMask(flag, buyFlag, type) {
+    shutMask (flag, buyFlag, type) {
       this.promotionShow = false;
       this.buyMask = false;
       this.addressFlag = false;
@@ -943,7 +841,7 @@ export default {
     /**
      * 收藏
      */
-    clickFavorite(id) {
+    clickFavorite (id) {
       if (this.favorite) {
         // 取消收藏
         this.deleteGoodsCollectionFun(id);
@@ -963,7 +861,7 @@ export default {
     /**
      * 顶部header显示或隐藏
      */
-    pageScroll(e) {
+    pageScroll (e) {
       if (this.scrollFlag) {
         this.calcSize();
       }
@@ -991,7 +889,7 @@ export default {
     /**
      * 计算每个要跳转到的模块高度信息
      */
-    calcSize() {
+    calcSize () {
       let h = 0;
       let that = this;
       let arr = [
@@ -1036,7 +934,7 @@ export default {
     /**
      * 点击顶部跳转到对应位置
      */
-    headerTab(id) {
+    headerTab (id) {
       if (this.scrollFlag) {
         this.calcSize();
       }
@@ -1050,7 +948,7 @@ export default {
     /**
      * 点击分享
      */
-    async shareChange() {
+    async shareChange () {
       this.enableShare = true;
     },
   },

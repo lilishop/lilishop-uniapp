@@ -64,4 +64,11 @@ export function getTalk(talkId) {
     params
   });
 }
+// 从商品页点击 客服 跳转 获取聊天记录
+export function jumpObtain(skuId, goodsId) {
+  return http.request({
+    url: `${api.im}/goods/goods/sku/${goodsId}/${skuId}`,
+    method: Method.GET,
+  });
+}
 
