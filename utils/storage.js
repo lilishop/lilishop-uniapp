@@ -119,4 +119,11 @@ export default {
   removeAfterSaleData() {
     uni.removeStorageSync(AFTERSALE_DATA);
   },
+  // 是否发送商品连接记录
+  setImGoodsLink(val) {
+    uni.setStorageSync('imGoodId', val);
+  },
+  getImGoodsLink() {
+  return  uni.getStorageSync('imGoodId');
+  },
 };

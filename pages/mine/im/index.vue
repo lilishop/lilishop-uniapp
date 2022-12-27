@@ -17,12 +17,31 @@
         <!-- 用户消息 头像可选加入-->
         <view v-if="item.my" class="flex justify-end padding-right one-show  align-start  padding-top">
           <!-- <image class="chat-img flex-row-center" :src="'https://ikeeppet.oss-cn-zhangjiakou.aliyuncs.com/028b7818b78c47ef8f87a7faa1098faf.jpg'" mode="aspectFill" ></image>	 -->
-
           <view class="flex justify-end" style="width: 400rpx;margin-top: 12px;">
             <view>
               <view class="user-name">{{ user.nickName }}</view>
               <view class="margin-left padding-chat bg-user-orang" style="border-radius: 35rpx;">
-                <text style="word-break: break-all;">{{ item.text }}</text>
+                <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
+                <view v-else>
+                  <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
+                    <view class="imagebox" @click="jumpGoodDelic">
+                      <!-- <image class="image" :src="goodLiistData.thumbnail" mode="widthFix"></image> -->
+                      <image class="image" :src="JSON.parse(item.text).thumbnail" mode="widthFix"></image>
+                    </view>
+                    <view class="goodsdesc" @click="jumpGoodDelic">
+                      <view class="goodsdesc-name">
+                        <text class="goodsCard_goodNmae">{{
+    JSON.parse(item.text).goodsName
+}}</text>
+                      </view>
+                      <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
+                          style="font-size:20rpx;">¥{{
+    JSON.parse(item.text).price
+}}</text>
+                      </view>
+                    </view>
+                  </view>
+                </view>
               </view>
             </view>
           </view>
@@ -46,10 +65,52 @@
             <view>
               <view class="other-name">{{ toUser.name }}</view>
               <view class="margin-left padding-chat flex-column-start bg-to-color" style="border-radius: 35rpx;">
-                <text style="word-break: break-all;">{{ item.text }}</text>
+                <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
+                <view v-else>
+                  <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
+                    <view class="imagebox" @click="jumpGoodDelic">
+                      <image class="image" :src="JSON.parse(item.text).thumbnail" mode="widthFix"></image>
+                    </view>
+                    <view class="goodsdesc" @click="jumpGoodDelic">
+                      <view class="goodsdesc-name">
+                        <text class="goodsCard_goodNmae">{{
+    JSON.parse(item.text).goodsName
+}}</text>
+                      </view>
+                      <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
+                          style="font-size:20rpx;">¥{{
+    JSON.parse(item.text).price
+}}</text>
+                      </view>
+                    </view>
+                  </view>
+                </view>
               </view>
             </view>
 
+          </view>
+        </view>
+      </view>
+      <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
+        <view class="goodsCard u-flex u-row-between u-p-b-0">
+          <view class="imagebox" @click="jumpGoodDelic">
+            <image class="image" :src="goodLiistData.thumbnail" mode="widthFix"></image>
+          </view>
+          <view class="goodsdesc" @click="jumpGoodDelic">
+            <view class="goodsdesc-name">
+
+              <text class="goodsCard_goodNmae">{{
+    goodLiistData.goodsName
+}}</text>
+            </view>
+            <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text style="font-size:20rpx;">¥{{
+    goodLiistData.price
+}}</text>
+            </view>
+          </view>
+          <view class="cancel" @click="cancenModel">X</view>
+          <view class="sendGood" @click="gotoCards">
+            <view>发送商品</view>
           </view>
         </view>
       </view>
@@ -109,7 +170,20 @@ import SocketService from "@/utils/socket_service.js";
 import storage from "@/utils/storage.js";
 import { beautifyTime } from "@/utils/filters.js"
 export default {
+  // 页面卸载后清除imGoodId
+  onUnload () {
+    storage.setImGoodsLink('')
+  },
   onLoad (options) {
+    // 没有goodsid则不显示 发送商品弹窗
+    this.showHideModel = options.goodsid
+    // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
+    this.localImGoodsId = storage.getImGoodsLink()
+    this.rosolve = options
+    // 请求商品信息
+    if (this.rosolve.goodsid) {
+      this.commodityDetails()
+    }
     // 如果需要缓存消息缓存msgList即可
     // 监听键盘拉起
     // 因为无法控制键盘拉起的速度,所以这里尽量以慢速处理
@@ -118,7 +192,6 @@ export default {
       query.select('#msgList').boundingClientRect(data => {
         // 若消息体没有超过2倍的键盘则向下移动差值,防止遮住消息体
         var up = res.height * 2 - data.height - l * 110
-        console.log(up)
         if (up > 0) {
           // 动态改变空盒子高度
           this.msgMove(up, 300)
@@ -144,6 +217,7 @@ export default {
       this.getTalkMessage()
     } else {
       this.getTalk(options.userId)
+
     }
 
     this.ws.connect();
@@ -151,7 +225,6 @@ export default {
   onPullDownRefresh () {
     this.params.pageNumber = this.params.pageNumber + 1
     this.getTalkMessage()
-    console.log('下拉事件');
     setTimeout(function () {
       uni.stopPullDownRefresh();
     }, 1000);
@@ -161,6 +234,9 @@ export default {
   },
   data () {
     return {
+      showHideModel: undefined,
+      localImGoodsId: '',
+      showHide: true,
       msgLoad: false,
       anData: {},
       animationData: {},
@@ -179,6 +255,8 @@ export default {
       toUser: {},
       srcollHeight: 0,
       ws: new SocketService(),
+      rosolve: {},
+      goodLiistData: {}
     }
   },
   watch: {
@@ -189,7 +267,6 @@ export default {
           this.msgList.push(val.result)
         }
         this.newMessageNum++;
-        console.log(this.msgList)
         //接收到消息后发送已读
         let msg = val
         msg.operation_type = 'READ'
@@ -198,6 +275,37 @@ export default {
     }
   },
   methods: {
+    // 跳转商品详情页
+    jumpGoodDelic () {
+      uni.navigateTo({
+        url: `/pages/product/goods?id=${this.rosolve.skuid}&goodsId=${this.rosolve.goodsid}`,
+      });
+    },
+    //发送商品
+    gotoCards () {
+      let msg = {
+        operation_type: "MESSAGE",
+        to: this.toUser.userId,
+        from: this.user.id,
+        message_type: "GOODS",
+        context: this.goodLiistData,
+        talk_id: this.params.talkId,
+      }
+      this.ws.send(JSON.stringify(msg))
+      this.msgList.push({ "text": JSON.stringify(this.goodLiistData), "my": true })
+      this.showHide = false
+      storage.setImGoodsLink(this.params.talkId)
+    },
+    //取消发送
+    cancenModel () {
+      this.showHide = false
+    },
+    // 请求商品详情
+    commodityDetails () {
+      jumpObtain(this.rosolve.skuid, this.rosolve.goodsid).then((res) => {
+        this.goodLiistData = res.data.result.data
+      })
+    },
     beautifyTime,
     // 切换输入法时移动输入框(按照官方的上推页面的原理应该会自动适应不同的键盘高度-->官方bug)
     goPag (kh) {
@@ -265,11 +373,9 @@ export default {
     // 回答问题的业务逻辑
     answer (id) {
       // 这里应该传入问题的id,模拟就用index代替了
-      console.log(id)
 
     },
     sendMsg () {
-      console.log("发送")
       // 消息为空不做任何操作
       if (this.msg == "") {
         return 0;
@@ -363,6 +469,7 @@ export default {
         if (res.data.success) {
           this.toUser = res.data.result
           this.params.talkId = res.data.result.id
+          this.getTalkMessage()
         }
       })
     },
@@ -439,7 +546,88 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+.goodsCard {
+  border-radius: 20rpx;
+  margin-top: 15rpx;
+  background-color: #ffffff;
+  padding-left: 12rpx;
+  width: 95%;
+  height: 120rpx;
+  display: flex;
+  flex-wrap: wrap;
+  color: #302c2b;
+  position: relative;
+
+  .imagebox {
+    width: 122rpx;
+    height: 122rpx;
+
+    .image {
+      width: 122rpx;
+      border-radius: 10rpx;
+    }
+  }
+
+  .goodsdesc {
+    flex: 1;
+    overflow: hidden;
+    margin-left: 12rpx;
+
+    .goodsdesc-name {
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      margin-bottom: 20rpx;
+
+      .goodsCard_goodNmae {
+        color: black;
+        text-overflow: ellipsis;
+        font-size: 20rpx;
+        font-weight: bold;
+      }
+    }
+
+    .price {
+      margin-top: 50rpx;
+      line-height: 2;
+      margin-left: 5px;
+      font-size: 26rpx;
+      font-weight: 700;
+    }
+  }
+
+  .sendGood {
+    color: #ffffff;
+    height: 40rpx;
+    width: 110rpx;
+    background-color: #f21c0c;
+    font-size: 18rpx;
+    border-radius: 17rpx;
+    text-align: center;
+    line-height: 40rpx;
+    padding: 0 10rpx;
+    position: relative;
+    top: 20rpx;
+    right: 20rpx;
+  }
+}
+
+.cancel {
+  color: #737373;
+  position: relative;
+  bottom: 40rpx;
+  left: 12%;
+}
+
+.cartMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .bottom-dh-char {
   background-color: #f9f9f9;
   width: 750rpx;

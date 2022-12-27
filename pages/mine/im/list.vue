@@ -36,7 +36,8 @@
                   <u-tag class="talk-tag" size="mini" text="店铺" type="warning" v-if="item.storeFlag" />
                 </view>
                 <view class="talk-message">
-                  {{ item.lastTalkMessage }}
+                  <span v-if="item.lastMessageType == 'MESSAGE'">{{ item.lastTalkMessage }}</span>
+                  <span v-if="item.lastMessageType == 'GOODS'">[商品链接]</span>
                 </view>
               </view>
               <view class="talk-time">
@@ -60,7 +61,7 @@ import { getTalkList } from "@/api/im.js";
 import storage from "@/utils/storage.js";
 import { beautifyTime } from "@/utils/filters.js"
 export default {
-  data() {
+  data () {
     return {
       count: {
         loadStatus: "more",
@@ -73,10 +74,10 @@ export default {
   components: {
     beautifyTime
   },
-  onShow() {
+  onShow () {
     this.getList();
   },
-  onPullDownRefresh() {
+  onPullDownRefresh () {
     this.getList()
     console.log('下拉事件');
     setTimeout(function () {
@@ -86,12 +87,12 @@ export default {
   /**
    * 触底加载
    */
-  onReachBottom() {
+  onReachBottom () {
     this.getList();
   },
   methods: {
     beautifyTime,
-    onclickToTalkInfo(val) {
+    onclickToTalkInfo (val) {
       storage.setTalkToUser(val)
       uni.navigateTo({
         url:
@@ -101,7 +102,7 @@ export default {
     /**
      * 获取聊天列表
      */
-    getList() {
+    getList () {
       let params = {
         userName: this.userName,
       }
@@ -115,15 +116,15 @@ export default {
         }
       });
     },
-    navigateTo(url) {
+    navigateTo (url) {
       uni.navigateTo({
         url,
       });
     },
-    cleanUnread(){
-      
+    cleanUnread () {
+
     },
-    search() {
+    search () {
 
     },
     // clear() {
@@ -180,6 +181,7 @@ export default {
 .talk-time {
   position: relative;
 }
+
 .iconBox {
   width: 94%;
   margin: 0 3%;
@@ -210,6 +212,7 @@ export default {
     }
   }
 }
+
 .bag {
   width: 56rpx;
   height: 56rpx;
@@ -220,6 +223,7 @@ export default {
 .bag1 {
   background: #ff0015;
 }
+
 .bag2 {
   background: #73AF7C;
 }
