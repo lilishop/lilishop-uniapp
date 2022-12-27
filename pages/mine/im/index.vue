@@ -146,6 +146,7 @@ export default {
 			this.getTalkMessage()
 		} else {
 			this.getTalk(options.userId)
+			
 		}
 
 		this.ws.connect();
@@ -365,6 +366,7 @@ export default {
 				if (res.data.success) {
 					this.toUser = res.data.result
 					this.params.talkId = res.data.result.id
+					this.getTalkMessage()
 				}
 			})
 		},
