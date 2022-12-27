@@ -52,6 +52,12 @@ export default {
   getUserInfo() {
     return uni.getStorageSync(USER_INFO);
   },
+  setTalkToUser(val){
+    uni.setStorageSync("TALK_TO_USER", val);
+  },
+  getTalkToUser(){
+    return uni.getStorageSync("TALK_TO_USER");
+  },
   // 写入uuid
   setUuid(val) {
     uni.setStorageSync(UUID, val);

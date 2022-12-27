@@ -704,7 +704,7 @@ export default {
       // lili 基础客服
 	
 	  uni.navigateTo({
-		url: `/pages/tabbar/home/web-view?IM=${this.storeDetail.storeId}`,
+		url: `/pages/mine/im/index?userId=`+this.goodsDetail.storeId,
 	  });
 		
 		// udesk 代码  

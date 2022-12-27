@@ -126,7 +126,7 @@ export default {
 	
 	linkMsgDetail(){
 		uni.navigateTo({
-				url: `/pages/tabbar/home/web-view?IM=0`,
+				url: `/pages/mine/im/list`,
 		});
 	},
 	
