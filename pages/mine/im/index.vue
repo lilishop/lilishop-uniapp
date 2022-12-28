@@ -108,7 +108,7 @@
             </view>
           </view>
           <view class="cancel" @click="cancenModel">X</view>
-          <view class="sendGood" @click="gotoCards">
+          <view class="sendGood" @click="sendGoodsMessage">
             <view>发送商品</view>
           </view>
         </view>
@@ -135,9 +135,9 @@
     <view class="flex-column-center" style="position: fixed;bottom: -180px;" :animation="animationData">
       <view class="bottom-dh-char flex-row-around" style="font-size: 55rpx;">
         <!-- vue无法使用软键盘"发送" -->
-        <input v-model="msg" class="dh-input" type="text" style="background-color: #f0f0f0;" @confirm="sendMsg"
+        <input v-model="msg" class="dh-input" type="text" style="background-color: #f0f0f0;" @confirm="sendMessage"
           confirm-type="search" placeholder-class="my-neirong-sm" placeholder="用一句简短的话描述您的问题" />
-        <view @click="sendMsg" class="cu-tag bg-cyan round">
+        <view @click="sendMessage" class="cu-tag bg-cyan round">
           发送
         </view>
         <!-- <text @click="ckAdd" class="cuIcon-roundaddfill text-brown"></text> -->
@@ -193,13 +193,13 @@ export default {
         var up = res.height * 2 - data.height - l * 110
         if (up > 0) {
           // 动态改变空盒子高度
-          this.msgMove(up, 300)
+          this.messageBoxMove(up, 300)
           // 记录改变的值,若不收回键盘且发送了消息用来防止消息过多被遮盖
           mgUpHeight = up
         }
         // 收回
         if (res.height == 0) {
-          this.msgMove(0, 0)
+          this.messageBoxMove(0, 0)
         }
       }).exec();
     })
@@ -281,7 +281,7 @@ export default {
       });
     },
     //发送商品
-    gotoCards () {
+    sendGoodsMessage () {
       let msg = {
         operation_type: "MESSAGE",
         to: this.toUser.userId,
@@ -308,16 +308,16 @@ export default {
     beautifyTime,
     // 切换输入法时移动输入框(按照官方的上推页面的原理应该会自动适应不同的键盘高度-->官方bug)
     goPag (kh) {
-      this.upTowmn(0, 250)
+      this.retractBox(0, 250)
       if (this.keyHeight != 0) {
         if (kh - this.keyHeight > 0) {
-          this.upTowmn(this.keyHeight - kh, 250)
+          this.retractBox(this.keyHeight - kh, 250)
         }
 
       }
     },
     // 移动顶部的空盒子
-    msgMove (x, t) {
+    messageBoxMove (x, t) {
       var animation = uni.createAnimation({
         duration: t,
         timingFunction: 'linear',
@@ -355,10 +355,10 @@ export default {
           if (moveY - mgUpHeight < 0) {
             // 小于0则视为0
             if (moveY < 0) {
-              this.msgMove(0, 200)
+              this.messageBoxMove(0, 200)
             } else {
               // 否则缩回盒子对应的高度
-              this.msgMove(moveY, 200)
+              this.messageBoxMove(moveY, 200)
             }
           }
           uni.pageScrollTo({
@@ -374,7 +374,7 @@ export default {
       // 这里应该传入问题的id,模拟就用index代替了
 
     },
-    sendMsg () {
+    sendMessage () {
       // 消息为空不做任何操作
       if (this.msg == "") {
         return 0;
@@ -413,9 +413,9 @@ export default {
     // 不建议输入框聚焦时操作此动画
     ckAdd () {
       if (!this.showTow) {
-        this.upTowmn(-180, 350)
+        this.retractBox(-180, 350)
       } else {
-        this.upTowmn(0, 200)
+        this.retractBox(0, 200)
       }
       this.showTow = !this.showTow
     },
@@ -423,7 +423,7 @@ export default {
       uni.hideKeyboard()
     },
     // 拉起/收回附加栏
-    upTowmn (x, t) {
+    retractBox (x, t) {
 
       var animation = uni.createAnimation({
         duration: t,
@@ -456,7 +456,7 @@ export default {
       })
       this.msgGo(type)
     },
-    touchmovemsg (e) {
+    touchMoreMessage (e) {
       if (e.target.scrollTop == 0) {
         this.params.pageNumber = this.params.pageNumber + 1
         this.getTalkMessage()
