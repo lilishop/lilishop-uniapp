@@ -25,7 +25,6 @@
                 <view v-else>
                   <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
                     <view class="imagebox" @click="jumpGoodDelic">
-                      <!-- <image class="image" :src="goodLiistData.thumbnail" mode="widthFix"></image> -->
                       <image class="image" :src="JSON.parse(item.text).thumbnail" mode="widthFix"></image>
                     </view>
                     <view class="goodsdesc" @click="jumpGoodDelic">
@@ -292,7 +291,7 @@ export default {
         talk_id: this.params.talkId,
       }
       this.ws.send(JSON.stringify(msg))
-      this.msgList.push({ "text": JSON.stringify(this.goodLiistData), "my": true })
+      this.msgList.push({ "text": JSON.stringify(this.goodLiistData), "my": true, "messageType": 'GOODS' })
       this.showHide = false
       storage.setImGoodsLink(this.params.talkId)
     },
@@ -390,7 +389,7 @@ export default {
         talk_id: this.params.talkId,
       }
       this.ws.send(JSON.stringify(msg))
-      this.msgList.push({ "text": this.msg, "my": true })
+      this.msgList.push({ "text": this.msg, "my": true, "messageType": 'MESSAGE' })
       // 保证消息可见
       let type = 'down';
       this.msgGo(type)
