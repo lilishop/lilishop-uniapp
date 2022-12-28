@@ -5,7 +5,6 @@
       <!-- 空白页 -->
       <u-empty text="暂无信息" mode="list" v-if="talkList.length === 0"></u-empty>
       <!-- 消息列表 -->
-      <!-- 我的订单，代付款 -->
       <div class="iconBox">
         <view class="icon-list">
           <view class="icon-item" @click="cleanUnread()">
@@ -22,7 +21,7 @@
           </view>
         </view>
       </div>
-      <u-search class="nav-search" v-model="userName" clearabled @change="getList()" placeholder="搜索用户"
+      <u-search class="nav-search" v-model="userName" clearabled @change="userTalkList()" placeholder="搜索用户"
         :show-action="false"></u-search>
       <view class="talk-view" :key="index" v-for="(item, index) in talkList">
         <view>
@@ -75,10 +74,10 @@ export default {
     beautifyTime
   },
   onShow () {
-    this.getList();
+    this.userTalkList();
   },
   onPullDownRefresh () {
-    this.getList()
+    this.userTalkList()
     console.log('下拉事件');
     setTimeout(function () {
       uni.stopPullDownRefresh();
@@ -88,7 +87,7 @@ export default {
    * 触底加载
    */
   onReachBottom () {
-    this.getList();
+    this.userTalkList();
   },
   methods: {
     beautifyTime,
@@ -102,7 +101,7 @@ export default {
     /**
      * 获取聊天列表
      */
-    getList () {
+    userTalkList () {
       let params = {
         userName: this.userName,
       }
@@ -122,14 +121,8 @@ export default {
       });
     },
     cleanUnread () {
-
+      alert(1)
     },
-    search () {
-
-    },
-    // clear() {
-
-    // },
   },
 };
 </script>
