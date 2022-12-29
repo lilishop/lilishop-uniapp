@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="wrapper">
     <u-navbar class="my-title" title-size="32" back-text="" :title="toUser.name"></u-navbar>
     <!-- 空盒子用来防止消息过少时 拉起键盘会遮盖消息 -->
     <view :animation="anData" style="height:0;">
@@ -20,23 +20,37 @@
           <view class="flex justify-end" style="width: 400rpx;margin-top: 12px;">
             <view>
               <view class="user-name">{{ user.nickName }}</view>
-              <view class="margin-left padding-chat bg-user-orang" style="border-radius: 35rpx;">
+              <view class="margin-left padding-chat bg-user-orang" style="border-radius: 35rpx; ">
                 <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
-                <view v-else>
+                <view v-if="item.messageType == 'GOODS'">
                   <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
                     <view class="imagebox" @click="jumpGoodDelic">
-                      <image class="image" :src="JSON.parse(item.text).thumbnail" mode="widthFix"></image>
+                      <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
                     </view>
                     <view class="goodsdesc" @click="jumpGoodDelic">
                       <view class="goodsdesc-name">
                         <text class="goodsCard_goodNmae">{{
-    JSON.parse(item.text).goodsName
+    JSON.parse(item.text)['goodsName']
 }}</text>
                       </view>
                       <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
                           style="font-size:20rpx;">¥{{
-    JSON.parse(item.text).price
+    JSON.parse(item.text)['price']
 }}</text>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+                <view v-if="item.messageType === 'ORDER'">
+                  <view class="orderSn">
+                    <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
+                    <view class="oederList">
+                      <img style="height: 120rpx; width: 120rpx; margin-top: 15rpx;"
+                        :src="JSON.parse(item.text)['groupImages']" mode="widthFix" />
+                      <view class="groupNameOrTime">
+                        <text @click="linkTosOrders(JSON.parse(item.text)['sn'])">{{ JSON.parse(item.text)['groupName']
+}}</text>
+                        <view class="orderTime"> <text>{{ JSON.parse(item.text)['paymentTime'] }}</text></view>
                       </view>
                     </view>
                   </view>
@@ -65,21 +79,35 @@
               <view class="other-name">{{ toUser.name }}</view>
               <view class="margin-left padding-chat flex-column-start bg-to-color" style="border-radius: 35rpx;">
                 <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
-                <view v-else>
+                <view v-if="item.messageType === 'GOODS'">
                   <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
                     <view class="imagebox" @click="jumpGoodDelic">
-                      <image class="image" :src="JSON.parse(item.text).thumbnail" mode="widthFix"></image>
+                      <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
                     </view>
                     <view class="goodsdesc" @click="jumpGoodDelic">
                       <view class="goodsdesc-name">
                         <text class="goodsCard_goodNmae">{{
-    JSON.parse(item.text).goodsName
+    JSON.parse(item.text)['goodsName']
 }}</text>
                       </view>
                       <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
                           style="font-size:20rpx;">¥{{
-    JSON.parse(item.text).price
+    JSON.parse(item.text)['price']
 }}</text>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+                <view v-if="item.messageType === 'ORDER'">
+                  <view class="orderSn">
+                    <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
+                    <view class="oederList">
+                      <img style="height: 120rpx; width: 120rpx; margin-top: 15rpx;"
+                        :src="JSON.parse(item.text)['groupImages']" mode="widthFix" />
+                      <view class="groupNameOrTime">
+                        <text @click="linkTosOrders(JSON.parse(item.text)['sn'])">{{ JSON.parse(item.text)['groupName']
+}}</text>
+                        <view class="orderTime"> <text>{{ JSON.parse(item.text)['paymentTime'] }}</text></view>
                       </view>
                     </view>
                   </view>
@@ -90,26 +118,29 @@
           </view>
         </view>
       </view>
-      <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
-        <view class="goodsCard u-flex u-row-between u-p-b-0">
-          <view class="imagebox" @click="jumpGoodDelic">
-            <image class="image" :src="goodLiistData.thumbnail" mode="widthFix"></image>
-          </view>
-          <view class="goodsdesc" @click="jumpGoodDelic">
-            <view class="goodsdesc-name">
-
-              <text class="goodsCard_goodNmae">{{
+      <!-- 如果没有聊天记录，定位到底部 -->
+      <view
+        :style="{ position: msgList.length == 0 ? 'fixed' : '', bottom: msgList.length == 0 ? '50px' : '', width: msgList.length == 0 ? '100%' : '' }">
+        <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
+          <view class="goodsCard u-flex u-row-between u-p-b-0">
+            <view class="imagebox" @click="jumpGoodDelic">
+              <image class="image" :src="goodLiistData.thumbnail" mode="widthFix"></image>
+            </view>
+            <view class="goodsdesc" @click="jumpGoodDelic">
+              <view class="goodsdesc-name">
+                <text class="goodsCard_goodNmae">{{
     goodLiistData.goodsName
 }}</text>
-            </view>
-            <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text style="font-size:20rpx;">¥{{
+              </view>
+              <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text style="font-size:20rpx;">¥{{
     goodLiistData.price
 }}</text>
+              </view>
             </view>
-          </view>
-          <view class="cancel" @click="cancenModel">X</view>
-          <view class="sendGood" @click="sendGoodsMessage">
-            <view>发送商品</view>
+            <view class="cancel" @click="cancenModel">X</view>
+            <view class="sendGood" @click="sendGoodsMessage">
+              <view>发送商品</view>
+            </view>
           </view>
         </view>
       </view>
@@ -233,6 +264,9 @@ export default {
   },
   data () {
     return {
+      fixed: 'fixed',
+      bottom: '50px',
+      width: '100%',
       showHideModel: undefined,
       localImGoodsId: '',
       showHide: true,
@@ -274,6 +308,14 @@ export default {
     }
   },
   methods: {
+    //订单详情
+    linkTosOrders (val) {
+      console.log(val);
+      uni.navigateTo({
+        url: '/pages/order/orderDetail?sn=' + val,
+      });
+
+    },
     // 跳转商品详情页
     jumpGoodDelic () {
       uni.navigateTo({
@@ -294,6 +336,14 @@ export default {
       this.msgList.push({ "text": JSON.stringify(this.goodLiistData), "my": true, "messageType": 'GOODS' })
       this.showHide = false
       storage.setImGoodsLink(this.params.talkId)
+      //成功发送商品连接后，滚动到底部
+      this.$nextTick(() => {
+        uni.pageScrollTo({
+          scrollTop: 2000000,
+          duration: 0
+        });
+
+      })
     },
     //取消发送
     cancenModel () {
@@ -331,12 +381,12 @@ export default {
     },
     // 保持消息体可见
     msgGo (type) {
+      console.log(type, 'typetypetype');
       const query = uni.createSelectorQuery()
       // 延时100ms保证是最新的高度
       setTimeout(() => {
         // 获取消息体高度
         query.select('#msgList').boundingClientRect(data => {
-
           // 如果超过scorll高度就滚动scorll
           if (type == 'up') {
             this.go = data.height - this.oldHeight
@@ -454,6 +504,7 @@ export default {
           })
         }
       })
+
       this.msgGo(type)
     },
     touchMoreMessage (e) {
@@ -546,6 +597,43 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.orderTime {
+  margin-top: 15rpx;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.wrapper {
+  height: auto !important;
+}
+
+.oederList {
+  display: flex;
+  color: black;
+  font-size: 20rpx;
+  font-weight: bold;
+  width: 95%;
+}
+
+.orderSn {
+  width: 350rpx;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.groupNameOrTime {
+  margin: 15rpx 15rpx;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.orderGood {
+  background-color: #ffffff;
+}
+
 .goodsCard {
   border-radius: 20rpx;
   margin-top: 15rpx;
@@ -556,7 +644,8 @@ export default {
   display: flex;
   flex-wrap: wrap;
   color: #302c2b;
-  position: relative;
+
+
 
   .imagebox {
     width: 122rpx;

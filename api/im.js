@@ -71,4 +71,12 @@ export function jumpObtain(skuId, goodsId) {
     method: Method.GET,
   });
 }
+// 清除未读
+// /im/message/clean/unred
+export function clearmeaager() {
+  return http.request({
+    url: `${api.im}/message/clean/unred`,
+    method: Method.PUT,
+  });
+}
 

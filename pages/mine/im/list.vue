@@ -37,6 +37,7 @@
                 <view class="talk-message">
                   <span v-if="item.lastMessageType == 'MESSAGE'">{{ item.lastTalkMessage }}</span>
                   <span v-if="item.lastMessageType == 'GOODS'">[商品链接]</span>
+                  <span v-if="item.lastMessageType == 'ORDER'">[订单信息]</span>
                 </view>
               </view>
               <view class="talk-time">
@@ -56,7 +57,7 @@
 </template>
 
 <script>
-import { getTalkList } from "@/api/im.js";
+import { getTalkList, clearmeaager } from "@/api/im.js";
 import storage from "@/utils/storage.js";
 import { beautifyTime } from "@/utils/filters.js"
 export default {
@@ -112,6 +113,7 @@ export default {
         uni.hideLoading();
         if (res.data.success) {
           this.talkList = res.data.result;
+          console.log(this.talkList, 'this.talkListthis.talkList');
         }
       });
     },
@@ -121,7 +123,16 @@ export default {
       });
     },
     cleanUnread () {
-      alert(1)
+      clearmeaager().then((res) => {
+        console.log(res);
+        if (res.data.code == 200) {
+          this.userTalkList();
+          uni.showToast({
+            icon: "none",
+            title: res.data.message,
+          });
+        }
+      })
     },
   },
 };
