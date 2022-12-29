@@ -245,9 +245,8 @@
           </u-col>
         </u-row>
       </div>
-      <u-row>
+      <u-row v-if="orderMessage.priceDetailDTO.goodsPrice != 0 && orderMessage.priceDetailDTO.goodsPrice != null">
         <u-col :offset="0" :span="9" @click="GET_Discount()">优惠券</u-col>
-
         <u-col
           :span="3"
           v-if="
