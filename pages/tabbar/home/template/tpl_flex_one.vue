@@ -1,8 +1,8 @@
 <template>
   <div class="layout">
     <div class="flex-one">
-     <u-image v-if="res.list[0] && !res.list[0].zoneInfo" @click="modelNavigateTo(res.list[0])" width="100%" mode="aspectFit" height="280rpx" :src="res.list[0].img" alt=""></u-image>
-     <hotzone v-else :res="res"></hotzone>
+      <u-image v-if="res.list[0].zoneInfo == ''" @click="modelNavigateTo(res.list[0])" width="100%" mode="aspectFit" height="280rpx" :src="res.list[0].img" alt=""></u-image>
+      <hotzone v-else :res="res"></hotzone>
     </div>
   </div>
 </template>
