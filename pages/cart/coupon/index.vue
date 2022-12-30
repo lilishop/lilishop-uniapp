@@ -35,7 +35,7 @@
         <view class="desc">
           <view v-if="item.scopeType">
             <span v-if="item.scopeType == 'ALL' && item.storeId == '0'">全平台</span>
-            <span v-if="item.scopeType == 'PORTION_CATEGORY'">仅限品类</span>
+            <span v-if="item.scopeType == 'PORTION_GOODS_CATEGORY'">仅限品类</span>
             <view v-else
               >{{
                 item.storeName == "platform" ? "全平台" : item.storeName + "店铺"
