@@ -74,8 +74,8 @@
                     "prompt" : "为保证您正常、安全地使用，需要获取设备识别码（部分手机提示为获取手机号码）使用权限，请允许"
                 },
                 "autoSdkPermissions" : false
-                //安卓自添加 权限  应用市场 过度索取权限
             },
+            //安卓自添加 权限  应用市场 过度索取权限
             "ios" : {
                 "idfa" : false,
                 "privacyDescription" : {

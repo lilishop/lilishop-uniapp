@@ -331,7 +331,6 @@ export default {
       // 店铺信息
       this.getStoreData();
     },
-<<<<<<< HEAD
     /**
      * 联系客服
      */
@@ -365,8 +364,6 @@ export default {
       // });
       // #endif
     },
-=======
->>>>>>> f84f9ab696c10447c7aa8a27382cfccd3d5729d8
 
     /** 获取店铺分类 */
     async getCategoryData() {
