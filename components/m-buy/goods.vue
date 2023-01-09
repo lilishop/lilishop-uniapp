@@ -71,7 +71,7 @@
 							<!-- 正常逻辑 循环出sku -->
 							<view
 								v-if="!parentOrder"
-								:class="{ active: spec_val.value == currentSelceted[specIndex] }"
+								:class="{ active: spec_val.value == currentSelected[specIndex] }"
 								class="skus-view-item"
 								v-for="(spec_val, spec_index) in spec.values"
 								:key="spec_index"
@@ -83,7 +83,7 @@
 							<!-- 拼团购买，仅筛选出当前拼团类型商品 -->
 							<view
 								v-if="parentOrder && spec_val.skuId == goodsDetail.id"
-								:class="{ active: spec_val.value == currentSelceted[specIndex] }"
+								:class="{ active: spec_val.value == currentSelected[specIndex] }"
 								class="skus-view-item"
 								v-for="(spec_val, spec_index) in spec.values"
 								:key="spec_index"
@@ -97,7 +97,7 @@
 					<view class="goods-skus-number flex flex-a-c flex-j-sb">
 						<view class="view-class-title">数量</view>
 
-						<u-input class="view-class-input" input-align="right" v-model="num" type="number" @blur="numCheck()" @change="numChange()" />
+						<u-input class="view-class-input" input-align="right" v-model="num" type="number" @blur="numCheck()" />
 					</view>
 				</scroll-view>
 				<!-- 按钮 -->
@@ -125,7 +125,7 @@ export default {
 			buyType: '', //用于存储促销，拼团等活动类型
 			parentOrder: '', //父级拼团活动的数据 - 如果是团员则有数据
 			formatList: [],
-			currentSelceted: [],
+			currentSelected: [],
 			skuList: '',
 			isClose: false //是否可以点击遮罩关闭
 		};
@@ -182,7 +182,10 @@ export default {
 	},
 	watch: {
 		num(val) {
+			
+			val == 0 ? this.num = 1 : ''
 			if (val) {
+				
 				//超过库存后修改回库存
 				if (val > this.goodsDetail.quantity) {
 					this.$nextTick(function() {
@@ -223,20 +226,15 @@ export default {
 		closeMask() {
 			this.$emit('closeBuy', false);
 		},
-		numChange() {
-			if (this.num > this.goodsDetail.quantity) {
-				alert(1);
-				this.num = this.goodsDetail.quantity;
-			}
-		},
+		
 		/**点击规格 */
 		handleClickSpec(val, index, specValue) {
-			this.currentSelceted[index] = specValue.value;
+			this.currentSelected[index] = specValue.value;
 			let selectedSkuId = this.goodsSpec.find(i => {
 				let matched = true;
 				let specValues = i.specValues.filter(j => j.specName !== 'images');
 				for (let n = 0; n < specValues.length; n++) {
-					if (specValues[n].specValue !== this.currentSelceted[n]) {
+					if (specValues[n].specValue !== this.currentSelected[n]) {
 						matched = false;
 						return;
 					}
@@ -246,7 +244,7 @@ export default {
 				}
 			});
 			if (selectedSkuId?.skuId) {
-				this.$set(this.currentSelceted, index, specValue.value);
+				this.$set(this.currentSelected, index, specValue.value);
 				this.selectSkuList = {
 					spec: {
 						specName: val.name,
@@ -381,7 +379,7 @@ export default {
 					item.specValues
 						.filter(i => i.specName !== 'images')
 						.forEach((value, _index) => {
-							this.currentSelceted[_index] = value.specValue;
+							this.currentSelected[_index] = value.specValue;
 
 							this.selectName = value.specValue;
 

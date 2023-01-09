@@ -283,6 +283,7 @@ import popupAddress from "./product/popup/address"; //地址选择模块
 import shares from "@/components/m-share/index"; //分享
 import popups from "@/components/popups/popups"; //气泡框
 import setup from "./product/popup/popup";
+
 export default {
   components: {
     popups,
@@ -600,17 +601,23 @@ export default {
 
     linkMsgDetail () {
       // lili 基础客服
+<<<<<<< HEAD
 
       uni.navigateTo({
         url: `/pages/mine/im/index?userId=${this.goodsDetail.storeId}&goodsid=${this.routerVal.goodsId}&skuid=${this.routerVal.id}`
       });
 
+=======
+      this.$options.filters.talkIm(this.storeDetail.storeId)
+  
+>>>>>>> f84f9ab696c10447c7aa8a27382cfccd3d5729d8
       // udesk 代码  
       // if (this.storeDetail.merchantEuid) {
       //   uni.navigateTo({
       //     url: `/pages/tabbar/home/web-view?src=${this.IM}`,
       //   });
       // }
+<<<<<<< HEAD
 
 
       // 客服 云智服代码 
@@ -642,6 +649,39 @@ export default {
       // });
       // // #endif
 
+=======
+		  
+		  
+        // 客服 云智服代码 
+        // // #ifdef MP-WEIXIN
+        // const params = {
+        //   storeName: this.storeDetail.storeName,
+        //   goodsName: this.goodsDetail.goodsName,
+        //   goodsId: this.goodsDetail.goodsId,
+        //   goodsImg: this.goodsDetail.thumbnail,
+        //   price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
+        //   // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+        //   uuid: storage.getUuid(),
+        //   token: storage.getAccessToken(),
+        //   sign: this.storeDetail.yzfSign,
+        //   mpSign: this.storeDetail.yzfMpSign,
+        // };
+        // uni.navigateTo({
+        //   url:
+        //     "/pages/product/customerservice/index?params=" +
+        //     encodeURIComponent(JSON.stringify(params)),
+        // });
+        // // #endif
+        // // #ifndef MP-WEIXIN
+        // const sign = this.storeDetail.yzfSign;
+        // uni.navigateTo({
+        //   url:
+        //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+        //     sign,
+        // });
+        // // #endif
+    
+>>>>>>> f84f9ab696c10447c7aa8a27382cfccd3d5729d8
     },
     /**选择商品 */
     changedGoods (val) {
