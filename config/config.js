@@ -12,7 +12,8 @@ export default {
   logo: "https://lilishop-oss.oss-cn-beijing.aliyuncs.com/4c864e133c2944efad1f7282ac8a3b9e.png", //logo地址
   customerServiceMobile: "13161366885", //客服电话
   customerServiceEmail: "lili@lili.com", //客服邮箱
-  imWebSrc: "https://im.pickmall.cn", //IM地址
+  imWebSrc: "http://192.168.0.113:8001/", //IM地址
+  BASE_WS_URL: "ws://192.168.0.113:8885/lili/webSocket",
   enableGetClipboard: true, //是否启用粘贴板获取 scanAuthNavigation 中的链接，如果匹配则会跳转到对应页面
   enableMiniBarStartUpApp: true, //是否在h5中右侧浮空按钮点击启动app
   /**

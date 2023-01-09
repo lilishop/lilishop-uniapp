@@ -314,17 +314,21 @@ export default {
       };
       uni.navigateTo({
         url:
-          "/pages/product/customerservice/index?params=" +
-          encodeURIComponent(JSON.stringify(params)),
+          "/pages/mine/im/index"
       });
-      // #endif
-      // #ifndef MP-WEIXIN
-      const sign = this.storeInfo.yzfSign;
-      uni.navigateTo({
-        url:
-          "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-          sign,
-      });
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/product/customerservice/index?params=" +
+      //     encodeURIComponent(JSON.stringify(params)),
+      // });
+      // // #endif
+      // // #ifndef MP-WEIXIN
+      // const sign = this.storeInfo.yzfSign;
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+      //     sign,
+      // });
       // #endif
     },
 

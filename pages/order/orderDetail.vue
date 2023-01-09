@@ -12,25 +12,25 @@
     <view class="info-view logi-view">
       <view class="logi-List" v-if="logiList && logiList.traces.length != 0">
         <view class="logi-List-title">
-          {{logiList.traces[logiList.traces.length-1].AcceptStation}}
+          {{ logiList.traces[logiList.traces.length - 1].AcceptStation }}
         </view>
         <view class="logi-List-time">
-          {{logiList.traces[logiList.traces.length-1].AcceptTime}}
+          {{ logiList.traces[logiList.traces.length - 1].AcceptTime }}
         </view>
       </view>
 
       <view class="logi-List" v-else>
-        <view class="verificationCode" v-if="order.verificationCode ">
-          券码： {{order.verificationCode}}
+        <view class="verificationCode" v-if="order.verificationCode">
+          券码： {{ order.verificationCode }}
         </view>
         <view v-else class="logi-List-title">
-          {{'暂无物流信息'}}
+          {{ '暂无物流信息' }}
         </view>
       </view>
 
     </view>
     <!-- 地址 -->
-    <view class="info-view">
+    <view class="info-view" v-if="order.deliveryMethod == 'LOGISTICS'">
       <view class="address-view">
         <view>
           <view class="address-title">
@@ -42,6 +42,21 @@
         </view>
       </view>
     </view>
+
+    <!-- 提货地址 -->
+    <view class="info-view" v-if="order.deliveryMethod == 'SELF_PICK_UP'">
+      <view class="address-view">
+        <view>
+          <view class="address-title">
+            自提点地址:<span>{{ order.storeAddressPath }}</span>
+          </view>
+          <view class="address-title">
+            联系方式:<span>{{ order.storeAddressMobile }}</span>
+          </view>
+        </view>
+      </view>
+    </view>
+
     <!-- 商品信息 -->
     <view>
       <view class="seller-view">
@@ -49,7 +64,8 @@
         <view class="seller-info u-flex u-row-between">
           <view class="seller-name" @click="tostore(order)">
             <view class="name">{{ order.storeName }}</view>
-            <view class="status" v-if="orderStatusList[order.orderStatus]"> {{ orderStatusList[order.orderStatus].title }}</view>
+            <view class="status" v-if="orderStatusList[order.orderStatus]"> {{ orderStatusList[order.orderStatus].title
+            }}</view>
           </view>
           <view class="order-sn"></view>
         </view>
@@ -70,7 +86,8 @@
                 <view>x{{ sku.num }}</view>
 
                 <view class="good-complaint">
-                  <u-tag size="mini" mode="plain" @click="complaint(sku)" v-if="sku.complainStatus == 'NO_APPLY'" text="投诉" type="info" />
+                  <u-tag size="mini" mode="plain" @click="complaint(sku)" v-if="sku.complainStatus == 'NO_APPLY'"
+                    text="投诉" type="info" />
                 </view>
               </view>
             </view>
@@ -105,15 +122,18 @@
     </view>
     <!-- 客户服务， 售后，取消订单，查看物流，投诉等 -->
     <view class="info-view"
-      v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true || order.orderStatus == 'DELIVERED' || order.orderStatus != 'UNPAID' && order.orderPromotionType =='PINTUAN'">
+      v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true || order.orderStatus == 'DELIVERED' || order.orderStatus != 'UNPAID' && order.orderPromotionType == 'PINTUAN'">
       <view style="width: 100%">
         <view class="order-info-view">
           <view class="title">服务</view>
         </view>
         <view class="customer-list">
-          <view class="customer-service" v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true" @click="onCancel(order.sn)">取消订单</view>
+          <view class="customer-service"
+            v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true"
+            @click="onCancel(order.sn)">取消订单</view>
           <view class="customer-service" v-if="order.orderStatus == 'DELIVERED'" @click="onLogistics(order)">查看物流</view>
-          <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderPromotionType =='PINTUAN' " @click="ByUserMessage(order)">查看拼团信息</view>
+          <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderPromotionType == 'PINTUAN'"
+            @click="ByUserMessage(order)">查看拼团信息</view>
         </view>
       </view>
     </view>
@@ -129,18 +149,18 @@
         <view class="order-info-view">
           <view class="title">下单时间：</view>
           <view class="value">{{
-            order.createTime
+              order.createTime
           }}</view>
         </view>
         <view class="order-info-view">
           <view class="title">支付状态：</view>
           <view class="value">
             {{
-              order.payStatus == "UNPAID"
-                ? "未付款"
-                : order.payStatus == "PAID"
-                ? "已付款"
-                : ""
+                order.payStatus == "UNPAID"
+                  ? "未付款"
+                  : order.payStatus == "PAID"
+                    ? "已付款"
+                    : ""
             }}</view>
         </view>
         <view class="order-info-view">
@@ -175,13 +195,16 @@
         <view>
           <!-- 全部 -->
           <!-- 等待付款 -->
-          <u-button type="error" ripple size="mini" v-if=" order.allowOperationVO && order.allowOperationVO.pay" @click="toPay(order)">立即付款</u-button>
+          <u-button type="error" ripple size="mini" v-if="order.allowOperationVO && order.allowOperationVO.pay"
+            @click="toPay(order)">立即付款</u-button>
 
           <!-- <u-button class="rebuy-btn" size="mini" v-if="order.order_operate_allowable_vo.allow_service_cancel"> 提醒发货</u-button> -->
           <!-- <div class="pay-btn">确认收货</div> -->
-          <u-button shape="circle" ripple type="warning" size="mini" v-if="order.orderStatus == 'DELIVERED'" @click="onRog(order.sn)">确认收货</u-button>
+          <u-button shape="circle" ripple type="warning" size="mini" v-if="order.orderStatus == 'DELIVERED'"
+            @click="onRog(order.sn)">确认收货</u-button>
           <!-- 交易完成 未评价 -->
-          <u-button shape="circle" ripple size="mini" v-if="order.orderStatus == 'COMPLETE'" @click="onComment(order.sn)">评价商品</u-button>
+          <u-button shape="circle" ripple size="mini" v-if="order.orderStatus == 'COMPLETE'"
+            @click="onComment(order.sn)">评价商品</u-button>
         </view>
       </view>
     </view>
@@ -193,7 +216,8 @@
           <u-radio-group v-model="reason">
             <view class="value">
               <view class="radio-view" v-for="(item, index) in cancelList" :key="index">
-                <u-radio :active-color="lightColor" label-size="25" shape="circle" :name="item.reason" @change="reasonChange">{{ item.reason }}</u-radio>
+                <u-radio :active-color="lightColor" label-size="25" shape="circle" :name="item.reason"
+                  @change="reasonChange">{{ item.reason }}</u-radio>
               </view>
             </view>
           </u-radio-group>
@@ -204,10 +228,12 @@
       </view>
     </u-popup>
     <u-toast ref="uToast" />
-    <u-modal v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" :confirm-color="lightColor" @confirm="confirmRog"></u-modal>
+    <u-modal v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" :confirm-color="lightColor"
+      @confirm="confirmRog"></u-modal>
 
     <!-- 分享 -->
-    <shares v-if="shareFlage " :thumbnail="orderDetail.orderItems[0].image" :goodsName="orderDetail.orderItems[0].goodsName" @close="shareFlage = false" />
+    <shares v-if="shareFlage" :thumbnail="orderDetail.orderItems[0].image"
+      :goodsName="orderDetail.orderItems[0].goodsName" @close="shareFlage = false" />
 
   </view>
 </template>
@@ -255,6 +281,10 @@ export default {
           title: "已完成",
           value: "订单已完成,祝您生活愉快",
         },
+        STAY_PICKED_UP: {
+          title: "待自提",
+          value: "商品正在等待提取",
+        },
         TAKE: {
           title: "待核验",
         },
@@ -272,7 +302,6 @@ export default {
   },
   onLoad(options) {
     this.loadData(options.sn);
-    this.loadLogistics(options.sn);
     this.sn = options.sn;
   },
   methods: {
@@ -304,7 +333,7 @@ export default {
           this.orderGoodsList[0].goodsId,
       });
     },
-    loadData(sn) {
+    async loadData(sn) {
       uni.showLoading({
         title: "加载中",
       });
@@ -313,9 +342,12 @@ export default {
         this.order = order.order;
         this.orderGoodsList = order.orderItems;
         this.orderDetail = res.data.result;
-
+        if (this.order.deliveryMethod === 'LOGISTICS') {
+          this.loadLogistics()
+        }
         uni.hideLoading();
       });
+
     },
     onReceipt(val) {
       uni.navigateTo({
@@ -383,8 +415,8 @@ export default {
     toPay(val) {
       val.sn
         ? uni.navigateTo({
-            url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
-          })
+          url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
+        })
         : false;
     }, //删除订单
     deleteOrder(index) {
@@ -491,9 +523,11 @@ export default {
 
 <style lang="scss">
 @import "./goods.scss";
+
 .empty {
   width: 100%;
 }
+
 .customer-service {
   background: #ededed;
   // padding: 12rpx 40rpx;
@@ -506,51 +540,58 @@ export default {
   font-size: 24rpx;
   border-radius: 10rpx;
 }
+
 .customer-list {
   display: flex;
   flex-wrap: wrap;
 }
+
 .logi-view {
   justify-content: space-between;
   padding: 30rpx !important;
   margin: 0 !important;
   transform: translateY(-10px);
 }
+
 .order-status {
   color: #fff;
   width: 100%;
   text-align: center;
   font-size: 36rpx;
   margin-top: 40rpx;
-  > div {
+
+  >div {
     font-size: 24rpx;
     margin-top: 10rpx;
   }
 }
+
 .logi-List-title {
   margin-bottom: 10rpx;
   font-size: 26rpx;
 }
+
 .logi-List-time {
   font-size: 24rpx;
   color: #999;
 }
+
 .info-detail {
   margin-right: 30rpx;
   color: #333;
 }
+
 .order-view {
   margin: 0 !important;
   border-radius: 0 !important;
   width: 100%;
   height: 200rpx;
   padding: 0 !important;
-  background-image: linear-gradient(
-    to right,
-    $light-color 0%,
-    $aider-light-color 100%
-  ) !important;
+  background-image: linear-gradient(to right,
+      $light-color 0%,
+      $aider-light-color 100%) !important;
 }
+
 page,
 .content {
   background: #f1f1f1;
@@ -575,18 +616,22 @@ page,
     padding: 16rpx 0rpx;
   }
 }
+
 .seller-view {
   margin: 20rpx 0;
   padding: 15rpx 0;
   border-radius: 30rpx;
 }
+
 .address-title {
   font-size: 26rpx;
   font-weight: bold;
-  > span {
+
+  >span {
     margin-right: 20rpx;
   }
 }
+
 .info-view {
   display: flex;
   margin: 0 0 20rpx 0;
@@ -654,10 +699,12 @@ page,
     }
   }
 }
+
 .verificationCode {
   font-weight: bold;
   letter-spacing: 2rpx;
 }
+
 .bottom_view {
   width: 100%;
   height: 100rpx;
