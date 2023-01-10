@@ -1,6 +1,6 @@
 <template>
   <view class="wrapper">
-    <u-navbar class="my-title" title-size="32" back-text="" :title="toUser.name"></u-navbar>
+    <u-navbar class="my-title" title-size="32"  :title="toUser.name"></u-navbar>
     <!-- 空盒子用来防止消息过少时 拉起键盘会遮盖消息 -->
     <view :animation="anData" style="height:0;">
     </view>
@@ -8,21 +8,20 @@
     <!-- 用来获取消息体高度 -->
     <view id="msgList">
       <!-- 消息 -->
-      <view class="flex-column-start" v-for="(item, index) in msgList" :key="index">
+      <view class="flex-column-start"  v-if="msgList.length"  v-for="(item, index) in msgList" :key="index">
         <view class="flex-row-start column-time">
           <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text"
-            v-text="beautifyTime(item.createTime)">
+            >
           </view>
         </view>
         <!-- 用户消息 头像可选加入-->
         <view v-if="item.my" class="flex justify-end padding-right one-show  align-start  padding-top">
-          <!-- <image class="chat-img flex-row-center" :src="'https://ikeeppet.oss-cn-zhangjiakou.aliyuncs.com/028b7818b78c47ef8f87a7faa1098faf.jpg'" mode="aspectFill" ></image>	 -->
           <view class="flex justify-end" style="width: 400rpx;margin-top: 12px;">
             <view>
               <view class="user-name">{{ user.nickName }}</view>
               <view class="margin-left padding-chat bg-user-orang" style="border-radius: 35rpx; ">
                 <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
-                <view v-if="item.messageType == 'GOODS'">
+                <!-- <view v-if="item.messageType == 'GOODS'">
                   <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
                     <view class="imagebox" @click="jumpGoodDelic">
                       <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
@@ -40,8 +39,8 @@
                       </view>
                     </view>
                   </view>
-                </view>
-                <view v-if="item.messageType === 'ORDER'">
+                </view> -->
+                <!-- <view v-if="item.messageType === 'ORDER'">
                   <view class="orderSn">
                     <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
                     <view class="oederList">
@@ -54,7 +53,7 @@
                       </view>
                     </view>
                   </view>
-                </view>
+                </view> -->
               </view>
             </view>
           </view>
@@ -80,7 +79,7 @@
               <view class="margin-left padding-chat flex-column-start bg-to-color" style="border-radius: 35rpx;">
                 <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
                 <view v-if="item.messageType === 'GOODS'">
-                  <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
+                  <!-- <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
                     <view class="imagebox" @click="jumpGoodDelic">
                       <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
                     </view>
@@ -96,9 +95,9 @@
 }}</text>
                       </view>
                     </view>
-                  </view>
+                  </view> -->
                 </view>
-                <view v-if="item.messageType === 'ORDER'">
+                <!-- <view v-if="item.messageType === 'ORDER'">
                   <view class="orderSn">
                     <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
                     <view class="oederList">
@@ -111,7 +110,7 @@
                       </view>
                     </view>
                   </view>
-                </view>
+                </view> -->
               </view>
             </view>
 
@@ -124,20 +123,20 @@
         <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
           <view class="goodsCard u-flex u-row-between u-p-b-0">
             <view class="imagebox" @click="jumpGoodDelic">
-              <image class="image" :src="goodLiistData.thumbnail" mode="widthFix"></image>
+              <image class="image" :src="goodListData.thumbnail" mode="widthFix"></image>
             </view>
             <view class="goodsdesc" @click="jumpGoodDelic">
               <view class="goodsdesc-name">
                 <text class="goodsCard_goodNmae">{{
-    goodLiistData.goodsName
+    goodListData.goodsName
 }}</text>
               </view>
               <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text style="font-size:20rpx;">¥{{
-    goodLiistData.price
+    goodListData.price
 }}</text>
               </view>
             </view>
-            <view class="cancel" @click="cancenModel">X</view>
+            <view class="cancel" @click="cancelModel">X</view>
             <view class="sendGood" @click="sendGoodsMessage">
               <view>发送商品</view>
             </view>
@@ -209,9 +208,9 @@ export default {
     this.showHideModel = options.goodsid
     // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
     this.localImGoodsId = storage.getImGoodsLink()
-    this.rosolve = options
+    this.resolve = options
     // 请求商品信息
-    if (this.rosolve.goodsid) {
+    if (this.resolve.goodsid) {
       this.commodityDetails()
     }
     // 如果需要缓存消息缓存msgList即可
@@ -238,7 +237,7 @@ export default {
 
     l = query.screenWidth / 750
     wh = query.windowHeight
-    this.srcollHeight = (query.windowHeight - 44) + "px"
+    this.scrollHeight = (query.windowHeight - 44) + "px"
     this.user = storage.getUserInfo()
     this.toUser = storage.getTalkToUser()
 
@@ -259,11 +258,10 @@ export default {
       uni.stopPullDownRefresh();
     }, 1000);
   },
-  components: {
-    beautifyTime
-  },
+
   data () {
     return {
+      storage,
       fixed: 'fixed',
       bottom: '50px',
       width: '100%',
@@ -286,10 +284,10 @@ export default {
       newMessageNum: 0,
       user: {},
       toUser: {},
-      srcollHeight: 0,
+      scrollHeight: 0,
       ws: new SocketService(),
-      rosolve: {},
-      goodLiistData: {}
+      resolve: {},
+      goodListData: {}
     }
   },
   watch: {
@@ -308,6 +306,7 @@ export default {
     }
   },
   methods: {
+    beautifyTime,
     //订单详情
     linkTosOrders (val) {
       console.log(val);
@@ -319,7 +318,7 @@ export default {
     // 跳转商品详情页
     jumpGoodDelic () {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${this.rosolve.skuid}&goodsId=${this.rosolve.goodsid}`,
+        url: `/pages/product/goods?id=${this.resolve.skuid}&goodsId=${this.resolve.goodsid}`,
       });
     },
     //发送商品
@@ -329,11 +328,11 @@ export default {
         to: this.toUser.userId,
         from: this.user.id,
         message_type: "GOODS",
-        context: this.goodLiistData,
+        context: this.goodListData,
         talk_id: this.params.talkId,
       }
       this.ws.send(JSON.stringify(msg))
-      this.msgList.push({ "text": JSON.stringify(this.goodLiistData), "my": true, "messageType": 'GOODS' })
+      this.msgList.push({ "text": JSON.stringify(this.goodListData), "my": true, "messageType": 'GOODS' })
       this.showHide = false
       storage.setImGoodsLink(this.params.talkId)
       //成功发送商品连接后，滚动到底部
@@ -346,16 +345,16 @@ export default {
       })
     },
     //取消发送
-    cancenModel () {
+    cancelModel () {
       this.showHide = false
     },
     // 请求商品详情
     commodityDetails () {
-      jumpObtain(this.rosolve.skuid, this.rosolve.goodsid).then((res) => {
-        this.goodLiistData = res.data.result.data
+      jumpObtain(this.resolve.skuid, this.resolve.goodsid).then((res) => {
+        this.goodListData = res.data.result.data
       })
     },
-    beautifyTime,
+ 
     // 切换输入法时移动输入框(按照官方的上推页面的原理应该会自动适应不同的键盘高度-->官方bug)
     goPag (kh) {
       this.retractBox(0, 250)

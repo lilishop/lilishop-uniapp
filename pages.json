@@ -274,17 +274,19 @@
 						}
 					}
 				},
+
 				{
-					"path": "im/index",
+					"path": "im/list",
 					"style": {
-						"app-plus": {
-						},
+						"navigationStyle": "custom", // 隐藏系统导航栏
 						"enablePullDownRefresh": true,
-						"navigationStyle": "custom" // 隐藏系统导航栏
+						"app-plus": {
+						}
+						
 					}
 				},
 				{
-					"path": "im/list",
+					"path": "im/index",
 					"style": {
 						"navigationStyle": "custom", // 隐藏系统导航栏
 						"enablePullDownRefresh": true,

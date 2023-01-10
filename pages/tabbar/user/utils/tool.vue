@@ -19,10 +19,10 @@
 			  <image src="/static/mine/feedback.png" mode=""></image>
 			  <view>我的评价</view>
 			</view>
-			<view class="interact-item" @click="linkMsgDetail()">
+			<!-- <view class="interact-item" @click="linkMsgDetail()">
 			  <image src="/static/mine/mycommit.png" mode=""></image>
 			  <view>我的消息</view>
-			</view>
+			</view> -->
 		
 		
 			<view class="interact-item" @click="navigateTo('/pages/mine/myCollect')">

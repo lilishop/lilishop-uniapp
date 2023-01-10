@@ -1,9 +1,8 @@
 <template>
   <view class="content">
-    <u-navbar class="my-title" title-size="32" back-text="" :title="'消息(' + talkList.length + ')'"></u-navbar>
+    <u-navbar class="my-title" title-size="32" :title="'消息(' + talkList.length + ')'"></u-navbar>
     <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData(tabIndex)">
-      <!-- 空白页 -->
-      <u-empty text="暂无信息" mode="list" v-if="talkList.length === 0"></u-empty>
+      
       <!-- 消息列表 -->
       <div class="iconBox">
         <view class="icon-list">
@@ -52,6 +51,8 @@
           </view>
         </view>
       </view>
+      <!-- 空白页 -->
+      <u-empty text="暂无信息" mode="list" v-if="talkList.length === 0"></u-empty>
     </scroll-view>
   </view>
 </template>
@@ -63,6 +64,7 @@ import { beautifyTime } from "@/utils/filters.js"
 export default {
   data () {
     return {
+      storage,
       count: {
         loadStatus: "more",
       },
@@ -71,9 +73,7 @@ export default {
       pointData: {}, //累计获取 未输入 集合
     };
   },
-  components: {
-    beautifyTime
-  },
+
   onShow () {
     this.userTalkList();
   },

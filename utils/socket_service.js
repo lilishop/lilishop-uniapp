@@ -34,7 +34,7 @@ export default class SocketService {
     if (!window.WebSocket) {
       return console.log("您的浏览器不支持WebSocket");
     }
-    this.ws = new WebSocket(config.BASE_WS_URL+'/'+storage.getAccessToken());
+    this.ws = new WebSocket(config.baseWsUrl+'/'+storage.getAccessToken());
     // 连接成功的事件
     this.ws.onopen = () => {
       console.log("连接服务端成功");
