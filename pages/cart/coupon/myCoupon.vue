@@ -2,28 +2,63 @@
   <view class="b-content">
     <view class="navbar">
       <!-- 循环出头部tab栏 -->
-      <view v-for="(item, index) in navList" :key="index" class="nav-item" @click="handleTabClick(index)"><text
-          :class="{ current: tabCurrentIndex === index }">{{
+      <view
+        v-for="(item, index) in navList"
+        :key="index"
+        class="nav-item"
+        @click="handleTabClick(index)"
+        ><text :class="{ current: tabCurrentIndex === index }">{{
           item.text
-        }}</text></view>
+        }}</text></view
+      >
     </view>
-    <swiper :current="tabCurrentIndex" class="swiper-box" duration="300" @change="changeTab">
-      <swiper-item class="tab-content" v-for="(navItem, navIndex) in navList" :key="navIndex">
-        <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData">
+    <swiper
+      :current="tabCurrentIndex"
+      class="swiper-box"
+      duration="300"
+      @change="changeTab"
+    >
+      <swiper-item
+        class="tab-content"
+        v-for="(navItem, navIndex) in navList"
+        :key="navIndex"
+      >
+        <scroll-view
+          class="list-scroll-content"
+          scroll-y
+          @scrolltolower="loadData"
+        >
           <!-- 空白页 -->
-          <u-empty mode="coupon" text="暂无优惠券了" v-if="navItem.wheterEmpty"></u-empty>
+          <u-empty
+            mode="coupon"
+            text="暂无优惠券了"
+            v-if="navItem.wheterEmpty"
+          ></u-empty>
 
           <!-- 数据 -->
-          <view v-if="navItem.dataList && coupon" class="coupon-item" :class="{ 'coupon-used': navIndex != 0 }"
-            v-for="(coupon, index) in navItem.dataList" :key="index">
+          <view
+            v-if="navItem.dataList && coupon"
+            class="coupon-item"
+            :class="{ 'coupon-used': navIndex != 0 }"
+            v-for="(coupon, index) in navItem.dataList"
+            :key="index"
+          >
             <view class="left">
               <view class="wave-line">
-                <view class="wave" v-for="(item, index) in 12" :key="index"></view>
+                <view
+                  class="wave"
+                  v-for="(item, index) in 12"
+                  :key="index"
+                ></view>
               </view>
               <view class="message">
-                <view class="price" v-if="coupon.couponType == 'DISCOUNT'">{{ coupon.discount }}折</view>
+                <view class="price" v-if="coupon.couponType == 'DISCOUNT'"
+                  >{{ coupon.discount }}折</view
+                >
                 <view class="price" v-else>{{ coupon.price }}元</view>
-                <view class="sub-price">满{{ coupon.consumeThreshold | unitPrice }}可用</view>
+                <view class="sub-price"
+                  >满{{ coupon.consumeThreshold | unitPrice }}可用</view
+                >
               </view>
               <view class="circle circle-top"></view>
               <view class="circle circle-bottom"></view>
@@ -31,27 +66,47 @@
             <view class="right" v-if="coupon">
               <view class="content">
                 <view class="title-1">{{ coupon.title }}</view>
-                <view class="title-2">使用平台：{{
-                    coupon.scopeType == 'ALL' && coupon.storeId == '0'
+                <view class="title-2"
+                  >使用平台：{{
+                    coupon.scopeType == "ALL" && coupon.storeId == "0"
                       ? "全平台"
                       : coupon.scopeType == "PORTION_CATEGORY"
                       ? "仅限品类"
-                      : coupon.storeName == 'platform' ? '全平台' :coupon.storeName+''
-                  }}使用</view>
-                <view v-if="coupon.endTime">{{
-                  coupon.endTime
-                  }}</view>
-                <view @click="couponDetail(coupon)">详细说明
-                  <u-icon style="float: right; margin-top: 10rpx" name="arrow-right"></u-icon>
+                      : coupon.storeName == "platform"
+                      ? "全平台"
+                      : coupon.storeName + ""
+                  }}使用</view
+                >
+                <view v-if="coupon.endTime">{{ coupon.endTime }}</view>
+                <view @click="couponDetail(coupon)"
+                  >详细说明
+                  <u-icon
+                    style="float: right; margin-top: 10rpx"
+                    name="arrow-right"
+                  ></u-icon>
                 </view>
               </view>
               <view class="jiao-1" v-if="navIndex == 0">
                 <text class="text-1">新到</text>
-                <text class="text-2" v-if="coupon.used_status == 1">将过期</text>
+                <text class="text-2" v-if="coupon.used_status == 1"
+                  >将过期</text
+                >
               </view>
-              <image class="no-icon" v-if="navIndex == 1" src="@/static/img/used.png"></image>
-              <image class="no-icon" v-if="navIndex == 2" src="@/static/img/overdue.png"></image>
-              <view class="receive" v-if="navIndex == 0" @click="useItNow(coupon)">
+              <image
+                class="no-icon"
+                v-if="navIndex == 1"
+                src="@/static/img/used.png"
+              ></image>
+              <image
+                class="no-icon"
+                v-if="navIndex == 2"
+                src="@/static/img/overdue.png"
+              ></image>
+              <view
+                class="receive"
+                v-if="navIndex == 0"
+                @click="useItNow(coupon)"
+              >
                 <text>立即</text><br />
                 <text>使用</text>
               </view>
@@ -116,7 +171,7 @@ export default {
   },
 
   onShow() {
-    this.navList[this.tabCurrentIndex].params.pageNumber = 1
+    this.navList[this.tabCurrentIndex].params.pageNumber = 1;
     this.navList[this.tabCurrentIndex].dataList = [];
     this.getData();
   },
@@ -188,15 +243,9 @@ export default {
      * 立即使用优惠券
      */
     useItNow(item) {
-      if (item.storeId && item.storeId!='0') {
-        uni.navigateTo({
-          url: `/pages/product/shopPage?id=${item.storeId}`,
-        });
-      } else {
-        uni.switchTab({
-          url: "/pages/navigation/search/searchPage",
-        });
-      }
+      uni.navigateTo({
+        url: `/pages/navigation/search/searchPage?promotionsId=${item.couponId}&promotionType=COUPON`,
+      });
     },
 
     /**
