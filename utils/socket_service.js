@@ -6,7 +6,7 @@ export default class SocketService {
    * 单例
    */
   static instance = null;
-  static get Instance() {
+  static get Instance () {
     if (!this.instance) {
       this.instance = new SocketService();
     }
@@ -29,12 +29,12 @@ export default class SocketService {
   connectRetryCount = 0;
 
   //  定义连接服务器的方法
-  connect() {
+  connect () {
     // 连接服务器
     if (!window.WebSocket) {
       return console.log("您的浏览器不支持WebSocket");
     }
-    this.ws = new WebSocket(config.baseWsUrl+'/'+storage.getAccessToken());
+    this.ws = new WebSocket(config.baseWsUrl + '/' + storage.getAccessToken());
     // 连接成功的事件
     this.ws.onopen = () => {
       console.log("连接服务端成功");
@@ -54,24 +54,23 @@ export default class SocketService {
     };
     // 得到服务端发送过来的数据
     this.ws.onmessage = (msg) => {
-      // console.log(msg.data)
       this.registerCallBack(msg.data);
     };
   }
   // 回调函数的注册
-  registerCallBack(callBack) {
+  registerCallBack (callBack) {
     // console.log("回调函数的注册", callBack);
     this.callBackMapping = callBack;
   }
 
   // 取消某一个回调函数
-  unRegisterCallBack(callBack) {
+  unRegisterCallBack (callBack) {
     console.log("取消某一个回调函数", callBack);
     this.callBackMapping = null;
   }
 
   // 发送数据的方法
-  send(data) {
+  send (data) {
     // 判断此时此刻有没有连接成功
     if (this.connected) {
       this.sendRetryCount = 0;
