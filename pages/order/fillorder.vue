@@ -69,7 +69,7 @@
       <view class="group">
         <view>
           <u-image borderRadius="50%" shape="square" class="head-img" width="81rpx" height="81rpx"
-            :src="masterWay.face || '/static/missing-face.png'"></u-image>
+            :src="masterWay.face || userImage"></u-image>
           <view class="btn-one">团长</view>
         </view>
         <view class="line"> </view>
@@ -80,7 +80,7 @@
             <view slot="loading"></view>
           </u-image>
           <u-image class="head-img" borderRadius="50%" shape="square" v-else width="81rpx" height="81rpx"
-            :src="endWay.face || '/static/missing-face.png'"></u-image>
+            :src="endWay.face || userImage"></u-image>
 
           <view class="wait">{{ endWay.nickname || "等待参团" }}</view>
         </view>
@@ -265,7 +265,7 @@ import * as API_Order from "@/api/order";
 import invoices from "@/pages/order/invoice/setInvoice";
 
 import LiLiWXPay from "@/js_sdk/lili-pay/wx-pay.js";
-
+import configs from '@/config/config'
 export default {
   onLoad: function (val) {
     this.routerVal = val;
@@ -277,6 +277,8 @@ export default {
   watch: {},
   data() {
     return {
+      configs,
+      userImage:configs.defaultUserPhoto,
       invoiceFlag: false, //开票开关
       shippingText: "LOGISTICS",
       shippingFlag: false,
