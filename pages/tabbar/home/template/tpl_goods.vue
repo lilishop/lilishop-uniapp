@@ -187,7 +187,6 @@ $w_94: 94%;
   padding: 10px;
   transition: 0.35s;
   display: flex;
-  cursor: pointer;
 
   > .goods-item-title {
     flex: 1;
