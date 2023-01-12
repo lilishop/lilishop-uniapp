@@ -55,5 +55,17 @@ export function getStoreList(params) {
 }
 
 
+/**
+ * 获取自提点信息
+ * @param id
+ */
+ export function getStoreAddress(storeId,params) {
+  return http.request({
+    url: `/store/address/page/${storeId}`,
+    method: Method.GET,
+    params
+  });
+}
+
 
 

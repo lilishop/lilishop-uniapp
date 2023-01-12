@@ -13,6 +13,7 @@ export default {
   customerServiceMobile: "13161366885", //客服电话
   customerServiceEmail: "lili@lili.com", //客服邮箱
   imWebSrc: "https://im.pickmall.cn", //IM地址
+  baseWsUrl: "wss://im-api.pickmall.cn/lili/webSocket", // IM WS 地址
   enableGetClipboard: true, //是否启用粘贴板获取 scanAuthNavigation 中的链接，如果匹配则会跳转到对应页面
   enableMiniBarStartUpApp: true, //是否在h5中右侧浮空按钮点击启动app
   /**

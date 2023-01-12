@@ -4,11 +4,13 @@
  */
 // 开发环境
 const dev = {
-  common: "https://common-api.pickmall.cn",
-  buyer: "https://buyer-api.pickmall.cn",
+    im: "https://im-api.pickmall.cn",
+	  common: "https://common-api.pickmall.cn",
+	  buyer: "https://buyer-api.pickmall.cn",
 };
 // 生产环境
 const prod = {
+  im: "https://im-api.pickmall.cn",
   common: "https://common-api.pickmall.cn",
   buyer: "https://buyer-api.pickmall.cn",
 };
@@ -28,6 +30,7 @@ api = prod;
 
 api.buyer += "/buyer";
 api.common += "/common";
+api.im += "/im";
 export default {
   ...api,
 };

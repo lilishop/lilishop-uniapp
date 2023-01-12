@@ -331,6 +331,39 @@ export default {
       // 店铺信息
       this.getStoreData();
     },
+    /**
+     * 联系客服
+     */
+    linkKefuDetail() {
+      // 客服
+      // #ifdef MP-WEIXIN
+
+      const params = {
+        // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
+        uuid: storage.getUuid(),
+        token: storage.getAccessToken(),
+        sign: this.storeInfo.yzfSign,
+        mpSign: this.storeInfo.yzfMpSign,
+      };
+      uni.navigateTo({
+        url:
+          "/pages/mine/im/index"
+      });
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/product/customerservice/index?params=" +
+      //     encodeURIComponent(JSON.stringify(params)),
+      // });
+      // // #endif
+      // // #ifndef MP-WEIXIN
+      // const sign = this.storeInfo.yzfSign;
+      // uni.navigateTo({
+      //   url:
+      //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+      //     sign,
+      // });
+      // #endif
+    },
 
     /** 获取店铺分类 */
     async getCategoryData() {

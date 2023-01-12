@@ -35,12 +35,7 @@
     <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
     <div v-for="(item, index) in pageData.list" :key="index">
       <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
-      <u-navbar
-        class="navbar"
-        v-if="item.type == 'search'"
-        :is-back="false"
-        :is-fixed="index === 1 ? false : true"
-      >
+      <u-navbar class="navbar" v-if="item.type == 'search'" :is-back="false" :is-fixed="index === 1 ? false : true">
         <search style="width: 100%" :res="item.options" />
         <!-- #ifndef H5 -->
         <!-- 扫码功能 不兼容h5 详情文档: https://uniapp.dcloud.io/api/system/barcode?id=scancode -->
@@ -51,22 +46,10 @@
       </u-navbar>
       <carousel v-if="item.type == 'carousel'" :res="item.options" />
       <titleLayout v-if="item.type == 'title'" :res="item.options" />
-      <leftOneRightTwo
-        v-if="item.type == 'leftOneRightTwo'"
-        :res="item.options"
-      />
-      <leftTwoRightOne
-        v-if="item.type == 'leftTwoRightOne'"
-        :res="item.options"
-      />
-      <topOneBottomTwo
-        v-if="item.type == 'topOneBottomTwo'"
-        :res="item.options"
-      />
-      <topTwoBottomOne
-        v-if="item.type == 'topTwoBottomOne'"
-        :res="item.options"
-      />
+      <leftOneRightTwo v-if="item.type == 'leftOneRightTwo'" :res="item.options" />
+      <leftTwoRightOne v-if="item.type == 'leftTwoRightOne'" :res="item.options" />
+      <topOneBottomTwo v-if="item.type == 'topOneBottomTwo'" :res="item.options" />
+      <topTwoBottomOne v-if="item.type == 'topTwoBottomOne'" :res="item.options" />
       <flexThree v-if="item.type == 'flexThree'" :res="item.options" />
       <flexFive v-if="item.type == 'flexFive'" :res="item.options" />
       <flexFour v-if="item.type == 'flexFour'" :res="item.options" />
@@ -115,7 +98,7 @@ import storage from "@/utils/storage.js";
 // import {receiveCoupons} from "@/api/members"
 
 export default {
-  data() {
+  data () {
     return {
       config,
       storage,
@@ -123,7 +106,7 @@ export default {
       showCp:false,
       pageData: "", //楼层页面数据
       isIos: "",
-      enableLoad:false, //触底加载 针对于商品模块
+      enableLoad: false, //触底加载 针对于商品模块
     };
   },
   components: {
@@ -147,7 +130,7 @@ export default {
     promotions: tpl_promotions,
   },
 
-  mounted() {
+  mounted () {
     this.init();
     // #ifdef MP-WEIXIN
     // 小程序默认分享
@@ -208,23 +191,23 @@ export default {
     /**
      * 实例化首页数据楼层
      */
-    init() {
+    init () {
       this.pageData = "";
       getFloorData().then((res) => {
         if (res.data.success) {
           const result = JSON.parse(res.data.result.pageData)
           this.pageData = result;
-          if(result.list.length){
+          if (result.list.length) {
             // 如果最后一个装修模块是商品模块的话 默认启用自动加载
-            result.list[result.list.length-1] ? result.list[result.list.length-1].model == 'goods' ? this.enableLoad = true : '' : ''
-         }
+            result.list[result.list.length - 1] ? result.list[result.list.length - 1].model == 'goods' ? this.enableLoad = true : '' : ''
+          }
         }
       });
     },
-		// 是否有网络链接
-		isConnected(val){
-			val ? this.init() : ''
-		},
+    // 是否有网络链接
+    isConnected (val) {
+      val ? this.init() : ''
+    },
 
     /**
      * TODO 扫码功能后续还会后续增加
@@ -234,18 +217,18 @@ export default {
      * 扫描二维码登录
      * 扫描其他站信息 弹出提示，返回首页。
      */
-    seacnCode() {
+    seacnCode () {
       uni.scanCode({
         success: function (res) {
           let path = encodeURIComponent(res.result);
-          
 
-          
-          if(path!=undefined && path.indexOf("QR_CODE_LOGIN_SESSION")==0){
+
+
+          if (path != undefined && path.indexOf("QR_CODE_LOGIN_SESSION") == 0) {
             console.log(path)
             //app扫码登录
             uni.navigateTo({
-              url:"/pages/passport/scannerCodeLoginConfirm?token="+path
+              url: "/pages/passport/scannerCodeLoginConfirm?token=" + path
             });
             return;
           }
@@ -279,7 +262,7 @@ export default {
     /**
      * 提示获取权限
      */
-    tipsGetSettings() {
+    tipsGetSettings () {
       uni.showModal({
         title: "提示",
         content: "您已经关闭相机权限,去设置",
@@ -299,7 +282,7 @@ export default {
      * 唤醒客户端扫码
      * 没权限去申请权限，有权限获取扫码功能
      */
-    async scan() {
+    async scan () {
       // #ifdef APP-PLUS
       this.isIos = plus.os.name == "iOS";
       // 判断是否是Ios

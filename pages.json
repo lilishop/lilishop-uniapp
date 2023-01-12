@@ -226,6 +226,13 @@
 					}
 				},
 				{
+					"path": "address/storeAddress",
+					"style": {
+						"enablePullDownRefresh": true,
+						"navigationBarTitleText": "自提点"
+					}
+				},
+				{
 					"path": "address/add",
 					"style": {
 						"navigationBarTitleText": "收货人"
@@ -268,7 +275,26 @@
 					}
 				},
 
-
+				{
+					"path": "im/list",
+					"style": {
+						"navigationStyle": "custom", // 隐藏系统导航栏
+						"enablePullDownRefresh": true,
+						"app-plus": {
+						}
+						
+					}
+				},
+				{
+					"path": "im/index",
+					"style": {
+						"navigationStyle": "custom", // 隐藏系统导航栏
+						"enablePullDownRefresh": true,
+						"app-plus": {
+						}
+						
+					}
+				},
 				{
 					"path": "set/feedBack",
 					"style": {
@@ -427,6 +453,7 @@
 						}
 					}
 				}
+
 			]
 
 		},
