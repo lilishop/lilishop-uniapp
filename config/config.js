@@ -22,6 +22,5 @@ export default {
   mainColor: "#ff3c2a", // 主题色
   lightColor: "#ff6b35", // 高亮主题色
   aiderLightColor: "#ff9f28", // 辅助高亮颜色
-  defaultUserTopBackground:"/static/img/main-bg.png", // 我的页面用户背景 渲染的大小：	750 × 443 px  渲染时的宽高比：	750∶443
   defaultUserPhoto:"/static/missing-face.png" // 默认用户头像
 };
