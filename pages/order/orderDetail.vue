@@ -343,7 +343,7 @@ export default {
         this.orderGoodsList = order.orderItems;
         this.orderDetail = res.data.result;
         if (this.order.deliveryMethod === 'LOGISTICS') {
-          this.loadLogistics()
+          this.loadLogistics(sn)
         }
         uni.hideLoading();
       });

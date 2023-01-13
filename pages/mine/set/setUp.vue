@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <view class="person" @click="checkUserInfo()">
-      <u-image width=140 height="140" shape="circle" :src="userInfo.face || '/static/missing-face.png'" mode="">
+      <u-image width=140 height="140" shape="circle" :src="userInfo.face || userImage" mode="">
       </u-image>
       <view class="user-name">
 
@@ -36,6 +36,7 @@ export default {
   data() {
     return {
       config,
+      userImage:config.defaultUserPhoto,
       lightColor: this.$lightColor,
       quitShow: false,
       isCertificate: false,

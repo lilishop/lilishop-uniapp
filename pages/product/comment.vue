@@ -20,7 +20,7 @@
           </div>
           <view class="eva-box" v-for="(item, index) in commDetail" :key="index">
             <view class="section-info">
-              <image class="portrait" :src="item.memberProfile || '/static/missing-face.png'" mode="aspectFill"></image>
+              <image class="portrait" :src="item.memberProfile || userImage" mode="aspectFill"></image>
               <view class="star-content">
                 <text class="name">{{ item.memberName | noPassByName }}</text>
                 <text class="time">{{ item.createTime }}</text>
@@ -65,11 +65,13 @@
 <script>
 // import { getGoodsDetail } from '@/api/goods.js';
 import * as membersApi from "@/api/members.js";
-
+import configs from '@/config/config'
 export default {
   data() {
     return {
+      configs,
       status: "loadmore", //底部刷新状态
+      userImage:configs.defaultUserPhoto,
       commentDetail: "", //评价详情
       selectIndex: "0", //检索条件
       params: {  // 评论分页提交数据

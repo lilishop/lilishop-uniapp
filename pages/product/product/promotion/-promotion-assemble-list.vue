@@ -4,7 +4,7 @@
     <view v-if="assembleOrder.length != 0">
       <view class="group-item" v-for="(order, index) in assembleOrder" :key="index">
         <view class="group-item-user">
-          <u-image shape="circle" width="40px" height="40px" :src="order.face"></u-image>
+          <u-image shape="circle" width="40px" height="40px" :src="order.face || userImage"></u-image>
           <span class="group-item-name">{{ order.nickName | noPassByName }}</span>
         </view>
         <view>
@@ -25,9 +25,13 @@
 
 <script>
 import * as API_Promotions from "@/api/promotions";
+import configs from '@/config/config'
 export default {
   data() {
     return {
+      configs,
+      userImage:configs.defaultUserPhoto,
+
       customStyle: {
         background: this.$lightColor,
         color: "#fff",
