@@ -19,7 +19,10 @@
             <view>
               <view class="user-name">{{ user.nickName }}</view>
               <view class="margin-left padding-chat bg-user-orang" style="border-radius: 35rpx; ">
-                <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
+                <text style="word-break: break-all;"
+                  v-if="item.messageType === 'MESSAGE' && !emojistwo.includes(item.text)">{{ item.text }}</text>
+                <view v-if="item.messageType === 'MESSAGE' && emojistwo.includes(item.text)"
+                  v-html="textReplaceEmoji(item.text)"></view>
                 <view v-if="item.messageType == 'GOODS'">
                   <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
                     <view class="imagebox" @click="jumpGoodDelic(item)">
@@ -73,7 +76,10 @@
             <view>
               <view class="other-name">{{ toUser.name }}</view>
               <view class="margin-left padding-chat flex-column-start bg-to-color" style="border-radius: 35rpx;">
-                <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
+                <text style="word-break: break-all;"
+                  v-if="item.messageType === 'MESSAGE' && !emojistwo.includes(item.text)">{{ item.text }}</text>
+                <view v-if="item.messageType === 'MESSAGE' && emojistwo.includes(item.text)"
+                  v-html="textReplaceEmoji(item.text)"></view>
                 <view v-if="item.messageType === 'GOODS'">
                   <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
                     <view class="imagebox" @click="jumpGoodDelic(item)">
@@ -204,6 +210,7 @@ import {
   beautifyTime
 } from "@/utils/filters.js"
 import config from '@/config/config.js'
+import { textReplaceEmoji, emojistwo } from '@/utils/emojis.js';
 export default {
   // 页面卸载后清除imGoodId
   onUnload () {
@@ -216,7 +223,8 @@ export default {
     }
   },
   onLoad (options) {
-    this.sokcet();
+    console.log(5555555555555555);
+    console.log(emojistwo);
     // 没有goodsid则不显示 发送商品弹窗
     this.showHideModel = options.goodsid
     // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
@@ -278,6 +286,8 @@ export default {
 
   data () {
     return {
+      textReplaceEmoji,
+      emojistwo,
       socketOpen: false, //是否连接
       storage,
       fixed: 'fixed',
@@ -400,17 +410,21 @@ export default {
         uni.onSocketOpen(function (res) {
           _this.socketOpen = true;
         });
-        // 监听连接失败
-        uni.onSocketError(function (err) {
-          if (err && err.code !== 1000) {
-            setTimeout(function () {
-              _this.socketOpen = true;
-              uni.connectSocket({
-                url: url,
-              });
-            }, 5 * 1000)
-          }
-        });
+        if (!this.socketOpen) {
+          // 监听连接失败
+          uni.onSocketError(function (err) {
+            let count = 0;
+            if (count < 3) {
+              if (err && err.code !== 1000) {
+                _this.socketOpen = true;
+                uni.connectSocket({
+                  url: url,
+                });
+                count = count + 1
+              }
+            }
+          });
+        }
         // 监听连接关闭
         uni.onSocketClose(function (err) {
           if (err && err.code !== 1000) {
@@ -424,8 +438,15 @@ export default {
         });
         // 监听收到信息
         uni.onSocketMessage(function (res) {
-          console.log(res.data, 'resresresresresres');
-          uni.hideLoading()
+          console.log(res.data);
+          res.data = JSON.parse(res.data)
+          console.log(res.data.result);
+          if (res.data.messageResultType == 'MESSAGE') {
+            _this.msgList.push(res.data.result)
+            console.log(_this.msgList)
+          }
+          console.log(res.data)
+          _this.msgGo()
         })
       } catch (e) {
 

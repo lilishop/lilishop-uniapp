@@ -5,13 +5,14 @@ import uView from "uview-ui";
 import store from "./store";
 import config from '@/config/config';
 import airBtn from "@/components/m-airbtn/index.vue";
+import socketIO from './pages/mine/im/socket';
 /**
  * 仅在h5中显示唤醒app功能
  * 在h5页面手动挂载
  * 
  */
 // #ifdef H5
-if(config.enableMiniBarStartUpApp){
+if (config.enableMiniBarStartUpApp) {
   let btn = Vue.component("airBtn", airBtn); //全局注册
   document.body.appendChild(new btn().$mount().$el);
 }
@@ -31,6 +32,7 @@ Object.keys(filters).forEach((key) => {
 
 // 引入Vuex
 Vue.prototype.$store = store;
+// Vue.prototype.socketIo = new socketIO();
 Vue.use(uView);
 Vue.config.productionTip = false;
 
