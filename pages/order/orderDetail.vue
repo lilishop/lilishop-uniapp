@@ -195,7 +195,7 @@
         <view>
           <!-- 全部 -->
           <!-- 等待付款 -->
-          <u-button type="error" ripple size="mini" v-if="order.allowOperationVO && order.allowOperationVO.pay"
+          <u-button type="error" ripple size="mini" v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.pay"
             @click="toPay(order)">立即付款</u-button>
 
           <!-- <u-button class="rebuy-btn" size="mini" v-if="order.order_operate_allowable_vo.allow_service_cancel"> 提醒发货</u-button> -->
