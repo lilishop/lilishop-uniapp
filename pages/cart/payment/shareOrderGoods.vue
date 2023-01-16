@@ -1,5 +1,5 @@
 <template>
-  <view class="wrapper" v-if="flage">
+  <view class="wrapper" v-if="flag">
     <div class='goods' v-if="selectedGoods">
       <image class="goods-image" :src="selectedGoods.thumbnail" alt="">
         <p class="goodsName">{{selectedGoods.goodsName}}</p>
@@ -58,7 +58,7 @@
 
     <popupGoods :addr="addr" ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" v-if="goodsDetail.id " @handleClickSku="getGoodsDetail" />
     <shares @close="closeShare" :link="'/pages/cart/payment/shareOrderGoods?sn='+this.routers.sn+'&sku='+this.routers.sku+'&goodsId='+this.routers.goodsId" type="pintuan"
-      :thumbnail="data.promotionGoods.thumbnail" :goodsName="data.promotionGoods.goodsName" v-if="shareFlage " />
+      :thumbnail="data.promotionGoods.thumbnail" :goodsName="data.promotionGoods.goodsName" v-if="shareFlag " />
   </view>
 </template>
 
@@ -72,13 +72,13 @@ import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
 export default {
   data() {
     return {
-      flage: false, //判断接口是否正常请求
+      flag: false, //判断接口是否正常请求
       addr: {
         id: "",
       },
       maskFlag: false, //商品弹框
       timeStamp: 0,
-      shareFlage: false,
+      shareFlag: false,
       data: "",
       isMaster: true,
       selectedGoods: "", //选择的商品规格昵称
@@ -116,7 +116,7 @@ export default {
   },
   methods: {
     closeShare() {
-      this.shareFlage = false;
+      this.shareFlag = false;
     },
     // 这里的话得先跳到商品详情才能购买商品
     toBuy() {
@@ -131,7 +131,7 @@ export default {
     },
     // 分享
     share() {
-      this.shareFlage = true;
+      this.shareFlag = true;
     },
     closePopupBuy(val) {
       this.maskFlag = false;
@@ -140,7 +140,7 @@ export default {
     async init(sn, sku) {
       let res = await getPinTuanShare(sn, sku);
       if (res.data.success && res.data.result.promotionGoods) {
-        this.flage = true;
+        this.flag = true;
         this.data = res.data.result;
         this.selectedGoods = res.data.result.promotionGoods;
         let endTime = Date.parse(

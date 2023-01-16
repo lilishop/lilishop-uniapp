@@ -23,26 +23,22 @@
         <u-input v-model="form.___path" disabled @click="clickRegion" />
       </u-form-item>
       <view class="submit" @click="submit">保存</view>
-	  <view class="submit" @click="showModalDialog">退出登录</view>
-	  <u-modal show-cancel-button v-model="quitShow" @confirm="confirm" :confirm-color="lightColor" :async-close="true"
-	    :content="'确定要退出登录么？'"></u-modal>
+	    <view class="submit" @click="quiteLoginOut">退出登录</view>
     </u-form>
 
-    <m-city :provinceData="region" headTitle="区域选择" ref="cityPicker" @funcValue="getpickerParentValue" pickerSize="4"></m-city>
+    <m-city :provinceData="region" headTitle="区域选择" ref="cityPicker" @funcValue="getPickerParentValue" pickerSize="4"></m-city>
   </view>
 </template>
 <script>
-import { logout } from "@/api/login";
 import { saveUserInfo } from "@/api/members.js";
 import { upload } from "@/api/common.js";
 import storage from "@/utils/storage.js";
 import uFormItem from "@/uview-ui/components/u-form-item/u-form-item.vue";
-import gkcity from "@/components/m-city/m-city.vue";
+import city from "@/components/m-city/m-city.vue";
 export default {
-  components: { uFormItem, "m-city": gkcity },
+  components: { uFormItem, "m-city": city },
   data() {
     return {
-		quitShow: false,
       lightColor: this.$lightColor, //高亮颜色
       form: {
         nickName: storage.getUserInfo().nickName || "",
@@ -71,38 +67,16 @@ export default {
   },
   methods: {
 	  /**
-	   * 显示退出登录对话框
+	   * 退出登录
 	   */
-	  showModalDialog() {
-	    this.quitShow = true;
-	  },
-	  
-	  clear() {
-	    storage.setAccessToken("");
-	    storage.setRefreshToken("");
-	    storage.setUserInfo({});
-	    this.$options.filters.navigateToLogin("redirectTo");
-	  },
-	  
-	  /**
-	   * 确认退出
-	   * 清除缓存重新登录
-	   */
-	  async confirm() {
-	  		try{
-	  			await logout();
-	  			this.clear();
-	  		}catch(e){
-	  			//TODO handle the exception
-	  			this.clear();
-	  		}
-	    
+	  quiteLoginOut() {
+      this.$options.filters.quiteLoginOut();
 	  },
 	  
     /**
      * 选择地址回调
      */
-    getpickerParentValue(e) {
+    getPickerParentValue(e) {
       this.form.region = [];
       this.form.regionId = [];
       let name = "";

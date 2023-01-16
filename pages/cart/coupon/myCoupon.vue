@@ -32,7 +32,7 @@
           <u-empty
             mode="coupon"
             text="暂无优惠券了"
-            v-if="navItem.wheterEmpty"
+            v-if="navItem.whetherEmpty"
           ></u-empty>
 
           <!-- 数据 -->
@@ -139,7 +139,7 @@ export default {
             pageSize: 10,
             status: 1,
           },
-          wheterEmpty: false,
+          whetherEmpty: false,
         },
         {
           text: "已使用",
@@ -151,7 +151,7 @@ export default {
             pageSize: 10,
             status: 2,
           },
-          wheterEmpty: false,
+          whetherEmpty: false,
         },
         {
           text: "已过期",
@@ -163,7 +163,7 @@ export default {
             pageSize: 10,
             status: 3,
           },
-          wheterEmpty: false,
+          whetherEmpty: false,
         },
       ],
       couponList: [], //优惠券列表
@@ -206,7 +206,7 @@ export default {
           let data = res.data.result.records;
           if (data.length == 0) {
             if (res.data.pageNumber == 1) {
-              this.navList[index].wheterEmpty = true;
+              this.navList[index].whetherEmpty = true;
             } else {
               this.navList[index].loadStatus = "noMore";
             }

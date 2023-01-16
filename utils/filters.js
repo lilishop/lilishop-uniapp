@@ -1,5 +1,6 @@
 import Foundation from "./Foundation.js";
 import storage from "@/utils/storage.js";
+import { logout } from "@/api/login";
 import { getUserInfo } from "@/api/members";
 import Vue from "vue";
 /**
@@ -23,8 +24,8 @@ export function unitPrice(val, unit, location) {
 
 /**
  * 格式化价格  1999 --> [1999,00]
- * @param {*} val 
- * @returns 
+ * @param {*} val
+ * @returns
  */
 export function goodsFormatPrice(val) {
   if (typeof val == "undefined") {
@@ -33,7 +34,6 @@ export function goodsFormatPrice(val) {
   let valNum = new Number(val);
   return valNum.toFixed(2).split(".");
 }
-
 
 /**
  * 脱敏姓名
@@ -90,11 +90,11 @@ export function unixToDate(unix, format) {
  *
  * @param {Object} datetime
  */
- export function beautifyTime(datetime = "") {
+export function beautifyTime(datetime = "") {
   if (datetime == null || datetime == undefined || !datetime) {
     return "";
   }
-  
+
   datetime = datetime.replace(/-/g, "/");
 
   let time = new Date();
@@ -155,66 +155,13 @@ export function secrecyMobile(mobile) {
 }
 
 /**
- * 人性化时间显示
- *
- * @param {Object} datetime
- */
- export function formatTime(datetime) {
-  if (datetime == null) return "";
-
-  datetime = datetime.replace(/-/g, "/");
-
-  let time = new Date();
-  let outTime = new Date(datetime);
-  if (/^[1-9]\d*$/.test(datetime)) {
-    outTime = new Date(parseInt(datetime) * 1000);
-  }
-
-  if (
-    time.getTime() < outTime.getTime() ||
-    time.getFullYear() != outTime.getFullYear()
-  ) {
-    return parseTime(outTime, "{y}-{m}-{d} {h}:{i}");
-  }
-
-  if (time.getMonth() != outTime.getMonth()) {
-    return parseTime(outTime, "{m}-{d} {h}:{i}");
-  }
-
-  if (time.getDate() != outTime.getDate()) {
-    let day = outTime.getDate() - time.getDate();
-    if (day == -1) {
-      return parseTime(outTime, "昨天 {h}:{i}");
-    }
-
-    if (day == -2) {
-      return parseTime(outTime, "前天 {h}:{i}");
-    }
-
-    return parseTime(outTime, "{m}-{d} {h}:{i}");
-  }
-
-  if (time.getHours() != outTime.getHours()) {
-    return parseTime(outTime, "{h}:{i}");
-  }
-
-  let minutes = outTime.getMinutes() - time.getMinutes();
-  if (minutes == 0) {
-    return "刚刚";
-  }
-
-  minutes = Math.abs(minutes);
-  return `${minutes}分钟前`;
-}
-
-/**
  * 时间格式化方法
  *
  * @param {(Object|string|number)} time
  * @param {String} cFormat
  * @returns {String | null}
  */
- export function parseTime(time, cFormat) {
+export function parseTime(time, cFormat) {
   if (arguments.length === 0) {
     return null;
   }
@@ -281,20 +228,47 @@ export function isLogin(val) {
     return storage.getUserInfo();
   }
 }
+
+/**
+ * 退出登录
+ *
+ */
+export function quiteLoginOut() {
+  uni.showModal({
+    title: "提示",
+    content: "是否退出登录？",
+    confirmColor: Vue.prototype.$mainColor,
+    async success(res) {
+      if (res.confirm) {
+        storage.setAccessToken("");
+        storage.setRefreshToken("");
+        storage.setUserInfo({});
+        navigateToLogin("redirectTo");
+        await logout();
+      }
+    },
+  });
+}
+
 /**
  * 跳转im
- */ 
-export function talkIm(storeId){
-  if(isLogin('auth')){
+ * 若未登录提示去登录
+ */
+export function talkIm(storeId) {
+  if (isLogin("auth")) {
     uni.navigateTo({
       url: `/pages/tabbar/home/web-view?IM=${storeId}`,
     });
-  }
-  else{
-    tipsToLogin()
+  } else {
+    tipsToLogin();
   }
 }
 
+/**
+ * 判断当前用户是否登录状态
+ * 若未登录点击确认跳转到登录
+ * 点击取消回退上一级页面
+ */
 export function tipsToLogin() {
   if (!isLogin("auth")) {
     uni.showModal({

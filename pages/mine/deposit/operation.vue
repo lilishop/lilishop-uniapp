@@ -5,11 +5,11 @@
       <div class="deposit">预存款金额</div>
       <div class="money">￥{{walletNum | unitPrice }}</div>
       <div class="operation-btns">
-        <div class="operation-btn light" @click="navgition('/pages/mine/deposit/withdrawal')">提现</div>
-        <div class="operation-btn" @click="navgition('/pages/mine/deposit/recharge')">充值</div>
+        <div class="operation-btn light" @click="navigateTo('/pages/mine/deposit/withdrawal')">提现</div>
+        <div class="operation-btn" @click="navigateTo('/pages/mine/deposit/recharge')">充值</div>
       </div>
     </div>
-    <div class="box list" @click="navgition('/pages/mine/deposit/index')">
+    <div class="box list" @click="navigateTo('/pages/mine/deposit/index')">
       <div class="list-left">预存款明细</div>
       <div class="list-right">
         <u-icon name="arrow-right"></u-icon>
@@ -31,12 +31,6 @@ export default {
       let result = await getUserWallet(); //预存款
       this.walletNum = result.data.result.memberWallet;
     } else {
-      uni.showToast({
-        icon: "none",
-        duration: 3000,
-        title: "请先登录！",
-      });
-
       this.$options.filters.navigateToLogin("redirectTo");
     }
   },
@@ -49,7 +43,7 @@ export default {
     /**
      * 跳转
      */
-    navgition(url) {
+    navigateTo(url) {
       uni.navigateTo({
         url,
       });

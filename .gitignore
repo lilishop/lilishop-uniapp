@@ -9,3 +9,5 @@ node_modules/
 .vscode/
 /unpackage/
 .hbuilderx/launch.json
+.project.config.json
+.project.private.config.json
