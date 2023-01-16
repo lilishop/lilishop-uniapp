@@ -22,4 +22,5 @@ export default {
   mainColor: "#ff3c2a", // 主题色
   lightColor: "#ff6b35", // 高亮主题色
   aiderLightColor: "#ff9f28", // 辅助高亮颜色
+  defaultUserPhoto:"/static/missing-face.png" // 默认用户头像
 };

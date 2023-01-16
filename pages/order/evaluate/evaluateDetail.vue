@@ -3,7 +3,7 @@
     <view class="exaluate-member-view">
       <view class="member-view">
         <view class="member-img">
-          <u-image width="82rpx" style="border: 1px solid #ededed" height="82rpx" shape="circle" :src="comment.memberProfile || '/static/missing-face.png'"></u-image>
+          <u-image width="82rpx" style="border: 1px solid #ededed" height="82rpx" shape="circle" :src="comment.memberProfile || userImage"></u-image>
         </view>
         <view class="member-info">
           <view class="memName">{{ comment.memberName }}</view>
@@ -41,9 +41,13 @@
 </template>
 
 <script>
+import configs from '@/config/config'
 export default {
   data() {
     return {
+      configs,
+      userImage:configs.defaultUserPhoto,
+
       comment: {}, //评论信息
       gradeList: {
         //评价grade

@@ -564,6 +564,7 @@
 							 */
 							storage.setUserInfo(user.data.result);
 							storage.setHasLogin(true);
+							storage.setAutoCp(0)
 							// 登录成功
 							uni.showToast({
 								title: "登录成功!",

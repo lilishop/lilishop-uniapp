@@ -4,9 +4,9 @@
     <view class="status_bar">
       <!-- 这里是状态栏 -->
     </view>
-    <view class="header" @click="userDetail">
+    <view class="header"  @click="userDetail">
       <view class="head-1">
-        <image :src="userInfo.face || '/static/missing-face.png'"></image>
+        <image :src="userInfo.face || userImage"></image>
       </view>
       <view class="head-2" v-if="userInfo.id">
         <view class="user-name">{{ userInfo.nickName }}</view>
@@ -78,12 +78,15 @@
 import tool from "@/pages/tabbar/user/utils/tool.vue";
 import { getCouponsNum, getFootprintNum } from "@/api/members.js";
 import { getUserWallet } from "@/api/members";
+import configs from '@/config/config'
 export default {
   components: {
     tool,
   },
   data() {
     return {
+      configs,
+      userImage:configs.defaultUserPhoto,
       coverTransform: "translateY(0px)",
       coverTransition: "0s",
       moving: false,

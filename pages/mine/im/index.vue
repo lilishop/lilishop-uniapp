@@ -1,6 +1,6 @@
 <template>
   <view class="wrapper">
-    <u-navbar class="my-title" title-size="32"  :title="toUser.name"></u-navbar>
+    <u-navbar class="my-title" title-size="32" :title="toUser.name"></u-navbar>
     <!-- 空盒子用来防止消息过少时 拉起键盘会遮盖消息 -->
     <view :animation="anData" style="height:0;">
     </view>
@@ -8,10 +8,9 @@
     <!-- 用来获取消息体高度 -->
     <view id="msgList">
       <!-- 消息 -->
-      <view class="flex-column-start"  v-if="msgList.length"  v-for="(item, index) in msgList" :key="index">
+      <view class="flex-column-start" v-if="msgList.length" v-for="(item, index) in msgList" :key="index">
         <view class="flex-row-start column-time">
-          <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text"
-            >
+          <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text">
           </view>
         </view>
         <!-- 用户消息 头像可选加入-->
@@ -20,97 +19,103 @@
             <view>
               <view class="user-name">{{ user.nickName }}</view>
               <view class="margin-left padding-chat bg-user-orang" style="border-radius: 35rpx; ">
-                <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
-                <!-- <view v-if="item.messageType == 'GOODS'">
+                <text style="word-break: break-all;"
+                  v-if="item.messageType === 'MESSAGE' && !emojistwo.includes(item.text)">{{ item.text }}</text>
+                <view v-if="item.messageType === 'MESSAGE' && emojistwo.includes(item.text)"
+                  v-html="textReplaceEmoji(item.text)"></view>
+                <view v-if="item.messageType == 'GOODS'">
                   <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
-                    <view class="imagebox" @click="jumpGoodDelic">
+                    <view class="imagebox" @click="jumpGoodDelic(item)">
                       <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
                     </view>
-                    <view class="goodsdesc" @click="jumpGoodDelic">
+                    <view class="goodsdesc" @click="jumpGoodDelic(item)">
                       <view class="goodsdesc-name">
                         <text class="goodsCard_goodNmae">{{
-    JSON.parse(item.text)['goodsName']
-}}</text>
+                          JSON.parse(item.text)['goodsName']
+                        }}</text>
                       </view>
                       <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
                           style="font-size:20rpx;">¥{{
-    JSON.parse(item.text)['price']
-}}</text>
+                            JSON.parse(item.text)['price']
+                          }}</text>
                       </view>
                     </view>
                   </view>
-                </view> -->
-                <!-- <view v-if="item.messageType === 'ORDER'">
+                </view>
+                <view v-if="item.messageType == 'ORDER'">
                   <view class="orderSn">
                     <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
                     <view class="oederList">
                       <img style="height: 120rpx; width: 120rpx; margin-top: 15rpx;"
                         :src="JSON.parse(item.text)['groupImages']" mode="widthFix" />
                       <view class="groupNameOrTime">
-                        <text @click="linkTosOrders(JSON.parse(item.text)['sn'])">{{ JSON.parse(item.text)['groupName']
-}}</text>
-                        <view class="orderTime"> <text>{{ JSON.parse(item.text)['paymentTime'] }}</text></view>
+                        <text @click="linkTosOrders(item.text)">{{
+                          JSON.parse(item.text)['groupName']
+                        }}</text>
+                        <view class="orderTime">
+                          <text>{{ JSON.parse(item.text)['paymentTime'] }}</text>
+                        </view>
                       </view>
                     </view>
                   </view>
-                </view> -->
+                </view>
               </view>
             </view>
           </view>
           <view>
             <u-avatar :src="user.face" :text="user.face ? '' : user.name" bg-color="#DDDDDD"></u-avatar>
-            <!-- <u-image class="chat-img margin-left" style="height: 100rpx;width: 100rpx;" shape="circle"
-							:src="user.face || 'https://avatars.dicebear.com/api/initials/' + user.nickName + '.svg?fontSize=38'"
-							mode="aspectFill"></u-image> -->
           </view>
-
         </view>
         <!-- 接收人消息 -->
         <view v-else class="flex-row-start margin-left margin-top one-show">
           <view class="chat-img flex-row-center">
-            <u-avatar :src="toUser.face" :text="toUser.face ? '' : toUser.name" bg-color="#DDDDDD"></u-avatar>
-            <!-- <u-image style="height: 100rpx;width: 100rpx;" shape="circle"
-							:src="toUser.face || 'https://avatars.dicebear.com/api/initials/' + toUser.name + '.svg?fontSize=38'"
-							mode="aspectFit"></u-image> -->
+            <u-avatar :src="toUser.face" :text="toUser.face ? '' : toUser.name" bg-color="#DDDDDD">
+            </u-avatar>
           </view>
           <view class="flex" style="width: 500rpx;">
             <view>
               <view class="other-name">{{ toUser.name }}</view>
               <view class="margin-left padding-chat flex-column-start bg-to-color" style="border-radius: 35rpx;">
-                <text style="word-break: break-all;" v-if="item.messageType === 'MESSAGE'">{{ item.text }}</text>
+                <text style="word-break: break-all;"
+                  v-if="item.messageType === 'MESSAGE' && !emojistwo.includes(item.text)">{{ item.text }}</text>
+                <view v-if="item.messageType === 'MESSAGE' && emojistwo.includes(item.text)"
+                  v-html="textReplaceEmoji(item.text)"></view>
                 <view v-if="item.messageType === 'GOODS'">
-                  <!-- <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
-                    <view class="imagebox" @click="jumpGoodDelic">
+                  <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
+                    <view class="imagebox" @click="jumpGoodDelic(item)">
                       <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
                     </view>
-                    <view class="goodsdesc" @click="jumpGoodDelic">
+                    <view class="goodsdesc" @click="jumpGoodDelic(item)">
                       <view class="goodsdesc-name">
                         <text class="goodsCard_goodNmae">{{
-    JSON.parse(item.text)['goodsName']
-}}</text>
+                          JSON.parse(item.text)['goodsName']
+                        }}</text>
                       </view>
                       <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
                           style="font-size:20rpx;">¥{{
-    JSON.parse(item.text)['price']
-}}</text>
+                            JSON.parse(item.text)['price']
+                          }}</text>
                       </view>
                     </view>
-                  </view> -->
+                  </view>
                 </view>
-                <!-- <view v-if="item.messageType === 'ORDER'">
+                <view v-if="item.messageType === 'ORDER'">
                   <view class="orderSn">
                     <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
                     <view class="oederList">
                       <img style="height: 120rpx; width: 120rpx; margin-top: 15rpx;"
                         :src="JSON.parse(item.text)['groupImages']" mode="widthFix" />
                       <view class="groupNameOrTime">
-                        <text @click="linkTosOrders(JSON.parse(item.text)['sn'])">{{ JSON.parse(item.text)['groupName']
-}}</text>
-                        <view class="orderTime"> <text>{{ JSON.parse(item.text)['paymentTime'] }}</text></view>
+                        <text @click="linkTosOrders(item.text)">{{
+                          JSON.parse(item.text)['groupName']
+                        }}</text>
+                        <view class="orderTime">
+                          <text>{{ JSON.parse(item.text)['paymentTime'] }}</text>
+                        </view>
                       </view>
                     </view>
                   </view>
-                </view> -->
+                </view>
               </view>
             </view>
 
@@ -122,18 +127,18 @@
         :style="{ position: msgList.length == 0 ? 'fixed' : '', bottom: msgList.length == 0 ? '50px' : '', width: msgList.length == 0 ? '100%' : '' }">
         <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
           <view class="goodsCard u-flex u-row-between u-p-b-0">
-            <view class="imagebox" @click="jumpGoodDelic">
+            <view class="imagebox" @click="jumpGoodDelic(item)">
               <image class="image" :src="goodListData.thumbnail" mode="widthFix"></image>
             </view>
-            <view class="goodsdesc" @click="jumpGoodDelic">
+            <view class="goodsdesc" @click="jumpGoodDelic(item)">
               <view class="goodsdesc-name">
                 <text class="goodsCard_goodNmae">{{
-    goodListData.goodsName
-}}</text>
+                  goodListData.goodsName
+                }}</text>
               </view>
               <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text style="font-size:20rpx;">¥{{
-    goodListData.price
-}}</text>
+                goodListData.price
+              }}</text>
               </view>
             </view>
             <view class="cancel" @click="cancelModel">X</view>
@@ -151,9 +156,9 @@
         <view class="flex" style="width: 500rpx;">
           <view class="margin-left padding-chat flex-column-start"
             style="border-radius: 35rpx;background-color: #f9f9f9;">
-            <view class="cuIcon-loading turn-load" style="font-size: 35rpx;color: #3e9982;">
+            <!-- <view class="cuIcon-loading turn-load" style="font-size: 35rpx;color: #3e9982;">
 
-            </view>
+            </view> -->
           </view>
         </view>
       </view>
@@ -194,20 +199,38 @@ var l
 var wh
 // 顶部空盒子的高度
 var mgUpHeight
-import { getTalkMessage, getTalkByUser, jumpObtain } from "@/api/im.js";
+import {
+  getTalkMessage,
+  getTalkByUser,
+  jumpObtain
+} from "@/api/im.js";
 import SocketService from "@/utils/socket_service.js";
 import storage from "@/utils/storage.js";
-import { beautifyTime } from "@/utils/filters.js"
+import {
+  beautifyTime
+} from "@/utils/filters.js"
+import config from '@/config/config.js'
+import { textReplaceEmoji, emojistwo } from '@/utils/emojis.js';
 export default {
   // 页面卸载后清除imGoodId
   onUnload () {
-    storage.setImGoodsLink('')
+    // #ifdef H5
+    uni.setStorageSync("imGoodId", '');
+    // #endif
+
+    if (this.socketOpen == true) {
+      uni.closeSocket();
+    }
   },
   onLoad (options) {
+    console.log(5555555555555555);
+    console.log(emojistwo);
     // 没有goodsid则不显示 发送商品弹窗
     this.showHideModel = options.goodsid
     // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
-    this.localImGoodsId = storage.getImGoodsLink()
+    // #ifdef H5
+    this.localImGoodsId = uni.getStorageSync("imGoodId");
+    // #endif
     this.resolve = options
     // 请求商品信息
     if (this.resolve.goodsid) {
@@ -249,8 +272,10 @@ export default {
 
     }
 
-    this.ws.connect();
+    // this.ws.connect();
+    this.sokcet();
   },
+
   onPullDownRefresh () {
     this.params.pageNumber = this.params.pageNumber + 1
     this.getTalkMessage()
@@ -261,6 +286,9 @@ export default {
 
   data () {
     return {
+      textReplaceEmoji,
+      emojistwo,
+      socketOpen: false, //是否连接
       storage,
       fixed: 'fixed',
       bottom: '50px',
@@ -273,7 +301,7 @@ export default {
       animationData: {},
       msgList: [],
       oldHeight: 0,
-      params: {	//搜索条件
+      params: { //搜索条件
         talkId: '',
         pageSize: 10,
         pageNumber: 1,
@@ -290,38 +318,54 @@ export default {
       goodListData: {}
     }
   },
-  watch: {
-    'ws.callBackMapping': {
-      handler: function (val) {
-        val = JSON.parse(val)
-        if (val.messageResultType == 'MESSAGE') {
-          this.msgList.push(val.result)
-        }
-        this.newMessageNum++;
-        //接收到消息后发送已读
-        let msg = val
-        msg.operation_type = 'READ'
-        this.ws.send(JSON.stringify(msg))
-      }
-    }
-  },
+  // watch: {
+  //   'ws.callBackMapping': {
+  //     handler: function (val) {
+  //       val = JSON.parse(val)
+  //       if (val.messageResultType == 'MESSAGE') {
+  //         this.msgList.push(val.result)
+  //       }
+  //       this.newMessageNum++;
+  //       //接收到消息后发送已读
+  //       let msg = val
+  //       msg.operation_type = 'READ'
+  //       this.ws.send(JSON.stringify(msg))
+  //     }
+  //   }
+  // },
   methods: {
-    beautifyTime,
-    //订单详情
-    linkTosOrders (val) {
-      console.log(val);
-      uni.navigateTo({
-        url: '/pages/order/orderDetail?sn=' + val,
-      });
-
+    sendMessage () {
+      if (this.msg == "") {
+        return 0;
+      }
+      if (this.socketOpen == false) {
+        return
+      }
+      let msg = {
+        operation_type: "MESSAGE",
+        to: this.toUser.userId,
+        from: this.user.id,
+        message_type: "MESSAGE",
+        context: this.msg,
+        talk_id: this.params.talkId,
+      }
+      let data = JSON.stringify(msg);
+      try {
+        uni.sendSocketMessage({
+          data: data
+        });
+        this.msgList.push({
+          "text": this.msg,
+          "my": true,
+          "messageType": 'MESSAGE'
+        })
+        let type = 'down';
+        this.msgGo(type)
+        this.msg = ""
+      } catch (e) {
+        uni.closeSocket();
+      }
     },
-    // 跳转商品详情页
-    jumpGoodDelic () {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${this.resolve.skuid}&goodsId=${this.resolve.goodsid}`,
-      });
-    },
-    //发送商品
     sendGoodsMessage () {
       let msg = {
         operation_type: "MESSAGE",
@@ -331,19 +375,101 @@ export default {
         context: this.goodListData,
         talk_id: this.params.talkId,
       }
-      this.ws.send(JSON.stringify(msg))
-      this.msgList.push({ "text": JSON.stringify(this.goodListData), "my": true, "messageType": 'GOODS' })
+      let data = JSON.stringify(msg);
+      uni.sendSocketMessage({
+        data: data
+      });
+      this.msgList.push({
+        "text": JSON.stringify(this.goodListData),
+        "my": true,
+        "messageType": 'GOODS'
+      })
       this.showHide = false
-      storage.setImGoodsLink(this.params.talkId)
-      //成功发送商品连接后，滚动到底部
+      // #ifdef H5
+      uni.setStorageSync("imGoodId", 1111111);
+      // #endif
       this.$nextTick(() => {
         uni.pageScrollTo({
           scrollTop: 2000000,
-          duration: 0
+          duration: 300
         });
-
       })
     },
+    sokcet () {
+      var _this = this;
+      uni.closeSocket();
+      this.socketOpen = false;
+      try {
+        //WebSocket的地址
+        var url = config.baseWsUrl + '/' + storage.getAccessToken();
+        // 连接
+        uni.connectSocket({
+          url: url,
+        });
+        // 监听WebSocket连接已打开
+        uni.onSocketOpen(function (res) {
+          _this.socketOpen = true;
+        });
+        if (!this.socketOpen) {
+          // 监听连接失败
+          uni.onSocketError(function (err) {
+            let count = 0;
+            if (count < 3) {
+              if (err && err.code !== 1000) {
+                _this.socketOpen = true;
+                uni.connectSocket({
+                  url: url,
+                });
+                count = count + 1
+              }
+            }
+          });
+        }
+        // 监听连接关闭
+        uni.onSocketClose(function (err) {
+          if (err && err.code !== 1000) {
+            setTimeout(function () {
+              _this.socketOpen = true;
+              uni.connectSocket({
+                url: url,
+              });
+            }, 5 * 1000)
+          }
+        });
+        // 监听收到信息
+        uni.onSocketMessage(function (res) {
+          console.log(res.data);
+          res.data = JSON.parse(res.data)
+          console.log(res.data.result);
+          if (res.data.messageResultType == 'MESSAGE') {
+            _this.msgList.push(res.data.result)
+            console.log(_this.msgList)
+          }
+          console.log(res.data)
+          _this.msgGo()
+        })
+      } catch (e) {
+
+      }
+
+    },
+    beautifyTime,
+    //订单详情
+    linkTosOrders (val) {
+      let order = JSON.parse(val)
+      uni.navigateTo({
+        url: '/pages/order/orderDetail?sn=' + order.sn,
+      });
+
+    },
+    // 跳转商品详情页
+    jumpGoodDelic (item) {
+      let info = JSON.parse(item.text)
+      uni.navigateTo({
+        url: `/pages/product/goods?id=${info.id}&goodsId=${info.goodsId}`,
+      });
+    },
+
     //取消发送
     cancelModel () {
       this.showHide = false
@@ -354,7 +480,7 @@ export default {
         this.goodListData = res.data.result.data
       })
     },
- 
+
     // 切换输入法时移动输入框(按照官方的上推页面的原理应该会自动适应不同的键盘高度-->官方bug)
     goPag (kh) {
       this.retractBox(0, 250)
@@ -423,30 +549,35 @@ export default {
       // 这里应该传入问题的id,模拟就用index代替了
 
     },
-    sendMessage () {
-      // 消息为空不做任何操作
-      if (this.msg == "") {
-        return 0;
-      }
-      // 显示消息 msg消息文本,my鉴别是谁发的消息(不能用俩个消息数组循环,否则消息不会穿插)
-      let msg = {
-        operation_type: "MESSAGE",
-        to: this.toUser.userId,
-        from: this.user.id,
-        message_type: "MESSAGE",
-        context: this.msg,
-        talk_id: this.params.talkId,
-      }
-      this.ws.send(JSON.stringify(msg))
-      this.msgList.push({ "text": this.msg, "my": true, "messageType": 'MESSAGE' })
-      // 保证消息可见
-      let type = 'down';
-      this.msgGo(type)
-      // 回答问题
-      // this.msgKf(this.msg)
-      // 清除消息
-      this.msg = ""
-    },
+    // sendMessage() {
+    // 	// 消息为空不做任何操作
+    // 	if (this.msg == "") {
+    // 		return 0;
+    // 	}
+    // 	// 显示消息 msg消息文本,my鉴别是谁发的消息(不能用俩个消息数组循环,否则消息不会穿插)
+    // 	let msg = {
+    // 		operation_type: "MESSAGE",
+    // 		to: this.toUser.userId,
+    // 		from: this.user.id,
+    // 		message_type: "MESSAGE",
+    // 		context: this.msg,
+    // 		talk_id: this.params.talkId,
+    // 	}
+    // 	this.ws.send(JSON.stringify(msg))
+    // 	this.msgList.push({
+    // 		"text": this.msg,
+    // 		"my": true,
+    // 		"messageType": 'MESSAGE'
+    // 	})
+    // 	console.log(this.msgList, 'this.msgListthis.msgListthis.msgListthis.msgListthis.msgList')
+    // 	// 保证消息可见
+    // 	let type = 'down';
+    // 	this.msgGo(type)
+    // 	// 回答问题
+    // 	// this.msgKf(this.msg)
+    // 	// 清除消息
+    // 	this.msg = ""
+    // },
     // msgKf(x) {
     // 	// loading
     // 	// this.msgLoad = true
@@ -503,7 +634,7 @@ export default {
           })
         }
       })
-
+      console.log(this.msgList);
       this.msgGo(type)
     },
     touchMoreMessage (e) {
@@ -534,8 +665,10 @@ export default {
       if (this.msgList[index].is_revoke == 1) {
         return false;
       }
+      if (datetime) {
+        datetime = datetime.replace(/-/g, "/");
+      }
 
-      datetime = datetime.replace(/-/g, "/");
       let time = Math.floor(Date.parse(datetime) / 1000);
       let currTime = Math.floor(new Date().getTime() / 1000);
 
@@ -546,7 +679,7 @@ export default {
         return true;
       }
       let nextDate
-      if (this.msgList[index + 1]) {
+      if (this.msgList[index + 1] && this.msgList[index + 1].createTime) {
         nextDate = this.msgList[index + 1].createTime.replace(/-/g, "/");
         if (nextDate - datetime < 300) return false;
       }
@@ -585,9 +718,9 @@ export default {
         if (new RegExp("(" + k + ")").test(_format))
           _format = _format.replace(
             RegExp.$1,
-            RegExp.$1.length === 1
-              ? o[k]
-              : ("00" + o[k]).substr(("" + o[k]).length)
+            RegExp.$1.length === 1 ?
+              o[k] :
+              ("00" + o[k]).substr(("" + o[k]).length)
           );
       return _format;
     },

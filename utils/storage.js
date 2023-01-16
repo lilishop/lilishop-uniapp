@@ -10,6 +10,14 @@ const FINGER_LOGIN = isDev ? "finger_login_dev" : "finger_login";
 const CART_BACKBTN = isDev ? "cart_backbtn_dev" : "cart_backbtn";
 const AFTERSALE_DATA = isDev ? "aftersale_data_dev" : "aftersale_data";
 export default {
+  //写入自动发券
+  setAutoCp(val){
+    uni.setStorageSync('autoCp', val)
+  },
+  //获取自动发券时间
+  getAutoCp(){
+    return uni.getStorageSync('autoCp');
+  },
   // 写入热门搜索时间戳
   setHotWords(val) {
     uni.setStorageSync("hotWords", val);

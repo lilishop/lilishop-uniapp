@@ -601,10 +601,10 @@ export default {
 
     linkMsgDetail () {
       // lili 基础客服
-      this.$options.filters.talkIm(this.storeDetail.storeId)
-      // uni.navigateTo({
-      //   url: `/pages/mine/im/index?userId=${this.goodsDetail.storeId}&goodsid=${this.routerVal.goodsId}&skuid=${this.routerVal.id}`
-      // });
+      // this.$options.filters.talkIm(this.storeDetail.storeId)
+      uni.navigateTo({
+        url: `/pages/mine/im/index?userId=${this.goodsDetail.storeId}&goodsid=${this.routerVal.goodsId}&skuid=${this.routerVal.id}`
+      });
 
       // udesk 代码  
       // if (this.storeDetail.merchantEuid) {
