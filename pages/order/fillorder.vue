@@ -701,6 +701,7 @@ page {
 }
 
 .main-color {
+  color: $main-color;
   font-weight: bold;
 }
 
