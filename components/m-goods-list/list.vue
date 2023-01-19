@@ -179,9 +179,10 @@
 			},
 			// 数据去重一下 只显示一次 减免 劵 什么的
 			getPromotion(item) {
-				if (item.promotionMap) {
+				if (item.content ? item.content.promotionMap : item.promotionMap) {
+					const fieldList = item.content ? item.content.promotionMap : item.promotionMap
 					let array = [];
-					Object.keys(item.promotionMap).forEach((child) => {
+					Object.keys(fieldList).forEach((child) => {
 						if (!array.includes(child.split("-")[0])) {
 							array.push(child.split("-")[0]);
 						}
