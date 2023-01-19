@@ -15,7 +15,9 @@
       <!-- #ifdef APP-PLUS -->
       <u-cell-item title="清除缓存" :value="fileSizeString" @click="clearCache"></u-cell-item>
       <!-- #endif -->
+      <!-- #ifndef MP-WEIXIN -->
       <u-cell-item title="安全中心" @click="navigateTo('/pages/mine/set/securityCenter/securityCenter')"></u-cell-item>
+      <!-- #endif -->
       <u-cell-item title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell-item>
       <!-- #ifndef H5 -->
       <!-- #endif -->
