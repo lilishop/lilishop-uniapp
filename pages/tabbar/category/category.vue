@@ -1,7 +1,7 @@
 <template>
   <view class="category-wrap">
     <u-navbar class="navbar" :is-back="false">
-      <div class="title"> 商品分类</div>
+      <div class="title">商品分类</div>
       <u-search class="nav-search" disabled @click.native="search" placeholder="搜索商品" :show-action="false"></u-search>
     </u-navbar>
     <view class="content">
@@ -125,13 +125,11 @@ uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
 }
 .title {
   display: block;
-  width: 200rpx;
+  width: 259rpx;
   text-align: center;
-  font-size: 34rpx;
-  letter-spacing: 2rpx;
-  // #ifdef MP-WEIXIN
-  margin-left: 26rpx;
-  // #endif
+   font-size: 28rpx;
+
+ 
 }
 .category-wrap {
   height: 100%;

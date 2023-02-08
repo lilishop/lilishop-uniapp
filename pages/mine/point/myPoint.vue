@@ -25,7 +25,7 @@
           <view>{{ item.content }}</view>
           <view>{{ item.createTime}}</view>
         </view>
-        <view><span>{{item.pointType == "INCREASE" ? '+' : '-'}}</span>{{ item.variablePoint }}</view>
+        <view :class="[item.pointType == 'INCREASE' ? 'plus' : 'reduce']"><span>{{item.pointType == "INCREASE" ? '+' : '-'}}</span>{{ item.variablePoint }}</view>
       </view>
       <uni-load-more :status="count.loadStatus"></uni-load-more>
     </div>
@@ -109,6 +109,14 @@ export default {
   font-size: 32rpx;
   font-weight: bold;
 }
+.plus{
+  color: $light-color;
+  font-weight: bold;
+}
+.reduce{
+  color: $weChat-color;
+  font-weight: bold;
+}
 
 .point-item {
   width: 100%;
@@ -150,7 +158,7 @@ export default {
     border-right: 1px solid $border-color-light;
   }
   .pcolor {
-    color: #4ebb9d;
+    color: $light-color;
   }
 }
 
@@ -168,7 +176,7 @@ export default {
 .portrait-box {
   background-color: $main-color;
   height: 250rpx;
-  background: linear-gradient(134deg, #28d094 2%, #1abc9c 98%);
+   background: linear-gradient(91deg, $light-color 1%, $aider-light-color 99%);
   border-radius: 20rpx 20rpx 0 0;
   margin: 20rpx 20rpx 0;
   position: relative;

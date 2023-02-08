@@ -4,7 +4,6 @@
       <u-image width=140 height="140" shape="circle" :src="userInfo.face || userImage" mode="">
       </u-image>
       <view class="user-name">
-
         {{ userInfo.id ? userInfo.nickName || '' : '暂未登录'  }}
       </view>
       <u-icon color="#ccc" name="arrow-right"></u-icon>
@@ -16,29 +15,25 @@
       <!-- #ifdef APP-PLUS -->
       <u-cell-item title="清除缓存" :value="fileSizeString" @click="clearCache"></u-cell-item>
       <!-- #endif -->
+      <!-- #ifndef MP-WEIXIN -->
       <u-cell-item title="安全中心" @click="navigateTo('/pages/mine/set/securityCenter/securityCenter')"></u-cell-item>
+      <!-- #endif -->
       <u-cell-item title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell-item>
       <!-- #ifndef H5 -->
       <!-- #endif -->
       <u-cell-item :title="`关于${config.name}`" @click="navigateTo('/pages/mine/set/editionIntro')"></u-cell-item>
     </u-cell-group>
-    <view class="submit" @click="showModalDialog">{{userInfo.id ?'退出登录':'登录'}}</view>
-    <u-modal show-cancel-button v-model="quitShow" @confirm="confirm" :confirm-color="lightColor" :async-close="true"
-      :content="userInfo.id ? '确定要退出登录么？' : '确定要登录么？'"></u-modal>
+    <view class="submit" v-if="userInfo.id" @click="quiteLoginOut">退出登录</view>
   </view>
 </template>
 
 <script>
-import { logout } from "@/api/login";
-import storage from "@/utils/storage.js";
 import config from "@/config/config";
 export default {
   data() {
     return {
       config,
       userImage:config.defaultUserPhoto,
-      lightColor: this.$lightColor,
-      quitShow: false,
       isCertificate: false,
       userInfo: {},
       fileSizeString: "0B",
@@ -54,34 +49,14 @@ export default {
         url: url,
       });
     },
-    clear() {
-      storage.setAccessToken("");
-      storage.setRefreshToken("");
-      storage.setUserInfo({});
-      this.$options.filters.navigateToLogin("redirectTo");
-    },
+     /**
+	   * 退出登录
+	   */
+	  quiteLoginOut() {
+      this.$options.filters.quiteLoginOut();
+	  },
+  
 
-    /**
-     * 确认退出
-     * 清除缓存重新登录
-     */
-    async confirm() {
-			try{
-				await logout();
-				this.clear();
-			}catch(e){
-				//TODO handle the exception
-				this.clear();
-			}
-      
-    },
-
-    /**
-     * 显示退出登录对话框
-     */
-    showModalDialog() {
-      this.quitShow = true;
-    },
 
     /**
      * 读取当前缓存
@@ -113,11 +88,7 @@ export default {
       if (this.$options.filters.isLogin("auth")) {
         this.navigateTo("/pages/mine/set/personMsg");
       } else {
-        uni.showToast({
-          title: "当前暂无用户请登录后重试",
-          duration: 2000,
-          icon: "none",
-        });
+        this.$options.filters.tipsToLogin();
       }
     },
 

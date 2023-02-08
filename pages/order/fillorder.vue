@@ -33,14 +33,12 @@
       <!-- 背景 -->
       <div class="bar"></div>
     </div>
-
     <!-- 选择自提点 -->
     <div class="address-box" v-if="shippingText == 'SELF_PICK_UP'">
       <div @click="clickToStoreAddress()">
         <div class="user-box flex">
           <div class="flex-8">
-            <div v-if="!storeAddress">请选择自提点</div>
-            <div v-else>
+            <div v-if="storeAddress">
               <div class="user-address">
                 <!-- 自提点地址 -->
                 <div class="user-address-detail wes-2">
@@ -50,6 +48,9 @@
                 <div>
                 </div>
               </div>
+              </div>
+            <div v-else>
+              请选择自提点
             </div>
           </div>
           <u-icon name="arrow-right" style="color: #bababa"></u-icon>
@@ -316,6 +317,7 @@ export default {
       pintuanFlage: true, //是开团还是拼团
       notSupportFreight: [], //不支持运费
       notSupportFreightGoodsList: ["以下商品超出配送范围："],
+      storeAddress:"",
     };
   },
   filters: {
@@ -672,6 +674,7 @@ export default {
         }
         if (res.data.result.storeAddress) {
           this.storeAddress = res.data.result.storeAddress
+          console.log("storeAddress",this.storeAddress);
         }
         if (
           res.data.result.notSupportFreight &&
@@ -701,6 +704,7 @@ page {
 }
 
 .main-color {
+  color: $main-color;
   font-weight: bold;
 }
 

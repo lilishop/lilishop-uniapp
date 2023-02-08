@@ -83,20 +83,7 @@ export default {
           this.configs.shareLink +
           getCurrentPages()[getCurrentPages().length - 1].__page__.fullPath;
       }
-      if (content === null || content === undefined) {
-        content = "";
-      } else content = content + "";
-      const result = h5Copy(content);
-      if (result === false) {
-        uni.showToast({
-          title: "不支持",
-        });
-      } else {
-        uni.showToast({
-          title: "复制成功",
-          icon: "none",
-        });
-      }
+      this.$options.filters.setClipboard(content)
     },
     // #endif
 

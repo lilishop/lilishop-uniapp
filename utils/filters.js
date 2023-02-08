@@ -1,5 +1,6 @@
 import Foundation from "./Foundation.js";
 import storage from "@/utils/storage.js";
+import { logout } from "@/api/login";
 import { getUserInfo } from "@/api/members";
 import Vue from "vue";
 /**
@@ -23,8 +24,8 @@ export function unitPrice (val, unit, location) {
 
 /**
  * 格式化价格  1999 --> [1999,00]
- * @param {*} val 
- * @returns 
+ * @param {*} val
+ * @returns
  */
 export function goodsFormatPrice (val) {
   if (typeof val == "undefined") {
@@ -34,6 +35,52 @@ export function goodsFormatPrice (val) {
   return valNum.toFixed(2).split(".");
 }
 
+
+/**
+ * 将内容复制到粘贴板
+ */
+import { h5Copy } from "@/js_sdk/h5-copy/h5-copy.js";
+export function setClipboard (val) {
+  // #ifdef H5
+  if (val === null || val === undefined) {
+    val = "";
+  } else val = val + "";
+  const result = h5Copy(val);
+  if (result === false) {
+    uni.showToast({
+      title: "不支持",
+    });
+  } else {
+    uni.showToast({
+      title: "复制成功",
+      icon: "none",
+    });
+  }
+  // #endif
+
+  // #ifndef H5
+  uni.setClipboardData({
+    data: val,
+    success: function () {
+      uni.showToast({
+        title: "复制成功!",
+        duration: 2000,
+        icon: "none",
+      });
+    },
+  });
+  // #endif
+}
+
+/**
+ * 拨打电话
+ */
+
+export function callPhone (phoneNumber) {
+  uni.makePhoneCall({
+    phoneNumber: phoneNumber,
+  });
+}
 
 /**
  * 脱敏姓名
@@ -291,6 +338,28 @@ export function isLogin (val) {
     return storage.getUserInfo();
   }
 }
+
+/**
+ * 退出登录
+ *
+ */
+export function quiteLoginOut () {
+  uni.showModal({
+    title: "提示",
+    content: "是否退出登录？",
+    confirmColor: Vue.prototype.$mainColor,
+    async success (res) {
+      if (res.confirm) {
+        storage.setAccessToken("");
+        storage.setRefreshToken("");
+        storage.setUserInfo({});
+        navigateToLogin("redirectTo");
+        await logout();
+      }
+    },
+  });
+}
+
 /**
  * 跳转im
  */

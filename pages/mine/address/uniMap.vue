@@ -29,7 +29,8 @@ export default {
             });
           });
         },
-        fail() {
+        fail(e) {
+          console.log(e)
           that.$emit("close");
         },
       });

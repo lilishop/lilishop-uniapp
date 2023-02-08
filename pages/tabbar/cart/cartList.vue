@@ -31,7 +31,7 @@
             }}</span>
             <u-icon @click="navigateToStore(item)"  size="24" style="margin-left:10rpx;"  name="arrow-right"></u-icon>
           </view>
-          <view class="right-col" v-if="item.canReceiveCoupon" @click="navigateToConpon(item)">
+          <view class="right-col" v-if="item.canReceiveCoupon" @click="navigateToCoupon(item)">
             <div class="right-line"></div>
             <span>领劵</span>
           </view>
@@ -119,7 +119,7 @@
         </u-swipe-action>
       </div>
     </div>
-    <u-modal v-model="deleteShow" :confirm-style="{'color':lightColor}" @confirm="delectConfirm" show-cancel-button
+    <u-modal v-model="deleteShow" :confirm-style="{'color':lightColor}" @confirm="deleteConfirm" show-cancel-button
       :content="deleteContent" :async-close="true"></u-modal>
     <!-- 结账 -->
     <div class="box box6">
@@ -220,7 +220,6 @@ export default {
     // #endif
   },
   onPullDownRefresh(){
-    console.log("132")
     this.getCardData();
   },
   /**
@@ -283,7 +282,7 @@ export default {
     /**
      * 点击删除
      */
-    delectConfirm() {
+    deleteConfirm() {
       API_Trade.deleteSkuItem(this.goodsVal.goodsSku.id).then((res) => {
         if (res.statusCode == 200) {
           uni.showToast({
@@ -341,7 +340,7 @@ export default {
     /**
      * 跳转到优惠券
      */
-    navigateToConpon(val) {
+    navigateToCoupon(val) {
       uni.navigateTo({
         url: "/pages/cart/coupon/couponCenter?storeId=" + val.storeId,
       });
@@ -512,19 +511,19 @@ export default {
             uni.stopPullDownRefresh();
             if (result.data.success) {
               this.cartDetail = result.data.result;
-              let checkouted = true;
+              let checkOuted = true;
               for (let i = 0; i < this.cartDetail.cartList.length; i++) {
                 let item = this.cartDetail.cartList[i];
                 console.log(item);
                 // 循环出当前商品是否全选
                 if (item.checked == 0) {
-                  checkouted = false;
+                  checkOuted = false;
                 }
                 // 如果有拼团活动顺便删除
                 item.skuList &&
                   item.skuList.forEach((sku) => {
                     if (sku.checked == 0) {
-                      checkouted = false;
+                      checkOuted = false;
                     }
                     if(Object.keys(sku.promotionMap).length != 0)
                     {
@@ -538,7 +537,7 @@ export default {
                 
                   });
               }
-              this.checkout = checkouted;
+              this.checkout = checkOuted;
               uni.stopPullDownRefresh();
             }
           })

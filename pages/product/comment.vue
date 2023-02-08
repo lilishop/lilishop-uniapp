@@ -20,7 +20,7 @@
           </div>
           <view class="eva-box" v-for="(item, index) in commDetail" :key="index">
             <view class="section-info">
-              <image class="portrait" :src="item.memberProfile || userImage" mode="aspectFill"></image>
+              <image class="portrait" :src="item.memberProfile || userImage" mode="aspectFit"></image>
               <view class="star-content">
                 <text class="name">{{ item.memberName | noPassByName }}</text>
                 <text class="time">{{ item.createTime }}</text>

@@ -14,7 +14,7 @@ export default {
   customerServiceEmail: "lili@lili.com", //客服邮箱
   imWebSrc: "https://im.pickmall.cn", //IM地址
   baseWsUrl: "wss://im-api.pickmall.cn/lili/webSocket", // IM WS 地址
-  enableGetClipboard: true, //是否启用粘贴板获取 scanAuthNavigation 中的链接，如果匹配则会跳转到对应页面
+  enableGetClipboard: false, //是否启用粘贴板获取 scanAuthNavigation 中的链接，如果匹配则会跳转到对应页面
   enableMiniBarStartUpApp: true, //是否在h5中右侧浮空按钮点击启动app
   /**
    * 如需更换主题请修改此处以及uni.scss中的全局颜色
@@ -22,6 +22,5 @@ export default {
   mainColor: "#ff3c2a", // 主题色
   lightColor: "#ff6b35", // 高亮主题色
   aiderLightColor: "#ff9f28", // 辅助高亮颜色
-  defaultUserTopBackground:"/static/img/main-bg.png", // 我的页面用户背景 渲染的大小：	750 × 443 px  渲染时的宽高比：	750∶443
   defaultUserPhoto:"/static/missing-face.png" // 默认用户头像
 };

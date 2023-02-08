@@ -4,7 +4,7 @@
     <view class="status_bar">
       <!-- 这里是状态栏 -->
     </view>
-    <view class="header" :style="{'background-image':`url(${backGroundImage})`}" @click="userDetail">
+    <view class="header"  @click="userDetail">
       <view class="head-1">
         <image :src="userInfo.face || userImage"></image>
       </view>
@@ -86,7 +86,6 @@ export default {
   data() {
     return {
       configs,
-      backGroundImage:configs.defaultUserTopBackground,
       userImage:configs.defaultUserPhoto,
       coverTransform: "translateY(0px)",
       coverTransition: "0s",
@@ -173,7 +172,7 @@ body {
     background-size: cover;
     border-bottom-left-radius: 30rpx;
     border-bottom-right-radius: 30rpx;
-    // background-image: url("/static/img/main-bg.png");
+    background-image: url("/static/img/main-bg.png");
     background-position: bottom;
     background-repeat: no-repeat;
     color: #ffffff;

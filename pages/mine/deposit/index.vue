@@ -14,7 +14,7 @@
       <swiper class="swiper-box"  :current="swiperCurrent">
         <swiper-item class="swiper-item" v-for="index in list.length" :key="index">
           <scroll-view class="scroll-v view-wrapper" enableBackToTop="true" scroll-with-animation scroll-y @scrolltolower="loadMore">
-            <view v-if="datas.length!=0" class="view-item" v-for="(logItem, logIndex) in datas" :key="logIndex">
+            <view v-if="depositData.length!=0" class="view-item" v-for="(logItem, logIndex) in depositData" :key="logIndex">
               <view class="view-item-detail">
                 <view class="-title">{{logItem.detail}}</view>
                 <!-- <view class="-number">{{logItem.detail}}</view> -->
@@ -27,7 +27,7 @@
               </view>
             </view>
 
-            <u-empty v-if="datas.length==0" mode="history" text="暂无记录" />
+            <u-empty v-if="depositData.length==0" mode="history" text="暂无记录" />
       
           </scroll-view>
 
@@ -45,7 +45,6 @@ export default {
   data() {
     return {
       walletNum: 0,
-
       current: 0,
       swiperCurrent: 0,
       userInfo: "", //用户详情信息
@@ -54,7 +53,7 @@ export default {
         pageSize: 10,
         order: "desc",
       },
-      datas: [], //遍历的数据集合
+      depositData: [], //遍历的数据集合
       rechargeList: "", //充值明细列表
       walletLogList: "", //钱包变动列表
       list: [
@@ -82,12 +81,10 @@ export default {
    
     /**分页获取预存款充值记录 */
     getRecharge() {
-
       getUserRecharge(this.params).then((res) => {
         if (res.data.success) {
           if (res.data.result.records.length != 0) {
-       
-            this.datas.push(...res.data.result.records);
+            this.depositData.push(...res.data.result.records);
           }
         }
       });
@@ -98,7 +95,7 @@ export default {
       getWalletLog(this.params).then((res) => {
         if (res.data.success) {
           if (res.data.result.records.length != 0) {
-            this.datas.push(...res.data.result.records);
+            this.depositData.push(...res.data.result.records);
           }
         }
       });
@@ -106,7 +103,7 @@ export default {
 
   
     changed(index) {
-      this.datas = [];
+      this.depositData = [];
       this.swiperCurrent = index;
       this.params.pageNumber = 1;
       if (index == 0) {

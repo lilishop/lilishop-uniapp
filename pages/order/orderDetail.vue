@@ -9,21 +9,21 @@
 
     </div>
     <!-- 物流信息 -->
-    <view class="info-view logi-view">
-      <view class="logi-List" v-if="logiList && logiList.traces.length != 0">
-        <view class="logi-List-title">
-          {{ logiList.traces[logiList.traces.length - 1].AcceptStation }}
+    <view class="info-view logistics-view">
+      <view class="logistics-List" v-if="logisticsList && logisticsList.traces.length != 0 ">
+        <view class="logistics-List-title">
+          {{ logisticsList.traces[logisticsList.traces.length - 1].AcceptStation }}
         </view>
-        <view class="logi-List-time">
-          {{ logiList.traces[logiList.traces.length - 1].AcceptTime }}
+        <view class="logistics-List-time">
+          {{ logisticsList.traces[logisticsList.traces.length - 1].AcceptTime }}
         </view>
       </view>
 
-      <view class="logi-List" v-else>
+      <view class="logistics-List" v-else>
         <view class="verificationCode" v-if="order.verificationCode">
           券码： {{ order.verificationCode }}
         </view>
-        <view v-else class="logi-List-title">
+        <view v-else class="logistics-List-title">
           {{ '暂无物流信息' }}
         </view>
       </view>
@@ -47,12 +47,15 @@
     <view class="info-view" v-if="order.deliveryMethod == 'SELF_PICK_UP'">
       <view class="address-view">
         <view>
-          <view class="address-title">
-            自提点地址:<span>{{ order.storeAddressPath }}</span>
+          <view class="order-info-view">
+            <view class="title">自提点地址:</view>
+            <view class="value address-line-height">{{ order.storeAddressPath }}</view>
           </view>
-          <view class="address-title">
-            联系方式:<span>{{ order.storeAddressMobile }}</span>
+          <view class="order-info-view" @click="callPhone" >
+            <view class="title">联系方式:</view>
+            <view class="value">{{ order.storeAddressMobile }}<u-icon name='phone-fill' ></u-icon></view>
           </view>
+         
         </view>
       </view>
     </view>
@@ -62,7 +65,7 @@
       <view class="seller-view">
         <!-- 店铺名称 -->
         <view class="seller-info u-flex u-row-between">
-          <view class="seller-name" @click="tostore(order)">
+          <view class="seller-name" @click="goToShopPage(order)">
             <view class="name">{{ order.storeName }}</view>
             <view class="status" v-if="orderStatusList[order.orderStatus]"> {{ orderStatusList[order.orderStatus].title
             }}</view>
@@ -165,7 +168,7 @@
         </view>
         <view class="order-info-view">
           <view class="title">支付方式：</view>
-          <view class="value">{{ orderDetail.paymentMethodValue }}</view>
+          <view class="value">{{ orderDetail.paymentMethodValue || '暂无'}}</view>
         </view>
       </view>
     </view>
@@ -173,7 +176,7 @@
     <view class="info-view" v-if="order.payStatus == 'PAID'">
       <view>
         <view class="invoice-info-view">
-          <view class="ltitle">发票信息：</view>
+          <view class="invoice-title">发票信息：</view>
           <view v-if="!order.needReceipt" class="value">无需发票</view>
           <view v-else class="value" @click="onReceipt(orderDetail.receipt)">查看发票</view>
         </view>
@@ -195,7 +198,7 @@
         <view>
           <!-- 全部 -->
           <!-- 等待付款 -->
-          <u-button type="error" ripple size="mini" v-if="order.allowOperationVO && order.allowOperationVO.pay"
+          <u-button type="error" ripple size="mini" v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.pay"
             @click="toPay(order)">立即付款</u-button>
 
           <!-- <u-button class="rebuy-btn" size="mini" v-if="order.order_operate_allowable_vo.allow_service_cancel"> 提醒发货</u-button> -->
@@ -232,8 +235,8 @@
       @confirm="confirmRog"></u-modal>
 
     <!-- 分享 -->
-    <shares v-if="shareFlage" :thumbnail="orderDetail.orderItems[0].image"
-      :goodsName="orderDetail.orderItems[0].goodsName" @close="shareFlage = false" />
+    <shares v-if="shareFlag" :thumbnail="orderDetail.orderItems[0].image"
+      :goodsName="orderDetail.orderItems[0].goodsName" @close="shareFlag = false" />
 
   </view>
 </template>
@@ -242,7 +245,6 @@
 import { getExpress } from "@/api/trade.js";
 import { cancelOrder, confirmReceipt, getOrderDetail } from "@/api/order.js";
 
-import { h5Copy } from "@/js_sdk/h5-copy/h5-copy.js";
 import shares from "@/components/m-share/index"; //分享
 
 import { getClearReason } from "@/api/after-sale.js";
@@ -254,8 +256,8 @@ export default {
   data() {
     return {
       lightColor: this.$lightColor,
-      logiList: "", //物流信息
-      shareFlage: false, //拼团分享开关
+      logisticsList: "", //物流信息
+      shareFlag: false, //拼团分享开关
       orderStatusList: {
         UNPAID: {
           title: "未付款",
@@ -305,7 +307,10 @@ export default {
     this.sn = options.sn;
   },
   methods: {
-    tostore(val) {
+    callPhone(){
+      this.$options.filters.callPhone(this.order.storeAddressMobile )
+    },
+    goToShopPage(val) {
       uni.navigateTo({
         url: "/pages/product/shopPage?id=" + val.storeId,
       });
@@ -313,13 +318,13 @@ export default {
     // 获取物流信息
     loadLogistics(sn) {
       getExpress(sn).then((res) => {
-        this.logiList = res.data.result;
+        this.logisticsList = res.data.result;
       });
     },
 
     // 分享当前拼团信息
     inviteGroup() {
-      this.shareFlage = true;
+      this.shareFlag = true;
     },
     // #TODO 这块需要写一下 目前没有拼团的详细信息
     ByUserMessage(order) {
@@ -360,35 +365,7 @@ export default {
       });
     },
     onCopy(sn) {
-      // #ifdef H5
-      if (sn === null || sn === undefined) {
-        sn = "";
-      } else sn = sn + "";
-      const result = h5Copy(sn);
-      if (result === false) {
-        uni.showToast({
-          title: "不支持",
-        });
-      } else {
-        uni.showToast({
-          title: "复制成功",
-          icon: "none",
-        });
-      }
-      // #endif
-
-      // #ifndef H5
-      uni.setClipboardData({
-        data: sn,
-        success: function () {
-          uni.showToast({
-            title: "复制成功!",
-            duration: 2000,
-            icon: "none",
-          });
-        },
-      });
-      // #endif
+      this.$options.filters.setClipboard(sn)
     },
 
     /**
@@ -546,7 +523,7 @@ export default {
   flex-wrap: wrap;
 }
 
-.logi-view {
+.logistics-view {
   justify-content: space-between;
   padding: 30rpx !important;
   margin: 0 !important;
@@ -566,12 +543,12 @@ export default {
   }
 }
 
-.logi-List-title {
+.logistics-List-title {
   margin-bottom: 10rpx;
   font-size: 26rpx;
 }
 
-.logi-List-time {
+.logistics-List-time {
   font-size: 24rpx;
   color: #999;
 }
@@ -666,11 +643,14 @@ page,
       width: 140rpx;
       font-size: 24rpx;
       font-weight: 600;
+      flex:3;
+      min-width: 160rpx;
     }
 
     .value {
       color: #666;
       font-size: 24rpx;
+      flex:10;
     }
 
     .copy {
@@ -688,7 +668,7 @@ page,
     width: 100%;
     margin: 10rpx 0rpx;
 
-    .ltitle {
+    .invoice-title {
       width: 550rpx;
       font-size: 28rpx;
       color: #333333;
@@ -764,5 +744,8 @@ page,
   .footer {
     text-align: center;
   }
+}
+.address-line-height{
+  line-height: 1.75;
 }
 </style>
