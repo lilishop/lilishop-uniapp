@@ -54,6 +54,7 @@ export default class SocketService {
     };
     // 得到服务端发送过来的数据
     this.ws.onmessage = (msg) => {
+      // console.log(msg.data)
       this.registerCallBack(msg.data);
     };
   }

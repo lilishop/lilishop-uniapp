@@ -1,20 +1,15 @@
 <template>
   <view class="log-list">
     <!-- 提现记录 -->
-    <view
-      class="log-way"
-      v-if="cashLogData.length != 0"
-      v-for="(item, index) in cashLogData"
-      :key="index"
-    >
+    <view class="log-way" v-if="cashLogData.length != 0" v-for="(item, index) in cashLogData" :key="index">
       <view class="log-item">
         <view class="log-item-view">
           <view class="title">{{
             item.distributionCashStatus == "APPLY"
               ? "待处理"
               : item.distributionCashStatus == "PASS"
-              ? "通过"
-              : "拒绝"
+                ? "通过"
+                : "拒绝"
           }}</view>
           <view class="price">+{{ item.price | unitPrice }}</view>
         </view>
@@ -25,12 +20,7 @@
       </view>
     </view>
     <!-- 分销业绩 -->
-    <view
-      class="log-way"
-      v-if="achievementData.length != 0"
-      v-for="(item, index) in achievementData"
-      :key="index"
-    >
+    <view class="log-way" v-if="achievementData.length != 0" v-for="(item, index) in achievementData" :key="index">
       <view class="log-item">
         <view class="log-item-view">
           <view class="title">{{ item.goodsName }}</view>
@@ -56,7 +46,7 @@
 <script>
 import { cashLog, distributionOrderList } from "@/api/goods";
 export default {
-  data() {
+  data () {
     return {
       cashLogData: [], //提现记录数据集合
       achievementData: [], //分销业绩数据合集,
@@ -76,7 +66,7 @@ export default {
       },
     };
   },
-  onLoad(option) {
+  onLoad (option) {
     let title;
     option.type == 0 ? (title = "分销业绩") : (title = "提现记录");
 
@@ -87,15 +77,15 @@ export default {
     this.type = option.type;
     option.type == 0 ? this.achievement() : this.history();
   },
-  mounted() {},
-  onReachBottom() {
+  mounted () { },
+  onReachBottom () {
     this.status = "loading";
     this.type == 0 ? this.achParams.pageNumber++ : this.params.pageNumber++;
     this.type == 0 ? this.achievement() : this.history();
   },
   methods: {
     // 业绩
-    achievement() {
+    achievement () {
       uni.showLoading({
         title: "加载中",
       });
@@ -110,7 +100,7 @@ export default {
       });
     },
     // 初始化提现历史
-    history() {
+    history () {
       uni.showLoading({
         title: "加载中",
       });
@@ -131,15 +121,18 @@ export default {
 .empty {
   margin: 40rpx 0;
 }
+
 .price {
   color: $main-color;
   font-weight: bold;
 }
+
 .log-list {
   padding: 0 8rpx;
   overflow: hidden;
   margin: 20rpx 0;
 }
+
 .log-way {
   margin: 10rpx 0;
   overflow: hidden;
@@ -147,22 +140,26 @@ export default {
   border-radius: 10rpx;
   padding: 20rpx 0;
 }
+
 .title {
   font-size: 30rpx;
   font-weight: bold;
 }
+
 .log-item-view {
   padding: 8rpx 32rpx;
   display: flex;
   font-size: 13px;
   justify-content: space-between;
 }
+
 .log-item-footer {
   padding: 8rpx 32rpx;
   display: flex;
   font-size: 13px;
   justify-content: space-between;
 }
+
 .log-item-footers {
   padding: 8rpx 32rpx;
   display: flex;

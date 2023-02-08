@@ -10,7 +10,8 @@
       <!-- 消息 -->
       <view class="flex-column-start" v-if="msgList.length" v-for="(item, index) in msgList" :key="index">
         <view class="flex-row-start column-time">
-          <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text">
+          <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text"
+            v-text="beautifyTime(item.createTime)">
           </view>
         </view>
         <!-- 用户消息 头像可选加入-->
@@ -122,9 +123,13 @@
           </view>
         </view>
       </view>
+      <!-- 防止消息底部被遮 -->
+      <view v-if="showHide && !localImGoodsId && showHideModel" class="flex-row-start margin-left margin-top"
+        style="height: 120rpx;">
+      </view>
       <!-- 如果没有聊天记录，定位到底部 -->
       <view
-        :style="{ position: msgList.length == 0 ? 'fixed' : '', bottom: msgList.length == 0 ? '50px' : '', width: msgList.length == 0 ? '100%' : '' }">
+        :style="{ position: msgList.length == 0 ? 'fixed' : '', bottom: msgList.length == 0 ? '66px' : '', width: msgList.length == 0 ? '100%' : '' }">
         <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
           <view class="goodsCard u-flex u-row-between u-p-b-0">
             <view class="imagebox" @click="jumpGoodDelic(item)">
@@ -148,20 +153,21 @@
           </view>
         </view>
       </view>
+
       <!-- loading是显示 -->
-      <view v-show="msgLoad" class="flex-row-start margin-left margin-top">
+      <!-- <view v-show="msgLoad" class=" margin-left margin-top">
         <view class="chat-img flex-row-center">
-          <!-- <image style="height: 75rpx;width: 75rpx;" src="../../static/image/robt.png" mode="aspectFit"></image> -->
+          <image style="height: 75rpx;width: 75rpx;" src="../../static/image/robt.png" mode="aspectFit"></image>
         </view>
         <view class="flex" style="width: 500rpx;">
           <view class="margin-left padding-chat flex-column-start"
             style="border-radius: 35rpx;background-color: #f9f9f9;">
-            <!-- <view class="cuIcon-loading turn-load" style="font-size: 35rpx;color: #3e9982;">
+            <view class="cuIcon-loading turn-load" style="font-size: 35rpx;color: #3e9982;">
 
-            </view> -->
+            </view>
           </view>
         </view>
-      </view>
+      </view> -->
       <!-- 防止消息底部被遮 -->
       <view style="height: 120rpx;">
       </view>
@@ -223,8 +229,6 @@ export default {
     }
   },
   onLoad (options) {
-    console.log(5555555555555555);
-    console.log(emojistwo);
     // 没有goodsid则不显示 发送商品弹窗
     this.showHideModel = options.goodsid
     // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
@@ -275,7 +279,6 @@ export default {
     // this.ws.connect();
     this.sokcet();
   },
-
   onPullDownRefresh () {
     this.params.pageNumber = this.params.pageNumber + 1
     this.getTalkMessage()
@@ -433,12 +436,11 @@ export default {
               uni.connectSocket({
                 url: url,
               });
-            }, 5 * 1000)
+            }, 999999)
           }
         });
         // 监听收到信息
         uni.onSocketMessage(function (res) {
-          console.log(res.data);
           res.data = JSON.parse(res.data)
           console.log(res.data.result);
           if (res.data.messageResultType == 'MESSAGE') {

@@ -9,7 +9,7 @@ import Vue from "vue";
  * @param location
  * @returns {*}
  */
-export function unitPrice(val, unit, location) {
+export function unitPrice (val, unit, location) {
   if (!val) val = 0;
   let price = Foundation.formatPrice(val);
   if (location === "before") {
@@ -26,7 +26,7 @@ export function unitPrice(val, unit, location) {
  * @param {*} val 
  * @returns 
  */
-export function goodsFormatPrice(val) {
+export function goodsFormatPrice (val) {
   if (typeof val == "undefined") {
     return val;
   }
@@ -39,7 +39,7 @@ export function goodsFormatPrice(val) {
  * 脱敏姓名
  */
 
-export function noPassByName(str) {
+export function noPassByName (str) {
   if (null != str && str != undefined) {
     if (str.length <= 3) {
       return "*" + str.substring(1, str.length);
@@ -59,7 +59,7 @@ export function noPassByName(str) {
  * @param format
  * @returns {*|string}
  */
-export function unixToDate(unix, format) {
+export function unixToDate (unix, format) {
   let _format = format || "yyyy-MM-dd hh:mm:ss";
   const d = new Date(unix * 1000);
   const o = {
@@ -90,12 +90,11 @@ export function unixToDate(unix, format) {
  *
  * @param {Object} datetime
  */
- export function beautifyTime(datetime = "") {
+export function beautifyTime (datetime = "") {
   if (datetime == null || datetime == undefined || !datetime) {
     return "";
   }
-  
-  datetime = datetime.replace(/-/g, "/");
+  datetime = timestampToTime(datetime).replace(/-/g, "/");
 
   let time = new Date();
   let outTime = new Date(datetime);
@@ -140,13 +139,24 @@ export function unixToDate(unix, format) {
   minutes = Math.abs(minutes);
   return `${minutes}分钟前`;
 }
+// 时间转换
+function timestampToTime (timestamp) {
+  var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+  var Y = date.getFullYear() + '-';
+  var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+  var D = date.getDate() + ' ';
+  var h = date.getHours() + ':';
+  var m = date.getMinutes() + ':';
+  var s = date.getSeconds();
+  return Y + M + D + h + m + s;
+}
 
 /**
  * 13888888888 -> 138****8888
  * @param mobile
  * @returns {*}
  */
-export function secrecyMobile(mobile) {
+export function secrecyMobile (mobile) {
   mobile = String(mobile);
   if (!/\d{11}/.test(mobile)) {
     return mobile;
@@ -159,7 +169,7 @@ export function secrecyMobile(mobile) {
  *
  * @param {Object} datetime
  */
- export function formatTime(datetime) {
+export function formatTime (datetime) {
   if (datetime == null) return "";
 
   datetime = datetime.replace(/-/g, "/");
@@ -214,7 +224,7 @@ export function secrecyMobile(mobile) {
  * @param {String} cFormat
  * @returns {String | null}
  */
- export function parseTime(time, cFormat) {
+export function parseTime (time, cFormat) {
   if (arguments.length === 0) {
     return null;
   }
@@ -263,7 +273,7 @@ export function secrecyMobile(mobile) {
  * 清除逗号
  *
  */
-export function clearStrComma(str) {
+export function clearStrComma (str) {
   str = str.replace(/,/g, ""); //取消字符串中出现的所有逗号
   return str;
 }
@@ -273,7 +283,7 @@ export function clearStrComma(str) {
  * @param val  如果为auth则判断是否登录
  * 如果传入 auth 则为判断是否登录
  */
-export function isLogin(val) {
+export function isLogin (val) {
   let userInfo = storage.getUserInfo();
   if (val == "auth") {
     return userInfo && userInfo.id ? true : false;
@@ -283,19 +293,19 @@ export function isLogin(val) {
 }
 /**
  * 跳转im
- */ 
-export function talkIm(storeId){
-  if(isLogin('auth')){
+ */
+export function talkIm (storeId) {
+  if (isLogin('auth')) {
     uni.navigateTo({
       url: `/pages/tabbar/home/web-view?IM=${storeId}`,
     });
   }
-  else{
+  else {
     tipsToLogin()
   }
 }
 
-export function tipsToLogin() {
+export function tipsToLogin () {
   if (!isLogin("auth")) {
     uni.showModal({
       title: "提示",
@@ -319,7 +329,7 @@ export function tipsToLogin() {
 /**
  * 获取用户信息并重新添加到缓存里面
  */
-export async function userInfo() {
+export async function userInfo () {
   let res = await getUserInfo();
   if (res.data.success) {
     storage.setUserInfo(res.data.result);
@@ -333,7 +343,7 @@ export async function userInfo() {
  * @returns
  */
 
-export function forceLogin() {
+export function forceLogin () {
   let userInfo = storage.getUserInfo();
   if (!userInfo || !userInfo.id) {
     // #ifdef MP-WEIXIN
@@ -358,7 +368,7 @@ export function forceLogin() {
  * 获取当前加载的页面对象
  * @param val
  */
-export function getPages(val) {
+export function getPages (val) {
   const pages = getCurrentPages(); //获取加载的页面
   const currentPage = pages[pages.length - 1]; //获取当前页面的对象
   const url = currentPage.route; //当前页面url
@@ -369,7 +379,7 @@ export function getPages(val) {
 /**
  * 跳转到登录页面
  */
-export function navigateToLogin(type = "navigateTo") {
+export function navigateToLogin (type = "navigateTo") {
   /**
    * 此处进行条件编译判断
    * 微信小程序跳转到微信小程序登录页面
@@ -390,7 +400,7 @@ export function navigateToLogin(type = "navigateTo") {
 /**
  * 服务状态列表
  */
-export function serviceStatusList(val) {
+export function serviceStatusList (val) {
   let statusList = {
     APPLY: "申请售后",
     PASS: "通过售后",
@@ -410,7 +420,7 @@ export function serviceStatusList(val) {
 /**
  * 订单状态列表
  */
-export function orderStatusList(val) {
+export function orderStatusList (val) {
   let orderStatusList = {
     UNDELIVERED: "待发货",
     UNPAID: "未付款",
