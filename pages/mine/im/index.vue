@@ -10,9 +10,9 @@
       <!-- 消息 -->
       <view class="flex-column-start" v-if="msgList.length" v-for="(item, index) in msgList" :key="index">
         <view class="flex-row-start column-time">
-          <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text"
+        <!--  <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text"
             v-text="beautifyTime(item.createTime)">
-          </view>
+          </view> -->
         </view>
         <!-- 用户消息 头像可选加入-->
         <view v-if="item.my" class="flex justify-end padding-right one-show  align-start  padding-top">
