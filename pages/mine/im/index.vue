@@ -228,7 +228,7 @@ export default {
       uni.closeSocket();
     }
   },
-  onReady (options) {
+  onLoad (options) {
     // 没有goodsid则不显示 发送商品弹窗
     this.showHideModel = options.goodsid
     // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
@@ -281,9 +281,6 @@ export default {
   },
   // 页面隐藏
   onHide () {
-    uni.closeSocket();
-  },
-  onUnload () {
     uni.closeSocket();
   },
   onPullDownRefresh () {
@@ -363,17 +360,12 @@ export default {
       let data = JSON.stringify(msg);
       uni.sendSocketMessage({
         data: data,
-        success: () => {
-          this.msgList.push({
-            "text": this.msg,
-            "my": true,
-            "messageType": 'MESSAGE'
-          })
-        },
-        fail: () => {
-          this.sokcet()
-        }
       });
+      this.msgList.push({
+        "text": this.msg,
+        "my": true,
+        "messageType": 'MESSAGE'
+      })
       let type = 'down';
       this.msgGo(type)
       this.msg = ""
@@ -390,17 +382,12 @@ export default {
       let data = JSON.stringify(msg);
       uni.sendSocketMessage({
         data: data,
-        success: () => {
-          this.msgList.push({
-            "text": JSON.stringify(this.goodListData),
-            "my": true,
-            "messageType": 'GOODS'
-          })
-        },
-        fail: () => {
-          this.sokcet()
-        }
       });
+      this.msgList.push({
+        "text": JSON.stringify(this.goodListData),
+        "my": true,
+        "messageType": 'GOODS'
+      })
       this.showHide = false
       // #ifdef H5
       uni.setStorageSync("imGoodId", 1111111);
@@ -442,6 +429,7 @@ export default {
             } else {
               uni.closeSocket();
             }
+            this.count++
           });
         }
         // 监听收到信息
