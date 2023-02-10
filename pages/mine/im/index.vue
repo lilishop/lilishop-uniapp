@@ -279,6 +279,13 @@ export default {
     // this.ws.connect();
     this.sokcet();
   },
+  // 页面隐藏
+  onHide () {
+    uni.closeSocket();
+  },
+  onUnload () {
+    uni.closeSocket();
+  },
   onPullDownRefresh () {
     this.params.pageNumber = this.params.pageNumber + 1
     this.getTalkMessage()
@@ -319,7 +326,7 @@ export default {
       ws: new SocketService(),
       resolve: {},
       goodListData: {},
-      count: 0
+      count: 0, //判断socket断开连接请求次数
     }
   },
   // watch: {
@@ -354,21 +361,22 @@ export default {
         talk_id: this.params.talkId,
       }
       let data = JSON.stringify(msg);
-      try {
-        uni.sendSocketMessage({
-          data: data
-        });
-        this.msgList.push({
-          "text": this.msg,
-          "my": true,
-          "messageType": 'MESSAGE'
-        })
-        let type = 'down';
-        this.msgGo(type)
-        this.msg = ""
-      } catch (e) {
-        uni.closeSocket();
-      }
+      uni.sendSocketMessage({
+        data: data,
+        success: () => {
+          this.msgList.push({
+            "text": this.msg,
+            "my": true,
+            "messageType": 'MESSAGE'
+          })
+        },
+        fail: () => {
+          this.sokcet()
+        }
+      });
+      let type = 'down';
+      this.msgGo(type)
+      this.msg = ""
     },
     sendGoodsMessage () {
       let msg = {
@@ -381,13 +389,18 @@ export default {
       }
       let data = JSON.stringify(msg);
       uni.sendSocketMessage({
-        data: data
+        data: data,
+        success: () => {
+          this.msgList.push({
+            "text": JSON.stringify(this.goodListData),
+            "my": true,
+            "messageType": 'GOODS'
+          })
+        },
+        fail: () => {
+          this.sokcet()
+        }
       });
-      this.msgList.push({
-        "text": JSON.stringify(this.goodListData),
-        "my": true,
-        "messageType": 'GOODS'
-      })
       this.showHide = false
       // #ifdef H5
       uni.setStorageSync("imGoodId", 1111111);
@@ -418,27 +431,20 @@ export default {
           // 监听连接失败
           uni.onSocketError(function (err) {
             if (this.count < 3) {
-              if (err && err.code !== 1000) {
+              if (err && err.code != 1000) {
                 _this.socketOpen = true;
-                uni.connectSocket({
-                  url: url,
-                });
+                setTimeout(() => {
+                  uni.connectSocket({
+                    url: url,
+                  });
+                }, 2000)
               }
+            } else {
+              uni.closeSocket();
             }
             this.count++
           });
         }
-        // 监听连接关闭
-        uni.onSocketClose(function (err) {
-          if (err && err.code !== 1000) {
-            setTimeout(function () {
-              _this.socketOpen = true;
-              uni.connectSocket({
-                url: url,
-              });
-            }, 999999)
-          }
-        });
         // 监听收到信息
         uni.onSocketMessage(function (res) {
           res.data = JSON.parse(res.data)
@@ -451,9 +457,8 @@ export default {
           _this.msgGo()
         })
       } catch (e) {
-
+        uni.closeSocket();
       }
-
     },
     beautifyTime,
     //订单详情
@@ -508,7 +513,6 @@ export default {
     },
     // 保持消息体可见
     msgGo (type) {
-      console.log(type, 'typetypetype');
       const query = uni.createSelectorQuery()
       // 延时100ms保证是最新的高度
       setTimeout(() => {
