@@ -10,7 +10,7 @@
       <!-- 消息 -->
       <view class="flex-column-start" v-if="msgList.length" v-for="(item, index) in msgList" :key="index">
         <view class="flex-row-start column-time">
-        <!--  <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text"
+          <!--  <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text"
             v-text="beautifyTime(item.createTime)">
           </view> -->
         </view>
@@ -36,8 +36,8 @@
                         }}</text>
                       </view>
                       <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
-                          style="font-size:20rpx;">¥{{
-                            JSON.parse(item.text)['price']
+                          style="font-size:20rpx;">￥{{
+                            JSON.parse(item.text)['price'] | unitPrice
                           }}</text>
                       </view>
                     </view>
@@ -141,8 +141,8 @@
                   goodListData.goodsName
                 }}</text>
               </view>
-              <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text style="font-size:20rpx;">¥{{
-                goodListData.price
+              <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text style="font-size:20rpx;"> ￥{{
+                goodListData.price | unitPrice
               }}</text>
               </view>
             </view>
@@ -318,7 +318,8 @@ export default {
       scrollHeight: 0,
       ws: new SocketService(),
       resolve: {},
-      goodListData: {}
+      goodListData: {},
+      count: 0
     }
   },
   // watch: {
@@ -416,16 +417,15 @@ export default {
         if (!this.socketOpen) {
           // 监听连接失败
           uni.onSocketError(function (err) {
-            let count = 0;
-            if (count < 3) {
+            if (this.count < 3) {
               if (err && err.code !== 1000) {
                 _this.socketOpen = true;
                 uni.connectSocket({
                   url: url,
                 });
-                count = count + 1
               }
             }
+            this.count++
           });
         }
         // 监听连接关闭
@@ -795,6 +795,7 @@ export default {
     flex: 1;
     overflow: hidden;
     margin-left: 12rpx;
+    width: 400rpx;
 
     .goodsdesc-name {
       font-size: 12px;
@@ -803,6 +804,7 @@ export default {
       text-overflow: ellipsis;
       overflow: hidden;
       margin-bottom: 20rpx;
+
 
       .goodsCard_goodNmae {
         color: black;

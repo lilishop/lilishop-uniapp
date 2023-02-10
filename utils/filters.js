@@ -363,10 +363,10 @@ export function quiteLoginOut () {
 /**
  * 跳转im
  */
-export function talkIm (storeId) {
+export function talkIm (storeId, goodsId, id) {
   if (isLogin('auth')) {
     uni.navigateTo({
-      url: `/pages/tabbar/home/web-view?IM=${storeId}`,
+      url: `/pages/mine/im/index?userId=${storeId}&goodsid=${goodsId}&skuid=${id}`
     });
   }
   else {

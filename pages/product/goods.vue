@@ -7,11 +7,12 @@
 
     <!-- 分享 -->
     <shares v-if="enableShare && goodsDetail.id" :skuId="this.routerVal.id" :goodsId="this.routerVal.goodsId" :link="
-  '/pages/product/goods?id=' +
-  this.routerVal.id +
-  '&goodsId=' +
-  this.routerVal.goodsId
-" :thumbnail="goodsDetail.thumbnail" :goodsName="goodsDetail.goodsName" type="goods" @close="enableShare = false" />
+      '/pages/product/goods?id=' +
+      this.routerVal.id +
+      '&goodsId=' +
+      this.routerVal.goodsId
+    " :thumbnail="goodsDetail.thumbnail" :goodsName="goodsDetail.goodsName" type="goods"
+      @close="enableShare = false" />
     <popups v-model="popupsSwitch" @tapPopup="handleNavbarList" :popData="navbarListData" :x="navbarListX"
       :y="navbarListY" placement="top-start" />
     <view class="index">
@@ -66,8 +67,8 @@
                   <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'" :name="favorite ? 'heart-fill' : 'heart'">
                   </u-icon>
                   <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{
-    favorite ? "已收藏" : "收藏"
-}}</view>
+                    favorite? "已收藏": "收藏"
+                  }}</view>
                 </view>
               </view>
               <!-- 商品描述 -->
@@ -85,20 +86,21 @@
                     <span>
                       <span v-if="wholesaleList.length">
                         <span>¥</span><span class="price">{{
-    $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[0]
-}}</span>.{{
-    $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[1]
+                          $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[0]
+                        }}</span>.{{
+  $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[1]
 }}
                         ~
                         <span>¥</span><span class="price">{{
-    $options.filters.goodsFormatPrice(wholesaleList[0].price)[0]
-}}</span>.{{
-    $options.filters.goodsFormatPrice(wholesaleList[0].price)[1]
+                          $options.filters.goodsFormatPrice(wholesaleList[0].price)[0]
+                        }}</span>.{{
+  $options.filters.goodsFormatPrice(wholesaleList[0].price)[1]
 }}
                       </span>
                       <span v-else>
-                        <span>¥</span><span class="price">{{ $options.filters.goodsFormatPrice(goodsDetail.price)[0]
-}}</span>.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
+                        <span>¥</span><span class="price">{{
+                          $options.filters.goodsFormatPrice(goodsDetail.price)[0]
+                        }}</span>.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
                       </span>
                     </span>
                   </view>
@@ -114,8 +116,8 @@
                     <u-icon size="30" :color="favorite ? '#f2270c' : '#262626'"
                       :name="favorite ? 'heart-fill' : 'heart'"></u-icon>
                     <view :style="{ color: favorite ? '#f2270c' : '#262626' }">{{
-    favorite ? "已收藏" : "收藏"
-}}</view>
+                      favorite? "已收藏": "收藏"
+                    }}</view>
                   </view>
                 </view>
                 <view class="-goods-name desc-bold">
@@ -150,8 +152,8 @@
               <view class="card-title"> 已选 </view>
               <view class="card-content">
                 <span v-if="selectedGoods.spec">{{ selectedGoods.spec.specName }}-{{
-    selectedGoods.spec.specValue
-}}</span>
+                  selectedGoods.spec.specValue
+                }}</span>
                 <span v-else>默认</span>
               </view>
               <view class="card-bottom">
@@ -162,8 +164,8 @@
               <view class="card-title"> 送至</view>
               <view class="card-content">
                 <span v-if="delivery">{{
-    delivery.consigneeAddressPath | clearStrComma
-}}</span>
+                  delivery.consigneeAddressPath | clearStrComma
+                }}</span>
                 <span v-else>暂无地址信息</span>
               </view>
               <view class="card-bottom">
@@ -601,10 +603,10 @@ export default {
 
     linkMsgDetail () {
       // lili 基础客服
-      // this.$options.filters.talkIm(this.storeDetail.storeId)
-      uni.navigateTo({
-        url: `/pages/mine/im/index?userId=${this.goodsDetail.storeId}&goodsid=${this.routerVal.goodsId}&skuid=${this.routerVal.id}`
-      });
+      this.$options.filters.talkIm(this.goodsDetail.storeId, this.routerVal.goodsId, this.routerVal.id)
+      // uni.navigateTo({
+      //   url: `/pages/mine/im/index?userId=${this.goodsDetail.storeId}&goodsid=${this.routerVal.goodsId}&skuid=${this.routerVal.id}`
+      // });
 
       // udesk 代码  
       // if (this.storeDetail.merchantEuid) {
