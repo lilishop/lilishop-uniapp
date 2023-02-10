@@ -228,7 +228,7 @@ export default {
       uni.closeSocket();
     }
   },
-  onLoad (options) {
+  onReady (options) {
     // 没有goodsid则不显示 发送商品弹窗
     this.showHideModel = options.goodsid
     // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
@@ -318,8 +318,7 @@ export default {
       scrollHeight: 0,
       ws: new SocketService(),
       resolve: {},
-      goodListData: {},
-      count: 0
+      goodListData: {}
     }
   },
   // watch: {
@@ -417,15 +416,15 @@ export default {
         if (!this.socketOpen) {
           // 监听连接失败
           uni.onSocketError(function (err) {
-            if (this.count < 3) {
               if (err && err.code !== 1000) {
+				//断线重连等待3秒
+				setTimeout(()=>{},3000)
                 _this.socketOpen = true;
                 uni.connectSocket({
                   url: url,
                 });
               }
             }
-            this.count++
           });
         }
         // 监听连接关闭
@@ -452,7 +451,10 @@ export default {
         })
       } catch (e) {
 
-      }
+      }finally{
+		  
+		  uni.closeSocket()
+	  }
 
     },
     beautifyTime,
