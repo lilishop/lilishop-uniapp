@@ -228,7 +228,7 @@ export default {
       uni.closeSocket();
     }
   },
-  onLoad (options) {
+  onReady (options) {
     // 没有goodsid则不显示 发送商品弹窗
     this.showHideModel = options.goodsid
     // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
@@ -442,7 +442,6 @@ export default {
             } else {
               uni.closeSocket();
             }
-            this.count++
           });
         }
         // 监听收到信息
