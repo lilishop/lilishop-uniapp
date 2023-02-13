@@ -283,6 +283,9 @@ export default {
   onHide () {
     uni.closeSocket();
   },
+  onUnload () {
+    uni.closeSocket();
+  },
   onPullDownRefresh () {
     this.params.pageNumber = this.params.pageNumber + 1
     this.getTalkMessage()
@@ -381,7 +384,7 @@ export default {
       }
       let data = JSON.stringify(msg);
       uni.sendSocketMessage({
-        data: data,
+        data: data
       });
       this.msgList.push({
         "text": JSON.stringify(this.goodListData),
@@ -416,6 +419,7 @@ export default {
         });
         if (!this.socketOpen) {
           // 监听连接失败
+
           uni.onSocketError(function (err) {
             if (this.count < 3) {
               if (err && err.code != 1000) {
@@ -446,6 +450,12 @@ export default {
       } catch (e) {
         uni.closeSocket();
       }
+      // 监听是否断线，断线进行重新连接
+      uni.onSocketClose((res) => {
+        if (res.code != null && res.code != 1000) {
+          this.sokcet()
+        }
+      })
     },
     beautifyTime,
     //订单详情
@@ -890,7 +900,7 @@ export default {
   height: 65rpx;
   border-radius: 30rpx;
   padding-left: 15rpx;
-  font-size: 35rpx;
+  font-size: 22rpx;
   background-color: #FFFFFF;
 }
 
