@@ -484,7 +484,6 @@ export default {
         this.goodListData = res.data.result.data
       })
     },
-
     // 切换输入法时移动输入框(按照官方的上推页面的原理应该会自动适应不同的键盘高度-->官方bug)
     goPag (kh) {
       this.retractBox(0, 250)
@@ -492,7 +491,6 @@ export default {
         if (kh - this.keyHeight > 0) {
           this.retractBox(this.keyHeight - kh, 250)
         }
-
       }
     },
     // 移动顶部的空盒子
@@ -501,11 +499,8 @@ export default {
         duration: t,
         timingFunction: 'linear',
       })
-
       this.animation = animation
-
       animation.height(x).step()
-
       this.anData = animation.export()
     },
     // 保持消息体可见
@@ -552,47 +547,6 @@ export default {
       // 这里应该传入问题的id,模拟就用index代替了
 
     },
-    // sendMessage() {
-    // 	// 消息为空不做任何操作
-    // 	if (this.msg == "") {
-    // 		return 0;
-    // 	}
-    // 	// 显示消息 msg消息文本,my鉴别是谁发的消息(不能用俩个消息数组循环,否则消息不会穿插)
-    // 	let msg = {
-    // 		operation_type: "MESSAGE",
-    // 		to: this.toUser.userId,
-    // 		from: this.user.id,
-    // 		message_type: "MESSAGE",
-    // 		context: this.msg,
-    // 		talk_id: this.params.talkId,
-    // 	}
-    // 	this.ws.send(JSON.stringify(msg))
-    // 	this.msgList.push({
-    // 		"text": this.msg,
-    // 		"my": true,
-    // 		"messageType": 'MESSAGE'
-    // 	})
-    // 	console.log(this.msgList, 'this.msgListthis.msgListthis.msgListthis.msgListthis.msgList')
-    // 	// 保证消息可见
-    // 	let type = 'down';
-    // 	this.msgGo(type)
-    // 	// 回答问题
-    // 	// this.msgKf(this.msg)
-    // 	// 清除消息
-    // 	this.msg = ""
-    // },
-    // msgKf(x) {
-    // 	// loading
-    // 	// this.msgLoad = true
-    // 	// 这里连接服务器获取答案
-
-    // 	// 下面模拟请求
-    // 	// setTimeout(() => {
-    // 	// 	// 取消loading
-    // 	// 	this.msgLoad = false
-    // 	// 	// this.msgGo()
-    // 	// }, 2000)
-    // },
     // 不建议输入框聚焦时操作此动画
     ckAdd () {
       if (!this.showTow) {
@@ -607,16 +561,12 @@ export default {
     },
     // 拉起/收回附加栏
     retractBox (x, t) {
-
       var animation = uni.createAnimation({
         duration: t,
         timingFunction: 'ease',
       })
-
       this.animation = animation
-
       animation.translateY(x).step()
-
       this.animationData = animation.export()
     },
     async getTalkMessage () {
@@ -627,7 +577,7 @@ export default {
             this.msgList.unshift(...res.data.result)
             type = 'up'
           } else {
-            this.msgList = res.data.result
+            this.msgList.unshift(...res.data.result)
             type = 'down'
           }
           this.msgList.forEach(item => {
@@ -640,12 +590,12 @@ export default {
       console.log(this.msgList);
       this.msgGo(type)
     },
+    // 上拉加载
     touchMoreMessage (e) {
       if (e.target.scrollTop == 0) {
         this.params.pageNumber = this.params.pageNumber + 1
         this.getTalkMessage()
       }
-
     },
     async getTalk (userId) {
       getTalkByUser(userId).then(res => {
