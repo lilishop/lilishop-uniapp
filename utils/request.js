@@ -10,6 +10,8 @@ import Foundation from "@/utils/Foundation.js";
 import api from "@/config/api.js";
 
 import uuid from "@/utils/uuid.modified.js";
+import jwt from '@/js_sdk/t-jwt/jwt.js'
+
 
 
 let isNavigateTo = false
@@ -74,6 +76,16 @@ http.interceptors.request.use(
 		/* 请求之前拦截器。可以使用async await 做异步操作 */
 		let accessToken = storage.getAccessToken();
 		if (accessToken) {
+			/**
+			 * 使用JWT解析
+			 * 小于当前时间将当前token清除
+			 */
+			const decodeJwt = jwt(accessToken);
+			const timing = new Date().getTime() / 1000
+			if(decodeJwt.exp <= timing){
+				accessToken = ""
+				storage.setAccessToken('')
+			}
 			const nonce = Foundation.randomString(6);
 			const timestamp = parseInt(new Date().getTime() / 1000);
 			const sign = md5(nonce + timestamp + accessToken);
