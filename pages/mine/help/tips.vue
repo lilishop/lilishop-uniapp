@@ -27,6 +27,10 @@ export default {
           title: "关于我们",
           type: "ABOUT",
         },
+        STORE_REGISTER: {
+          title: "店铺入驻协议",
+          type: "STORE_REGISTER",
+        },
       },
     };
   },

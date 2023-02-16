@@ -40,7 +40,7 @@
 <script>
 import { addAddress, editAddress, getAddressDetail } from "@/api/address.js";
 import city from "@/components/m-city/m-city.vue";
-import uniMap from "./uniMap";
+import uniMap from "@/components/uniMap";
 import permision from "@/js_sdk/wa-permission/permission.js";
 export default {
   components: {

@@ -232,14 +232,14 @@ text.shop {
   width: 92%;
   margin: 0 auto 40rpx;
   border-radius: 100px;
-  animation: mymove 5s infinite;
-  -webkit-animation: mymove 5s infinite; /*Safari and Chrome*/
-  animation-direction: alternate; /*轮流反向播放动画。*/
-  animation-timing-function: ease-in-out; /*动画的速度曲线*/
-  /* Safari 和 Chrome */
-  -webkit-animation: mymove 5s infinite;
-  -webkit-animation-direction: alternate; /*轮流反向播放动画。*/
-  -webkit-animation-timing-function: ease-in-out; /*动画的速度曲线*/
+  // animation: mymove 5s infinite;
+  // -webkit-animation: mymove 5s infinite; /*Safari and Chrome*/
+  // animation-direction: alternate; /*轮流反向播放动画。*/
+  // animation-timing-function: ease-in-out; /*动画的速度曲线*/
+  // /* Safari 和 Chrome */
+  // -webkit-animation: mymove 5s infinite;
+  // -webkit-animation-direction: alternate; /*轮流反向播放动画。*/
+  // -webkit-animation-timing-function: ease-in-out; /*动画的速度曲线*/
 }
 .btn-callback {
   text-align: center;

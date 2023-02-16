@@ -5,7 +5,7 @@
 		</u-navbar>
 		<u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
 		<div v-else>
-			<view v-for="(item, index) in trackList" :key="index">
+			<view v-if="item" v-for="(item, index) in trackList" :key="index">
 				<view class="myTracks-title" @click="navgaiteToStore(item)">{{item.storeName}}</view>
 				<view class="myTracks-items">
 
