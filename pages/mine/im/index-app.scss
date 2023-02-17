@@ -5088,7 +5088,7 @@ scroll-view.cu-steps .cu-item {
 }
 
 .bg-user-orang {
-  background-color: #FFFFCC;
+  background-color:rgba($main-color,0.1);
   color: black;
 }
 
@@ -5112,8 +5112,8 @@ scroll-view.cu-steps .cu-item {
   color: #ffffff;
 }
 
-.bg-cyan {
-  background-color: #1cbbb4;
+.bg-main-color {
+  background-color: $main-color;
   color: #ffffff;
 }
 
@@ -5197,7 +5197,7 @@ scroll-view.cu-steps .cu-item {
   background-color: #d7f0dbff;
 }
 
-.bg-cyan.light {
+.bg-main-color.light {
   color: #1cbbb4;
   background-color: #d2f1f0;
 }

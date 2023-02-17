@@ -35,10 +35,9 @@
                           JSON.parse(item.text)['goodsName']
                         }}</text>
                       </view>
-                      <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
-                          style="font-size:20rpx;">￥{{
+                      <view class="goodsdesc-rice" >￥{{
                             JSON.parse(item.text)['price'] | unitPrice
-                          }}</text>
+                          }}
                       </view>
                     </view>
                   </view>
@@ -92,10 +91,9 @@
                           JSON.parse(item.text)['goodsName']
                         }}</text>
                       </view>
-                      <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text
-                          style="font-size:20rpx;">¥{{
+                      <view class="goodsdesc-rice" >¥{{
                             JSON.parse(item.text)['price']
-                          }}</text>
+                          }}
                       </view>
                     </view>
                   </view>
@@ -129,7 +127,7 @@
       </view>
       <!-- 如果没有聊天记录，定位到底部 -->
       <view
-        :style="{ position: msgList.length == 0 ? 'fixed' : '', bottom: msgList.length == 0 ? '66px' : '', width: msgList.length == 0 ? '100%' : '' }">
+        :style="{ position:'fixed' , bottom: '66px' , width:  '100%' }">
         <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
           <view class="goodsCard u-flex u-row-between u-p-b-0">
             <view class="imagebox" @click="jumpGoodDelic(item)">
@@ -141,9 +139,9 @@
                   goodListData.goodsName
                 }}</text>
               </view>
-              <view class="goodsdesc-rice" style="margin-top:10rpx; color: orange;"><text style="font-size:20rpx;"> ￥{{
+              <view class="goodsdesc-rice" > ￥{{
                 goodListData.price | unitPrice
-              }}</text>
+              }}
               </view>
             </view>
             <view class="cancel" @click="cancelModel">X</view>
@@ -177,8 +175,8 @@
       <view class="bottom-dh-char flex-row-around" style="font-size: 55rpx;">
         <!-- vue无法使用软键盘"发送" -->
         <input v-model="msg" class="dh-input" type="text" style="background-color: #f0f0f0;" @confirm="sendMessage"
-          confirm-type="search" placeholder-class="my-neirong-sm" placeholder="用一句简短的话描述您的问题" />
-        <view @click="sendMessage" class="cu-tag bg-cyan round">
+          confirm-type="send" placeholder-class="my-neirong-sm" placeholder="用一句简短的话描述您的问题" />
+        <view @click="sendMessage" class="cu-tag bg-main-color send round">
           发送
         </view>
         <!-- <text @click="ckAdd" class="cuIcon-roundaddfill text-brown"></text> -->
@@ -682,6 +680,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.send{
+  font-size: 24rpx !important;
+}
 .orderTime {
   margin-top: 15rpx;
   white-space: nowrap;
@@ -749,7 +750,7 @@ export default {
     width: 400rpx;
 
     .goodsdesc-name {
-      font-size: 12px;
+      font-size: 30rpx;
       line-height: 1.5;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -760,7 +761,7 @@ export default {
       .goodsCard_goodNmae {
         color: black;
         text-overflow: ellipsis;
-        font-size: 20rpx;
+        font-size: 26rpx;
         font-weight: bold;
       }
     }
@@ -776,13 +777,13 @@ export default {
 
   .sendGood {
     color: #ffffff;
-    height: 40rpx;
-    width: 110rpx;
+    height: 50rpx;
+    width: 130rpx;
     background-color: #f21c0c;
-    font-size: 18rpx;
+    font-size: 24rpx;
     border-radius: 17rpx;
     text-align: center;
-    line-height: 40rpx;
+    line-height: 50rpx;
     padding: 0 10rpx;
     position: relative;
     top: 20rpx;
@@ -883,6 +884,11 @@ export default {
 .tb-nv {
   width: 50rpx;
   height: 50rpx;
+}
+.goodsdesc-rice{
+  font-size: 24rpx;
+  color: $main-color;
+  font-weight: bold;
 }
 </style>
 
