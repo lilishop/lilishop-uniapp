@@ -1,6 +1,6 @@
 <template>
   <view class="address">
-    <u-empty class="empty" v-if="this.addressList == 0" text="暂无收货地址" mode="address"></u-empty>
+    <u-empty class="empty" v-if="this.addressList.length === 0" text="暂无收货地址" mode="address"></u-empty>
     <view class="list" >
       <view class="item c-content" v-for="(item, index) in addressList" :key="index">
         <view class="basic">
@@ -50,7 +50,7 @@ export default {
     return {
       addressList: [], //地址列表
       showAction: false, //是否显示下栏框
-  
+
       removeList: [
         {
           text: "确定",
@@ -88,7 +88,7 @@ export default {
   onShow() {
     if (this.$options.filters.tipsToLogin()) {
       this.getAddressList();
-    } 
+    }
   },
   methods: {
     //获取地址列表
