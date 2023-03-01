@@ -42,20 +42,26 @@
                     </view>
                   </view>
                 </view>
-                <view v-if="item.messageType == 'ORDER'">
+          
+                <view v-if="item.messageType == 'ORDER'" @click="linkTosOrders(item.text)">
                   <view class="orderSn">
-                    <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
+                    <div class="wes">订单号：{{ JSON.parse(item.text)['sn'] }}</div>
+                    <div class='order-item flex' v-if="JSON.parse(item.text).orderItems.length"  v-for='(order,orderIndex) in JSON.parse(item.text).orderItems'>
+                      <u-image  mode="widthFix" width='120rpx' height='120rpx' :src="order.image" />
+                       <view class="groupNameOrTime">
+                        <div class="wes-2" >{{
+                        order.name
+                        }}</div>
+                        <div class="main-color goodsdesc-rice">{{
+                          order.goodsPrice | unitPrice("￥")
+                        }}</div>
+                        
+                      </view>
+                    </div>
                     <view class="oederList">
-                      <img style="height: 120rpx; width: 120rpx; margin-top: 15rpx;"
-                        :src="JSON.parse(item.text)['groupImages']" mode="widthFix" />
-                      <view class="groupNameOrTime">
-                        <text @click="linkTosOrders(item.text)">{{
-                          JSON.parse(item.text)['groupName']
-                        }}</text>
-                        <view class="orderTime">
+                      <view class="orderTime">
                           <text>{{ JSON.parse(item.text)['paymentTime'] }}</text>
                         </view>
-                      </view>
                     </view>
                   </view>
                 </view>
@@ -91,7 +97,7 @@
                           JSON.parse(item.text)['goodsName']
                         }}</text>
                       </view>
-                      <view class="goodsdesc-rice" >¥{{
+                        <view class="goodsdesc-rice" >¥{{
                             JSON.parse(item.text)['price']
                           }}
                       </view>
@@ -704,16 +710,13 @@ export default {
 
 .orderSn {
   width: 350rpx;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+
 }
 
 .groupNameOrTime {
+  width: 200rpx;
   margin: 15rpx 15rpx;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+
 }
 
 .orderGood {
@@ -889,6 +892,10 @@ export default {
   font-size: 24rpx;
   color: $main-color;
   font-weight: bold;
+  margin-top: 10rpx;
+}
+.order-item{
+  margin: 10rpx 0
 }
 </style>
 
