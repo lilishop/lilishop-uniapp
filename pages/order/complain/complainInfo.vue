@@ -49,11 +49,13 @@ export default {
     return {
       complainDetail: "", //投诉详情
       statusData: {
+         NEW: "新投诉",
         NO_APPLY: "未申请",
         APPLYING: "申请中",
-        COMPLETE: "已完成，此时可申请",
-        EXPIRED: "已失效，不可申请",
+        COMPLETE: "已完成",
+        EXPIRED: "已失效",
         CANCEL: "已取消",
+        WAIT_ARBITRATION:"等待仲裁"
       },
     };
   },

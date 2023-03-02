@@ -45,13 +45,13 @@
       <view class="cell-item">
         <view class="cell-title"> 投诉凭证 </view>
         <view class="cell-view">
-          <u-upload ref="uUpload" :header=" { accessToken: storage.getAccessToken() }" upload-text=""  :action="action" width="100" @on-uploaded="onUploaded" :max-count="5">
+          <u-upload ref="uUpload" :header=" { accessToken: storage.getAccessToken() }"   :action="action" width="200" @on-uploaded="onUploaded" :max-count="5">
           </u-upload>
         </view>
       </view>
     </view>
 
-    <view class="submit-btn" @click="handleSumit">提交</view>
+    <view class="submit-btn" @click="handleSubmit">提交</view>
   </view>
 </template>
 
@@ -109,7 +109,15 @@ export default {
     /**
      * 提交
      */
-    handleSumit() {
+    handleSubmit() {
+      if(!this.images.length && !this.complainValue){
+        uni.showToast({
+          title:'请上传图片凭证和投诉内容',
+          icon:'none'
+        })
+        return
+
+      }
       // 循环出商品
       let goods = this.orderGoodsList.filter((item) => {
         return item.skuId == this.skuId;

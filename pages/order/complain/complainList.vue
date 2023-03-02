@@ -48,12 +48,13 @@ export default {
   data() {
     return {
       statusData: {
-        NEW: "新订单",
+        NEW: "新投诉",
         NO_APPLY: "未申请",
         APPLYING: "申请中",
         COMPLETE: "已完成",
         EXPIRED: "已失效",
         CANCEL: "已取消",
+        WAIT_ARBITRATION:"等待仲裁"
       },
       show: false,
       content: "是否撤销投诉？",
