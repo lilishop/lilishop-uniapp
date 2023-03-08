@@ -419,3 +419,16 @@ export function getMemberPointSum() {
     method: Method.GET,
   });
 }
+
+/**
+ * 获取会员积分VO
+ * @param
+ */
+export function withdrawalSettingVO() {
+  return http.request({
+    url: `/wallet/wallet/withdrawalSettingVO`,
+    method: Method.GET,
+    needToken: true,
+  });
+}
+

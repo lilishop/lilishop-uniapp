@@ -410,6 +410,7 @@
 						//微信小程序意外的其它方式直接在storage中写入openid
 						// #ifndef MP-WEIXIN
 						uni.setStorageSync("openid", res.authResult.openid);
+						res.authResult.unionId && uni.setStorageSync("unionId", res.authResult.unionId);
 						// #endif
 					},
 					fail(e) {
@@ -454,6 +455,7 @@
 					avatar: uni.getStorageSync("avatar"), // 头像
 					uniAccessToken: uni.getStorageSync("uni_access_token"), //第三方token
 				};
+        uni.getStorageSync("unionId") && (params.unionId = uni.getStorageSync("unionId"));
 				openIdLogin(params, clientType).then((res) => {
 					if (!res.data.success) {
 						let errormessage = "第三方登录暂不可用";
