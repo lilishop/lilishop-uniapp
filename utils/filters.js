@@ -499,6 +499,7 @@ export function orderStatusList (val) {
     COMPLETED: "已完成",
     COMPLETE: "已完成",
     TAKE: "待核验",
+    STAY_PICKED_UP: "待自提",
   };
   return orderStatusList[val];
 }

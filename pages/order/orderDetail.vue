@@ -21,7 +21,7 @@
 
       <view class="logistics-List" v-else>
         <view class="verificationCode" v-if="order.verificationCode">
-          券码： {{ order.verificationCode }}
+          券码： {{ order.orderStatus == 'CANCELLED' ?  '已失效' : order.verificationCode }}
         </view>
         <view v-else class="logistics-List-title">
           {{ '暂无物流信息' }}

@@ -297,6 +297,9 @@ export default {
         {
           orderStatus: "CANCELLED", //已取消
         },
+        {
+          orderStatus: "STAY_PICKED_UP", //待自提
+        },
       ],
       cancelShow: false, //是否显示取消
       orderSn: "", //ordersn
