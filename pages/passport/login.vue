@@ -428,6 +428,7 @@
 								//写入用户信息
 								uni.setStorageSync("nickname", infoRes.userInfo.nickName);
 								uni.setStorageSync("avatar", infoRes.userInfo.avatarUrl);
+								uni.setStorageSync("unionId", infoRes.userInfo.unionId);
 
 								// #ifdef MP-WEIXIN
 								//微信小程序获取openid 需要特殊处理 如需获取openid请参考uni-id: https://uniapp.dcloud.net.cn/uniCloud/uni-id
@@ -454,8 +455,11 @@
 					nickname: uni.getStorageSync("nickname"), // 昵称
 					avatar: uni.getStorageSync("avatar"), // 头像
 					uniAccessToken: uni.getStorageSync("uni_access_token"), //第三方token
+					type:this.clientType,
+					token:{unionId:""}
 				};
-        uni.getStorageSync("unionId") && (params.unionId = uni.getStorageSync("unionId"));
+        		uni.getStorageSync("unionId") ? (params.token.unionId = uni.getStorageSync("unionId")) : delete params.token;
+	
 				openIdLogin(params, clientType).then((res) => {
 					if (!res.data.success) {
 						let errormessage = "第三方登录暂不可用";
