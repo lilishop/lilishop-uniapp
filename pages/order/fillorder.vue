@@ -664,7 +664,7 @@ export default {
         this.$store.state.canUseCoupons = res.data.result.canUseCoupons;
         this.$store.state.cantUseCoupons = res.data.result.cantUseCoupons;
 
-        if (!res.data.result.memberAddress.id) {
+        if (!res.data.result.memberAddress) {
           // 获取会员默认地址
           this.getUserAddress();
         } else {
