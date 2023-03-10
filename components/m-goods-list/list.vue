@@ -48,7 +48,7 @@
 			</view>
 		</view>
 		<!-- 一行一列商品展示 -->
-		<div v-if="type == 'oneColumns'">
+		<div v-if="type == 'oneColumns'"  class="goods-one-row">
 			<div v-for="(item, index) in res" :key="index" class="goods-row">
 				<div class="flex goods-col">
 					<div class="goods-img" @click="navigateToDetailPage(item)">
@@ -207,7 +207,10 @@
 </script>
 
 <style lang='scss' scoped>
-/* 商品列表 */
+		.goods-one-row{
+			padding-bottom: 250rpx;
+		}
+		/* 商品列表 */
 		.goods-list {
 			display: flex;
 			flex-wrap: wrap;
