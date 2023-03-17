@@ -365,8 +365,10 @@ export function quiteLoginOut () {
  */
 export function talkIm (storeId, goodsId, id) {
   if (isLogin('auth')) {
+    let url = `/pages/mine/im/index?userId=${storeId}`
+    if(goodsId && id) url = `/pages/mine/im/index?userId=${storeId}&goodsid=${goodsId}&skuid=${id}`
     uni.navigateTo({
-      url: `/pages/mine/im/index?userId=${storeId}&goodsid=${goodsId}&skuid=${id}`
+      url
     });
   }
   else {

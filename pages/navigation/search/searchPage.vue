@@ -700,11 +700,13 @@ export default {
 				keyword = (this.hotKeywordList.length && this.hotKeywordList[0]) || '';
 			}
 			this.defaultKeyword == '请输入搜索商品' ? (keyword = '') : '';
-			// this.keyword = keyword;
+			
+		
 			keyword ? (this.keyword = keyword) : '';
 			this.saveKeyword(keyword); //保存为历史
 			this.isShowSeachGoods = true;
 			this.$refs.mSearch.isShowSeachGoods = true;
+			this.$refs.mSearch.inputVal = keyword;
 			this.params.keyword = this.keyword;
 			this.params.pageNumber = 1;
 			this.$set(this.sortParams, 'keyword', keyword);
