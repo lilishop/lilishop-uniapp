@@ -334,6 +334,7 @@
 										}
 									}
 								);
+								uni.hideLoading();
 							} else {
 								window.location.href = JSON.parse(response.result).h5_url;
 							}
