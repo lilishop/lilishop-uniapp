@@ -337,6 +337,22 @@
 								uni.hideLoading();
 							} else {
 								window.location.href = JSON.parse(response.result).h5_url;
+								const searchParams = {
+									...params,
+									price:this.cashierParams,
+								}
+								const timer = setInterval(()=>{
+									payCallback(searchParams).then(res=>{
+									if(res.data.result){
+										clearTimeout(timer);
+										uni.navigateTo({
+											url:"/pages/order/myOrder"
+										})
+									}
+								})
+								},3000)
+								
+								uni.hideLoading();		
 							}
 						} else if (paymentMethod === "WALLET") {
 							uni.showToast({
