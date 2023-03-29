@@ -96,7 +96,7 @@
             name="close"
           ></u-icon>
 
-          <text class="cu-tag bg-main-color round" @click="getCode">刷新拼图</text>
+          <text class="cu-tag round" @click="getCode">刷新拼图</text>
           <text class="my-neirong-sm cuIcon-safe" style="color: #c1c1c1"
             >Lili-FRAMEWORK</text
           >
