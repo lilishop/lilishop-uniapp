@@ -103,6 +103,8 @@ export default {
       this.getUserOrderNum();
     } else {
       this.walletNum = 0;
+      this.couponNum = 0;
+      this.footNum = 0;
     }
   },
   onPullDownRefresh() {
