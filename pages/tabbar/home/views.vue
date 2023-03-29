@@ -34,7 +34,7 @@
       <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
     
     </div>
-    <fetchCoupon/>
+    <fetchCoupon ref='coupon' />
     <u-no-network @retry="init" @isConnected="isConnected"></u-no-network>
   </div>
 </template>
@@ -73,7 +73,6 @@ export default {
     return {
       config,
       storage,
-      coupList:[],
       showCp:true,
       pageData: "", //楼层页面数据
       isIos: "",
@@ -111,6 +110,9 @@ export default {
    
   },
   methods: {
+    fetchCoupon(){
+       this.$refs.coupon.firstGetAuto();
+    },
     /**
      * 实例化首页数据楼层
      */

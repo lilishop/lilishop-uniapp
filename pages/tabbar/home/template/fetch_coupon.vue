@@ -92,6 +92,7 @@ export default {
     return {
       storage,
       enableShowCoupon: false,
+      coupList:[]
     };
   },
   mounted() {
