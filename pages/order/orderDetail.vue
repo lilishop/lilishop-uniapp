@@ -124,8 +124,7 @@
       </view>
     </view>
     <!-- 客户服务， 售后，取消订单，查看物流，投诉等 -->
-    <view class="info-view"
-      v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true || order.orderStatus == 'DELIVERED' || order.orderStatus != 'UNPAID' && order.orderPromotionType == 'PINTUAN'">
+    <view class="info-view">
       <view style="width: 100%">
         <view class="order-info-view">
           <view class="title">服务</view>
@@ -137,6 +136,8 @@
           <view class="customer-service" v-if="order.orderStatus == 'DELIVERED'" @click="onLogistics(order)">查看物流</view>
           <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderPromotionType == 'PINTUAN'"
             @click="ByUserMessage(order)">查看拼团信息</view>
+            <view class="customer-service"
+            @click="contact(order.storeId)">联系客服</view>
         </view>
       </view>
     </view>
@@ -309,6 +310,10 @@ export default {
   methods: {
     callPhone(){
       this.$options.filters.callPhone(this.order.storeAddressMobile )
+    },
+    //联系客服
+    contact(storeId){
+      this.$options.filters.talkIm(storeId)
     },
     goToShopPage(val) {
       uni.navigateTo({
