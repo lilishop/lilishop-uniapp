@@ -759,7 +759,7 @@ export default {
         storeId: this.goodsDetail.storeId,
         recommend: true,
       }).then((res) => {
-        this.recommendList = res.data.result.content;
+        this.recommendList = res.data.result.records;
       });
     },
 
@@ -774,7 +774,7 @@ export default {
         category: this.goodsDetail.categoryId,
         keyword: this.goodsDetail.name,
       }).then((res) => {
-        this.likeGoodsList = res.data.result.content;
+        this.likeGoodsList = res.data.result.records;
       });
     },
 

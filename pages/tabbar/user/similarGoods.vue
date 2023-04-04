@@ -13,17 +13,17 @@
 		<view class="scroll-con">
 			<view v-if="nomsg">没有相似商品</view>
 			<view v-else class="con" v-for="(item,index) in goodsList" :key="index" @click="goDetail(item)">
-				<image :src="item.content.thumbnail" mode=""></image>
-				<view class="nowrap">{{item.content.name}}</view>
+				<image :src="item.thumbnail" mode=""></image>
+				<view class="nowrap">{{item.name}}</view>
 				<view>
-					<text>￥{{item.content.price | unitPrice}}
+					<text>￥{{item.price | unitPrice}}
 					<!-- <text v-if="item.point">+{{item.point || 0}}积分</text> -->
 					</text>
-					<text>￥{{item.content.mktprice}}</text>
+					<text>￥{{item.mktprice}}</text>
 				</view>
 				<view>
-					<text>已售{{item.content.buy_count}}件</text>
-					<text>{{item.content.grade}}%好评</text>
+					<text>已售{{item.buy_count}}件</text>
+					<text>{{item.grade}}%好评</text>
 				</view>
 			</view>
 		</view>
@@ -74,7 +74,7 @@
 			},
 			goDetail(item) {
 				uni.navigateTo({
-					url: '/pages/product/goods?id=' + item.content.id + "&goodsId=" +item.content.goodsId
+					url: '/pages/product/goods?id=' + item.id + "&goodsId=" +item.goodsId
 				})
 			},
 			loadData() {

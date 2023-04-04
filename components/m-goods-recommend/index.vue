@@ -59,11 +59,11 @@ export default {
         }
       });
       let goodsList = await getGoodsList(submit);
-      this.goodsList.push(...goodsList.data.result.content);
+      this.goodsList.push(...goodsList.data.result.records);
     },
     handleClick(item) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${item.content.id}&goodsId=${item.content.goodsId}`,
+        url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
       });
     },
   },

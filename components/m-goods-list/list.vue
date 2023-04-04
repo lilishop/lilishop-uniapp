@@ -4,24 +4,24 @@
 		<view class="goods-list" v-if="type == 'twoColumns'">
 			<view v-for="(item, index) in res" :key="index" class="goods-item">
 				<view class="image-wrapper" @click="navigateToDetailPage(item)">
-					<u-image :src="item.content.thumbnail" width="100%" height='330rpx' mode="aspectFit">
+					<u-image :src="item.thumbnail" width="100%" height='330rpx' mode="aspectFit">
 						<u-loading slot="loading"></u-loading>
 					</u-image>
 				</view>
 				<view class="goods-detail">
-					<div class="title clamp" v-html="lightSearchStr(keyword,item.content.goodsName)"
+					<div class="title clamp" v-html="lightSearchStr(keyword,item.goodsName)"
 						@click="navigateToDetailPage(item)">
 
 					</div>
 					<view class="price-box" @click="navigateToDetailPage(item)">
-						<div class="price" v-if="item.content.price!=undefined">
-							¥<span>{{ $options.filters.goodsFormatPrice(item.content.price )[0] }} </span>.{{
-	            $options.filters.goodsFormatPrice(item.content.price )[1]
+						<div class="price" v-if="item.price!=undefined">
+							¥<span>{{ $options.filters.goodsFormatPrice(item.price )[0] }} </span>.{{
+	            $options.filters.goodsFormatPrice(item.price )[1]
 	          }}
 						</div>
 					</view>
 					<div class="promotion" @click="navigateToDetailPage(item)">
-						<div v-if="item.content.salesModel == 'WHOLESALE'">
+						<div v-if="item.salesModel == 'WHOLESALE'">
 							<span>批</span>
 						</div>
 						<div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
@@ -31,14 +31,14 @@
 						</div>
 					</div>
 					<div class="count-config" @click="navigateToDetailPage(item)">
-						<span>已售 {{ item.content.buyCount || "0" }}</span>
-						<span>{{ item.content.commentNum || "0" }}条评论</span>
+						<span>已售 {{ item.buyCount || "0" }}</span>
+						<span>{{ item.commentNum || "0" }}条评论</span>
 					</div>
 					<div class="store-seller-name" v-if="storeName" @click="navigateToStoreDetailPage(item)">
 						<div class="text-hidden">
 							<u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated"
 								text="自营" type="error" />
-							<span>{{ item.content.storeName || "暂无" }}</span>
+							<span>{{ item.storeName || "暂无" }}</span>
 						</div>
 						<span>
 							<u-icon name="arrow-right"></u-icon>
@@ -52,21 +52,21 @@
 			<div v-for="(item, index) in res" :key="index" class="goods-row">
 				<div class="flex goods-col">
 					<div class="goods-img" @click="navigateToDetailPage(item)">
-						<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.content.thumbnail">
+						<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.thumbnail">
 							<u-loading slot="loading"></u-loading>
 						</u-image>
 					</div>
 					<div class="goods-detail">
-						<div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.content.goodsName }}</div>
+						<div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.goodsName }}</div>
 						<view class="price-box" @click="navigateToDetailPage(item)">
-							<div class="price" v-if="item.content.price!=undefined">
-								¥<span>{{ $options.filters.goodsFormatPrice(item.content.price )[0] }} </span>.{{
-			            $options.filters.goodsFormatPrice(item.content.price )[1]
+							<div class="price" v-if="item.price!=undefined">
+								¥<span>{{ $options.filters.goodsFormatPrice(item.price )[0] }} </span>.{{
+			            $options.filters.goodsFormatPrice(item.price )[1]
 			          }}
 							</div>
 						</view>
 						<div class="promotion" @click="navigateToDetailPage(item)">
-							<div v-if="item.content.salesModel == 'WHOLESALE'">
+							<div v-if="item.salesModel == 'WHOLESALE'">
 								<span>批</span>
 							</div>
 							<div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
@@ -76,14 +76,14 @@
 							</div>
 						</div>
 						<div style="overflow: hidden" @click="navigateToDetailPage(item)" class="count-config">
-							<span style="float: left; font-size: 22rpx">已售 {{ item.content.buyCount || '0' }}</span>
-							<span style="float: right; font-size: 22rpx">{{ item.content.commentNum || '0' }}条评论</span>
+							<span style="float: left; font-size: 22rpx">已售 {{ item.buyCount || '0' }}</span>
+							<span style="float: right; font-size: 22rpx">{{ item.commentNum || '0' }}条评论</span>
 						</div>
 						<div style="overflow: hidden" @click="navigateToStoreDetailPage(item)" class="count-config">
 							<div class="text-hidden" v-if="storeName">
 								<u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated"
 									text="自营" type="error" />
-								<span class="line1-store-name">{{ item.content.storeName }}</span>
+								<span class="line1-store-name">{{ item.storeName }}</span>
 								<span class="to-store">进店<u-icon size="24" name="arrow-right" color="#666"></u-icon>
 								</span>
 							</div>
@@ -179,8 +179,8 @@
 			},
 			// 数据去重一下 只显示一次 减免 劵 什么的
 			getPromotion(item) {
-				if (item.content ? item.content.promotionMap : item.promotionMap) {
-					const fieldList = item.content ? item.content.promotionMap : item.promotionMap
+				if (item ? item.promotionMap : item.promotionMap) {
+					const fieldList = item ? item.promotionMap : item.promotionMap
 					let array = [];
 					Object.keys(fieldList).forEach((child) => {
 						if (!array.includes(child.split("-")[0])) {
@@ -193,13 +193,13 @@
 			// 跳转到商品详情
 			navigateToDetailPage(item) {
 				uni.navigateTo({
-					url: `/pages/product/goods?id=${item.content.id}&goodsId=${item.content.goodsId}`,
+					url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
 				});
 			},
 			// 跳转地址
 			navigateToStoreDetailPage(item) {
 				uni.navigateTo({
-					url: `/pages/product/shopPage?id=${item.content.storeId}`,
+					url: `/pages/product/shopPage?id=${item.storeId}`,
 				});
 			},
 		}

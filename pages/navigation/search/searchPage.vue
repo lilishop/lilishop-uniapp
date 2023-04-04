@@ -493,13 +493,13 @@ export default {
 		// 跳转到商品详情
 		navigateToDetailPage(item) {
 			uni.navigateTo({
-				url: `/pages/product/goods?id=${item.content.id}&goodsId=${item.content.goodsId}`
+				url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`
 			});
 		},
 		// 跳转地址
 		navigateToStoreDetailPage(item) {
 			uni.navigateTo({
-				url: `/pages/product/shopPage?id=${item.content.storeId}`
+				url: `/pages/product/shopPage?id=${item.storeId}`
 			});
 		},
 		loadmore() {
@@ -627,14 +627,14 @@ export default {
 			}
 			//没有更多直接返回 #TODO
 			let goodsList = await getGoodsList(this.params);
-
-			if (goodsList.data.result.content.length < 10) {
+			if (goodsList.data.result.records.length < 10) {
 				this.loadingType = 'noMore';
 				this.empty = true;
 			} else {
 				this.empty = false;
 			}
-			this.goodsList.push(...goodsList.data.result.content);
+			this.goodsList.push(...goodsList.data.result.records);
+			
 			this.initSortGoods();
 			uni.hideLoading();
 		},
