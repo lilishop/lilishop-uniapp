@@ -3,7 +3,8 @@
     <view class="body">
       <view class="top-view">
         <view class="title">{{coupon.title}}</view>
-        <view class="price"><text>￥</text>{{coupon.price | unitPrice}}</view>
+        <view class="price" v-if="coupon.couponType =='PRICE'"><text>￥</text>{{coupon.price | unitPrice}}</view>
+        <view class="price" v-if="coupon.couponType =='DISCOUNT'">{{coupon.discount}}折</view>
         <view class="text">满{{coupon.consumeThreshold}}元可用</view>
         <view class="bg-quan">
           券
