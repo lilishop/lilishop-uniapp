@@ -133,7 +133,7 @@
       </view>
       <!-- 如果没有聊天记录，定位到底部 -->
       <view
-        :style="{ position:'fixed' , bottom: '66px' , width:  '100%' }">
+        :style="{ position:'fixed' , bottom:(inputHeight+66)+'px' , width:  '100%' }">
         <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
           <view class="goodsCard u-flex u-row-between u-p-b-0">
             <view class="imagebox" @click="jumpGoodDelic(item)">
@@ -177,26 +177,15 @@
       </view>
     </view>
     <!-- 底部导航栏 -->
-    <view class="flex-column-center" style="position: fixed;bottom: -180px;" :animation="animationData">
+    <view :style="{position: 'fixed',bottom:inputHeight+'px'}" class="flex-column-center"  :animation="animationData">
       <view class="bottom-dh-char flex-row-around" style="font-size: 55rpx;">
         <!-- vue无法使用软键盘"发送" -->
-        <input v-model="msg" class="dh-input" type="text" style="background-color: #f0f0f0;" @confirm="sendMessage"
+        <input @focus="inputBindFocus" @blur="eventHandle"  :adjust-position="false" v-model="msg" class="dh-input" type="text" style="background-color: #f0f0f0;" @confirm="sendMessage"
           confirm-type="send" placeholder-class="my-neirong-sm" placeholder="用一句简短的话描述您的问题" />
         <view @click="sendMessage" class="cu-tag bg-main-color send round">
           发送
         </view>
         <!-- <text @click="ckAdd" class="cuIcon-roundaddfill text-brown"></text> -->
-      </view>
-      <!-- 附加栏(自定义) -->
-      <view class="box-normal flex-row-around flex-wrap">
-        <view class="tb-text">
-          <view class="cuIcon-form"></view>
-          <text>问题反馈</text>
-        </view>
-        <view class="tb-text">
-          <view class="cuIcon-form"></view>
-          <text>人工客服</text>
-        </view>
       </view>
     </view>
   </view>
@@ -331,6 +320,7 @@ export default {
       resolve: {},
       goodListData: {},
       count: 0, //判断socket断开连接请求次数
+      inputHeight:0,
     }
   },
   // watch: {
@@ -349,6 +339,14 @@ export default {
   //   }
   // },
   methods: {
+    eventHandle(){
+      this.inputHeight = 0
+    },
+    inputBindFocus(e){
+       if (e.detail.height) {
+           this.inputHeight = e.detail.height //这个高度就是软键盘的高度
+       }
+    },
     sendMessage () {
       if (this.msg == "") {
         return 0;
@@ -896,6 +894,15 @@ export default {
 }
 .order-item{
   margin: 10rpx 0
+}
+
+
+uni-page-head {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
 }
 </style>
 
