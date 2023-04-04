@@ -9,11 +9,12 @@
 ##### 交流 qq 1群 961316482（已满）
 ##### 交流 qq 2群 875294241（已满）
 ##### 交流 qq 3群 263785057（已满）
-##### 交流 qq 4群 674617534
+##### 交流 qq 4群 674617534 (已满)
+##### 交流 qq 5群 594675235 
 
 ##### 体验 公众号/小程序/APP 体验，扫描二维码
 
-![image-20210511171611793](https://pickmall.cn/assets/imgs/h5-qrcode.png)
+![image-20210511171611793](https://static.pickmall.cn/images/h5-qrcode.png)
 
 [![star](https://gitee.com/beijing_hongye_huicheng/lilishop/badge/star.svg?theme=dark)](https://gitee.com/beijing_hongye_huicheng/lilishop/stargazers)
 &nbsp;&nbsp;![github](https://img.shields.io/github/stars/hongyehuicheng/lilishop.svg?style=social&logo=#181717)
@@ -55,7 +56,7 @@ PS：手机验证码为 ‘111111’
 
 **商城 小程序/公众号/APP**：扫描二维码
 
-![image-20210511171611793](https://pickmall.cn/assets/imgs/h5-qrcode.png)
+![image-20210511171611793](https://static.pickmall.cn/images/h5-qrcode.png)
 
 ### 快速本地部署
 
@@ -74,24 +75,24 @@ PS：手机验证码为 ‘111111’
 
 #### 平台管理端功能
 
-![平台管理端功能](https://pickmall.cn/assets/imgs/other/managerList1.jpg)
+![平台管理端功能](https://static.pickmall.cn/images/other/managerList1.jpg)
 
 
 
 #### 卖家功能
 
-![商家端功能](https://pickmall.cn/assets/imgs/other/storeList.jpg)
+![商家端功能](https://static.pickmall.cn/images/other/storeList.jpg)
 
 
 ### 商城前端功能展示
 
 #### 商城移动端
 
-<img src="https://pickmall.cn/assets/imgs/other/app.gif" alt="移动端功能展示" style="zoom:50%;" />
+<img src="https://static.pickmall.cn/images/other/app.gif" alt="移动端功能展示" style="zoom:50%;" />
 
 #### 平台管理端
 
-![管理端功能展示](https://pickmall.cn/assets/imgs/other/manager.gif)
+![管理端功能展示](https://static.pickmall.cn/images/other/manager.gif)
 
 
 ### 技术选型
@@ -164,4 +165,12 @@ PS：手机验证码为 ‘111111’
 ##### 交流 qq 1群 961316482（已满）
 ##### 交流 qq 2群 875294241（已满）
 ##### 交流 qq 3群 263785057（已满）
-##### 交流 qq 4群 674617534
+##### 交流 qq 4群 674617534（已满）
+##### 交流 qq 5群 594675235 
+
+### 附录
+有人有自己的学习视频、学习记录文档、希望宣传关联开源项目等均可以私聊仓库所有者。
+
+类似：
+
+清晨敲代码同学的分析: https://blog.csdn.net/vaevaevae233/category_12103567.html
