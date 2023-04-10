@@ -40,8 +40,8 @@
           >
             <!-- 店铺名称 -->
             <view class="seller-info u-flex u-row-between">
-              <view class="seller-name" @click="navigateToStore(order)">
-                <view class="name">{{ order.storeName }}</view>
+              <view class="seller-name wes" @click="navigateToStore(order)">
+                <view class="name wes">{{ order.storeName }}</view>
               </view>
               <view class="order-sn">{{
                 order.orderStatus | orderStatusList
@@ -689,6 +689,7 @@ page,
     padding: 0 20rpx;
 
     .seller-name {
+      flex:10;
       font-size: 28rpx;
       font-weight: 600;
       display: flex;
@@ -701,6 +702,9 @@ page,
     }
 
     .order-sn {
+      flex:2;
+      width:120rpx;
+      text-align: center;
       color: $aider-light-color;
       font-size: 26rpx;
     }

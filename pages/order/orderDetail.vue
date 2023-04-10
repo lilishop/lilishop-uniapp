@@ -157,6 +157,12 @@
           }}</view>
         </view>
         <view class="order-info-view">
+          <view class="title">订单备注：</view>
+          <view class="value">{{
+              order.remark
+          }}</view>
+        </view>
+        <view class="order-info-view">
           <view class="title">支付状态：</view>
           <view class="value">
             {{
@@ -752,5 +758,13 @@ page,
 }
 .address-line-height{
   line-height: 1.75;
+}
+.seller-name{
+  >.name{
+    flex:10 !important;
+  }
+  >.status{
+    flex:2;
+  }
 }
 </style>

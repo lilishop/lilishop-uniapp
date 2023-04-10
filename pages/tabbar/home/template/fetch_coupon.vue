@@ -100,13 +100,11 @@ export default {
   },
   methods: {
     firstGetAuto() {
+      if(!this.$options.filters.isLogin('auth')) return false
       let data = new Date();
       let now = data.getDate();
       let hours = data.getHours();
       let flagCoup = storage.getAutoCp();
-      console.log(flagCoup);
-      console.log(now);
-
       if (
         storage.getAutoCp() &&
         storage.getAutoCp() != "" &&

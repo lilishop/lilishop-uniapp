@@ -26,7 +26,7 @@
                 @change="checkboxChangeDP(item)"></u-checkbox>
               <!-- #endif -->
             </u-checkbox-group>
-            <span class="store-name store-line-desc" @click.stop="navigateToStore(item)">{{
+            <span class="store-name wes store-line-desc" @click.stop="navigateToStore(item)">{{
               item.storeName 
             }}</span>
             <u-icon @click="navigateToStore(item)"  size="24" style="margin-left:10rpx;"  name="arrow-right"></u-icon>
@@ -740,6 +740,7 @@ page {
   display: flex;
   // #endif
   overflow: hidden;
+  flex:10;
 }
 
 .goods-config {
@@ -758,6 +759,9 @@ page {
 }
 
 .right-col {
+  flex:2;
+  text-align: center;
+  width: 100rpx;
   color: $light-color;
   font-size: 26rpx;
 
