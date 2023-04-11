@@ -279,7 +279,7 @@ export default {
          if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     }
-     if (this.$store.state.isShowToast){ uni.hideLoading() };
+     uni.hideLoading();
   },
   // 初始化rules必须要在onReady生命周期，因为onLoad生命周期组件可能尚未创建完毕
   onReady() {
