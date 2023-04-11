@@ -72,7 +72,7 @@ export default {
         title: "加载中",
       });
       getPointsData(params).then((res) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         if (res.data.success) {
           let data = res.data.result.records;
           if (data.length < 10) {

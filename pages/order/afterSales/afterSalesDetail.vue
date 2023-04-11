@@ -224,7 +224,7 @@ export default {
           this.reasonList = action;
         }
       });
-      uni.hideLoading();
+       if (this.$store.state.isShowToast){ uni.hideLoading() };
     },
     //打开地区选择器
     showCitySelect() {
@@ -288,7 +288,7 @@ export default {
       this.form.applyRefundPrice = this.applyInfo.applyRefundPrice;
 
       applyReturn(this.sn, this.form).then((resp) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         if (resp.data.success) {
           this.$refs.uToast.show({ title: "提交成功", type: "success" });
           uni.redirectTo({

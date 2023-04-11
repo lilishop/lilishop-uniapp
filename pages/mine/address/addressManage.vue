@@ -103,7 +103,7 @@ export default {
         });
         this.addressList = res.data.result.records;
 
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
     //删除地址

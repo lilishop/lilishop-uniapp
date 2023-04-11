@@ -636,7 +636,7 @@ export default {
 			this.goodsList.push(...goodsList.data.result.records);
 			
 			this.initSortGoods();
-			uni.hideLoading();
+			 if (this.$store.state.isShowToast){ uni.hideLoading() };
 		},
 
 		//高亮关键字

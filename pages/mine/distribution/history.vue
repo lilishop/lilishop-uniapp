@@ -96,7 +96,7 @@ export default {
           this.status = "nomore";
           this.empty = true;
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
     // 初始化提现历史
@@ -111,7 +111,7 @@ export default {
           this.status = "nomore";
           this.empty = true;
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
   },

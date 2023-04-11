@@ -78,7 +78,7 @@ export default {
         if (res.data.result) {
           this.distributionData = res.data.result;
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
   },

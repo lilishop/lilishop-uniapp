@@ -114,7 +114,7 @@
 				});
 				myTrackList(this.params).then((res) => {
 					uni.stopPullDownRefresh();
-					uni.hideLoading();
+					 if (this.$store.state.isShowToast){ uni.hideLoading() };
 					if (res.statusCode == 200) {
 						res.data.result.records.length &&
 							res.data.result.records.forEach((item) => {

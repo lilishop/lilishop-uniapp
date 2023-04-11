@@ -352,7 +352,7 @@ export default {
         title: "加载中",
       });
       getServiceDetail(this.sn).then((res) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         this.serviceDetail = res.data.result;
         if (
           this.serviceDetail.serviceType == "RETURN_GOODS" ||

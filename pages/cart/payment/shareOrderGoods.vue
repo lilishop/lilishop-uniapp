@@ -204,7 +204,7 @@ export default {
         this.goodsDetail = response.data.result.data;
         this.selectedGoods = response.data.result.data;
         this.goodsSpec = response.data.result.specs;
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         this.PromotionList = response.data.result.promotionMap;
 
         // 判断是否拼团活动 如果有则显示拼团活动信息

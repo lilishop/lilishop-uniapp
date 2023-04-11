@@ -217,7 +217,7 @@ export default {
             this.navList[index].dataList.push(...data);
           }
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
 

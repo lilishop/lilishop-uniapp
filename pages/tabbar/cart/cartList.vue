@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <!-- 空白页-->
-    <view v-if="cartDetail.cartList == '' || cartDetail.cartList == [] || !cartDetail" class="empty">
+    <view v-if="!loading && (cartDetail.cartList == '' || cartDetail.cartList == [] || !cartDetail)" class="empty">
       <image src="/static/emptyCart.png" mode="aspectFit"></image>
       <view class="empty-tips">
         空空如也
@@ -184,6 +184,7 @@ import { debounce } from "@/utils/tools.js";
 export default {
   data() {
     return {
+      loading:false,
       lightColor: this.$lightColor,
       discountDetailsFlag: false, //优惠明细开关
       // 商品栏右侧滑动按钮
@@ -508,6 +509,7 @@ export default {
         });
         API_Trade.getCarts()
           .then((result) => {
+            this.loading = false;
             uni.stopPullDownRefresh();
             if (result.data.success) {
               this.cartDetail = result.data.result;
@@ -541,10 +543,10 @@ export default {
               uni.stopPullDownRefresh();
             }
           })
-          .catch((err) => {});
-        uni.hideLoading();
+          .catch((err) => {this.loading = false;});
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       } else {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       }
     },
 

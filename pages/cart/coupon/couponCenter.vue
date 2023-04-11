@@ -98,7 +98,7 @@
 					}) : "",
 					getAllCoupons(submitData)
 					.then((res) => {
-						uni.hideLoading();
+						if (this.$store.state.isShowToast){ uni.hideLoading() };
 						uni.stopPullDownRefresh();
 						if (res.data.code == 200) {
 							// 如果请求成功，展示数据并进行展示
@@ -113,7 +113,7 @@
 						}
 					})
 					.catch((err) => {
-						uni.hideLoading();
+						 if (this.$store.state.isShowToast){ uni.hideLoading() };
 					});
 			},
 			/**

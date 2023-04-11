@@ -140,7 +140,7 @@ export default {
         } else {
           this.empty = true;
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
   },

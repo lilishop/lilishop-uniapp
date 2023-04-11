@@ -137,7 +137,7 @@ export default {
         title: "加载中",
       });
       commentsMemberOrder(this.form).then((res) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         if (res.data.success) {
           uni.showToast({
             title: "发布评价成功",

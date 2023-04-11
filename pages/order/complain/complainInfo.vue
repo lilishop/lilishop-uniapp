@@ -95,7 +95,7 @@ export default {
             icon: "none",
           });
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
   },

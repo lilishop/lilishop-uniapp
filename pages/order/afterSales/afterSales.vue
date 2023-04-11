@@ -309,7 +309,7 @@ export default {
         mask: true,
       });
       getOrderList(this.params).then((res) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         const orderList = res.data.result.records;
         if (orderList.length > 0) {
           this.orderList = this.orderList.concat(orderList);
@@ -345,7 +345,7 @@ export default {
       this.orderList = [];
       this.searchOrderList(this.current);
 
-      uni.hideLoading();
+       if (this.$store.state.isShowToast){ uni.hideLoading() };
     },
 
     /**

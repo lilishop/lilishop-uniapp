@@ -110,7 +110,7 @@ export default {
         title: "加载中",
       });
       getTalkList(params).then((res) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         if (res.data.success) {
           this.talkList = res.data.result;
           console.log(this.talkList, 'this.talkListthis.talkList');

@@ -70,7 +70,7 @@ export default {
           title: "请填写内容!",
           icon: "none",
         });
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         return false;
       }
       API_MEM.consultating(
@@ -86,11 +86,11 @@ export default {
             });
             this.askValue = "";
           }
-          uni.hideLoading();
+           if (this.$store.state.isShowToast){ uni.hideLoading() };
         })
         .catch((err) => {
         
-          uni.hideLoading();
+           if (this.$store.state.isShowToast){ uni.hideLoading() };
         });
     },
     radioGroupChange(e) {

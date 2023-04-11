@@ -321,7 +321,7 @@
 							// 向后端请求验证码
 							uni.showLoading({});
 							let res = await sendMobile(this.mobile);
-							uni.hideLoading();
+							 if (this.$store.state.isShowToast){ uni.hideLoading() };
 							// 这里此提示会被this.start()方法中的提示覆盖
 							if (res.data.success) {
 								this.current = 1;
@@ -708,7 +708,7 @@
 							clearInterval(timer);
 						}, 100);
 					}
-					uni.hideLoading();
+					 if (this.$store.state.isShowToast){ uni.hideLoading() };
 				}
 				if (!this.flage) {
 					this.$refs.verification.error(); //发送

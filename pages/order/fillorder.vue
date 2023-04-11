@@ -373,7 +373,7 @@ export default {
     });
     await this.getOrderList();
     await this.getDistribution();
-    uni.hideLoading();
+     if (this.$store.state.isShowToast){ uni.hideLoading() };
     if (this.routerVal.way == "PINTUAN") {
       this.isAssemble = true;
       this.routerVal.parentOrder = JSON.parse(

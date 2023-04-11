@@ -202,7 +202,7 @@ export default {
         title: "加载中",
       });
       getOrderList(this.params).then((res) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         const orderList = res.data.result.records;
         if (orderList.length < 10) {
           this.params.loadStatus = "noMore";
@@ -234,7 +234,7 @@ export default {
         title: "加载中",
       });
       getComments(this.params).then((res) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         let orderList = res.data.result.records;
         if (orderList.length < 10) {
           this.params.loadStatus = "noMore";

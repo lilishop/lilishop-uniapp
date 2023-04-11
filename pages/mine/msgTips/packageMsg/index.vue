@@ -58,7 +58,7 @@ export default {
 			title:"加载中"
 		})
 		API_Message.getLogisticsMessages(this.params).then(async response => {
-			uni.hideLoading()
+			 if (this.$store.state.isShowToast){ uni.hideLoading() }
 		    const { data } = response
 		    if (!data || !data.length) {
 				this.messageList.push(...data.data)

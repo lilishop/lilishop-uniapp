@@ -76,7 +76,7 @@ export default {
         this.storeAddressList = res.data.result.records;
         console.log(this.storeAddressList);
 
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
   },

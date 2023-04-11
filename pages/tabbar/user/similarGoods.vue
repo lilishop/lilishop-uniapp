@@ -56,7 +56,7 @@
 				})
 				this.params.keyword = this.goods.goodsName;
 				getGoodsList(this.params).then(res => {
-					uni.hideLoading()
+					 if (this.$store.state.isShowToast){ uni.hideLoading() }
 					if (res.statusCode == 200) {
 						let data = res.data;
 						if (data.data_total == 0) {

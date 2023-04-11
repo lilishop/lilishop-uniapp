@@ -133,7 +133,7 @@ export default {
         this.form.consigneeAddressPath = val.data.result.name; //地址名称， '，'分割
         this.form.lat = val.latitude; //纬度
         this.form.lon = val.longitude; //经度
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       }
 
       this.mapFlag = !this.mapFlag; //关闭地图
@@ -276,10 +276,10 @@ export default {
         params.___path = params.consigneeAddressPath;
         this.$set(this, "form", params);
 
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     }
-    uni.hideLoading();
+     if (this.$store.state.isShowToast){ uni.hideLoading() };
   },
   // 初始化rules必须要在onReady生命周期，因为onLoad生命周期组件可能尚未创建完毕
   onReady() {

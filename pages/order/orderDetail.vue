@@ -361,7 +361,7 @@ export default {
         if (this.order.deliveryMethod === 'LOGISTICS') {
           this.loadLogistics(sn)
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
 
     },
@@ -413,7 +413,7 @@ export default {
       });
       setTimeout(() => {
         this.navList[this.tabCurrentIndex].orderList.splice(index, 1);
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       }, 600);
     },
     //取消订单
@@ -427,7 +427,7 @@ export default {
         if (res.data.result.length >= 1) {
           this.cancelList = res.data.result;
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
 
       this.cancelShow = true;

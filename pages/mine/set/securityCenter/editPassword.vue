@@ -115,7 +115,7 @@
 							title: "正在获取验证码",
 						});
 						sendMobile(this.codeForm.mobile, "FIND_USER").then((res) => {
-							uni.hideLoading();
+							 if (this.$store.state.isShowToast){ uni.hideLoading() };
 							// 这里此提示会被this.start()方法中的提示覆盖
 							if (res.data.success) {
 								this.$refs.uCode.start();

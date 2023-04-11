@@ -244,7 +244,7 @@
 				// 初始化支付签名
 				await API_Trade.initiatePay(paymentMethod, paymentClient, params).then(
 					(signXml) => {
-						uni.hideLoading();
+						 if (this.$store.state.isShowToast){ uni.hideLoading() };
 						//如果支付异常
 						if (!signXml.data.success) {
 							uni.showToast({
@@ -334,7 +334,7 @@
 										}
 									}
 								);
-								uni.hideLoading();
+								 if (this.$store.state.isShowToast){ uni.hideLoading() };
 							} else {
 								window.location.href = JSON.parse(response.result).h5_url;
 								const searchParams = {
@@ -352,7 +352,7 @@
 								})
 								},3000)
 								
-								uni.hideLoading();		
+								 if (this.$store.state.isShowToast){ uni.hideLoading() };		
 							}
 						} else if (paymentMethod === "WALLET") {
 							uni.showToast({

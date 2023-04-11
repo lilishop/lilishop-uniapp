@@ -197,7 +197,7 @@
 					title: "加载中",
 				});
 				getGoodsCollection(this.navList[0].params, "GOODS").then((res) => {
-					uni.hideLoading();
+					 if (this.$store.state.isShowToast){ uni.hideLoading() };
 					uni.stopPullDownRefresh();
 					if (res.data.success) {
 						let data = res.data.result;
@@ -225,7 +225,7 @@
 					title: "加载中",
 				});
 				getGoodsCollection(this.navList[1].params, "store").then((res) => {
-					uni.hideLoading();
+					 if (this.$store.state.isShowToast){ uni.hideLoading() };
 					uni.stopPullDownRefresh();
 					if (res.data.success) {
 						let data = res.data.result;

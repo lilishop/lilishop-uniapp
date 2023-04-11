@@ -11,7 +11,7 @@ import api from "@/config/api.js";
 
 import uuid from "@/utils/uuid.modified.js";
 import jwt from '@/js_sdk/t-jwt/jwt.js'
-
+import store from "../store";
 
 
 let isNavigateTo = false
@@ -131,7 +131,7 @@ http.interceptors.response.use(
 			//   cleanStorage();
 			//   isRefreshing = false;
 			// }
-
+			uni.showLoading() ? uni.hideLoading() : ''
 			let token = storage.getAccessToken();
 			if (
 				(token && response.statusCode === 403) ||
@@ -196,6 +196,15 @@ http.interceptors.response.use(
 						title: response.data.message,
 						icon: "none",
 						duration: 1500,
+						success: function () {
+							store.state.isShowToast = true;
+						},
+						fail: function () {
+							store.state.isShowToast = false;
+						},
+						complete: function () {
+							store.state.isShowToast = false;
+						}
 					});
 				}
 			}

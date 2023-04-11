@@ -392,7 +392,7 @@ export default {
         if (res.data.result.length >= 1) {
           this.cancelList = res.data.result;
         }
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
 
@@ -473,7 +473,7 @@ export default {
       });
       setTimeout(() => {
         this.navList[this.tabCurrentIndex].orderList.splice(index, 1);
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       }, 600);
     },
     //取消订单
@@ -493,7 +493,7 @@ export default {
         let list = this.navList[1].orderList;
         let index = list.findIndex((val) => val.id === item.id);
         index !== -1 && list.splice(index, 1);
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       }, 600);
     },
 

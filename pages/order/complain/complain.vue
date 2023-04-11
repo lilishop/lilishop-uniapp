@@ -178,7 +178,7 @@ export default {
         this.order = order.order;
         this.orderGoodsList = order.orderItems;
         this.orderDetail = res.data.result;
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
 

@@ -101,7 +101,7 @@ export default {
         this.addressList = res.data.result.records;
         console.log(this.addressList);
 
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
       });
     },
     //删除地址

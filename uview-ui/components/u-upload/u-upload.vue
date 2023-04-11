@@ -417,7 +417,7 @@ export default {
 					this.uploadError(index, e);
 				},
 				complete: res => {
-					uni.hideLoading();
+					 if (this.$store.state.isShowToast){ uni.hideLoading() };
 					this.uploading = false;
 					this.uploadFile(index + 1);
 					this.$emit('on-change', res, index, this.lists);

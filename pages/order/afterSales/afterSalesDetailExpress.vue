@@ -128,7 +128,7 @@ export default {
       });
       delete this.form.courierCompany;
       fillShipInfo(this.serviceDetail.sn, this.form).then((res) => {
-        uni.hideLoading();
+         if (this.$store.state.isShowToast){ uni.hideLoading() };
         if (res.statusCode === 200) {
           this.$refs.uToast.show({
             title: "提交成功",
