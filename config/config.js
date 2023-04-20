@@ -23,5 +23,5 @@ export default {
   lightColor: "#ff6b35", // 高亮主题色
   aiderLightColor: "#ff9f28", // 辅助高亮颜色
   defaultUserPhoto: "/static/missing-face.png", // 默认用户头像
-  enableFetchMobileLogin: true // 是否启用获取手机号登录 如果微信小程序提示封禁手机号获取权限 可将此选项设置成false作为备用登录方案
+  enableFetchMobileLogin: false // 是否启用获取手机号登录 如果微信小程序提示封禁手机号获取权限 可将此选项设置成false作为备用登录方案
 };
