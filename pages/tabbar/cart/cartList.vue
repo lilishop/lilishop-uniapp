@@ -90,7 +90,7 @@
                   <!-- #endif -->
                     <!-- #ifdef MP-WEIXIN -->
                     <u-number-box class="uNumber" :min="1" input-width="70" input-height="40" size="20"
-                    :value="skuItem.num" @change="numChange(skuItem)"></u-number-box>
+                    v-model="skuItem.num" @change="numChange(skuItem)"></u-number-box>
                   <!-- #endif -->
                 </view>
                 <!-- 如果当有促销并且促销是 限时抢购 -->
@@ -371,6 +371,7 @@ export default {
      * 点击步进器回调
      */
      numChange: debounce(function (val, nums) {   
+      console.log(val, nums)
         // 需要防抖的内容
       // #ifdef MP-WEIXIN
       if (nums && nums == "1") {
