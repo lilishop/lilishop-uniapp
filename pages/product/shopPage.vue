@@ -434,7 +434,7 @@ export default {
     async getGoodsData() {
       let res = await getGoodsList(this.goodsParams);
       if (res.data.success) {
-        this.goodsList.push(...res.data.result.content);
+        this.goodsList.push(...res.data.result.records);
       }
     },
 

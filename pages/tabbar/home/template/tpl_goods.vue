@@ -145,7 +145,7 @@ export default {
       const res = await getGoodsList(this.params);
       if (res.data.success) {
         this.goodsResult = res.data.result
-        const result = res.data.result.content.map(item=>item.content)
+        const result = res.data.result.records
         this.goodsData.push(...result);
         console.log(this.goodsData)
       }

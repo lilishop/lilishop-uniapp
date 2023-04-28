@@ -53,7 +53,7 @@
 				// #TODO
 				let goodsList = await getGoodsList(this.params);
 				if (goodsList.data.success) {
-					this.goodsList.push(...goodsList.data.result.content);
+					this.goodsList.push(...goodsList.data.result.records);
 				}
 			},
 		},
