@@ -452,7 +452,7 @@ export default {
      */
     navigateToGoodsDetail(val) {
       uni.navigateTo({
-        url: `/pages/product/goods?id=${val.content.id}&goodsId=${val.content.goodsId}`,
+        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
       });
     },
 
