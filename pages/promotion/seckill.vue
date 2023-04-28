@@ -124,21 +124,6 @@
 				}
 			},
 
-			/**
-			 * 跳转到商品详情
-			 */
-			navigateToGoodsDetail(item) {
-				if (
-					item.sold_num === item.quantity ||
-					this.timeLine[this.nav].distanceStartTime !== 0
-				) {
-					return;
-				} else {
-					uni.navigateTo({
-						url: `/pages/product/goods?id=${item.skuId}&goodsId=${item.goodsId}`,
-					});
-				}
-			},
 
 			/**
 			 * 单击导航时间

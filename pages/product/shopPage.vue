@@ -447,14 +447,7 @@ export default {
       }
     },
 
-    /**
-     * 跳转到商品详情
-     */
-    navigateToGoodsDetail(val) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
-      });
-    },
+  
 
     /**
      *  是否收藏
