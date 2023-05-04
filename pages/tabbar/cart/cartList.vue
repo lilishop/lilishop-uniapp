@@ -84,14 +84,7 @@
                   </div>
                 </view>
                 <view>
-                  <!-- #ifndef MP-WEIXIN -->
-                  <u-number-box class="uNumber" :min="1" input-width="70" input-height="40" size="20"
-                    v-model="skuItem.num" @change="numChange(skuItem)"></u-number-box>
-                  <!-- #endif -->
-                    <!-- #ifdef MP-WEIXIN -->
-                    <u-number-box class="uNumber" :min="1" input-width="70" input-height="40" size="20"
-                    v-model="skuItem.num" @change="numChange(skuItem)"></u-number-box>
-                  <!-- #endif -->
+                  <uni-number-box class="uNumber" :min="1" :max="999"  @change="numChange(skuItem)"	 v-model="skuItem.num"></uni-number-box>
                 </view>
                 <!-- 如果当有促销并且促销是 限时抢购 -->
                 <!-- promotions -->
@@ -180,7 +173,9 @@
 <script>
 import * as API_Trade from "@/api/trade";
 import { debounce } from "@/utils/tools.js";
+import uniNumberBox from '@/components/uni-number-box'
 export default {
+  components:{uniNumberBox}, // 数量加减组件
   data() {
     return {
       loading:false,
@@ -360,28 +355,9 @@ export default {
     },
 
     /**
-     * 点击步进器微信回调
-     */
-    numChange_WEIXIN(callback) {
-      this.WEIXIN_num = callback.value;
-      this.numChange(callback.data, "3");
-    },
-
-    /**
      * 点击步进器回调
      */
-     numChange: debounce(function (val, nums) {   
-      console.log(val, nums)
-        // 需要防抖的内容
-      // #ifdef MP-WEIXIN
-      if (nums && nums == "1") {
-        val.num++;
-      } else if (nums && nums == "0") {
-        val.num--;
-      } else if (nums && nums == "3") {
-        val.num = this.WEIXIN_num;
-      }
-      // #endif
+     numChange: debounce(function (val) {   
       this.updateSkuNumFun(val.goodsSku.id, val.num);
     }, 1000),
     /**
