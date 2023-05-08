@@ -6,16 +6,21 @@
 		<u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
 		<div v-else>
 			<view v-for="(item, index) in trackList" :key="index">
-				<view class="myTracks-title" @click="navgaiteToStore(item)">{{item.storeName}}</view>
+				<view class="myTracks-title" @click="navigateToStore(item)" v-if="item.storeName">{{item.storeName}}</view>
 				<view class="myTracks-items">
 
 					<u-swipe-action style="width: 100%;" :show="item.show" :index="index" :key="item.id"
 						@click="delTracks" @open="open" :options="options">
-						<view class="myTracks-item">
-							<view class="myTracks-item-img" @click.stop="navgaiteToDetail(item)">
+						<!-- 已失效商品 -->
+						<div class="myTracks-item lose-goods" v-if="!item.storeName && !item.goodsName && !item.price">
+							已失效商品 
+						</div>
+						<!-- 正常有效商品 -->
+						<view v-else class="myTracks-item">
+							<view class="myTracks-item-img" @click.stop="navigateToDetail(item)">
 								<image :src="item.thumbnail"></image>
 							</view>
-							<view class="myTracks-item-content" @click.stop="navgaiteToDetail(item)">
+							<view class="myTracks-item-content" @click.stop="navigateToDetail(item)">
 								<view class="myTracks-item-title">
 									{{ item.goodsName }}
 									<view class="myTracks-item-title-desc"> </view>
@@ -83,7 +88,7 @@
 			/**
 			 * 导航到店铺
 			 */
-			navgaiteToStore(val) {
+			navigateToStore(val) {
 				uni.navigateTo({
 					url: "/pages/product/shopPage?id=" + val.storeId,
 				});
@@ -99,7 +104,7 @@
 			/**
 			 * 跳转详情
 			 */
-			navgaiteToDetail(item) {
+			navigateToDetail(item) {
 				uni.navigateTo({
 					url: "/pages/product/goods?id=" + item.id + "&goodsId=" + item.goodsId,
 				});
@@ -154,6 +159,10 @@
 </script>
 
 <style lang="scss" scoped>
+	.lose-goods{
+		color: $main-color;
+		padding-left: 50rpx !important;
+	}
 	.myTracks {
 		width: 100%;
 		padding-top: 2rpx;
@@ -224,36 +233,10 @@
 		padding: 10rpx 0 0 0;
 	}
 
-	.myTracks-action {
-		display: flex;
-		justify-content: space-between;
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		background: #fff;
-		height: 75rpx;
-		align-items: center;
-		padding: 0 32rpx;
-	}
-
-	.myTracks-action-btn {
-		width: 130rpx;
-		height: 60rpx;
-		line-height: 60rpx;
-	}
 
 	.myTracks-divider {
 		width: 100%;
 		height: 20rpx;
 	}
 
-
-
-	.myTracks-action-check {
-		align-items: center;
-		display: -webkit-box;
-		display: -webkit-flex;
-		display: flex;
-	}
 </style>
