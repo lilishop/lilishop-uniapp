@@ -121,6 +121,7 @@ export default {
 
     // 选择地址后数据的回调
     callBackAddress(val) {
+      console.log(val)
       uni.showLoading({
         title: "加载中",
       });
@@ -133,7 +134,7 @@ export default {
         this.form.consigneeAddressPath = val.data.result.name; //地址名称， '，'分割
         this.form.lat = val.latitude; //纬度
         this.form.lon = val.longitude; //经度
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
+         uni.hideLoading();
       }
 
       this.mapFlag = !this.mapFlag; //关闭地图
