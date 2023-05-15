@@ -236,7 +236,7 @@ export function deleteGoodsCollection(ids) {
  */
 export function deleteStoreCollection(store_id) {
   return http.request({
-    url: `/member/collection/delete/STORE/${store_id}`,
+    url: `/member/storeCollection/delete/STORE/${store_id}`,
     method: Method.DELETE,
     needToken: true,
   });
@@ -256,16 +256,28 @@ export function getGoodsIsCollect(type, good_id) {
 }
 
 /**
+ * 获取商品是否被收藏
+ * @param good_id
+ */
+export function getStoreIsCollect(type, store_id) {
+  return http.request({
+    url: `/member/storeCollection/isCollection/${type}/${store_id}`,
+    method: Method.GET,
+    needToken: true,
+    loading: false,
+  });
+}
+
+/**
  * 收藏店铺
  * @param store_id 店铺ID
  * @returns {AxiosPromise}
  */
 export function collectionStore(store_id) {
   return http.request({
-    url: "members/collection/store",
-    header: { "content-type": "application/x-www-form-urlencoded" },
+    url: `/member/storeCollection/add/STORE/${store_id}`,
     method: Method.POST,
-    data: { store_id },
+    needToken: true,
   });
 }
 

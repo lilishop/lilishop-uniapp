@@ -181,8 +181,8 @@ import { getStoreBaseInfo, getStoreCategory } from "@/api/store.js";
 import {
   receiveCoupons,
   deleteStoreCollection,
-  collectionGoods,
-  getGoodsIsCollect,
+  collectionStore,
+  getStoreIsCollect,
 } from "@/api/members.js";
 import config from "@/config/config";
 
@@ -374,7 +374,7 @@ export default {
     },
     /**是否收藏店铺 */
     async enableGoodsIsCollect() {
-      let res = await getGoodsIsCollect("STORE", this.storeId);
+      let res = await getStoreIsCollect("STORE", this.storeId);
       if (res.data.success) {
         this.isCollection = res.data.result;
       }
@@ -465,7 +465,7 @@ export default {
           }
         });
       } else {
-        collectionGoods("STORE", this.storeId).then((res) => {
+        collectionStore(this.storeId).then((res) => {
           if (res.data.success) {
             this.isCollection = true;
             uni.showToast({
