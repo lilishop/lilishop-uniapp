@@ -203,6 +203,22 @@ export function getGoodsCollection(params, type) {
 }
 
 /**
+ * 获取商品收藏
+ * @param params
+ * @returns {AxiosPromise}
+ */
+export function getStoreCollection(params, type) {
+  return http.request({
+    url: `/member/storeCollection/${type}`,
+    method: Method.GET,
+    needToken: true,
+    loading: false,
+    message: false,
+    params,
+  });
+}
+
+/**
  * 收藏商品
  * @returns {AxiosPromise}
  */

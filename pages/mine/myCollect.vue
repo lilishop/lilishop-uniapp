@@ -64,6 +64,7 @@
 <script>
 	import {
 		getGoodsCollection,
+		getStoreCollection,
 		deleteGoodsCollection,
 		deleteStoreCollection,
 	} from "@/api/members.js";
@@ -154,7 +155,7 @@
 			 * 点击店铺左侧取消收藏
 			 */
 			clickStoreSwiperAction(val) {
-				deleteStoreCollection(val.storeId).then((res) => {
+				deleteStoreCollection(val.id).then((res) => {
 					if (res.statusCode == 200) {
 						this.storeList = [];
 						this.getStoreList();
@@ -224,7 +225,7 @@
 				uni.showLoading({
 					title: "加载中",
 				});
-				getGoodsCollection(this.navList[1].params, "store").then((res) => {
+				getStoreCollection(this.navList[1].params, "STORE").then((res) => {
 					 if (this.$store.state.isShowToast){ uni.hideLoading() };
 					uni.stopPullDownRefresh();
 					if (res.data.success) {
