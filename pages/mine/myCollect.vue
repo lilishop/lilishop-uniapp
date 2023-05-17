@@ -106,7 +106,7 @@
 				storeList: [], //店铺集合
 			};
 		},
-		onLoad() {
+		onShow() {
 			this.getGoodList();
 			this.getStoreList();
 		},

@@ -96,8 +96,7 @@
 					<!-- 数量 -->
 					<view class="goods-skus-number flex flex-a-c flex-j-sb">
 						<view class="view-class-title">数量</view>
-
-						<u-input class="view-class-input" input-align="right" v-model="num" type="number" @blur="numCheck()" />
+						<uni-number-box class="uNumber" :min="1" :max="999"   v-model="num"></uni-number-box>
 					</view>
 				</scroll-view>
 				<!-- 按钮 -->
@@ -112,8 +111,11 @@
 <script>
 import * as API_trade from '@/api/trade.js';
 import setup from './popup';
-
+import uniNumberBox from '@/components/uni-number-box'
 export default {
+	components: {
+		uniNumberBox
+	},
 	data() {
 		return {
 			setup,
