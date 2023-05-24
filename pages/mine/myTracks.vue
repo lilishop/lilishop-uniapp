@@ -77,6 +77,7 @@
 			this.getList();
 		},
 		onShow() {
+			this.params.pageNumber = 1
 			this.trackList = [];
 			this.getList();
 		},

@@ -107,20 +107,33 @@
 			};
 		},
 		onShow() {
-			this.getGoodList();
-			this.getStoreList();
+			this.fetchReloadOrNextPage('reload')
 		},
 		onReachBottom() {
-			if (this.tabCurrentIndex == 0) {
-				this.navList[0].params.pageNumber++;
-				this.getGoodList();
-			} else {
-				this.navList[1].params.pageNumber++;
-				this.getStoreList();
-			}
+			this.fetchReloadOrNextPage('next')
 		},
 
 		methods: {
+			// 刷新或者下一页
+			fetchReloadOrNextPage(type) {
+				if(type == 'next'){
+					this.navList[this.tabCurrentIndex].params.pageNumber ++;
+					if (this.tabCurrentIndex == 0) {
+					this.getGoodList();
+					} else {
+						this.getStoreList();
+					}
+				}
+				else{
+					this.navList[0].params.pageNumber = 1;
+					this.navList[1].params.pageNumber = 1;
+					this.goodList = [];
+					this.storeList = [];
+					this.getGoodList();
+					this.getStoreList();
+				}
+			},
+
 			/**
 			 * 打开商品左侧取消收藏
 			 */
