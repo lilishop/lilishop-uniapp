@@ -542,13 +542,13 @@ export default {
      */
     submitCancel() {
       cancelOrder(this.orderSn, { reason: this.reason }).then((res) => {
-        if (res.statusCode == 200) {
+        if (res.data.success) {
           uni.showToast({
             title: "订单已取消",
             duration: 2000,
             icon: "none",
           });
-          this.initData(0);
+          this.initData(this.tabCurrentIndex);
 
           this.cancelShow = false;
         } else {

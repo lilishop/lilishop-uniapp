@@ -88,14 +88,14 @@
                         <span>¥</span><span class="price">{{
                           $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[0]
                         }}</span>.{{
-  $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[1]
-}}
+                          $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[1]
+                        }}
                         ~
                         <span>¥</span><span class="price">{{
                           $options.filters.goodsFormatPrice(wholesaleList[0].price)[0]
                         }}</span>.{{
-  $options.filters.goodsFormatPrice(wholesaleList[0].price)[1]
-}}
+                          $options.filters.goodsFormatPrice(wholesaleList[0].price)[1]
+                        }}
                       </span>
                       <span v-else>
                         <span>¥</span><span class="price">{{
@@ -105,7 +105,12 @@
                     </span>
                   </view>
                   <view class="-goods-price" v-else>
+                    <div v-if="takeDownFromSale" class="price down-goods">
+                      暂无报价
+                    </div>
+                    <span v-else>
                     ¥<span class="price">0 </span>.00
+                    </span>
                   </view>
 
                   <view class="icons share" @click="shareChange()">
@@ -189,6 +194,7 @@
         </view>
       </scroll-view>
 
+
       <view class="page-bottom mp-iphonex-bottom" id="pageBottom">
         <view class="icon-btn">
           <view class="icon-btn-item" @click="navigateToStore(goodsDetail.storeId)">
@@ -205,15 +211,20 @@
             <view v-if="nums && nums > 0" class="num-icon">{{ nums }}</view>
           </view>
         </view>
+        <!-- 下架展示 -->
+        <div class="detail-btn" v-if="takeDownFromSale">
+          <view class="to-store-car to-store-btn"  @click="reStartTakeDownSale">
+            查看类似商品</view>
+        </div>
         <!-- 正常结算页面 -->
-        <view class="detail-btn" v-if="!isGroup">
+        <view class="detail-btn" v-if="!isGroup && !takeDownFromSale">
           <view class="to-store-car to-store-btn" v-if="goodsDetail.goodsType != 'VIRTUAL_GOODS'" @click="shutMask(4)">
             加入购物车</view>
           <view class="to-buy to-store-btn" @click="shutMask(4, 'buy')">立即购买</view>
           <view class="to-store-car to-store-btn" v-if="startTimer">暂未开始</view>
         </view>
         <!-- 拼团结算 -->
-        <view class="detail-btn" v-else>
+        <view class="detail-btn" v-else-if="isGroup">
           <view class="to-store-car pt-buy to-store-btn" @click="shutMask(4, 'buy')">
             <view>￥{{ goodsDetail.price | unitPrice }}</view>
             <view>单独购买</view>
@@ -253,6 +264,10 @@
           @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :isGroup="isGroup" :id="productId"
           v-if="goodsDetail.id" :pointDetail="pointDetail" :wholesaleList="wholesaleList" @handleClickSku="selectSku"
           :buyMask="buyMask" />
+
+
+        <!-- 下架框 -->
+        <takeDownFormSaleGoods ref="takeDownSale" v-if="takeDownFromSale" />
       </view>
     </view>
   </div>
@@ -284,6 +299,7 @@ import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
 import popupAddress from "./product/popup/address"; //地址选择模块
 import shares from "@/components/m-share/index"; //分享
 import popups from "@/components/popups/popups"; //气泡框
+import takeDownFormSaleGoods from "@/components/m-take-down-sale-goods/index"; //下架框
 import setup from "./product/popup/popup";
 
 export default {
@@ -302,6 +318,7 @@ export default {
     GoodsSwiper,
     popupGoods,
     popupAddress,
+    takeDownFormSaleGoods
   },
   data () {
     return {
@@ -385,10 +402,8 @@ export default {
       tabScrollTop: null,
       scrollArr: [],
       scrollId: "1",
-
       scrollFlag: true,
       current: "1", //当前显示的轮播图页
-
       goodsDetail: {}, //商品数据
       goodsSpec: "", //规格数据
       imgList: [], //轮播图数据
@@ -398,12 +413,9 @@ export default {
       goodsInfo: false, //商品介绍弹窗
       addressFlag: false, //配送地址弹窗
       buyMask: false, //添加购物车直接购买，查看已选 弹窗
-
       num: 1, //添加到购物车的数量
-
       skuId: "", //
       storeDetail: "", //店铺基本信息,
-
       // 店铺信息
       storeParams: {
         pageNumber: 1,
@@ -413,7 +425,6 @@ export default {
       likeGoodsList: "", //相似商品列表
       PromotionList: "", //活动,促销，列表
       specList: [],
-      skusCombination: [],
       selectedSpec: [],
       nums: 0,
       delivery: "",
@@ -425,7 +436,8 @@ export default {
 
       routerVal: "",
       IMLink: "", // IM地址
-      wholesaleList: []
+      wholesaleList: [],
+      takeDownFromSale: false, // 下架销售状态
     };
   },
 
@@ -504,6 +516,10 @@ export default {
   },
 
   methods: {
+    // 重新打开下架
+    reStartTakeDownSale(){
+      this.$refs.takeDownSale.show = true
+    },
     share () {
       return `/pages/product/goods?id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`;
     },
@@ -538,11 +554,16 @@ export default {
       // 这里请求获取到页面数据  解析数据
 
       let response = await getGoods(id, goodsId);
-
+      
+      // 判断当前接口返回内容 
       if (!response.data.success) {
-        setTimeout(() => {
-          uni.navigateBack();
-        }, 500);
+        // 商品已下架
+        if(response.data.code == 11001){
+          this.takeDownFromSale = true
+        }
+        // setTimeout(() => {
+        //   uni.navigateBack();
+        // }, 500);
       }
       // 这里是绑定分销员
       if (distributionId || this.$store.state.distributionId) {

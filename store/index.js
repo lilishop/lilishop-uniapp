@@ -7,6 +7,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     isShowToast:false, // 是否在展示Toast中
+    remark:[], //填写订单备注
     shareLink:"", //分享链接
     verificationKey: "", //获取key表示验证通过
     distributionId:"", //分销员Id 如果当前账户从未登录过时记录
@@ -26,6 +27,11 @@ const store = new Vuex.Store({
       state.userName = "";
       state.hasLogin = false;
     },
+
+    // 设置填写订单中备注
+    setRemark(state, remark) {
+      state.remark = remark;
+    }
   },
   actions: {},
 });
