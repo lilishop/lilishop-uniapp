@@ -32,7 +32,7 @@
       <view style="margin:20rpx 0 0 0;">{{config.customerServiceEmail ? `客服邮箱：${config.customerServiceEmail}` :  ``}}</view>
 
       <view>
-        <view style="margin:20rpx 0; color:#003a8c;" @click="navigateTo('/pages/mine/help/tips?type=user')">《{{config.name}}用户协议》</view>
+        <view style="margin:20rpx 0; color:#003a8c;" @click="navigateTo('/pages/mine/help/tips?type=USER_AGREEMENT')">《{{config.name}}用户协议》</view>
         <view>CopyRight ©{{config.name}} </view>
       </view>
     </view>

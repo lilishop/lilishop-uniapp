@@ -1,9 +1,9 @@
 {
-    "name" : "lili商城",
-    "appid" : "__UNI__D472780",
+    "name" : "lilishop",
+    "appid" : "__UNI__ED807EA",
     "description" : "",
-    "versionName" : "4.2.8",
-    "versionCode" : 4000280,
+    "versionName" : "4.5.3",
+    "versionCode" : 4000503,
     "transformPx" : false,
     "app-plus" : {
         "compatible" : {
@@ -116,7 +116,7 @@
                     },
                     "apple" : {},
                     "qq" : {
-                        "appid" : "101918503"
+                        "appid" : "101918501"
                     }
                 },
                 "geolocation" : {

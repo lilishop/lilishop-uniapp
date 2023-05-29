@@ -21,7 +21,7 @@
     </view>
 
     <view class="store-recommend">
-      <view class="store-recommend-title">商品推荐</view>
+      <view class="store-recommend-title">店内其他商品</view>
       <view class="recommend-list">
         <view class="recommend-item" @click="clickGoods(item)" v-for="(item, index) in res" :key="index">
           <u-image class="recommend-item-img" :fade="true" duration="450" :lazy-load="true" :src="item.thumbnail" height="218rpx">
