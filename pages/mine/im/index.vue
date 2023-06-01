@@ -1,208 +1,121 @@
 <template>
-  <view>
-    <view
-      class="container"
-      :style="{ 'padding-bottom': `${52 + inputBottom}px` }"
-    >
-      <!-- 空盒子用来防止消息过少时 拉起键盘会遮盖消息 -->
-      <view :animation="anData" style="height: 0"> </view>
-      <u-navbar class="header" title-size="32" :title="toUser.name"></u-navbar>
-      <scroll-view
-        ref="scrollView"
-        class="content"
-        :scroll-y="true"
-        @scrolltoupper="pullDownRefresh()"
-        :scroll-top="scrollTop"
-        @scroll="resizeScroll"
-      >
-        <view>
-          <view
-            class="message"
-            v-if="recordsList.length"
-            v-for="(item, index) in recordsList"
-            :key="index"
-          >
-            <!-- 用户消息 头像可选加入-->
-            <view
-              v-if="item.my"
-              class="flex justify-end padding-right one-show align-start padding-top"
-            >
-              <view
-                class="flex justify-end"
-                style="width: 400rpx; margin-top: 12px"
-              >
-                <view>
-                  <view class="user-name">{{ user.nickName }}</view>
-                  <view
-                    class="margin-left padding-chat bg-user-orang"
-                    style="border-radius: 35rpx"
-                  >
-                    <text
-                      style="word-break: break-all"
-                      v-if="
-                        item.messageType === 'MESSAGE' &&
-                        !emojistwo.includes(item.text)
-                      "
-                      >{{ item.text }}</text
-                    >
-                    <view
-                      v-if="
-                        item.messageType === 'MESSAGE' &&
-                        emojistwo.includes(item.text)
-                      "
-                      v-html="textReplaceEmoji(item.text)"
-                    ></view>
-                    <view v-if="item.messageType == 'GOODS'">
-                      <view
-                        class="goodsCard u-flex u-row-between u-p-b-0"
-                        style="width: 100%; margin: 0 0"
-                      >
-                        <view class="imagebox" @click="jumpGoodDelic(item)">
-                          <image
-                            class="image"
-                            :src="JSON.parse(item.text)['thumbnail']"
-                            mode="widthFix"
-                          ></image>
-                        </view>
-                        <view class="goodsdesc" @click="jumpGoodDelic(item)">
-                          <view class="goodsdesc-name">
-                            <text class="goodsCard_goodNmae">{{
-                              JSON.parse(item.text)["goodsName"]
-                            }}</text>
-                          </view>
-                          <view class="goodsdesc-rice"
-                            >￥{{ JSON.parse(item.text)["price"] | unitPrice }}
-                          </view>
-                        </view>
-                      </view>
+  <view class="wrapper">
+    <u-navbar class="my-title" title-size="32" :title="toUser.name"></u-navbar>
+    <!-- 空盒子用来防止消息过少时 拉起键盘会遮盖消息 -->
+    <view :animation="anData" style="height:0;">
+    </view>
+    <!-- 消息体 -->
+    <!-- 用来获取消息体高度 -->
+    <view id="msgList">
+      <!-- 消息 -->
+      <view class="flex-column-start" v-if="msgList.length" v-for="(item, index) in msgList" :key="index">
+        <view class="flex-row-start column-time">
+          <!--  <view v-show="compareTime(index, item.createTime)" class="flex-row-start date-text"
+            v-text="beautifyTime(item.createTime)">
+          </view> -->
+        </view>
+        <!-- 用户消息 头像可选加入-->
+        <view v-if="item.my" class="flex justify-end padding-right one-show  align-start  padding-top">
+          <view class="flex justify-end" style="width: 400rpx;margin-top: 12px;">
+            <view>
+              <view class="user-name">{{ user.nickName }}</view>
+              <view class="margin-left padding-chat bg-user-orang" style="border-radius: 35rpx; ">
+                <text style="word-break: break-all;"
+                  v-if="item.messageType === 'MESSAGE' && !emojistwo.includes(item.text)">{{ item.text }}</text>
+                <view v-if="item.messageType === 'MESSAGE' && emojistwo.includes(item.text)"
+                  v-html="textReplaceEmoji(item.text)"></view>
+                <view v-if="item.messageType == 'GOODS'">
+                  <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
+                    <view class="imagebox" @click="jumpGoodDelic(item)">
+                      <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
                     </view>
-
-                    <view
-                      v-if="item.messageType == 'ORDER'"
-                      @click="linkTosOrders(item.text)"
-                    >
-                      <view class="orderSn">
-                        <div class="wes">
-                          订单号：{{ JSON.parse(item.text)["sn"] }}
-                        </div>
-                        <div
-                          class="order-item flex"
-                          v-if="JSON.parse(item.text).orderItems.length"
-                          v-for="(order, orderIndex) in JSON.parse(item.text)
-                            .orderItems"
-                        >
-                          <u-image
-                            mode="widthFix"
-                            width="120rpx"
-                            height="120rpx"
-                            :src="order.image"
-                          />
-                          <view class="groupNameOrTime">
-                            <div class="wes-2">{{ order.name }}</div>
-                            <div class="main-color goodsdesc-rice">
-                              {{ order.goodsPrice | unitPrice("￥") }}
-                            </div>
-                          </view>
-                        </div>
-                        <view class="order-list">
-                          <view class="orderTime">
-                            <text>{{
-                              JSON.parse(item.text)["paymentTime"]
-                            }}</text>
-                          </view>
-                        </view>
+                    <view class="goodsdesc" @click="jumpGoodDelic(item)">
+                      <view class="goodsdesc-name">
+                        <text class="goodsCard_goodNmae">{{
+                          JSON.parse(item.text)['goodsName']
+                        }}</text>
+                      </view>
+                      <view class="goodsdesc-rice" >￥{{
+                            JSON.parse(item.text)['price'] | unitPrice
+                          }}
                       </view>
                     </view>
                   </view>
                 </view>
-              </view>
-              <view>
-                <u-avatar
-                  :src="user.face"
-                  :text="user.face ? '' : user.name"
-                  bg-color="#DDDDDD"
-                ></u-avatar>
+          
+                <view v-if="item.messageType == 'ORDER'" @click="linkTosOrders(item.text)">
+                  <view class="orderSn">
+                    <div class="wes">订单号：{{ JSON.parse(item.text)['sn'] }}</div>
+                    <div class='order-item flex' v-if="JSON.parse(item.text).orderItems.length"  v-for='(order,orderIndex) in JSON.parse(item.text).orderItems'>
+                      <u-image  mode="widthFix" width='120rpx' height='120rpx' :src="order.image" />
+                       <view class="groupNameOrTime">
+                        <div class="wes-2" >{{
+                        order.name
+                        }}</div>
+                        <div class="main-color goodsdesc-rice">{{
+                          order.goodsPrice | unitPrice("￥")
+                        }}</div>
+                        
+                      </view>
+                    </div>
+                    <view class="oederList">
+                      <view class="orderTime">
+                          <text>{{ JSON.parse(item.text)['paymentTime'] }}</text>
+                        </view>
+                    </view>
+                  </view>
+                </view>
               </view>
             </view>
-            <!-- 接收人消息 -->
-            <view v-else class="flex-row-start margin-left margin-top one-show">
-              <view class="chat-img flex-row-center">
-                <u-avatar
-                  :src="toUser.face"
-                  :text="toUser.face ? '' : toUser.name"
-                  bg-color="#DDDDDD"
-                >
-                </u-avatar>
-              </view>
-              <view class="flex" style="width: 500rpx">
-                <view>
-                  <view class="other-name">{{ toUser.name }}</view>
-                  <view
-                    class="margin-left padding-chat flex-column-start bg-to-color"
-                    style="border-radius: 35rpx"
-                  >
-                    <text
-                      style="word-break: break-all"
-                      v-if="
-                        item.messageType === 'MESSAGE' &&
-                        !emojistwo.includes(item.text)
-                      "
-                      >{{ item.text }}</text
-                    >
-                    <view
-                      v-if="
-                        item.messageType === 'MESSAGE' &&
-                        emojistwo.includes(item.text)
-                      "
-                      v-html="textReplaceEmoji(item.text)"
-                    ></view>
-                    <view v-if="item.messageType === 'GOODS'">
-                      <view
-                        class="goodsCard u-flex u-row-between u-p-b-0"
-                        style="width: 100%; margin: 0 0"
-                      >
-                        <view class="imagebox" @click="jumpGoodDelic(item)">
-                          <image
-                            class="image"
-                            :src="JSON.parse(item.text)['thumbnail']"
-                            mode="widthFix"
-                          ></image>
-                        </view>
-                        <view class="goodsdesc" @click="jumpGoodDelic(item)">
-                          <view class="goodsdesc-name">
-                            <text class="goodsCard_goodNmae">{{
-                              JSON.parse(item.text)["goodsName"]
-                            }}</text>
-                          </view>
-                          <view class="goodsdesc-rice"
-                            >¥{{ JSON.parse(item.text)["price"] }}
-                          </view>
-                        </view>
+          </view>
+          <view>
+            <u-avatar :src="user.face" :text="user.face ? '' : user.name" bg-color="#DDDDDD"></u-avatar>
+          </view>
+        </view>
+        <!-- 接收人消息 -->
+        <view v-else class="flex-row-start margin-left margin-top one-show">
+          <view class="chat-img flex-row-center">
+            <u-avatar :src="toUser.face" :text="toUser.face ? '' : toUser.name" bg-color="#DDDDDD">
+            </u-avatar>
+          </view>
+          <view class="flex" style="width: 500rpx;">
+            <view>
+              <view class="other-name">{{ toUser.name }}</view>
+              <view class="margin-left padding-chat flex-column-start bg-to-color" style="border-radius: 35rpx;">
+                <text style="word-break: break-all;"
+                  v-if="item.messageType === 'MESSAGE' && !emojistwo.includes(item.text)">{{ item.text }}</text>
+                <view v-if="item.messageType === 'MESSAGE' && emojistwo.includes(item.text)"
+                  v-html="textReplaceEmoji(item.text)"></view>
+                <view v-if="item.messageType === 'GOODS'">
+                  <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
+                    <view class="imagebox" @click="jumpGoodDelic(item)">
+                      <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
+                    </view>
+                    <view class="goodsdesc" @click="jumpGoodDelic(item)">
+                      <view class="goodsdesc-name">
+                        <text class="goodsCard_goodNmae">{{
+                          JSON.parse(item.text)['goodsName']
+                        }}</text>
+                      </view>
+                        <view class="goodsdesc-rice" >¥{{
+                            JSON.parse(item.text)['price']
+                          }}
                       </view>
                     </view>
-                    <view v-if="item.messageType === 'ORDER'">
-                      <view class="orderSn">
-                        <text>订单号：{{ JSON.parse(item.text)["sn"] }}</text>
-                        <view class="order-list">
-                          <img
-                            style="
-                              height: 120rpx;
-                              width: 120rpx;
-                              margin-top: 15rpx;
-                            "
-                            :src="JSON.parse(item.text)['groupImages']"
-                            mode="widthFix"
-                          />
-                          <view class="groupNameOrTime">
-                            <text @click="linkTosOrders(item.text)">{{
-                              JSON.parse(item.text)["groupName"]
-                            }}</text>
-                            <view class="orderTime">
-                              <text>{{
-                                JSON.parse(item.text)["paymentTime"]
-                              }}</text>
-                            </view>
-                          </view>
+                  </view>
+                </view>
+                <view v-if="item.messageType === 'ORDER'">
+                  <view class="orderSn">
+                    <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
+                    <view class="oederList">
+                      <img style="height: 120rpx; width: 120rpx; margin-top: 15rpx;"
+                        :src="JSON.parse(item.text)['groupImages']" mode="widthFix" />
+                      <view class="groupNameOrTime">
+                        <text @click="linkTosOrders(item.text)">{{
+                          JSON.parse(item.text)['groupName']
+                        }}</text>
+                        <view class="orderTime">
+                          <text>{{ JSON.parse(item.text)['paymentTime'] }}</text>
                         </view>
                       </view>
                     </view>
@@ -210,126 +123,236 @@
                 </view>
               </view>
             </view>
-          </view>
-        </view>
-      </scroll-view>
-    </view>
 
-    <view
-      :style="{
-        position: 'fixed',
-        top: '91px',
-        width: '100%',
-      }"
-      v-if="showHide && !localImGoodsId && showHideModel"
-    >
-      <view class="cartMessage">
-        <view class="goodsCard u-flex u-row-between u-p-b-0">
-          <view class="imagebox" @click="jumpGoodDelic(item)">
-            <image
-              class="image"
-              :src="goodListData.thumbnail"
-              mode="widthFix"
-            ></image>
-          </view>
-          <view class="goodsdesc" @click="jumpGoodDelic(item)">
-            <view class="goodsdesc-name">
-              <text class="goodsCard_goodNmae">{{
-                goodListData.goodsName
-              }}</text>
-            </view>
-            <view class="goodsdesc-rice">
-              ￥{{ goodListData.price | unitPrice }}
-            </view>
-          </view>
-          <view class="cancel" @click="cancelModel">X</view>
-          <view class="sendGood" @click="sendGoodsMessage">
-            <view>发送商品</view>
           </view>
         </view>
       </view>
-    </view>
-
-    <view class="bottom-textarea" :style="{ bottom: inputBottom + 'px' }">
-      <view class="textarea-container">
-        <Input
-          @focus="focusTextarea"
-          :maxlength="-1"
-          :auto-height="true"
-          :show-confirm-bar="false"
-          :cursor-spacing="10"
-          :fixed="true"
-          :adjust-position="false"
-          @blur="blurTextarea"
-          v-model="msg"
-          @confirm="sendMessage"
-          confirm-type="send"
-          placeholder-class="my-neirong-sm"
-          placeholder="用一句简短的话描述您的问题"
-        />
+      <!-- 防止消息底部被遮 -->
+      <view v-if="showHide && !localImGoodsId && showHideModel" class="flex-row-start margin-left margin-top"
+        style="height: 120rpx;">
       </view>
-      <view @click="sendMessage" class="cu-tag bg-main-color send round">
-        发送
+      <!-- 如果没有聊天记录，定位到底部 -->
+      <view
+        :style="{ position:'fixed' , bottom:(inputHeight+66)+'px' , width:  '100%' }">
+        <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
+          <view class="goodsCard u-flex u-row-between u-p-b-0">
+            <view class="imagebox" @click="jumpGoodDelic(item)">
+              <image class="image" :src="goodListData.thumbnail" mode="widthFix"></image>
+            </view>
+            <view class="goodsdesc" @click="jumpGoodDelic(item)">
+              <view class="goodsdesc-name">
+                <text class="goodsCard_goodNmae">{{
+                  goodListData.goodsName
+                }}</text>
+              </view>
+              <view class="goodsdesc-rice" > ￥{{
+                goodListData.price | unitPrice
+              }}
+              </view>
+            </view>
+            <view class="cancel" @click="cancelModel">X</view>
+            <view class="sendGood" @click="sendGoodsMessage">
+              <view>发送商品</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- loading是显示 -->
+      <!-- <view v-show="msgLoad" class=" margin-left margin-top">
+        <view class="chat-img flex-row-center">
+          <image style="height: 75rpx;width: 75rpx;" src="../../static/image/robt.png" mode="aspectFit"></image>
+        </view>
+        <view class="flex" style="width: 500rpx;">
+          <view class="margin-left padding-chat flex-column-start"
+            style="border-radius: 35rpx;background-color: #f9f9f9;">
+            <view class="cuIcon-loading turn-load" style="font-size: 35rpx;color: #3e9982;">
+
+            </view>
+          </view>
+        </view>
+      </view> -->
+      <!-- 防止消息底部被遮 -->
+      <view style="height: 120rpx;">
+      </view>
+    </view>
+    <!-- 底部导航栏 -->
+    <view :style="{position: 'fixed',bottom:inputHeight+'px'}" class="flex-column-center"  :animation="animationData">
+      <view class="bottom-dh-char flex-row-around" style="font-size: 55rpx;">
+        <!-- vue无法使用软键盘"发送" -->
+        <input @focus="inputBindFocus" @blur="eventHandle"  :adjust-position="false" v-model="msg" class="dh-input" type="text" style="background-color: #f0f0f0;" @confirm="sendMessage"
+          confirm-type="send" placeholder-class="my-neirong-sm" placeholder="用一句简短的话描述您的问题" />
+        <view @click="sendMessage" class="cu-tag bg-main-color send round">
+          发送
+        </view>
+        <!-- <text @click="ckAdd" class="cuIcon-roundaddfill text-brown"></text> -->
       </view>
     </view>
   </view>
 </template>
 
 <script>
-import { getTalkMessage, getTalkByUser, jumpObtain } from "@/api/im.js";
+// rpx和px的比率
+var l
+// 可用窗口高度
+var wh
+// 顶部空盒子的高度
+var mgUpHeight
+import {
+  getTalkMessage,
+  getTalkByUser,
+  jumpObtain
+} from "@/api/im.js";
 import SocketService from "@/utils/socket_service.js";
 import storage from "@/utils/storage.js";
-import { beautifyTime } from "@/utils/filters.js";
-import config from "@/config/config.js";
-import { textReplaceEmoji, emojistwo } from "@/utils/emojis.js";
+import {
+  beautifyTime
+} from "@/utils/filters.js"
+import config from '@/config/config.js'
+import { textReplaceEmoji, emojistwo } from '@/utils/emojis.js';
 export default {
-  data() {
+  // 页面卸载后清除imGoodId
+  onUnload () {
+    // #ifdef H5
+    uni.setStorageSync("imGoodId", '');
+    // #endif
+
+    if (this.socketOpen == true) {
+      uni.closeSocket();
+    }
+  },
+  onLoad (options) {
+    // 没有goodsid则不显示 发送商品弹窗
+    this.showHideModel = options.goodsid
+    // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
+    // #ifdef H5
+    this.localImGoodsId = uni.getStorageSync("imGoodId");
+    // #endif
+    this.resolve = options
+    // 请求商品信息
+    if (this.resolve.goodsid) {
+      this.commodityDetails()
+    }
+    // 如果需要缓存消息缓存msgList即可
+    // 监听键盘拉起
+    // 因为无法控制键盘拉起的速度,所以这里尽量以慢速处理
+    uni.onKeyboardHeightChange(res => {
+      const query = uni.createSelectorQuery()
+      query.select('#msgList').boundingClientRect(data => {
+        // 若消息体没有超过2倍的键盘则向下移动差值,防止遮住消息体
+        var up = res.height * 2 - data.height - l * 110
+        if (up > 0) {
+          // 动态改变空盒子高度
+          this.messageBoxMove(up, 300)
+          // 记录改变的值,若不收回键盘且发送了消息用来防止消息过多被遮盖
+          mgUpHeight = up
+        }
+        // 收回
+        if (res.height == 0) {
+          this.messageBoxMove(0, 0)
+        }
+      }).exec();
+    })
+    var query = uni.getSystemInfoSync()
+
+    l = query.screenWidth / 750
+    wh = query.windowHeight
+    this.scrollHeight = (query.windowHeight - 44) + "px"
+    this.user = storage.getUserInfo()
+    this.toUser = storage.getTalkToUser()
+
+    if (options.talkId) {
+      this.params.talkId = options.talkId;
+      this.getTalkMessage()
+    } else {
+      this.getTalk(options.userId)
+
+    }
+
+    // this.ws.connect();
+    this.sokcet();
+  },
+  // 页面隐藏
+  onHide () {
+    uni.closeSocket();
+  },
+  onUnload () {
+    uni.closeSocket();
+  },
+  onPullDownRefresh () {
+    this.params.pageNumber = this.params.pageNumber + 1
+    this.getTalkMessage()
+    setTimeout(function () {
+      uni.stopPullDownRefresh();
+    }, 1000);
+  },
+
+  data () {
     return {
       textReplaceEmoji,
       emojistwo,
-      storage,
       socketOpen: false, //是否连接
-      itemAverageHeight: 685, //每条数据平均高度，为确保能滚到底部，可以设置大一些
-      scrollTop: 1000,
-      inputBottom: 0,
-      recordsList: [],
-      goodListData: {}, // 商品集合数据
+      storage,
+      fixed: 'fixed',
+      bottom: '50px',
+      width: '100%',
       showHideModel: undefined,
-      localImGoodsId: "",
+      localImGoodsId: '',
       showHide: true,
+      msgLoad: false,
       anData: {},
-      params: {
-        //搜索条件
-        talkId: "",
+      animationData: {},
+      msgList: [],
+      oldHeight: 0,
+      params: { //搜索条件
+        talkId: '',
         pageSize: 10,
         pageNumber: 1,
       },
+      goToIndex: 0, // 前往位置
       msg: "",
       go: 0,
+      newMessageNum: 0,
       user: {},
       toUser: {},
       scrollHeight: 0,
       ws: new SocketService(),
       resolve: {},
+      goodListData: {},
       count: 0, //判断socket断开连接请求次数
-      height: [],
-      windowHeight: 0,
-    };
+      inputHeight:0,
+    }
   },
+  // watch: {
+  //   'ws.callBackMapping': {
+  //     handler: function (val) {
+  //       val = JSON.parse(val)
+  //       if (val.messageResultType == 'MESSAGE') {
+  //         this.msgList.push(val.result)
+  //       }
+  //       this.newMessageNum++;
+  //       //接收到消息后发送已读
+  //       let msg = val
+  //       msg.operation_type = 'READ'
+  //       this.ws.send(JSON.stringify(msg))
+  //     }
+  //   }
+  // },
   methods: {
-    beautifyTime,
-    resizeScroll({ detail }) {
-      console.log(detail);
-      this.height.push(detail.scrollHeight);
+    eventHandle(){
+      this.inputHeight = 0
     },
-
-    // 发送聊天信息
-    sendMessage() {
+    inputBindFocus(e){
+       if (e.detail.height) {
+           this.inputHeight = e.detail.height //这个高度就是软键盘的高度
+       }
+    },
+    sendMessage () {
       if (this.msg == "") {
         return 0;
       }
       if (this.socketOpen == false) {
-        return;
+        return
       }
       let msg = {
         operation_type: "MESSAGE",
@@ -338,22 +361,21 @@ export default {
         message_type: "MESSAGE",
         context: this.msg,
         talk_id: this.params.talkId,
-      };
+      }
       let data = JSON.stringify(msg);
       uni.sendSocketMessage({
         data: data,
       });
-      this.recordsList.push({
-        text: this.msg,
-        my: true,
-        messageType: "MESSAGE",
-      });
-      this.scrollTop += 9999; //滚到底部
-      this.msg = "";
+      this.msgList.push({
+        "text": this.msg,
+        "my": true,
+        "messageType": 'MESSAGE'
+      })
+      let type = 'down';
+      this.msgGo(type)
+      this.msg = ""
     },
-
-    // 发送商品信息
-    sendGoodsMessage() {
+    sendGoodsMessage () {
       let msg = {
         operation_type: "MESSAGE",
         to: this.toUser.userId,
@@ -361,29 +383,34 @@ export default {
         message_type: "GOODS",
         context: this.goodListData,
         talk_id: this.params.talkId,
-      };
+      }
       let data = JSON.stringify(msg);
       uni.sendSocketMessage({
-        data: data,
+        data: data
       });
-      this.recordsList.push({
-        text: JSON.stringify(this.goodListData),
-        my: true,
-        messageType: "GOODS",
-      });
-      this.showHide = false;
+      this.msgList.push({
+        "text": JSON.stringify(this.goodListData),
+        "my": true,
+        "messageType": 'GOODS'
+      })
+      this.showHide = false
       // #ifdef H5
       uni.setStorageSync("imGoodId", 1111111);
       // #endif
-      this.scrollTop += 9999; //滚到底部
+      this.$nextTick(() => {
+        uni.pageScrollTo({
+          scrollTop: 2000000,
+          duration: 300
+        });
+      })
     },
-    socket() {
+    sokcet () {
       var _this = this;
       uni.closeSocket();
       this.socketOpen = false;
       try {
         //WebSocket的地址
-        var url = config.baseWsUrl + "/" + storage.getAccessToken();
+        var url = config.baseWsUrl + '/' + storage.getAccessToken();
         // 连接
         uni.connectSocket({
           url: url,
@@ -403,108 +430,186 @@ export default {
                   uni.connectSocket({
                     url: url,
                   });
-                }, 2000);
+                }, 2000)
               }
             } else {
               uni.closeSocket();
             }
-            this.count++;
+            this.count++
           });
         }
         // 监听收到信息
         uni.onSocketMessage(function (res) {
-          res.data = JSON.parse(res.data);
+          res.data = JSON.parse(res.data)
           console.log(res.data.result);
-          if (res.data.messageResultType == "MESSAGE") {
-            _this.recordsList.push(res.data.result);
-            console.log(_this.recordsList);
+          if (res.data.messageResultType == 'MESSAGE') {
+            _this.msgList.push(res.data.result)
+            console.log(_this.msgList)
           }
-          console.log(res.data);
-        });
+          console.log(res.data)
+          _this.msgGo()
+        })
       } catch (e) {
         uni.closeSocket();
       }
       // 监听是否断线，断线进行重新连接
       uni.onSocketClose((res) => {
         if (res.code != null && res.code != 1000) {
-          this.socket();
+          this.sokcet()
         }
-      });
+      })
     },
-
+    beautifyTime,
     //订单详情
-    linkTosOrders(val) {
-      let order = JSON.parse(val);
+    linkTosOrders (val) {
+      let order = JSON.parse(val)
       uni.navigateTo({
-        url: "/pages/order/orderDetail?sn=" + order.sn,
+        url: '/pages/order/orderDetail?sn=' + order.sn,
       });
+
     },
     // 跳转商品详情页
-    jumpGoodDelic(item) {
-      let info = JSON.parse(item.text);
+    jumpGoodDelic (item) {
+      let info = JSON.parse(item.text)
       uni.navigateTo({
         url: `/pages/product/goods?id=${info.id}&goodsId=${info.goodsId}`,
       });
     },
 
     //取消发送
-    cancelModel() {
-      this.showHide = false;
+    cancelModel () {
+      this.showHide = false
     },
     // 请求商品详情
-    commodityDetails() {
+    commodityDetails () {
       jumpObtain(this.resolve.skuid, this.resolve.goodsid).then((res) => {
-        this.goodListData = res.data.result.data;
-      });
+        this.goodListData = res.data.result.data
+      })
+    },
+    // 切换输入法时移动输入框(按照官方的上推页面的原理应该会自动适应不同的键盘高度-->官方bug)
+    goPag (kh) {
+      this.retractBox(0, 250)
+      if (this.keyHeight != 0) {
+        if (kh - this.keyHeight > 0) {
+          this.retractBox(this.keyHeight - kh, 250)
+        }
+      }
     },
     // 移动顶部的空盒子
-    messageBoxMove(x, t) {
+    messageBoxMove (x, t) {
       var animation = uni.createAnimation({
         duration: t,
-        timingFunction: "linear",
-      });
-      this.animation = animation;
-      animation.height(x).step();
-      this.anData = animation.export();
+        timingFunction: 'linear',
+      })
+      this.animation = animation
+      animation.height(x).step()
+      this.anData = animation.export()
     },
-
-    // 获取聊天记录
-    async getTalkMessageMethods() {
-      await getTalkMessage(this.params).then((res) => {
-        if (res.data.success) {
-          if (this.recordsList.length >= 10) {
-            // 计算每次上拉刷新回到当前屏幕
-            this.recordsList.unshift(...res.data.result);
-            if (res.data.result.length > 0) {
-              this.scrollTop = this.windowHeight;
-              this.scrollTop += this.params.pageNumber;
-            }
-
-            console.log("type", this.scrollTop);
-          } else {
-            this.recordsList.unshift(...res.data.result);
-            this.scrollTop += 9999;
+    // 保持消息体可见
+    msgGo (type) {
+      const query = uni.createSelectorQuery()
+      // 延时100ms保证是最新的高度
+      setTimeout(() => {
+        // 获取消息体高度
+        query.select('#msgList').boundingClientRect(data => {
+          // 如果超过scorll高度就滚动scorll
+          if (type == 'up') {
+            this.go = data.height - this.oldHeight
+          } else if (type == 'down') {
+            this.go = data.height - wh + 120
           }
-          this.recordsList.forEach((item) => {
-            if (item.fromUser === this.user.id) {
-              item.my = true;
+          // if (this.oldHeight > 0) {
+          // 	this.go = data.height - this.oldHeight
+          // } else {
+          // 	// if (data.height - (wh - 32) > 0) {
+          // 	this.go = data.height - wh + 120
+          // }
+          // 保证键盘第一次拉起时消息体能保持可见
+          var moveY = wh - data.height
+          // 超出页面则缩回空盒子
+          if (moveY - mgUpHeight < 0) {
+            // 小于0则视为0
+            if (moveY < 0) {
+              this.messageBoxMove(0, 200)
+            } else {
+              // 否则缩回盒子对应的高度
+              this.messageBoxMove(moveY, 200)
             }
-          });
-        }
-      });
+          }
+          uni.pageScrollTo({
+            scrollTop: this.go,
+            duration: 0
+          })
+          this.oldHeight = data.height
+        }).exec();
+      }, 100)
     },
+    // 回答问题的业务逻辑
+    answer (id) {
+      // 这里应该传入问题的id,模拟就用index代替了
 
-    async getTalk(userId) {
-      getTalkByUser(userId).then((res) => {
+    },
+    // 不建议输入框聚焦时操作此动画
+    ckAdd () {
+      if (!this.showTow) {
+        this.retractBox(-180, 350)
+      } else {
+        this.retractBox(0, 200)
+      }
+      this.showTow = !this.showTow
+    },
+    hideKey () {
+      uni.hideKeyboard()
+    },
+    // 拉起/收回附加栏
+    retractBox (x, t) {
+      var animation = uni.createAnimation({
+        duration: t,
+        timingFunction: 'ease',
+      })
+      this.animation = animation
+      animation.translateY(x).step()
+      this.animationData = animation.export()
+    },
+    async getTalkMessage () {
+      let type = '';
+      await getTalkMessage(this.params).then(res => {
         if (res.data.success) {
-          this.toUser = res.data.result;
-          this.params.talkId = res.data.result.id;
-          this.getTalkMessageMethods();
+          if (this.msgList.length >= 10) {
+            this.msgList.unshift(...res.data.result)
+            type = 'up'
+          } else {
+            this.msgList.unshift(...res.data.result)
+            type = 'down'
+          }
+          this.msgList.forEach(item => {
+            if (item.fromUser === this.user.id) {
+              item.my = true
+            }
+          })
         }
-      });
+      })
+      console.log(this.msgList);
+      this.msgGo(type)
+    },
+    // 上拉加载
+    touchMoreMessage (e) {
+      if (e.target.scrollTop == 0) {
+        this.params.pageNumber = this.params.pageNumber + 1
+        this.getTalkMessage()
+      }
+    },
+    async getTalk (userId) {
+      getTalkByUser(userId).then(res => {
+        if (res.data.success) {
+          this.toUser = res.data.result
+          this.params.talkId = res.data.result.id
+          this.getTalkMessage()
+        }
+      })
     },
     // 处理消息时间是否显示
-    compareTime(index, datetime) {
+    compareTime (index, datetime) {
       if (datetime == undefined) {
         return false;
       }
@@ -512,7 +617,7 @@ export default {
         datetime = this.unixToDate(datetime, "yyyy-MM-dd hh:mm");
       }
 
-      if (this.recordsList[index].is_revoke == 1) {
+      if (this.msgList[index].is_revoke == 1) {
         return false;
       }
       if (datetime) {
@@ -525,15 +630,12 @@ export default {
       // 当前时间5分钟内时间不显示
       if (currTime - time < 300) return false;
       // 判断是否是最后一条消息,最后一条消息默认显示时间
-      if (index == this.recordsList.length - 1) {
+      if (index == this.msgList.length - 1) {
         return true;
       }
-      let nextDate;
-      if (
-        this.recordsList[index + 1] &&
-        this.recordsList[index + 1].createTime
-      ) {
-        nextDate = this.recordsList[index + 1].createTime.replace(/-/g, "/");
+      let nextDate
+      if (this.msgList[index + 1] && this.msgList[index + 1].createTime) {
+        nextDate = this.msgList[index + 1].createTime.replace(/-/g, "/");
         if (nextDate - datetime < 300) return false;
       }
 
@@ -549,7 +651,7 @@ export default {
      * @param format 转换格式
      * @returns {*|string}
      */
-    unixToDate(unix, format) {
+    unixToDate (unix, format) {
       if (!unix) return unix;
       let _format = format || "yyyy-MM-dd hh:mm:ss";
       const d = new Date(unix);
@@ -571,134 +673,19 @@ export default {
         if (new RegExp("(" + k + ")").test(_format))
           _format = _format.replace(
             RegExp.$1,
-            RegExp.$1.length === 1
-              ? o[k]
-              : ("00" + o[k]).substr(("" + o[k]).length)
+            RegExp.$1.length === 1 ?
+              o[k] :
+              ("00" + o[k]).substr(("" + o[k]).length)
           );
       return _format;
     },
-
-    pullDownRefresh() {
-      this.$nextTick(() => {
-        this.$u.throttle(() => {
-          this.params.pageNumber = this.params.pageNumber + 1;
-          this.getTalkMessageMethods();
-        }, 500);
-      });
-    },
-
-    // 页面隐藏
-    onHide() {
-      uni.closeSocket();
-    },
-    // 页面卸载后清除imGoodId
-    onUnload() {
-      // #ifdef H5
-      uni.setStorageSync("imGoodId", "");
-      // #endif
-
-      if (this.socketOpen == true) {
-        uni.closeSocket();
-      }
-    },
-    focusTextarea(e) {
-      this.inputBottom = e.detail.height;
-      this.scrollTop += 9999; //滚到底部
-    },
-    blurTextarea(e) {
-      this.inputBottom = 0;
-      this.scrollTop += 9999; //滚到底部
-    },
-  },
-  onLoad(options) {
-    // 没有goodsid则不显示 发送商品弹窗
-    this.showHideModel = options.goodsid;
-    // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
-    // #ifdef H5
-    this.localImGoodsId = uni.getStorageSync("imGoodId");
-    // #endif
-    this.resolve = options;
-    this.user = storage.getUserInfo();
-    this.toUser = storage.getTalkToUser();
-    // 请求商品信息
-    if (this.resolve.goodsid) {
-      this.commodityDetails();
-    }
-    if (options.talkId) {
-      this.params.talkId = options.talkId;
-      this.getTalkMessageMethods();
-    } else {
-      this.getTalk(options.userId);
-    }
-    let systemInfo = uni.getSystemInfoSync();
-    // 获取状态栏高度
-    let statusBarHeight = systemInfo.statusBarHeight;
-
-    // 获取屏幕高度
-    let screenHeight = systemInfo.screenHeight;
-
-    // 计算窗体高度
-    this.windowHeight = screenHeight - statusBarHeight - 44;
-    console.log(this.windowHeight, "窗体高度");
-    // this.ws.connect();
-    this.socket();
-  },
-};
+  }
+}
 </script>
 
-<style scoped lang="scss">
-$left-right-margin: 40rpx;
-.container {
-  width: 100vw;
-  height: 100vh;
-  box-sizing: border-box;
-  padding-bottom: 52px;
-  display: flex;
-  flex-direction: column;
-  .header {
-    flex-shrink: 0;
-    padding: 0px $left-right-margin 32rpx $left-right-margin;
-  }
-  .content {
-    flex-grow: 1;
-    overflow: auto;
-    .message {
-      display: flex;
-      flex-direction: column;
-    }
-  }
-}
-.bottom-textarea {
-  position: fixed;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  background-color: #f2f2f2;
-  border-top: 2rpx solid rgba(226, 226, 226, 1);
-  padding: 12rpx 40rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  .textarea-container {
-    flex: 1;
-    height: 70rpx;
-    background: rgba(255, 255, 255, 1);
-    border-radius: 8rpx;
-    box-sizing: border-box;
-    padding: 20rpx 16rpx;
-  }
-
-  > button {
-    flex-shrink: 0;
-    height: 80rpx;
-    margin: 0;
-    margin-left: 16rpx;
-  }
-}
-
-.send {
-  margin-left: 10rpx;
-  font-size: 28rpx !important;
+<style lang="scss" scoped>
+.send{
+  font-size: 24rpx !important;
 }
 .orderTime {
   margin-top: 15rpx;
@@ -707,7 +694,11 @@ $left-right-margin: 40rpx;
   overflow: hidden;
 }
 
-.order-list {
+.wrapper {
+  height: auto !important;
+}
+
+.oederList {
   display: flex;
   color: black;
   font-size: 20rpx;
@@ -717,21 +708,31 @@ $left-right-margin: 40rpx;
 
 .orderSn {
   width: 350rpx;
+
 }
 
 .groupNameOrTime {
   width: 200rpx;
   margin: 15rpx 15rpx;
+
+}
+
+.orderGood {
+  background-color: #ffffff;
 }
 
 .goodsCard {
+  border-radius: 20rpx;
+  margin-top: 15rpx;
   background-color: #ffffff;
   padding-left: 12rpx;
-  width: 100%;
+  width: 95%;
   height: 120rpx;
   display: flex;
   flex-wrap: wrap;
   color: #302c2b;
+
+
 
   .imagebox {
     width: 122rpx;
@@ -739,7 +740,6 @@ $left-right-margin: 40rpx;
 
     .image {
       width: 122rpx;
-      height: 122rpx !important;
       border-radius: 10rpx;
     }
   }
@@ -757,6 +757,7 @@ $left-right-margin: 40rpx;
       text-overflow: ellipsis;
       overflow: hidden;
       margin-bottom: 20rpx;
+
 
       .goodsCard_goodNmae {
         color: black;
@@ -779,7 +780,7 @@ $left-right-margin: 40rpx;
     color: #ffffff;
     height: 50rpx;
     width: 130rpx;
-    background-color: $main-color;
+    background-color: #f21c0c;
     font-size: 24rpx;
     border-radius: 17rpx;
     text-align: center;
@@ -796,15 +797,18 @@ $left-right-margin: 40rpx;
   position: relative;
   bottom: 40rpx;
   left: 12%;
-  height: 40rpx;
-  width: 100rpx;
-  text-align: right;
 }
 
 .cartMessage {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.bottom-dh-char {
+  background-color: #f9f9f9;
+  width: 750rpx;
+  height: 110rpx;
 }
 
 .user-name {
@@ -823,6 +827,50 @@ $left-right-margin: 40rpx;
   margin-left: 10rpx;
 }
 
+.column-time {
+  justify-content: center;
+}
+
+.center-box {
+  width: 720rpx;
+  padding-left: 25rpx;
+}
+
+.hui-box {
+  width: 750rpx;
+  height: 100%;
+
+}
+
+.date-text {
+  font-size: 12px;
+  color: grey;
+}
+
+.dh-input {
+  width: 500rpx;
+  height: 65rpx;
+  border-radius: 30rpx;
+  padding-left: 15rpx;
+  font-size: 22rpx;
+  background-color: #FFFFFF;
+}
+
+.box-normal {
+  width: 750rpx;
+  height: 180px;
+  background-color: #FFFFFF;
+}
+
+.tb-text view {
+  font-size: 65rpx;
+}
+
+.tb-text text {
+  font-size: 25rpx;
+  color: #737373;
+}
+
 .chat-img {
   border-radius: 50%;
   width: 100rpx;
@@ -834,19 +882,30 @@ $left-right-margin: 40rpx;
   padding: 17rpx 20rpx;
 }
 
-.goodsdesc-rice {
+.tb-nv {
+  width: 50rpx;
+  height: 50rpx;
+}
+.goodsdesc-rice{
   font-size: 24rpx;
   color: $main-color;
   font-weight: bold;
   margin-top: 10rpx;
 }
-.order-item {
-  margin: 10rpx 0;
+.order-item{
+  margin: 10rpx 0
 }
-.my-neirong-sm {
-  font-size: 24rpx;
+
+
+uni-page-head {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
 }
 </style>
+
 <style lang="scss" scoped>
 @import "./index-app.scss";
 </style>
