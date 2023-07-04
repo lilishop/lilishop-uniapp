@@ -45,7 +45,7 @@
         </div>
         <!-- 店铺简介 -->
         <div class="store-desc wes-2">
-          {{ storeInfo.storeDesc }}
+          {{ storeInfo.storeDesc || '' }}
         </div>
 
         <!-- 联系客服 -->

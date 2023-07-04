@@ -22,7 +22,7 @@
     <div class="point-list">
       <view class="point-item" v-for="(item, index) in pointList" :key="index">
         <view>
-          <view>{{ item.content }}</view>
+          <view class="point-label">{{ item.content }}</view>
           <view>{{ item.createTime}}</view>
         </view>
         <view :class="[item.pointType == 'INCREASE' ? 'plus' : 'reduce']"><span>{{item.pointType == "INCREASE" ? '+' : '-'}}</span>{{ item.variablePoint }}</view>
@@ -220,5 +220,10 @@ export default {
   .point {
     font-size: 56rpx;
   }
+  
+}
+.point-label{
+    font-weight: bold;
+    margin-bottom: 10rpx;
 }
 </style>

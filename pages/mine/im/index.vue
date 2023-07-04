@@ -25,17 +25,17 @@
                 <view v-if="item.messageType === 'MESSAGE' && emojistwo.includes(item.text)"
                   v-html="textReplaceEmoji(item.text)"></view>
                 <view v-if="item.messageType == 'GOODS'">
-                  <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
-                    <view class="imagebox" @click="jumpGoodDelic(item)">
+                  <view class="goods-card u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
+                    <view class="image-box" @click="jumpGoodDesc(item)">
                       <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
                     </view>
-                    <view class="goodsdesc" @click="jumpGoodDelic(item)">
-                      <view class="goodsdesc-name">
-                        <text class="goodsCard_goodNmae">{{
+                    <view class="goods-desc" @click="jumpGoodDesc(item)">
+                      <view class="goods-desc-name">
+                        <text class="goods-card-goods-name">{{
                           JSON.parse(item.text)['goodsName']
                         }}</text>
                       </view>
-                      <view class="goodsdesc-rice" >￥{{
+                      <view class="goods-desc-rice" >￥{{
                             JSON.parse(item.text)['price'] | unitPrice
                           }}
                       </view>
@@ -44,22 +44,22 @@
                 </view>
           
                 <view v-if="item.messageType == 'ORDER'" @click="linkTosOrders(item.text)">
-                  <view class="orderSn">
+                  <view class="order-sn">
                     <div class="wes">订单号：{{ JSON.parse(item.text)['sn'] }}</div>
                     <div class='order-item flex' v-if="JSON.parse(item.text).orderItems.length"  v-for='(order,orderIndex) in JSON.parse(item.text).orderItems'>
                       <u-image  mode="widthFix" width='120rpx' height='120rpx' :src="order.image" />
-                       <view class="groupNameOrTime">
+                       <view class="name-or-time">
                         <div class="wes-2" >{{
                         order.name
                         }}</div>
-                        <div class="main-color goodsdesc-rice">{{
+                        <div class="main-color goods-desc-rice">{{
                           order.goodsPrice | unitPrice("￥")
                         }}</div>
                         
                       </view>
                     </div>
-                    <view class="oederList">
-                      <view class="orderTime">
+                    <view class="order-list">
+                      <view class="order-time">
                           <text>{{ JSON.parse(item.text)['paymentTime'] }}</text>
                         </view>
                     </view>
@@ -87,17 +87,17 @@
                 <view v-if="item.messageType === 'MESSAGE' && emojistwo.includes(item.text)"
                   v-html="textReplaceEmoji(item.text)"></view>
                 <view v-if="item.messageType === 'GOODS'">
-                  <view class="goodsCard u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
-                    <view class="imagebox" @click="jumpGoodDelic(item)">
+                  <view class="goods-card u-flex u-row-between u-p-b-0" style="width:100%;margin: 0 0; ">
+                    <view class="image-box" @click="jumpGoodDesc(item)">
                       <image class="image" :src="JSON.parse(item.text)['thumbnail']" mode="widthFix"></image>
                     </view>
-                    <view class="goodsdesc" @click="jumpGoodDelic(item)">
-                      <view class="goodsdesc-name">
-                        <text class="goodsCard_goodNmae">{{
+                    <view class="goods-desc" @click="jumpGoodDesc(item)">
+                      <view class="goods-desc-name">
+                        <text class="goods-card-goods-name">{{
                           JSON.parse(item.text)['goodsName']
                         }}</text>
                       </view>
-                        <view class="goodsdesc-rice" >¥{{
+                        <view class="goods-desc-rice" >¥{{
                             JSON.parse(item.text)['price']
                           }}
                       </view>
@@ -105,16 +105,16 @@
                   </view>
                 </view>
                 <view v-if="item.messageType === 'ORDER'">
-                  <view class="orderSn">
+                  <view class="order-sn">
                     <text>订单号：{{ JSON.parse(item.text)['sn'] }}</text>
-                    <view class="oederList">
+                    <view class="order-list">
                       <img style="height: 120rpx; width: 120rpx; margin-top: 15rpx;"
                         :src="JSON.parse(item.text)['groupImages']" mode="widthFix" />
-                      <view class="groupNameOrTime">
+                      <view class="name-or-time">
                         <text @click="linkTosOrders(item.text)">{{
                           JSON.parse(item.text)['groupName']
                         }}</text>
-                        <view class="orderTime">
+                        <view class="order-time">
                           <text>{{ JSON.parse(item.text)['paymentTime'] }}</text>
                         </view>
                       </view>
@@ -134,24 +134,24 @@
       <!-- 如果没有聊天记录，定位到底部 -->
       <view
         :style="{ position:'fixed' , bottom:(inputHeight+66)+'px' , width:  '100%' }">
-        <view class="cartMessage" v-if="showHide && !localImGoodsId && showHideModel">
-          <view class="goodsCard u-flex u-row-between u-p-b-0">
-            <view class="imagebox" @click="jumpGoodDelic(item)">
+        <view class="cart-message" v-if="showHide && !localImGoodsId && showHideModel">
+          <view class="goods-card u-flex u-row-between u-p-b-0">
+            <view class="image-box" @click="jumpGoodDesc(item)">
               <image class="image" :src="goodListData.thumbnail" mode="widthFix"></image>
             </view>
-            <view class="goodsdesc" @click="jumpGoodDelic(item)">
-              <view class="goodsdesc-name">
-                <text class="goodsCard_goodNmae">{{
+            <view class="goods-desc" @click="jumpGoodDesc(item)">
+              <view class="goods-desc-name">
+                <text class="goods-card-goods-name">{{
                   goodListData.goodsName
                 }}</text>
               </view>
-              <view class="goodsdesc-rice" > ￥{{
+              <view class="goods-desc-rice" > ￥{{
                 goodListData.price | unitPrice
               }}
               </view>
             </view>
             <view class="cancel" @click="cancelModel">X</view>
-            <view class="sendGood" @click="sendGoodsMessage">
+            <view class="send-goods" @click="sendGoodsMessage">
               <view>发送商品</view>
             </view>
           </view>
@@ -181,7 +181,7 @@
       <view class="bottom-dh-char flex-row-around" style="font-size: 55rpx;">
         <!-- vue无法使用软键盘"发送" -->
         <input @focus="inputBindFocus" @blur="eventHandle"  :adjust-position="false" v-model="msg" class="dh-input" type="text" style="background-color: #f0f0f0;" @confirm="sendMessage"
-          confirm-type="send" placeholder-class="my-neirong-sm" placeholder="用一句简短的话描述您的问题" />
+          confirm-type="send"  placeholder="用一句简短的话描述您的问题" />
         <view @click="sendMessage" class="cu-tag bg-main-color send round">
           发送
         </view>
@@ -469,7 +469,7 @@ export default {
 
     },
     // 跳转商品详情页
-    jumpGoodDelic (item) {
+    jumpGoodDesc (item) {
       let info = JSON.parse(item.text)
       uni.navigateTo({
         url: `/pages/product/goods?id=${info.id}&goodsId=${info.goodsId}`,
@@ -687,7 +687,7 @@ export default {
 .send{
   font-size: 24rpx !important;
 }
-.orderTime {
+.order-time {
   margin-top: 15rpx;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -698,7 +698,7 @@ export default {
   height: auto !important;
 }
 
-.oederList {
+.order-list {
   display: flex;
   color: black;
   font-size: 20rpx;
@@ -706,22 +706,19 @@ export default {
   width: 95%;
 }
 
-.orderSn {
+.order-sn {
   width: 350rpx;
 
 }
 
-.groupNameOrTime {
+.name-or-time {
   width: 200rpx;
   margin: 15rpx 15rpx;
 
 }
 
-.orderGood {
-  background-color: #ffffff;
-}
 
-.goodsCard {
+.goods-card {
   border-radius: 20rpx;
   margin-top: 15rpx;
   background-color: #ffffff;
@@ -734,9 +731,10 @@ export default {
 
 
 
-  .imagebox {
+  .image-box {
     width: 122rpx;
     height: 122rpx;
+    overflow: hidden;
 
     .image {
       width: 122rpx;
@@ -744,13 +742,13 @@ export default {
     }
   }
 
-  .goodsdesc {
+  .goods-desc {
     flex: 1;
     overflow: hidden;
     margin-left: 12rpx;
     width: 400rpx;
 
-    .goodsdesc-name {
+    .goods-desc-name {
       font-size: 30rpx;
       line-height: 1.5;
       white-space: nowrap;
@@ -759,7 +757,7 @@ export default {
       margin-bottom: 20rpx;
 
 
-      .goodsCard_goodNmae {
+      .goods-card-goods-name {
         color: black;
         text-overflow: ellipsis;
         font-size: 26rpx;
@@ -776,7 +774,7 @@ export default {
     }
   }
 
-  .sendGood {
+  .send-goods {
     color: #ffffff;
     height: 50rpx;
     width: 130rpx;
@@ -799,7 +797,7 @@ export default {
   left: 12%;
 }
 
-.cartMessage {
+.cart-message {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -826,27 +824,6 @@ export default {
   margin-bottom: 10rpx;
   margin-left: 10rpx;
 }
-
-.column-time {
-  justify-content: center;
-}
-
-.center-box {
-  width: 720rpx;
-  padding-left: 25rpx;
-}
-
-.hui-box {
-  width: 750rpx;
-  height: 100%;
-
-}
-
-.date-text {
-  font-size: 12px;
-  color: grey;
-}
-
 .dh-input {
   width: 500rpx;
   height: 65rpx;
@@ -855,21 +832,11 @@ export default {
   font-size: 22rpx;
   background-color: #FFFFFF;
 }
-
-.box-normal {
-  width: 750rpx;
-  height: 180px;
-  background-color: #FFFFFF;
+.column-time {
+  justify-content: center;
 }
 
-.tb-text view {
-  font-size: 65rpx;
-}
 
-.tb-text text {
-  font-size: 25rpx;
-  color: #737373;
-}
 
 .chat-img {
   border-radius: 50%;
@@ -886,7 +853,7 @@ export default {
   width: 50rpx;
   height: 50rpx;
 }
-.goodsdesc-rice{
+.goods-desc-rice{
   font-size: 24rpx;
   color: $main-color;
   font-weight: bold;
