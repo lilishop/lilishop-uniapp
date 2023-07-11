@@ -18,6 +18,7 @@
             :use-cache="true"
             :show-with-animation="true"
             :html="res.mobileIntro"
+            :tag-style="style"
           ></u-parse>
         </view>
       </view>
@@ -64,6 +65,9 @@ export default {
   data() {
     return {
       goodsDetail: "",
+      style: {
+        img:"display:block"
+			}
     };
   },
   props: ["res", "goodsId", "goodsParams"],
