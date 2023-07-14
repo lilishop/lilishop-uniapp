@@ -21,7 +21,7 @@
 				</view>
 				<view class="btns">
 					<button type="primary" bindtap="getUserProfile" @click="getUserProfile()"
-						class="btn-auth">使用微信授权</button>
+						class="btn-auth">登录</button>
 					<div @click="backToHome" class="btn-callback">暂不登录</div>
 				</view>
 			</div>
