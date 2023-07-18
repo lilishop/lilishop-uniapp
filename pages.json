@@ -483,6 +483,21 @@
 						}
 					}
 				},
+				
+				{
+					"path": "entry/seller/index",
+					"style": {
+						"navigationBarTitleText": "店铺入驻",
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "entry/seller/control",
+					"style": {
+						"navigationBarTitleText": "",
+						"navigationStyle": "custom"
+					}
+				},
 				{
 					"path": "article",
 					"style": {

@@ -81,22 +81,27 @@
 		  
 		
 		  
-		<view class="interact-item" @click="navigateTo('/pages/mine/set/feedBack')">
-		  <image src="/static/mine/feedback.png" mode=""></image>
-		  <view>意见反馈</view>
-		</view>
-		
-		<view class="interact-item" @click="navigateTo('/pages/mine/set/editionIntro')">
-		  <image src="/static/mine/pointgift.png" mode=""></image>
-		  <view>关于</view>
-		</view>
-		
-		
-		<view class="interact-item" @click="navigateTo('/pages/mine/set/setUp')">
-		  <image src="/static/mine/setting.png" mode=""></image>
-		  <view>设置</view>
-		</view>
-	
+          <view class="interact-item" @click="navigateTo('/pages/mine/set/feedBack')">
+            <image src="/static/mine/feedback.png" mode=""></image>
+            <view>意见反馈</view>
+          </view>
+          
+          <view class="interact-item" @click="navigateTo('/pages/mine/set/editionIntro')">
+            <image src="/static/mine/pointgift.png" mode=""></image>
+            <view>关于</view>
+          </view>
+          
+          <view class="interact-item" @click="navigateTo('/pages/passport/entry/seller/index')">
+            <image src="/static/mine/feedback.png" mode=""></image>
+            <view>店铺入驻</view>
+          </view>
+          
+          
+          <view class="interact-item" @click="navigateTo('/pages/mine/set/setUp')">
+            <image src="/static/mine/setting.png" mode=""></image>
+            <view>设置</view>
+          </view>
+        
 		  
         </view>
       </div>

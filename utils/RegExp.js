@@ -45,3 +45,7 @@ export const URL =
 
 // 固话
 export const TEL = /0\d{2,3}-\d{7,8}/
+
+
+// 营业执照号
+export const licenseNum = /(^(?:(?![IOZSV])[\dA-Z]){2}\d{6}(?:(?![IOZSV])[\dA-Z]){10}$)|(^\d{15}$)/;
