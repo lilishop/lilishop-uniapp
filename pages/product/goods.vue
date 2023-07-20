@@ -51,7 +51,8 @@
         :scroll-top="tabScrollTop" @scroll="pageScroll">
         <view>
           <!-- 轮播图 -->
-          <GoodsSwiper id="main1" :res="imgList" />
+         
+          <GoodsSwiper id="main1" :res="imgList" :video="goodsDetail.goodsVideo" />
 
           <!-- 促销活动条 -->
           <PromotionAssembleLayout v-if="PromotionList" :detail="goodsDetail" :res="PromotionList" />
