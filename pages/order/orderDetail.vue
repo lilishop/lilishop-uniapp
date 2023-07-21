@@ -111,11 +111,11 @@
         </view>
         <view class="order-info-view">
           <view class="title">优惠券：</view>
-          <view class="value">￥{{ order.couponPrice | unitPrice }}</view>
+          <view class="value main-color">-￥{{ order.priceDetailDTO.couponPrice | unitPrice }}</view>
         </view>
         <view class="order-info-view">
           <view class="title">活动优惠：</view>
-          <view class="value">￥{{ order.discountPrice | unitPrice }}</view>
+          <view class="value main-color">-￥{{ order.discountPrice | unitPrice }}</view>
         </view>
         <!-- <view class="order-info-view" v-if="order.use_point">
 					<view class="title">使用积分：</view>
