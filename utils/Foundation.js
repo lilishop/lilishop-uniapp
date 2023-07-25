@@ -91,7 +91,7 @@ export function whetherNavigate(type = "default") {
         navigationToBack(type);
       } else {
         uni.navigateBack({
-          delta: getCurrentPages().length,
+          delta: getCurrentPages().length-1,
         });
       }
     }
