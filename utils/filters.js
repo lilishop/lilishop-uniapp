@@ -456,10 +456,6 @@ export function navigateToLogin (type = "navigateTo") {
    * 微信小程序跳转到微信小程序登录页面
    * H5/App跳转到普通登录页面
    */
-  uni[type]({
-    url: "/pages/passport/login",
-  });
-  return
   // #ifdef MP-WEIXIN
   uni[type]({
     url: "/pages/passport/wechatMPLogin",
