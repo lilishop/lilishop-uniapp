@@ -57,7 +57,9 @@ export default {
     };
   },
   onShow() {
-    this.init();
+    if(this.$options.filters.tipsToLogin()){
+        this.init();
+    }
   },
 
   mounted() {},
