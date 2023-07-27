@@ -74,7 +74,8 @@ export default {
     keepOn() {
       if (this.companyData && this.companyData.storeDisable == "OPEN") {
         uni.showToast({
-          title:""
+          title:"审核已通过",
+          icon:"none"
         })
       } else {
         uni.navigateTo({
