@@ -37,7 +37,7 @@
         <div class="bargain">
           <div class="row-title">商品详情</div>
           <view class="u-content">
-            <u-parse :html="goodsData.mobileIntro"></u-parse>
+            <u-parse :html="goodsData.mobileIntro" :tag-style="style"></u-parse>
           </view>
         </div>
       </div>
@@ -59,6 +59,9 @@ export default {
   },
   data() {
     return {
+      style: {
+        img:"display:block"
+      },
       maskFlag: false, //商品弹框
       lightColor: this.$lightColor,
       goodsData: {}, //积分商品中商品详情

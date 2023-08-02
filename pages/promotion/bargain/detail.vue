@@ -74,7 +74,7 @@
         <div class="bargain">
           <div class="bargain-title">商品详情</div>
           <view class="u-content">
-            <u-parse :html="bargainDetail.mobileIntro"></u-parse>
+            <u-parse :html="bargainDetail.mobileIntro" :tag-style="style"></u-parse>
           </view>
 
         </div>
@@ -128,6 +128,9 @@ export default {
   },
   data() {
     return {
+      style: {
+        img:"display:block"
+      },
       background: {
         backgroundColor: "transparent",
       },
