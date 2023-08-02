@@ -3,8 +3,8 @@
 		<u-navbar :title="title"></u-navbar>
 		<!-- 商品 -->
 		<div class="contant">
-			<view v-if="!goodsList.length" class="empty">暂无商品信息</view>
-			<goodsTemplate :res='goodsList' :storeName='false' />
+			<view  v-if="!goodsList.length" class="empty">暂无商品信息</view>
+			<goodsTemplate  style="width: 100%;" :res='goodsList' :storeName='false' />
 		</div>
 	</div>
 
