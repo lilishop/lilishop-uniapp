@@ -7,7 +7,7 @@
           <view class="title">{{
             item.distributionCashStatus == "APPLY"
               ? "待处理"
-              : item.distributionCashStatus == "PASS"
+              : item.distributionCashStatus == "VIA_AUDITING"
                 ? "通过"
                 : "拒绝"
           }}</view>
