@@ -97,14 +97,13 @@
         //获取code
         uni.login({
           success: (res) => {
-            if(res.errMsg == "login:ok") {
+            if(res.errMsg === "login:ok") {
               that.code = res.code
             } else {
               uni.showToast({
                 title: "系统异常，请联系管理员！"
               })
             }
-            that.code = res.code;
           },
         });
 
