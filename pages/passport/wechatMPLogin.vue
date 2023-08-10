@@ -92,64 +92,74 @@
 
 
 			//获取用户信息
-			async getUserProfile(e) {
+      getUserProfile(e) {
         let that = this;
         //获取code
-        await uni.login({
+        uni.login({
           success: (res) => {
+            if(res.errMsg == "login:ok") {
+              that.code = res.code
+            } else {
+              uni.showToast({
+                title: "系统异常，请联系管理员！"
+              })
+            }
             that.code = res.code;
           },
         });
-		
-				// 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
-				await uni.getUserProfile({
-					desc: "用于完善会员资料", // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-					success: (res) => {
-						that.nickName = res.userInfo.nickName;
-						that.image = res.userInfo.avatarUrl;  
 
-            /**
-             * 根据公有的配置设置登录方式
-             */
-            if(this.configs.enableFetchMobileLogin){
-              this.phoneAuthPopup = true;
-              return false
-            }
-						let iv = res.iv;
-						let encryptedData = res.encryptedData;
+        if (this.code) {
+          // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
+          uni.getUserProfile({
+            desc: "用于完善会员资料", // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
+            success: (res) => {
+              that.nickName = res.userInfo.nickName;
+              that.image = res.userInfo.avatarUrl;
 
-						let code = this.code;
-						let image = this.image;
-						let nickName = this.nickName;
-						mpAutoLogin({
-							encryptedData,
-							iv,
-							code,
-							image,
-							nickName,
-						}).then((apiRes) => {
-							storage.setAccessToken(apiRes.data.result.accessToken);
-							storage.setRefreshToken(apiRes.data.result.refreshToken);
-							// 登录成功
-							uni.showToast({
-								title: "登录成功!",
-								icon: "none",
-							});
-							//获取用户信息
-							getUserInfo().then((user) => {
-								storage.setUserInfo(user.data.result);
-								storage.setHasLogin(true);
+              /**
+               * 根据公有的配置设置登录方式
+               */
+              if(this.configs.enableFetchMobileLogin){
+                this.phoneAuthPopup = true;
+                return false
+              }
+              let iv = res.iv;
+              let encryptedData = res.encryptedData;
 
-								uni.navigateBack({
-									delta: 1,
-								});
-							});
-						});
-					},
-					fail: (res) => {
+              let code = this.code;
+              let image = this.image;
+              let nickName = this.nickName;
+              mpAutoLogin({
+                encryptedData,
+                iv,
+                code,
+                image,
+                nickName,
+              }).then((apiRes) => {
+                storage.setAccessToken(apiRes.data.result.accessToken);
+                storage.setRefreshToken(apiRes.data.result.refreshToken);
+                // 登录成功
+                uni.showToast({
+                  title: "登录成功!",
+                  icon: "none",
+                });
+                //获取用户信息
+                getUserInfo().then((user) => {
+                  storage.setUserInfo(user.data.result);
+                  storage.setHasLogin(true);
 
-					},
-				});
+                  uni.navigateBack({
+                    delta: 1,
+                  });
+                });
+              });
+            },
+            fail: (res) => {
+
+            },
+          });
+        }
+
 			},
 
 			//获取手机号授权
