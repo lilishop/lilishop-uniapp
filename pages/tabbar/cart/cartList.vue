@@ -27,7 +27,7 @@
               <!-- #endif -->
             </u-checkbox-group>
             <span class="store-name wes store-line-desc" @click.stop="navigateToStore(item)">{{
-              item.storeName 
+              item.storeName
             }}</span>
             <u-icon @click="navigateToStore(item)"  size="24" style="margin-left:10rpx;"  name="arrow-right"></u-icon>
           </view>
@@ -88,25 +88,27 @@
                 </view>
                 <!-- 如果当有促销并且促销是 限时抢购 -->
                 <!-- promotions -->
-              <div class="promotions-list" v-if="Object.keys(skuItem.promotionMap).length != 0"
-              >
-                <div class="promotions-item-seckill" v-if="getPromotion(skuItem).includes('SECKILL')">
-                  距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
-                    font-size="24" :timestamp="getCountDownTime(skuItem)">
-                  </u-count-down>
+                <div class="promotions-list" v-if="Object.keys(skuItem.promotionMap).length != 0"
+                >
+                  <div class="promotions-item-seckill" v-if="getPromotion(skuItem).includes('SECKILL')">
+                    距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
+                      font-size="24" :timestamp="getCountDownTime(skuItem)">
+                    </u-count-down>
+                  </div>
                 </div>
-              </div> 
 
-              <!-- 此处先隐藏 对于预估到手价来说 前端无法真正的计算出来，光靠促销模式进行展示可能有些不妥。所以暂且隐藏 -->
-              <!-- 如果有活动 并且是选中的状态,显示预估到手价格 -->
-              <!-- <div class="priceDetail-flowPrice" :class="{'main-color':skuItem.priceDetailDTO}"
-                v-if="skuItem.priceDetailDTO && skuItem.invalid == 0  && Object.keys(skuItem.promotionMap).length != 0 && skuItem.checked && skuItem.checked">
-                预估到手价 ￥<span>{{ $options.filters.goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
-                <span>.{{ $options.filters.goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
-              </div> -->
-							<div style='margin-left: 20rpx;' v-if="!skuItem.checked && skuItem.errorMessage">
-								{{skuItem.errorMessage}}
-							</div>
+                <!-- 此处先隐藏 对于预估到手价来说 前端无法真正的计算出来，光靠促销模式进行展示可能有些不妥。所以暂且隐藏 -->
+                <!-- 如果有活动 并且是选中的状态,显示预估到手价格 -->
+                <!-- <div class="priceDetail-flowPrice" :class="{'main-color':skuItem.priceDetailDTO}"
+                  v-if="skuItem.priceDetailDTO && skuItem.invalid == 0  && Object.keys(skuItem.promotionMap).length != 0 && skuItem.checked && skuItem.checked">
+                  预估到手价 ￥<span>{{ $options.filters.goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
+                  <span>.{{ $options.filters.goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
+                </div> -->
+                <div style='margin-left: 20rpx;' v-if="!skuItem.checked && skuItem.errorMessage">
+                  {{skuItem.errorMessage}}
+                </div>
+              </p>
+              
             </view>
           </view>
         </u-swipe-action>
@@ -208,7 +210,7 @@ export default {
       WEIXIN_num: "", //购物车兼容微信步进器
     };
   },
-  
+
   mounted() {
     // #ifdef MP-WEIXIN
     // 小程序默认分享
@@ -358,7 +360,7 @@ export default {
     /**
      * 点击步进器回调
      */
-     numChange: debounce(function (val) {   
+     numChange: debounce(function (val) {
       this.updateSkuNumFun(val.goodsSku.id, val.num);
     }, 1000),
     /**
@@ -469,7 +471,7 @@ export default {
       });
     },
 
-    // 数据去重一下 
+    // 数据去重一下
     getPromotion(item) {
         return Object.keys(item.promotionMap).map((child) => {
           return child.split("-")[0]
@@ -513,7 +515,7 @@ export default {
                         }
                       });
                     }
-                
+
                   });
               }
               this.checkout = checkOuted;

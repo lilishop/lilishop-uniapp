@@ -1,5 +1,5 @@
 <template>
-   <u-modal v-model="show" cancelText="不同意" confirmText="同意" showCancelButton="btnShow" title="服务协议和隐私政策" @confirm="confirm" @cancel="cancel">
+   <u-modal v-model="show" cancelText="不同意" confirmText="同意" showCancelButton title="服务协议和隐私政策" @confirm="confirm" @cancel="cancel">
     <view class="u-update-content">
       请您务必审慎阅读,充分理解“服务协议”和“隐私政策”各条款，
       包括但不限于：为了更好的向你提供服务，我们需要收集你的设备标识,

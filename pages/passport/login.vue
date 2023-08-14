@@ -453,13 +453,14 @@
 					uuid: uni.getStorageSync("openid"), //联合登陆id
 					source: uni.getStorageSync("type"), //联合登陆类型
 					nickname: uni.getStorageSync("nickname"), // 昵称
+					username: uni.getStorageSync("openid"), // 昵称
 					avatar: uni.getStorageSync("avatar"), // 头像
 					uniAccessToken: uni.getStorageSync("uni_access_token"), //第三方token
 					type:this.clientType,
-					token:{unionId:""}
+					token:{unionId:"",openId:uni.getStorageSync("openid")}
 				};
         		uni.getStorageSync("unionId") ? (params.token.unionId = uni.getStorageSync("unionId")) : delete params.token;
-	
+				
 				openIdLogin(params, clientType).then((res) => {
 					if (!res.data.success) {
 						let errormessage = "第三方登录暂不可用";
