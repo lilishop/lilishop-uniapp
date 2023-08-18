@@ -4,7 +4,7 @@
     <div
       class="address-box"
       @click="clickToAddress()"
-      v-if="shippingText == 'LOGISTICS'"
+      v-if="shippingText == 'LOGISTICS' && orderMessage.cartTypeEnum != 'VIRTUAL'"
     >
       <div class="user-box flex">
         <div class="flex-8">
@@ -651,7 +651,7 @@ export default {
             });
             return false;
           }
-        } else if (this.shippingText === "LOGISTICS") {
+        } else if (this.shippingText === "LOGISTICS" && this.orderMessage.cartTypeEnum != 'VIRTUAL') {
           if (!this.address.id) {
             uni.showToast({
               title: "请选择地址",
@@ -853,7 +853,7 @@ export default {
 </script>
 <style scoped>
 page {
-  background: #ededed !important;
+  background: #f7f7f7;
 }
 </style>
 <style scoped lang="scss">
