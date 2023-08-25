@@ -20,7 +20,7 @@
 					<view>您的公开信息（昵称、头像）</view>
 				</view>
 				<view class="btns">
-					<button type="primary" bindtap="getUserProfile" @click="getUserProfile()"
+					<button type="primary" :disabled="logingFlag" bindtap="getUserProfile" @click="getUserProfile()"
 						class="btn-auth">登录</button>
 					<div @click="backToHome" class="btn-callback">暂不登录</div>
 				</view>
@@ -54,6 +54,7 @@
 				code: "",
 				//微信昵称
 				nickName: "",
+        logingFlag: false,
 				//微信头像
 				image: "",
 			};
@@ -66,7 +67,19 @@
 				withShareTicket: true
 			});
 
-			let that = this;
+
+      //获取code
+      uni.login({
+        success: (res) => {
+          if(res.errMsg === "login:ok") {
+            this.code = res.code
+          } else {
+            uni.showToast({
+              title: "系统异常，请联系管理员！"
+            })
+          }
+        },
+      });
 			
 		},
 		methods: {
@@ -93,27 +106,16 @@
 
 			//获取用户信息
       getUserProfile(e) {
-        let that = this;
-        //获取code
-        uni.login({
-          success: (res) => {
-            if(res.errMsg === "login:ok") {
-              that.code = res.code
-            } else {
-              uni.showToast({
-                title: "系统异常，请联系管理员！"
-              })
-            }
-          },
-        });
+        this.logingFlag = true;
 
         if (this.code) {
           // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
           uni.getUserProfile({
             desc: "用于完善会员资料", // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
             success: (res) => {
-              that.nickName = res.userInfo.nickName;
-              that.image = res.userInfo.avatarUrl;
+              console.log("success", res)
+              this.nickName = res.userInfo.nickName;
+              this.image = res.userInfo.avatarUrl;
 
               /**
                * 根据公有的配置设置登录方式
@@ -152,13 +154,15 @@
                   });
                 });
               });
+
             },
             fail: (res) => {
-
+              console.log("fail", res)
             },
           });
-        }
 
+          this.logingFlag = false;
+        }
 			},
 
 			//获取手机号授权
