@@ -98,7 +98,7 @@ export default {
   },
   onLoad() { },
   onShow() {
-    this.userInfo = this.$options.filters.isLogin();
+    this.userInfo = this.$options.filters.isLogin() || {};
     if (this.$options.filters.isLogin("auth")) {
       this.getUserOrderNum();
     } else {

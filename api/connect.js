@@ -26,7 +26,7 @@ export function webConnect(code) {
 export function openIdLogin(params, clientType) {
 	return http.request({
 		url: `passport/connect/connect/app/login`,
-		method: Method.GET,
+		method: Method.POST,
 		needToken: true,
 		data: params,
 		header: {
