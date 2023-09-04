@@ -17,12 +17,12 @@
           :border-bottom="false"
           prop="companyAddressPath"
           label="公司所在地"
-          ><u-input
-            type="select"
+          >
+          <div @click="showPicker()" style="margin-right: 30rpx;">选择</div>
+          <u-input
+            disabled
             :custom-style="defaultInputStyle"
             v-model="form.companyAddressPath"
-            disabled
-            @click="showPicker()"
         /></u-form-item>
         <u-form-item
           required
@@ -338,6 +338,7 @@ export default {
     },
     // 显示三级地址联动
     showPicker() {
+      console.log(this.$refs)
       this.$refs.cityPicker.show();
     },
     validatorStep1Form() {

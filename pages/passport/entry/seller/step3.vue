@@ -33,7 +33,10 @@
           :border-bottom="false"
           prop="goodsManagementCategory"
           label="店铺经营类目"
-          ><u-input
+          >
+          <div @click="showCategory()"   style="margin-right: 30rpx;">选择</div>
+         
+          <u-input
             :custom-style="defaultInputStyle"
             v-model="goodsManagementCategory"
             disabled
@@ -46,15 +49,17 @@
           prop="storeAddressPath"
           label="店铺所在地"
         >
+          <div @click="showPicker()"   style="margin-right: 30rpx;">选择</div>
           <u-input
             :custom-style="defaultInputStyle"
             v-model="form.storeAddressPath"
+          
             disabled
-            @click="showPicker()"
+            
           />
         </u-form-item>
-
-        <u-form-item
+       
+        <!-- <u-form-item
           required
           :border-bottom="false"
           prop="storeAddressPath"
@@ -62,7 +67,7 @@
         >
           <div class="get-center" @click="clickUniMap()">开始定位</div>
           <div class="tips-success" v-if="form.storeCenter">已成功定位</div>
-        </u-form-item>
+        </u-form-item> -->
 
         <u-form-item
           required
@@ -287,7 +292,7 @@ export default {
     },
     getPickerParentValue(e) {
       this.form.storeAddressIdPath = [];
-
+      console.log(e)
       let name = "";
       e.forEach((item, index) => {
         if (item.id) {
@@ -298,9 +303,11 @@ export default {
           } else {
             name += item.localName + ",";
           }
-          this.form.storeAddressPath = name;
+          this.$set(this.form,'storeAddressPath',name)
         }
       });
+
+      this.form.storeCenter = e[e.length-1].center
     },
     // 显示三级地址联动
     showPicker() {

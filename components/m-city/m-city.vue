@@ -180,6 +180,7 @@ export default {
       if (this.tabbars[index].id != item.id) {
         this.tabbars[index].localName = item.name;
         this.tabbars[index].id = item.id;
+        this.tabbars[index].center = item.center
         if (index < this.tabbars.length - 1) {
           this.tabbars.splice(index + 1, this.tabbars.length - index - 1);
         }
@@ -195,6 +196,7 @@ export default {
               localName: "请选择",
               id: "",
               children: data.data.result,
+              
             };
             this.tabbars.push(current);
             this.tabCurrentIndex++;
