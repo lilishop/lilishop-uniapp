@@ -85,7 +85,7 @@
         <u-tabs :list="tabs" :active-color="mainColor" :is-scroll="false" :current="current" @change="changeTab"></u-tabs>
         <div class="content" v-if="current == 0">
           <u-empty style='margin-top:100rpx' v-if="goodsList.length == 0" class="empty" text='暂无商品信息'></u-empty>
-          <goodsTemplate v-else :res="goodsList" :storeName="false" />
+          <goodsTemplate style="width:100%;" v-else :res="goodsList" :storeName="false" />
         </div>
         <!-- 全部分类 -->
         <div class="category" v-if="current == 1">
