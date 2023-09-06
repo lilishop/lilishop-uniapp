@@ -24,6 +24,14 @@
 						class="btn-auth">登录</button>
 					<div @click="backToHome" class="btn-callback">暂不登录</div>
 				</view>
+				<div class="privacy">
+            <u-checkbox shape="circle" v-model="checked" :active-color="lightColor">
+              <div class="flex">
+                阅读并同意<navigator class="light-color" url="/pages/mine/help/tips?type=PRIVACY_POLICY">《隐私协议》</navigator>
+                <navigator class="light-color" url="/pages/mine/help/tips?type=USER_AGREEMENT">《用户协议》</navigator>
+              </div>
+            </u-checkbox>
+        </div>
 			</div>
 		</view>
 	</view>
@@ -357,4 +365,10 @@
 			transform: scale(1.1);
 		}
 	}
+
+.privacy{
+  text-align: center;
+  margin-top: 20rpx;
+  width: 100%;
+}
 </style>
