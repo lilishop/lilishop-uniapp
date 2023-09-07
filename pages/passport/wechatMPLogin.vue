@@ -53,6 +53,8 @@
 	export default {
 		data() {
 			return {
+				lightColor:this.$lightColor,
+				checked:false,
         configs:config,
 				// 是否展示手机号码授权弹窗，默认第一步不展示，要先获取用户基础信息
 				phoneAuthPopup: false,
@@ -114,6 +116,13 @@
 
 			//获取用户信息
       getUserProfile(e) {
+				if(!this.checked){
+					uni.showToast({
+						title:"请勾选协议",
+						icon:'none'
+					})
+					return
+				}
         this.logingFlag = true;
 
         if (this.code) {
