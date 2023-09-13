@@ -15,7 +15,9 @@
           <u-input v-model="form.mobile" type="number" maxlength="11" placeholder="请输入收货人手机号码" />
         </u-form-item>
         <u-form-item label="所在区域" label-width="130" prop="___path">
-          <u-input v-model="form.___path" type="select" @click="showPicker" placeholder="请选择所在地区" />
+          <div  @click="showPicker" >
+            {{ form.___path || '请选择所在地区' }}
+          </div>
         </u-form-item>
         <u-form-item class="detailAddress" label="详细地址" label-width="130" prop="detail">
           <u-input type="textarea" v-model="form.detail" maxlength="100" height="150" placeholder="街道楼牌号等" />

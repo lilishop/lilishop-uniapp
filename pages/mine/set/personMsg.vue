@@ -22,10 +22,12 @@
       <u-form-item label="城市" label-width="150" placeholder="请选择城市" right-icon="arrow-right">
         <div style="width: 100%;" @click="clickRegion">{{ form.___path || '请选择城市' }}</div>
       </u-form-item>
-      <view class="submit" @click="submit">保存</view>
-	    <view class="submit" @click="quiteLoginOut">退出登录</view>
+    
     </u-form>
-
+    <div class="bottom">
+      <view class="submit" @click="submit">保存</view>
+	    <view class="submit light" @click="quiteLoginOut">退出登录</view>
+    </div>
     <m-city :provinceData="region" headTitle="区域选择" ref="cityPicker" @funcValue="getPickerParentValue" pickerSize="4"></m-city>
   </view>
 </template>
@@ -166,7 +168,11 @@ export default {
   onLoad() {},
 };
 </script>
-
+<style>
+page{
+  background: #fff;
+}
+</style>
 <style lang="scss" scoped>
 .submit {
   height: 90rpx;
@@ -206,5 +212,22 @@ export default {
 }
 .form {
   background-color: #ffffff;
+}
+.bottom{
+  position: fixed;
+  bottom: 40px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  >.submit{
+    background: $light-color;
+    color: #fff;
+    width: 40%;
+  }
+
+}
+.light{
+  background: rgba($color: $light-color, $alpha: 0.2) !important;
+  color: $light-color !important;
 }
 </style>
