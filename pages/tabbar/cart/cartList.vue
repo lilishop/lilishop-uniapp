@@ -1,5 +1,10 @@
 <template>
   <div class="wrapper">
+    <u-navbar :is-back="false" title="购物车">
+      <div slot="right">
+        <div class="light-color edit" @click="isEdit = !isEdit">{{ !isEdit ? '编辑' : '完成'}}</div>
+      </div>
+    </u-navbar> 
     <!-- 空白页-->
     <view v-if="!loading && (cartDetail.cartList == '' || cartDetail.cartList == [] || !cartDetail)" class="empty">
       <image src="/static/emptyCart.png" mode="aspectFit"></image>
@@ -8,7 +13,6 @@
         <navigator class="navigator" url="/pages/tabbar/home/index" open-type="switchTab">随便逛逛></navigator>
       </view>
     </view>
-
     <!-- 店铺商品信息 -->
     <div class="content">
       <div class="box box2" :class="{ invalid: isInvalid(item) }" v-for="(item, index) in cartDetail.cartList"
@@ -553,6 +557,10 @@ page {
 // #endif
 .u-image {
   box-shadow: 0 4rpx 12rpx 0 rgba(0, 0, 0, 0.05);
+}
+.edit{
+  padding-right: 32rpx;
+  font-size: 28rpx;
 }
 .promotion-notice {
   margin-top: 10px;

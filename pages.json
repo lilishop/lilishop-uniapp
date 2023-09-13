@@ -36,6 +36,7 @@
 			"path": "pages/tabbar/cart/cartList",
 			"style": {
 				"navigationBarTitleText": "购物车",
+				"navigationStyle": "custom", // 隐藏系统导航栏
 				"navigationBarBackgroundColor": "#fff",
 				"enablePullDownRefresh":true    //实现下拉刷新样式
 

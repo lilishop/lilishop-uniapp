@@ -16,11 +16,11 @@
       </u-form-item>
 
       <u-form-item label="生日" label-width="150" right-icon="arrow-right">
-        <u-input v-model="birthday" disabled placeholder="请选择出生日期" @click="showBirthday = true" />
-        <u-picker v-model="showBirthday" mode="time" :confirm-color="lightColor" @confirm="selectTime"></u-picker>
+        <div style="width: 100%;" @click="showBirthday = true">{{ birthday || '请选择出生日期' }}</div>
+       <u-picker v-model="showBirthday" mode="time" :confirm-color="lightColor" @confirm="selectTime"></u-picker>
       </u-form-item>
       <u-form-item label="城市" label-width="150" placeholder="请选择城市" right-icon="arrow-right">
-        <u-input v-model="form.___path" disabled @click="clickRegion" />
+        <div style="width: 100%;" @click="clickRegion">{{ form.___path || '请选择城市' }}</div>
       </u-form-item>
       <view class="submit" @click="submit">保存</view>
 	    <view class="submit" @click="quiteLoginOut">退出登录</view>
