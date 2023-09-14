@@ -115,7 +115,8 @@ export default {
   onShow() {
     this.orderList = [];
     this.params.pageNumber = 1;
-    this.current == 0 ? this.loadData() : this.loadComments();
+    this.current = 0
+    this.loadData()
   },
   watch: {
     /**

@@ -554,7 +554,7 @@ export default {
       this.productId = id; // skuId
       // 这里请求获取到页面数据  解析数据
 
-      let response = await getGoods(id, goodsId);
+      let response = await getGoods(id || 'undefined', goodsId);
       
       // 判断当前接口返回内容 
       if (!response.data.success) {
