@@ -37,9 +37,8 @@
       <view class="body-view">
         <!-- 退款原因 -->
         <view class="opt-view">
-          <u-form-item label="申请原因" :label-width="150">
-            <u-input v-model="form.reason" type="select" input-align="right" :select-open="reasonSelectShow"
-              @click="reasonSelectShow = true" placeholder="请选择申请原因" />
+          <u-form-item label="申请原因" :label-width="150" >
+            <div style="width: 100%; text-align: right;" @click="reasonSelectShow = true">{{ form.reason || '请选择申请原因' }}</div>
           </u-form-item>
           <u-form-item label="申请说明" :label-width="150">
             <u-input input-align="right" type="textarea" v-model="form.problemDesc" placeholder="请描述申请售后的说明" />

@@ -33,13 +33,13 @@
             <u-input type="text" input-align="right" value="快递至第三方卖家" />
           </u-form-item>
           <u-form-item label="快递公司" :label-width="150">
-            <u-input v-model="form.courierCompany" type="select" input-align="right" :select-open="companySelectShow" @click="companySelectShow = true" placeholder="请选择快递公司" />
+            <div style="width: 100%; text-align: right;" @click="companySelectShow = true" >{{ form.courierCompany || '请选择快递公司' }}</div>
           </u-form-item>
           <u-form-item label="快递单号" :label-width="150">
             <u-input input-align="right" v-model="form.logisticsNo" placeholder="请输入快递单号" />
           </u-form-item>
           <u-form-item label="发货时间" :label-width="150">
-            <u-input input-align="right" type="selects" disabled v-model="form.mDeliverTime" @click="timeshow = true" placeholder="请选择发货时间" />
+            <div style="width: 100%; text-align: right;" @click="companySelectShow = true" >{{ form.courierCompany || '请选择发货时间' }}</div>
           </u-form-item>
         </view>
       </scroll-view>
