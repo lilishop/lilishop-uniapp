@@ -39,7 +39,7 @@
             <u-input input-align="right" v-model="form.logisticsNo" placeholder="请输入快递单号" />
           </u-form-item>
           <u-form-item label="发货时间" :label-width="150">
-            <div style="width: 100%; text-align: right;" @click="companySelectShow = true" >{{ form.courierCompany || '请选择发货时间' }}</div>
+            <div style="width: 100%; text-align: right;" @click="timeshow = true" >{{ form.mDeliverTime || '请选择发货时间' }}</div>
           </u-form-item>
         </view>
       </scroll-view>
