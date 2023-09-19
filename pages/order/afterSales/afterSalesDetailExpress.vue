@@ -30,7 +30,7 @@
         <view class="opt-view">
           <view class="img-title" style="font-size: 30rpx">填写物流信息</view>
           <u-form-item label="返回方式" :label-width="150">
-            <u-input type="text" input-align="right" value="快递至第三方卖家" />
+            <div style="width: 100%; text-align: right;">快递至第三方卖家</div>
           </u-form-item>
           <u-form-item label="快递公司" :label-width="150">
             <div style="width: 100%; text-align: right;" @click="companySelectShow = true" >{{ form.courierCompany || '请选择快递公司' }}</div>
