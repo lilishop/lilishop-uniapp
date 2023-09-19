@@ -218,3 +218,13 @@ export function fillShipInfo(afterSaleSn, params) {
     data: params,
   });
 }
+
+// 添加交易投诉对话
+export function communication(params) {
+  return http.request({
+    url: `/order/complain/communication`,
+    method: Method.POST,
+    needToken: true,
+    params
+  });
+}
