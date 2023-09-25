@@ -121,7 +121,15 @@ export default {
      * 回退到上一级
      */
     onClickLeft() {
-      uni.navigateBack();
+      const paths = getCurrentPages();
+      console.log(paths)
+      if(paths.length > 1){
+        uni.navigateBack();
+      }else{
+        uni.switchTab({
+          url:"/pages/tabbar/home/index"
+        })
+      }
     },
 
     /**
