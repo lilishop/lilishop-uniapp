@@ -37,7 +37,7 @@
           </u-image>
         </div>
         <div class="goods-desc">
-          <div class="goods-title" :style="{ height: (proportion * 34) + 'rpx' }">
+          <div class="goods-title">
             {{ item.title }}
           </div>
           <div class="goods-bottom">
@@ -68,7 +68,7 @@
           </u-image>
         </div>
         <div class="goods-desc">
-          <div class="goods-title" :style="{ height: (proportion * 34) + 'rpx' }">
+          <div class="goods-title">
             {{ item.goodsName }}
           </div>
           <div class="goods-bottom">
@@ -100,7 +100,6 @@ export default {
       },
       goodsData: [], //商品循环内容
       goodsResult:"", //es总返回内容
-      proportion:0,
     };
   },
   props: ["res","enableBottomLoad"],
@@ -120,10 +119,6 @@ export default {
     },
   },
   mounted() {
-    const winWidth = uni.getSystemInfoSync().windowWidth
-    const proportion = 750 / winWidth
-    this.proportion = proportion
-
     uni.$on('onReachBottom',()=>{
       if(this.enableBottomLoad && this.goodsResult.totalElements >= this.params.pageNumber * this.params.pageSize){
         this.params.pageNumber++
