@@ -123,10 +123,25 @@ export default {
   },
 	
   methods: {
+  	handleNavigate(url) {
+			uni.navigateTo({
+				url,
+			});
+		},
     navigateTo(url) {
-      uni.navigateTo({
-        url,
-      });
+      const ignores = [
+				'/pages/mine/set/setUp',
+				'/pages/mine/set/editionIntro',
+				'/pages/mine/set/feedBack'
+			]
+			if (!ignores.includes(url)) {
+				if (this.$options.filters.tipsToLogin('normal')) {
+					this.handleNavigate(url)
+				}
+			}
+			else {
+				this.handleNavigate(url)
+			}
     },
 	
 	linkMsgDetail(){

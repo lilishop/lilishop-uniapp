@@ -376,7 +376,7 @@ export function talkIm (storeId, goodsId, id) {
   }
 }
 
-export function tipsToLogin () {
+export function tipsToLogin (type) {
   if (!isLogin("auth")) {
     uni.showModal({
       title: "提示",
@@ -388,7 +388,10 @@ export function tipsToLogin () {
         if (res.confirm) {
           navigateToLogin();
         } else if (res.cancel) {
-          uni.navigateBack();
+          if(type !== 'normal'){
+            uni.navigateBack();
+          }
+          
         }
       },
     });
