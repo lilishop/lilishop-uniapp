@@ -84,7 +84,7 @@ export default {
       }
       if (!this.feedBack.context) {
         uni.showToast({
-          title: "请填写反馈类型",
+          title: "请填写反馈信息",
           duration: 2000,
           icon: "none",
         });

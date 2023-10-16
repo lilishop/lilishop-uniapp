@@ -53,7 +53,7 @@
           <text>立即</text><br />
           <text>使用</text>
         </view>
-        <view class="used" v-else @click="clickWay(item)">
+        <view class="used" v-if="current == 0 && routerVal.selectedCoupon.includes(item.id)" @click="clickWay(item)">
           <text>取消</text><br />
           <text>使用</text>
         </view>

@@ -67,7 +67,7 @@ export default {
 <style lang="scss" scoped>
 @import "../product.scss";
 .recommend-item-name {
-  height: 70rpx;
+  height: 60rpx;
   color: #333;
   font-weight: 400;
   font-size: 24rpx;
