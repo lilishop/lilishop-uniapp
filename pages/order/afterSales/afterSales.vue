@@ -12,11 +12,11 @@
     </view>
     <div class="u-tabs-search">
       <u-search
-        placeholder="请输入订单编号"
+        placeholder="请输入订单编号/商品名称/售后单号"
         @search="submitSearchOrderList(current)"
-        @clear="submitSearchOrderList(current)"
+        @clear="clear(current)"
         @custom="submitSearchOrderList(current)"
-        v-model="orderSn"
+        v-model="keywords"
       >
       </u-search>
     </div>
@@ -239,13 +239,13 @@ export default {
         pageSize: 10,
       },
       status: "loadmore",
-      orderSn: "", // 搜索订单sn
+      keywords: "", // 搜索订单sn
     };
   },
   onLoad(options) {
     this.orderList = [];
     this.params.pageNumber = 1;
-    if (options.orderSn) this.params.orderSn = options.orderSn;
+    if (options.orderSn) this.params.keywords = options.orderSn;
     this.searchOrderList(this.current);
   },
   onPullDownRefresh() {
@@ -258,6 +258,14 @@ export default {
     submitSearchOrderList(current) {
       this.params.pageNumber = 1;
       this.logParams.pageNumber = 1;
+      this.orderList = [];
+      this.searchOrderList(current);
+    },
+    // 清空
+    clear(current){
+      this.params.pageNumber = 1;
+      this.logParams.pageNumber = 1;
+      this.params.keywords = ''
       this.orderList = [];
       this.searchOrderList(current);
     },
@@ -282,7 +290,7 @@ export default {
      */
     searchOrderList(index) {
       if (index == 0) {
-        this.orderSn ? (this.params.orderSn = this.orderSn) : "";
+        this.keywords ? (this.params.keywords = this.keywords) : "";
         this.getOrderList();
       } else {
         this.logParams = {
@@ -294,7 +302,7 @@ export default {
         if (index === 1) {
           this.logParams.serviceStatus = "APPLY";
         }
-        this.orderSn ? (this.logParams.orderSn = this.orderSn) : "";
+        this.keywords ? (this.logParams.keywords = this.keywords) : "";
         this.orderList = [];
         this.getAfterSaleLogList();
       }
