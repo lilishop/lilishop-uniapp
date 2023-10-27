@@ -17,8 +17,10 @@
         <view class="text">• 使用范围：{{
                     coupon.scopeType == 'ALL' && coupon.storeId == '0'
                       ? "全平台"
-                      : coupon.scopeType == "PORTION_CATEGORY"
-                      ? "仅限品类"
+                      : coupon.scopeType == "PORTION_GOODS"
+                      ? "部分商品"
+					  : coupon.scopeType == "PORTION_GOODS_CATEGORY"
+					  ? "部分分类商品"
                       : coupon.storeName == 'platform' ? '全平台' :coupon.storeName+''
                   }}使用</view>
         <view class="text">• 有效期至：{{coupon.endTime}}</view>
