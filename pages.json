@@ -275,6 +275,16 @@
 						}
 					}
 				},
+				
+				{
+					"path": "set/securityCenter/bindMobile",
+					"style": {
+						"navigationBarTitleText": "绑定手机号",
+						"app-plus": {
+				
+						}
+					}
+				},
 
 				{
 					"path": "im/list",
