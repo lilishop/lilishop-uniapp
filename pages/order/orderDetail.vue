@@ -83,6 +83,7 @@
                 <view class="goods-price">
                   ￥{{ sku.goodsPrice | unitPrice }}
                   <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
+				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;">{{refundPriceList(sku.isRefund)}} ({{ sku.refundPrice | unitPrice("￥") }})</span>
                 </view>
               </view>
               <view class="goods-num">
@@ -314,6 +315,21 @@ export default {
     this.sn = options.sn;
   },
   methods: {
+	// 退款状态枚举
+	refundPriceList(status) {
+		switch (status) {
+		case 'ALL_REFUND':
+		  return "全部退款";
+		case 'PART_REFUND':
+		  return "部分退款";
+		case 'NO_REFUND':
+		  return "未退款";
+		case 'REFUNDING':
+		  return "退款中";
+		default:
+			return "未退款";
+		}
+	},
     callPhone(){
       this.$options.filters.callPhone(this.order.storeAddressMobile )
     },
