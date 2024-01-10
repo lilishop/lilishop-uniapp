@@ -719,6 +719,12 @@
 					}
 				},
 				{
+					"path": "deliverDetail",
+					"style": {
+						"navigationBarTitleText": "物流详情"
+					}
+				},
+				{
 					"path": "evaluate/evaluateDetail",
 					"style": {
 						"navigationBarTitleText": "评价详情"

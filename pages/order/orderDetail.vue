@@ -10,7 +10,7 @@
     </div>
     <!-- 物流信息 -->
     <view class="info-view logistics-view">
-      <view class="logistics-List" v-if="logisticsList && logisticsList.traces.length != 0 ">
+      <view class="logistics-List" v-if="logisticsList && logisticsList.traces && logisticsList.traces.length != 0 ">
         <view class="logistics-List-title">
           {{ logisticsList.traces[logisticsList.traces.length - 1].AcceptStation }}
         </view>
@@ -23,6 +23,14 @@
         <view class="verificationCode" v-if="order.verificationCode">
           券码： {{ order.orderStatus == 'CANCELLED' ?  '已失效' : order.verificationCode }}
         </view>
+		<view @click="handleClickDeliver()" class="info-view logi-view"  v-if="orderPackage && orderPackage.length">
+		  <view class="verificationCode">
+		      当前订单有 {{ orderPackage.length }} 个包裹快递
+		  </view>
+		  <div>
+		      点击此处查看
+		  </div>
+		</view>
         <view v-else class="logistics-List-title">
           {{ '暂无物流信息' }}
         </view>
@@ -250,7 +258,7 @@
 </template>
 
 <script>
-import { getExpress } from "@/api/trade.js";
+import { getExpress, getPackage } from "@/api/trade.js";
 import { cancelOrder, confirmReceipt, getOrderDetail } from "@/api/order.js";
 
 import shares from "@/components/m-share/index"; //分享
@@ -308,6 +316,7 @@ export default {
       cancelList: "",
       rogShow: false,
       reason: "",
+	  orderPackage:"",
     };
   },
   onLoad(options) {
@@ -315,6 +324,19 @@ export default {
     this.sn = options.sn;
   },
   methods: {
+	//获取包裹
+	async getOrderPackage() {
+		getPackage(this.order.sn).then(res => {
+			if (res.data.success) {
+				this.orderPackage = res.data.result
+			}
+		})
+	},
+	handleClickDeliver(){
+		uni.navigateTo({
+			url: `/pages/order/deliverDetail?order_sn=${this.order.sn}`,
+		});
+	},
 	// 退款状态枚举
 	refundPriceList(status) {
 		switch (status) {
@@ -375,7 +397,8 @@ export default {
         this.orderGoodsList = order.orderItems;
         this.orderDetail = res.data.result;
         if (this.order.deliveryMethod === 'LOGISTICS') {
-          this.loadLogistics(sn)
+          this.loadLogistics(sn);
+		  this.getOrderPackage();
         }
          if (this.$store.state.isShowToast){ uni.hideLoading() };
       });

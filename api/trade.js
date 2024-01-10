@@ -319,3 +319,12 @@ export function reBuy(sn) {
     params,
   });
 }
+
+// 查看包裹列表
+export function getPackage(orderSn) {
+  return http.request({
+    url: `/order/order/getPackage/${orderSn}`,
+    method: Method.GET,
+    needToken: true,
+  });
+}
