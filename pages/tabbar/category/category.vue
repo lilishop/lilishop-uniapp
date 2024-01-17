@@ -2,7 +2,12 @@
   <view class="category-wrap">
     <u-navbar class="navbar" :is-back="false">
       <div class="title">商品分类</div>
+      <!-- #ifdef H5 -->
+      <u-search class="nav-search"  @click.native="search" placeholder="搜索商品" :show-action="false"></u-search>
+      <!-- #endif -->
+      <!-- #ifndef H5 -->
       <u-search class="nav-search" disabled @click.native="search" placeholder="搜索商品" :show-action="false"></u-search>
+      <!-- #endif -->
     </u-navbar>
     <view class="content">
       <scroll-view scroll-y scroll-with-animation class="left-aside">
