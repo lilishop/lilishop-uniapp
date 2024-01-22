@@ -594,7 +594,7 @@ export default {
           }
         });
       // 轮播图
-      this.imgList = this.goodsDetail.goodsGalleryList;
+      this.imgList = this.goodsDetail.goodsGalleryList.filter(i => i.indexOf("\"url\":") === -1 && i.indexOf("\"status\":") === -1);
 
       // 获取店铺基本信息
       this.getStoreBaseInfoFun(this.goodsDetail.storeId);
