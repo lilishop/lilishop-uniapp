@@ -9,7 +9,7 @@
 
     </div>
     <!-- 物流信息 -->
-    <view class="info-view logistics-view">
+    <view class="info-view logistics-view" v-if="order.orderType !== 'VIRTUAL'">
       <view class="logistics-List" v-if="logisticsList && logisticsList.traces && logisticsList.traces.length != 0 ">
         <view class="logistics-List-title">
           {{ logisticsList.traces[logisticsList.traces.length - 1].AcceptStation }}
@@ -38,7 +38,7 @@
 
     </view>
     <!-- 地址 -->
-    <view class="info-view" v-if="order.deliveryMethod == 'LOGISTICS'">
+    <view class="info-view" v-if="order.deliveryMethod === 'LOGISTICS' && order.orderType !== 'VIRTUAL'">
       <view class="address-view">
         <view>
           <view class="address-title">
@@ -52,7 +52,7 @@
     </view>
 
     <!-- 提货地址 -->
-    <view class="info-view" v-if="order.deliveryMethod == 'SELF_PICK_UP'">
+    <view class="info-view" v-if="order.deliveryMethod === 'SELF_PICK_UP'">
       <view class="address-view">
         <view>
           <view class="order-info-view">
@@ -114,7 +114,7 @@
           <view class="title">商品总价：</view>
           <view class="value">￥{{ order.goodsPrice | unitPrice }}</view>
         </view>
-        <view class="order-info-view">
+        <view class="order-info-view" v-if="order.freightPrice">
           <view class="title">运费：</view>
           <view class="value">￥{{ order.freightPrice | unitPrice }}</view>
         </view>
