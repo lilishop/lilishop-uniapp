@@ -42,7 +42,7 @@ export function getMessages(params) {
  */
 export function messageMarkAsRead(ids) {
   return http.request({
-    url: `members/member-nocice-logs/${ids}/read`,
+    url: `/message/member/${ids}`,
     method: Method.PUT,
     needToken: true,
   });
