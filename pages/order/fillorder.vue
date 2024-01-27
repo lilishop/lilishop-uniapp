@@ -651,7 +651,7 @@ export default {
             });
             return false;
           }
-        } else if (this.shippingText === "LOGISTICS" && this.orderMessage.cartTypeEnum != 'VIRTUAL') {
+        } else if (this.shippingText === "LOGISTICS" && this.orderMessage.cartTypeEnum !== 'VIRTUAL') {
           if (!this.address.id) {
             uni.showToast({
               title: "请选择地址",
