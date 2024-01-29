@@ -1,8 +1,8 @@
-import Foundation from "./Foundation.js";
-import storage from "@/utils/storage.js";
 import { logout } from "@/api/login";
 import { getUserInfo } from "@/api/members";
+import storage from "@/utils/storage.js";
 import Vue from "vue";
+import Foundation from "./Foundation.js";
 /**
  * 金钱单位置换  2999 --> 2,999.00
  * @param val
@@ -353,6 +353,7 @@ export function quiteLoginOut () {
         storage.setAccessToken("");
         storage.setRefreshToken("");
         storage.setUserInfo({});
+        storage.setHasLogin(false)
         navigateToLogin("redirectTo");
         await logout();
       }
