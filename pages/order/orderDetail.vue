@@ -91,7 +91,9 @@
                 <view class="goods-price">
                   ￥{{ sku.goodsPrice | unitPrice }}
                   <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
-				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;">{{refundPriceList(sku.isRefund)}} ({{ sku.refundPrice | unitPrice("￥") }})</span>
+				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="sku.isRefund && sku.isRefund !== 'NO_REFUND'">
+				  {{refundPriceList(sku.isRefund)}} ({{ sku.refundPrice | unitPrice("￥") }})
+				   </span>
                 </view>
               </view>
               <view class="goods-num">
