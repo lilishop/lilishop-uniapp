@@ -14,6 +14,17 @@ export function resetByMobile(params) {
   });
 }
 
+/**
+ * 绑定手机号码
+ * @param  mobile
+ */
+export function bindMobile(params) {
+  return http.request({
+    url: `/passport/member/bindMobile`,
+    method: "POST",
+    params,
+  });
+}
 
 //获取自动发券
 export function getAutoCoup(){

@@ -275,6 +275,16 @@
 						}
 					}
 				},
+				
+				{
+					"path": "set/securityCenter/bindMobile",
+					"style": {
+						"navigationBarTitleText": "绑定手机号",
+						"app-plus": {
+				
+						}
+					}
+				},
 
 				{
 					"path": "im/list",
@@ -706,6 +716,12 @@
 					"path": "orderDetail",
 					"style": {
 						"navigationBarTitleText": "订单详情"
+					}
+				},
+				{
+					"path": "deliverDetail",
+					"style": {
+						"navigationBarTitleText": "物流详情"
 					}
 				},
 				{

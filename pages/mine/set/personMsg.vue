@@ -22,6 +22,15 @@
       <u-form-item label="城市" label-width="150" placeholder="请选择城市" right-icon="arrow-right">
         <div style="width: 100%;" @click="clickRegion">{{ form.___path || '请选择城市' }}</div>
       </u-form-item>
+	  
+	  <u-form-item label="手机号" label-width="150">
+		<view v-if="form.mobile">
+			{{form.mobile}}
+		</view>
+		<view v-else>
+			<view class="submit" @click="navigateTo(form.username)">绑定手机号码</view>
+		</view>
+	  </u-form-item>
     
     </u-form>
     <div class="bottom">
@@ -32,7 +41,7 @@
   </view>
 </template>
 <script>
-import { saveUserInfo } from "@/api/members.js";
+import { saveUserInfo, getUserInfo } from "@/api/members.js";
 import { upload } from "@/api/common.js";
 import storage from "@/utils/storage.js";
 import uFormItem from "@/uview-ui/components/u-form-item/u-form-item.vue";
@@ -50,6 +59,8 @@ export default {
         region: storage.getUserInfo().region || [], //地址
         sex: storage.getUserInfo().sex, //性别
         ___path: storage.getUserInfo().region,
+		mobile: storage.getUserInfo().mobile,
+		username: storage.getUserInfo().username,
       },
       birthday: storage.getUserInfo().birthday || "", //生日
       photo: [
@@ -160,6 +171,12 @@ export default {
       this.form.birthday = `${time.year}-${time.month}-${time.day}`;
       this.birthday = `${time.year} - ${time.month} - ${time.day}`;
     },
+	
+	navigateTo(username) {
+	  uni.navigateTo({
+	    url: '/pages/mine/set/securityCenter/bindMobile' + '?username=' + username,
+	  });
+	},
   },
 
   /**
