@@ -138,7 +138,7 @@
                     shape="circle"
                     class="cancel-btn"
                     size="mini"
-                    v-if="order.groupAfterSaleStatus && (order.groupAfterSaleStatus==='NOT_APPLIED'|| order.groupAfterSaleStatus==='PART_AFTER_SALE' )"
+                    v-if="order.groupAfterSaleStatus && ( order.groupAfterSaleStatus.includes('NOT_APPLIED') || order.groupAfterSaleStatus.includes('PART_AFTER_SALE'))"
                     @click="applyService(order)"
                   >
                     退款/售后
