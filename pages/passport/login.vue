@@ -183,7 +183,7 @@
 		onShow() {
 
 			// 只要是app登录的全部清除内容
-			// #ifdef APP-PLUS 
+			// #ifdef APP-PLUS
 			storage.setAccessToken("");
 			storage.setRefreshToken("");
 			storage.setUserInfo({});
@@ -204,7 +204,7 @@
 		},
 
 		mounted() {
-			
+
 			// #ifndef APP-PLUS
 			//判断是否微信浏览器
 			var ua = window.navigator.userAgent.toLowerCase();
@@ -428,7 +428,7 @@
 								//写入用户信息
 								uni.setStorageSync("nickname", infoRes.userInfo.nickName);
 								uni.setStorageSync("avatar", infoRes.userInfo.avatarUrl);
-								uni.setStorageSync("unionId", infoRes.userInfo.unionId);
+								uni.setStorageSync("unionId", infoRes.userInfo.unionId || infoRes.userInfo.unionid);
 
 								// #ifdef MP-WEIXIN
 								//微信小程序获取openid 需要特殊处理 如需获取openid请参考uni-id: https://uniapp.dcloud.net.cn/uniCloud/uni-id
@@ -460,7 +460,7 @@
 					token:{unionId:"",openId:uni.getStorageSync("openid")}
 				};
         		uni.getStorageSync("unionId") ? (params.token.unionId = uni.getStorageSync("unionId")) : delete params.token;
-				
+
 				openIdLogin(params, clientType).then((res) => {
 					if (!res.data.success) {
 						let errormessage = "第三方登录暂不可用";
@@ -599,9 +599,9 @@
 				uni.navigateTo({
 					url: "/pages/mine/help/tips?type=" + val,
 				});
-				
+
 			},
-			
+
 			// 点击获取验证码
 			start() {
 				this.codeColor = "#999";

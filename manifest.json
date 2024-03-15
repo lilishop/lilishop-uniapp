@@ -116,7 +116,7 @@
                     },
                     "apple" : {},
                     "qq" : {
-                        "appid" : "101918501"
+                        "appid" : "101918503"
                     }
                 },
                 "geolocation" : {
@@ -206,14 +206,12 @@
                 "desc" : "位置信息将用于高德地图的效果展示"
             }
         },
-        "plugins" : {
-            
-            	// 直播插件注释
-                // "live-player-plugin" : {
-                //     "version" : "1.3.0",
-                //     "provider" : "wx2b03c6e691cd7370"
-                // }
-        },
+        "plugins" : {},
+        // 直播插件注释
+        // "live-player-plugin" : {
+        //     "version" : "1.3.0",
+        //     "provider" : "wx2b03c6e691cd7370"
+        // }
         "requiredPrivateInfos" : [ "chooseLocation", "getLocation" ]
     },
     "h5" : {
