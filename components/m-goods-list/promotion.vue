@@ -25,7 +25,7 @@
 									}}
 							</div>
 							<!-- 兜底策略如果金额是0 -->
-							<div class="price" v-if="!item.price">
+							<div class="price" v-if="!item.price && !type">
 								¥<span>0 </span>.00
 							</div>
 						</view>
