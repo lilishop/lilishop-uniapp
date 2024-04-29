@@ -9,7 +9,7 @@
 
     </div>
     <!-- 物流信息 -->
-    <view class="info-view logistics-view" v-if="order.orderType !== 'VIRTUAL'">
+    <view class="info-view logistics-view">
       <view class="logistics-List" v-if="logisticsList && logisticsList.traces && logisticsList.traces.length != 0 ">
         <view class="logistics-List-title">
           {{ logisticsList.traces[logisticsList.traces.length - 1].AcceptStation }}
