@@ -23,7 +23,7 @@
         <view class="verificationCode" v-if="order.verificationCode">
           券码： {{ order.orderStatus == 'CANCELLED' ?  '已失效' : order.verificationCode }}
         </view>
-		<view @click="handleClickDeliver()" class="info-view logi-view"  v-if="orderPackage && orderPackage.length">
+		<view @click="handleClickDeliver()" class="info-view logi-view"  v-else-if="orderPackage && orderPackage.length">
 		  <view class="verificationCode">
 		      当前订单有 {{ orderPackage.length }} 个包裹快递
 		  </view>
