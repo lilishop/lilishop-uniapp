@@ -130,3 +130,12 @@ export function scannerCodeLoginConfirm(params){
 	  needToken: true,
 	});
 }
+
+// 注销用户
+export function logoffConfirm() {
+	return http.request({
+		url: '/passport/member/cancellation',
+		method: "POST",
+		needToken: true,
+	})
+}
