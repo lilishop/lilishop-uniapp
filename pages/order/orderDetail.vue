@@ -120,7 +120,7 @@
           <view class="title">运费：</view>
           <view class="value">￥{{ order.freightPrice | unitPrice }}</view>
         </view>
-        <view class="order-info-view">
+        <view class="order-info-view" v-if="order.priceDetailDTO">
           <view class="title">优惠券：</view>
           <view class="value main-color">-￥{{ order.priceDetailDTO.couponPrice | unitPrice }}</view>
         </view>
@@ -170,7 +170,7 @@
         <view class="order-info-view">
           <view class="title">订单备注：</view>
           <view class="value">{{
-              order.remark
+              order.remark || '暂无备注'
           }}</view>
         </view>
         <view class="order-info-view">
