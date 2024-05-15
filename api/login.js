@@ -135,7 +135,7 @@ export function scannerCodeLoginConfirm(params){
 export function logoffConfirm() {
 	return http.request({
 		url: '/passport/member/cancellation',
-		method: "POST",
+		method: "PUT",
 		needToken: true,
 	})
 }
