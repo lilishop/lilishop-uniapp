@@ -5,7 +5,7 @@
         ￥{{ Number(payPrice) | unitPrice }}
       </div>
       <div class="pay-btns">
-        <div v-show="!from" @click="checkOrder">查看{{this.orderType == "RECHARGE" ? '余额' : '订单'}}</div>
+        <div v-show="!from" @click="checkOrder">查看{{ this.orderType == "RECHARGE" ? '余额' : '订单' }}</div>
         <div @click="navigateTo('/pages/tabbar/home/index', 'switch')">回到首页</div>
       </div>
     </div>
@@ -16,7 +16,7 @@
           <div>
             支付方式：
           </div>
-          <div>{{paymentMethod | paymentTypeFilter}}</div>
+          <div>{{ paymentMethod | paymentTypeFilter }}</div>
         </div>
       </div>
     </div>
@@ -60,7 +60,7 @@ export default {
     this.from = options.from || "";
     this.payPrice = options.payPrice || 0;
     this.orderType = options.orderType;
-    // this.sendMessage()
+
   },
   methods: {
     checkOrder() {
@@ -75,11 +75,6 @@ export default {
         });
       } else {
         this.navigateTo("/pages/order/myOrder?status=0");
-      }
-    },
-    changeStatus(val) {
-      if (val) {
-        this.sendMessage();
       }
     },
 
@@ -105,6 +100,7 @@ export default {
   padding: 0 20rpx 20rpx;
   width: 80%;
 }
+
 .pay-btns {
   display: flex;
   width: 50%;
@@ -112,7 +108,7 @@ export default {
   margin: 0 auto;
   color: #fff;
 
-  > div {
+  >div {
     padding: 6px 12px;
     border: 1px solid #fff;
     border-radius: 100px;
@@ -146,7 +142,7 @@ export default {
   border-radius: 20rpx;
   background: rgba($color: $main-color, $alpha: 0.2);
 
-  > h2 {
+  >h2 {
     margin-top: 20rpx;
     font-size: 40rpx;
     color: $main-color;

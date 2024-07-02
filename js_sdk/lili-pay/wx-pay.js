@@ -7,8 +7,8 @@
  * @param {sn,price}
  */
 
-import { initiatePay } from "@/api/trade";
 import { getWeChatMpMessage } from "@/api/message.js";
+import { initiatePay } from "@/api/trade";
 class LiLiWXPay {
   constructor(...payList) {
     this.data = payList[0];
@@ -65,52 +65,40 @@ class LiLiWXPay {
 }
 
 function sendMessage(price) {
-  //判断用户是否已经进行了订阅
-  if (!uni.getStorageSync("acceptSubscribeMessage")) {
-    //订阅消息
-    getWeChatMpMessage().then((res) => {
-      var message = res.data.result;
-      var templateid = message.map((item) => item.code);
-      uni.requestSubscribeMessage({
-        tmplIds: templateid,
-        success: (res) => {
-          for (let key in res) {
-            // 表示用户拒绝订阅该信息
-            if (res[key] == "reject") {
-              this.checked = false;
-            } else {
-              uni.setStorageSync("acceptSubscribeMessage", res);
-            }
-          }
-        },
-        fail: (res) => {
-          uni.removeStorageSync("acceptSubscribeMessage");
-          this.checked = false;
-        },
-        complete: () => {
-          /**
-           * 已经支付成功
-           */
-          uni.redirectTo({
-            url:
-              "/pages/cart/payment/success?paymentMethod=WECHAT" +
-              "&payPrice=" +
-              price,
-          });
-        },
-      });
+
+
+  //订阅消息
+  getWeChatMpMessage().then((res) => {
+    var message = res.data.result;
+    var templateid = message.map((item) => item.code);
+    uni.requestSubscribeMessage({
+      tmplIds: templateid,
+      success: (res) => {
+      
+      },
+      fail: (res) => {
+        console.log('fail', res)
+        uni.showToast({
+          icon: "none",
+          title: "订阅消息失败",
+        })
+      },
+      complete: (res) => {
+        console.log('complete', res)
+
+        /**
+         * 已经支付成功
+         */
+        uni.redirectTo({
+          url:
+            "/pages/cart/payment/success?paymentMethod=WECHAT" +
+            "&payPrice=" +
+            price,
+        });
+      },
     });
-  } else {
-    /**
-     * 已经支付成功
-     */
-    uni.redirectTo({
-      url:
-        "/pages/cart/payment/success?paymentMethod=WECHAT" +
-        "&payPrice=" +
-        price,
-    });
-  }
+  });
+
 }
 
 export default LiLiWXPay;

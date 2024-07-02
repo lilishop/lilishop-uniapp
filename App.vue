@@ -2,15 +2,15 @@
 	/**
 	 * vuex管理登录状态，具体可以参考官方登录模板示例
 	 */
-	import {
-		mapMutations
-	} from "vuex";
-	import APPUpdate from "@/plugins/APPUpdate";
-	import {
-		getClipboardData
-	} from "@/js_sdk/h5-copy/h5-copy.js";
 	import config from "@/config/config";
-	import storage from "@/utils/storage";
+import {
+	getClipboardData
+} from "@/js_sdk/h5-copy/h5-copy.js";
+import APPUpdate from "@/plugins/APPUpdate";
+import storage from "@/utils/storage";
+import {
+	mapMutations
+} from "vuex";
 
 	
 	
@@ -20,14 +20,7 @@
 	 * */
 	// #ifdef MP-WEIXIN
 	wx.onAppRoute((res) => {
-		const pages = getCurrentPages();
-		console.log("pages:" + pages.length,pages);
-		if (pages.length > 3) {
-			delete getCurrentPages()[2]
-		}
-		console.log('路由监听', {
-			res
-		})
+		
 	})
 	// #endif
 
@@ -43,6 +36,7 @@
 		 * 监听返回
 		 */
 		onBackPress(e) {
+			console.log("onBackPress-APP", e);
 			if (e.from == "backbutton") {
 				let routes = getCurrentPages();
 				let curRoute = routes[routes.length - 1].options;

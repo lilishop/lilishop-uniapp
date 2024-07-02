@@ -386,13 +386,13 @@
   </div>
 </template>
 <script>
-import * as API_Trade from "@/api/trade";
 import * as API_Address from "@/api/address";
 import * as API_Order from "@/api/order";
+import * as API_Trade from "@/api/trade";
+import configs from "@/config/config";
+import LiLiWXPay from "@/js_sdk/lili-pay/wx-pay.js";
 import invoices from "@/pages/order/invoice/setInvoice";
 import { mapState } from "vuex";
-import LiLiWXPay from "@/js_sdk/lili-pay/wx-pay.js";
-import configs from "@/config/config";
 export default {
   onLoad: function (val) {
     this.routerVal = val;
@@ -445,6 +445,8 @@ export default {
       notSupportFreight: [], //不支持运费
       notSupportFreightGoodsList: ["以下商品超出配送范围："],
       storeAddress: "",
+
+      originOrderData:"", // 原始订单数据
     };
   },
   watch: {
@@ -482,6 +484,7 @@ export default {
    * 监听返回
    */
   onBackPress(e) {
+    console.log("onBackPress", e);
     if (e.from == "backbutton") {
       let routes = getCurrentPages();
       let curRoute = routes[routes.length - 1].options;
@@ -495,7 +498,7 @@ export default {
           });
         }
       });
-
+      console.log("curRoute.addId",curRoute.addId)
       if (curRoute.addId) {
         uni.reLaunch({
           url: "/pages/tabbar/cart/cartList",
@@ -785,18 +788,29 @@ export default {
       this.notSupportFreight = [];
       // 获取结算参数
       API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
+        // 获取结算参数 进行首次判断
+        this.originOrderData = this.orderMessage ? JSON.parse(JSON.stringify(this.orderMessage)) : ""
+        
         if (
           !res.data.result.checkedSkuList ||
           res.data.result.checkedSkuList.length === 0
         ) {
-          uni.switchTab({
-            url: "/pages/tabbar/cart/cartList",
-          });
+
+          if(!this.originOrderData.checkedSkuList.length){
+            uni.switchTab({
+              url: "/pages/tabbar/cart/cartList",
+            });
+          }
+         
         }
         if (res.data.result.skuList.length <= 0) {
-          uni.navigateTo({
-            url: "/pages/order/myOrder?status=0",
-          });
+
+          if(!this.originOrderData.skuList.length){
+            uni.navigateTo({
+              url: "/pages/order/myOrder?status=0",
+            });
+          }
+         
         }
 
         let repeatData;
