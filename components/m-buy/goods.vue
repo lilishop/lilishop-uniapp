@@ -93,14 +93,17 @@
 							</view>
 						</view>
 					</view>
+					<div class="soldout" v-if="goodsDetail.quantity === 0">
+						<u-alert-tips type="warning" title="商品已售罄" description="当前商品库存为0"></u-alert-tips>
+					</div>
 					<!-- 数量 -->
-					<view class="goods-skus-number flex flex-a-c flex-j-sb">
+					<view v-if="goodsDetail.quantity !== 0" class="goods-skus-number flex flex-a-c flex-j-sb">
 						<view class="view-class-title">数量</view>
-						<uni-number-box class="uNumber" :min="1" :max="999"   v-model="num"></uni-number-box>
+						<uni-number-box class="uNumber" :min="1" :max="999" :disabled="goodsDetail.quantity === 0"  v-model="num"></uni-number-box>
 					</view>
 				</scroll-view>
 				<!-- 按钮 -->
-				<view class="btns">
+				<view class="btns" v-if="goodsDetail.quantity !== 0">
 					<view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType != 'VIRTUAL_GOODS'" @click="addToCartOrBuy('cart')">加入购物车</view>
 					<view class="box-btn buy" @click="addToCartOrBuy('buy')">立即购买</view>
 				</view>
@@ -209,6 +212,18 @@ export default {
 				this.$emit('changed', val);
 			},
 			deep: true
+		},
+		'goodsDetail.quantity': {
+			handler(val) {
+				if (val == 0) {
+					uni.showToast({
+						title: '商品已售罄',
+						duration: 2000,
+						icon: 'none'
+					})
+					this.num = 1;
+				}
+			}
 		}
 	},
 
@@ -400,6 +415,8 @@ export default {
 
 	mounted() {
 		this.formatSku(this.goodsSpec);
+
+		console.log("goodsDetail",this.goodsDetail)
 	}
 };
 </script>
@@ -459,6 +476,9 @@ export default {
 	height: 570rpx;
 	// #endif
 	margin-bottom: 10rpx;
+}
+.soldout{
+	margin: 20rpx 0;
 }
 
 .goods-skus-view {
