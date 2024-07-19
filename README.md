@@ -12,6 +12,12 @@
 
 ![image-20210511171611793](https://static.pickmall.cn/images/h5-qrcode.png)
 
+## lilishop-uniapp如何在本地h5和微信小程序中运行
+https://www.bilibili.com/video/BV17K8EemEh2/
+
+## lilishop-uniapp如何打包h5到服务器
+https://www.bilibili.com/video/BV1CX87exE64/
+
 ### 快速开始
 
 #### 阅读文档
