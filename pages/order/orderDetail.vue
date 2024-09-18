@@ -289,6 +289,10 @@ export default {
           title: "待发货",
           value: "商品等待发货中",
         },
+        PARTS_DELIVERED: {
+          title: "部分发货",
+          value: "商品已部分发货。",
+        },
         DELIVERED: {
           title: "已发货",
           value: "商品已发货,请您耐心等待",

@@ -68,6 +68,7 @@ export default {
       orderStatusList: {
         //订单状态列表
         UNDELIVERED: "待发货",
+        PARTS_DELIVERED: "部分发货",
         UNPAID: "未付款",
         PAID: "已付款",
         DELIVERED: "已发货",
