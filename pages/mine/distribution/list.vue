@@ -66,42 +66,45 @@
     <!-- 商品列表 -->
 
     <view class="goods-list">
-      <u-swipe-action v-for="(item, index) in goodsList" :disabled="!params.checked" :show="item.___selected" @open="openAction(item)" :index="index" :options="options" bg-color="#fff"
-        ref="swiperAction" :key="item.id" @click="changeActionTab(item)">
+      <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
+        <u-swipe-action v-for="(item, index) in goodsList" :disabled="!params.checked" :show="item.___selected" @open="openAction(item)" :index="index" :options="options" bg-color="#fff"
+                        ref="swiperAction" :key="item.id" @click="changeActionTab(item)">
 
-        <div class="goods-item">
-          <view class="goods-item-img" @click="handleNavgationGoods(item)">
-            <u-image width="176rpx" height="176rpx" :src="item.thumbnail"></u-image>
-          </view>
-          <view class="goods-item-desc">
-            <!-- 商品描述 -->
-            <view class="-item-title" @click="handleNavgationGoods(item)">
-              {{ item.goodsName }}
+          <div class="goods-item">
+            <view class="goods-item-img" @click="handleNavgationGoods(item)">
+              <u-image width="176rpx" height="176rpx" :src="item.thumbnail"></u-image>
             </view>
-            <!-- 商品金额 -->
-            <view class="-item-price" @click="handleNavgationGoods(item)">
-              佣金:
-              <span> ￥{{ item.commission | unitPrice }}</span>
-            </view>
-            <!-- 比率佣金 -->
-            <view class="-item-bottom">
-              <view class="-item-bootom-money" @click="handleNavgationGoods(item)">
-                <!-- <view class="-item-bl">
-                比率:
-                <span>{{ "5.00%" }}</span>
-              </view> -->
-                <view class="-item-yj">
-                  <span>￥{{ item.price | unitPrice }}</span>
+            <view class="goods-item-desc">
+              <!-- 商品描述 -->
+              <view class="-item-title" @click="handleNavgationGoods(item)">
+                {{ item.goodsName }}
+              </view>
+              <!-- 商品金额 -->
+              <view class="-item-price" @click="handleNavgationGoods(item)">
+                佣金:
+                <span> ￥{{ item.commission | unitPrice }}</span>
+              </view>
+              <!-- 比率佣金 -->
+              <view class="-item-bottom">
+                <view class="-item-bootom-money" @click="handleNavgationGoods(item)">
+                  <!-- <view class="-item-bl">
+                  比率:
+                  <span>{{ "5.00%" }}</span>
+                </view> -->
+                  <view class="-item-yj">
+                    <span>￥{{ item.price | unitPrice }}</span>
+                  </view>
+                </view>
+                <view>
+                  <view class="click" v-if="!params.checked" @click="handleClickGoods(item)">立即选取</view>
+                  <view class="click" v-if="params.checked" @click="handleLink(item)">分销商品</view>
                 </view>
               </view>
-              <view>
-                <view class="click" v-if="!params.checked" @click="handleClickGoods(item)">立即选取</view>
-                <view class="click" v-if="params.checked" @click="handleLink(item)">分销商品</view>
-              </view>
             </view>
-          </view>
-        </div>
-      </u-swipe-action>
+          </div>
+        </u-swipe-action>
+      </scroll-view>
+
 
       <view class="empty">
         <!-- <u-empty v-if="empty" text="没有分销商品了" mode="list"></u-empty> -->
@@ -295,15 +298,30 @@ export default {
           });
           this.goodsList.push(...res.data.result.records);
         }
-        if (this.goodsList.length == 0) {
+        if (this.goodsList.length === 0) {
           this.empty = true;
         }
       });
     },
+
+    /**
+     * 底部加载数据
+     */
+    renderDate() {
+
+      this.params.pageNumber += 1;
+      this.init();
+    },
+
   },
 };
 </script>
 <style lang="scss" scoped>
+
+.body-view {
+  overflow-y: auto;
+  height: calc(100vh - 44px - 80rpx - 104rpx);
+}
 .canvas-hide {
   /* 1 */
   position: fixed;
