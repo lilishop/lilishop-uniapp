@@ -185,25 +185,35 @@ export default {
           this.tabbars.splice(index + 1, this.tabbars.length - index - 1);
         }
         if (this.tabbars.length < this.pickersize) {
-          let data = await getRegionsById(item.id);
-          // 当前选项级为最后一级时回调，将选中的数据返回
-          if (data.data.result.length == 0) {
-            this.$emit("funcValue", this.tabbars);
-            this.hide();
-          } else {
-            // 将新的数据填充进下一级
-            var current = {
-              localName: "请选择",
-              id: "",
-              children: data.data.result,
-              
-            };
-            this.tabbars.push(current);
-            this.tabCurrentIndex++;
+          uni.showLoading({
+            title: "加载中",
+            mask:true
+          });
+          try {
+            let data = await getRegionsById(item.id);
+            uni.hideLoading();
+            // 当前选项级为最后一级时回调，将选中的数据返回
+            if (data.data.result.length == 0) {
+              this.$emit("funcValue", this.tabbars);
+              this.hide();
+            } else {
+              // 将新的数据填充进下一级
+              var current = {
+                localName: "请选择",
+                id: "",
+                children: data.data.result,
+                
+              };
+              this.tabbars.push(current);
+              this.tabCurrentIndex++;
 
-            // 当前距离重新为最上面
-						this.$set(this,'scrollTop',0)
-          }
+              // 当前距离重新为最上面
+              this.$set(this,'scrollTop',0)
+            }
+            } catch (error) {
+              uni.hideLoading();
+            }
+         
         } else {
           this.$emit("funcValue", this.tabbars);
           this.hide();
