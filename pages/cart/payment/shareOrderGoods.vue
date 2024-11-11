@@ -14,6 +14,9 @@
         <span v-if="isBuy &&!master.toBeGroupedNum >0">
           已成功拼团
         </span>
+        <span v-if="!master.toBeGroupedNum >0">
+          拼团已结束
+        </span>
       </div>
 
       <div v-if="isMaster && !isOver">
@@ -24,7 +27,7 @@
           去首页逛逛
         </div>
       </div>
-      <div v-if="!isMaster && !isOver && !isBuy">
+      <div v-if="!isMaster && !isOver && !isBuy && master.toBeGroupedNum">
         <div class="share-user" @click="toBuy">
           参与拼团
         </div>
@@ -45,7 +48,7 @@
     </div>
 
     <!-- 倒计时 -->
-    <div class="count-down" v-if="!isOver">
+    <div class="count-down" v-if="!isOver && master.toBeGroupedNum">
       <u-count-down bg-color="#ededed" :hide-zero-day="true" @end="isOver" :timestamp="timeStamp"></u-count-down>
     </div>
 
