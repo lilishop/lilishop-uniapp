@@ -32,9 +32,38 @@ export function modelNavigateTo(item) {
 			break;
 			// 活动
 		case "marketing":
-			uni.navigateTo({
-				url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
-			});
+			switch (val.___promotion) {
+				// 积分商品
+				case "POINTS_GOODS":
+					uni.navigateTo({
+						url: `/pages/promotion/point/detail?id=${val.promotionId}`,
+					});
+					break;
+				// 砍价
+				case "KANJIA":
+					uni.navigateTo({
+						url: `/pages/promotion/bargain/detail?id=${val.promotionId}`,
+					});
+					break;
+				// 优惠券商品
+				case "COUPON":
+					uni.navigateTo({
+						url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
+					});
+					break;
+				// 满减商品
+				case "FULL_DISCOUNT":
+					uni.navigateTo({
+						url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
+					});
+					break;
+				// 秒杀频道
+				case "SECKILL":
+					uni.navigateTo({
+						url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
+					});
+					break;
+			}
 			break;
 		case "pages":
 			uni.navigateTo({
