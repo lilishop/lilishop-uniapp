@@ -15,6 +15,12 @@
         <u-icon name="arrow-right"></u-icon>
       </div>
     </div>
+    <div class="box list" @click="navigateTo('/pages/mine/deposit/withdrawApply')">
+      <div class="list-left">提现记录</div>
+      <div class="list-right">
+        <u-icon name="arrow-right"></u-icon>
+      </div>
+    </div>
   </div>
 </template>
 

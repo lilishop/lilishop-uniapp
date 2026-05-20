@@ -211,6 +211,12 @@
 
 					}
 				},
+				{
+					"path": "deposit/withdrawApply",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				},
 			
 			{
 				"path": "deposit/info",

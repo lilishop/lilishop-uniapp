@@ -368,12 +368,12 @@ export default {
   color: #333333;
 }
 
-/deep/ .u-cell__value {
+::v-deep .u-cell__value {
   flex: 1.6;
   overflow: visible;
 }
 
-/deep/ .u-cell__value-text {
+::v-deep .u-cell__value-text {
   white-space: normal;
   word-break: break-all;
 }

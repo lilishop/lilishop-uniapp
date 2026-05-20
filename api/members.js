@@ -23,6 +23,23 @@ export function withdrawalApply(params) {
   });
 }
 
+export function getWithdrawApplyPage(params) {
+  return http.request({
+    url: "/member/withdrawApply",
+    method: Method.GET,
+    needToken: true,
+    params,
+  });
+}
+
+export function getWithdrawApplyWechatTransferInfo(id) {
+  return http.request({
+    url: `/member/withdrawApply/wechat/transfer/${id}`,
+    method: Method.GET,
+    needToken: true,
+  });
+}
+
 /**
  * 支付结果查询
  * @param orderType 交易类型,可用值:TRADE,ORDER,RECHARGE
