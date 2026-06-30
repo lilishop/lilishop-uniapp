@@ -15,7 +15,7 @@
         <view class="goods-info" @click="handleToGoods(item)">
           <view class="goods-title u-line-2">{{ item.goodsName }}</view>
           <view class="goods-price">
-            ￥{{ item.goodsPrice | unitPrice }}
+            ￥{{unitPrice(item.goodsPrice) }}
             <!-- <span>+{{ '1' }}积分</span> -->
           </view>
         </view>
@@ -36,7 +36,7 @@
 
     <u-empty v-if="empty" :style="{'marginTop':complaionDetail.total == 0 ? '200rpx':'0rpx'}" class="empty" style="" text="暂无投诉列表" mode="list"></u-empty>
 
-    <u-modal show-cancel-button @confirm="handleClearConfirm" v-model="show" :content="content"></u-modal>
+    <u-modal show-cancel-button @confirm="handleClearConfirm" v-model:show="show" :content="content"></u-modal>
   </view>
 </template>
 

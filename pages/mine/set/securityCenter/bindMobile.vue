@@ -15,8 +15,8 @@
 					
 					<u-form-item class="sendCode" label-width="120" prop="code" label="验证码">
 						<u-input v-model="codeForm.code" placeholder="请输入验证码" />
-						<u-verification-code unique-key="page-edit" :seconds="seconds" @end="end" @start="start"
-							ref="uCode" @change="codeChange"></u-verification-code>
+						<u-code unique-key="page-edit" :seconds="seconds" @end="end" @start="start"
+							ref="uCode" @change="codeChange"></u-code>
 						<view @tap="getCode" class="text-tips">{{ tips }}</view>
 					</u-form-item>
 

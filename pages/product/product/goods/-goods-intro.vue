@@ -15,9 +15,7 @@
           <u-parse
             class="vhtml"
             :lazy-load="true"
-            :use-cache="true"
-            :show-with-animation="true"
-            :html="res.mobileIntro"
+            :content="res.mobileIntro"
             :tag-style="style"
           ></u-parse>
         </view>
@@ -57,7 +55,7 @@ export default {
     return {
       goodsDetail: "",
       style: {
-        img:"display:block"
+        img:"display:block;width:100%"
 			}
     };
   },
@@ -114,15 +112,6 @@ export default {
 .goods-detail ::v-deep .vhtml {
   overflow: hidden;
 
-  width: 100%;
-}
-.vhtml {
-  ::v-deep img {
-    display: block !important;
-  }
-}
-
-::v-deep img {
   width: 100%;
 }
 .goods-detail-box {

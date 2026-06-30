@@ -1,7 +1,7 @@
 <template>
 
   <div class="index">
-    <u-modal v-model="show" :show-title="false" :show-confirm-button="false" mask-close-able>
+    <u-modal v-model:show="show" :show-title="false" :show-confirm-button="false" mask-close-able>
       <view class="slot-content">
         <image @click="downLoad()" class="img" :src="imgUrl" />
         <div class="canvas-hide">

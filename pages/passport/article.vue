@@ -5,7 +5,7 @@
       <view class="u-skeleton" v-if="!articleData">
           <u-empty text="文章暂无内容" mode="list"></u-empty>
       </view>
-      <u-parse v-else :html="articleData"></u-parse>
+      <u-parse v-else :content="articleData"></u-parse>
     </view>
   </view>
 </template>

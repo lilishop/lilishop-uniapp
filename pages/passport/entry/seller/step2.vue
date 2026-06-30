@@ -89,7 +89,7 @@ export default {
   watch: {
     companyData: {
       handler(val) {
-        this.$set(this, "form", val);
+        this["form"] = val;
         console.log(this.form)
       },
       deep: true,

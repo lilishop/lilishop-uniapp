@@ -1,7 +1,16 @@
 {
 
 	"easycom": {
-		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+		"autoscan": true,
+		"custom": {
+			"^u--(.*)": "uview-plus/components/u-$1/u-$1.vue",
+			"^up-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+			"^u-loading$": "uview-plus/components/u-loading-icon/u-loading-icon.vue",
+			"^u-alert-tips$": "uview-plus/components/u-alert/u-alert.vue",
+			"^u-time-line-item$": "@/components/u-time-line/u-time-line-item.vue",
+			"^u-time-line$": "@/components/u-time-line/u-time-line.vue",
+			"^u-([^-].*)": "uview-plus/components/u-$1/u-$1.vue"
+		}
 	},
 	"pages": [
 		
@@ -48,10 +57,10 @@
 				"navigationStyle": "custom", // 隐藏系统导航栏
 				"navigationBarTextStyle": "black",
 				"disableScroll": true,
+				"app-plus": {
 					"bounce": "none",
 					"scrollIndicator": "none"
-					
-				
+				}
 			}
 		},
 				
@@ -467,8 +476,10 @@
 					"navigationStyle": "custom",
 					"style": {
 						"navigationBarTitleText": "商品评价",
-						//app页面不显示滚动条
-						"scrollIndicator": "none"
+						"app-plus": {
+							//app页面不显示滚动条
+							"scrollIndicator": "none"
+						}
 					}
 				},
 				{ // 客服
@@ -827,10 +838,8 @@
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "Lili商城",
-		"titleColor": "#303133",
 		"navigationBarBackgroundColor": "#fff",
 		"backgroundColor": "#fff",
-		"color": "#FFFFFF",
 		"app-plus": {
 			// 全局关闭回弹功能
 			"bounce": "none"

@@ -1,59 +1,67 @@
-import Vue from "vue";
-import App from "./App";
-import * as filters from "./utils/filters.js"; // global filter
-import uView from "uview-ui";
-import store from "./store";
-import config from '@/config/config';
-import airBtn from "@/components/m-airbtn/index.vue";
-import socketIO from './pages/mine/im/socket';
-/**
- * 仅在h5中显示唤醒app功能
- * 在h5页面手动挂载
- * 
- */
-// #ifdef H5
-if (config.enableMiniBarStartUpApp) {
-  let btn = Vue.component("airBtn", airBtn); //全局注册
-  document.body.appendChild(new btn().$mount().$el);
+import { createSSRApp } from 'vue'
+import App from './App'
+import uviewPlus, { setConfig } from 'uview-plus'
+import store from './store'
+import config from '@/config/config'
+import airBtn from '@/components/m-airbtn/index.vue'
+import mpShare from '@/utils/mpShare.js'
+import * as filterUtils from './utils/filters.js'
+
+export function createApp() {
+  const app = createSSRApp(App)
+
+  // #ifdef MP-WEIXIN
+  // 微信开发者工具部分版本在输出 Vue warn 时会触发
+  // TypeError: Cannot read property '__global' of null，自定义 handler 绕过默认路径
+  app.config.warnHandler = (msg, _instance, trace) => {
+    if (
+      typeof msg === 'string' &&
+      msg.includes('enumerating keys on a component instance')
+    ) {
+      return
+    }
+    try {
+      console.warn(`[Vue warn]: ${msg}${trace || ''}`)
+    } catch (e) {
+      // 忽略开发者工具 console 代理异常
+    }
+  }
+  // #endif
+
+  app.use(store)
+  app.use(uviewPlus)
+
+  // uview-plus 的图标字体默认每个 u-icon 实例都会触发 uni.loadFontFace，
+  // 导致进入页面时同一字体被反复请求。开启 loadFontOnce 后全局只加载一次。
+  setConfig({
+    config: {
+      loadFontOnce: true,
+    },
+  })
+
+  app.config.globalProperties.$store = store
+  app.config.globalProperties.$mainColor = config.mainColor
+  app.config.globalProperties.$lightColor = config.lightColor
+  app.config.globalProperties.$aiderLightColor = config.aiderLightColor
+
+  const filterMethods = {}
+  Object.keys(filterUtils).forEach((key) => {
+    if (typeof filterUtils[key] === 'function') {
+      filterMethods[key] = filterUtils[key]
+    }
+  })
+  app.mixin({ methods: filterMethods })
+  app.mixin(mpShare)
+
+  // #ifdef H5
+  if (config.enableMiniBarStartUpApp) {
+    const mountPoint = document.createElement('div')
+    document.body.appendChild(mountPoint)
+    createSSRApp(airBtn).mount(mountPoint)
+  }
+  // #endif
+
+  return {
+    app
+  }
 }
-// #endif
-
-// 引入uView对小程序分享的mixin封装
-let mpShare = require('uview-ui/libs/mixin/mpShare.js');
-Vue.mixin(mpShare)
-
-/**
- * 全局filters
- */
-
-Object.keys(filters).forEach((key) => {
-  Vue.filter(key, filters[key]);
-});
-
-// 引入Vuex
-Vue.prototype.$store = store;
-// Vue.prototype.socketIo = new socketIO();
-Vue.use(uView);
-Vue.config.productionTip = false;
-
-
-/**
- * 注意！
- * 此处将常用的颜色嵌入到原型链上面
- * 颜色使用驼峰命名对应 uni.scss中全局颜色变量名
- * 如需更换主题请修改此处以及uni.scss中的全局颜色
- */
-// 主题色
-Vue.prototype.$mainColor = config.mainColor;
-// 高亮主题色
-Vue.prototype.$lightColor = config.lightColor;
-// 辅助高亮颜色
-Vue.prototype.$aiderLightColor = config.aiderLightColor;
-
-
-App.mpType = "app";
-
-const app = new Vue({
-  ...App,
-});
-app.$mount();

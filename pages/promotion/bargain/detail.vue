@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false">
+    <u-navbar :auto-back="false" @leftClick="back" left-icon-color="#fff" :bg-color="background.backgroundColor" :border="false">
     </u-navbar>
 
     <div class="wrapper-box">
@@ -17,9 +17,9 @@
               </div>
               <div class="flex price-box">
                 <div class="purchase-price">
-                  当前:<span>￥{{ activityData.surplusPrice == 0 ? this.bargains.purchasePrice :  activityData.surplusPrice | unitPrice}}</span>
+                  当前:<span>￥{{ activityData.surplusPrice == 0 ? this.bargains.purchasePrice :unitPrice(activityData.surplusPrice)}}</span>
                 </div>
-                <div class="max-price">原价:<span>￥{{ bargainDetail.price | unitPrice}}</span>
+                <div class="max-price">原价:<span>￥{{unitPrice(bargainDetail.price)}}</span>
 
                 </div>
               </div>
@@ -47,7 +47,7 @@
             </div>
           </div>
           <!-- 我要开团 -->
-          <div class="start" v-if="activityData.memberId != $options.filters.isLogin().id" @click="startOpenGroup">我要开团
+          <div class="start" v-if="activityData.memberId != isLogin().id" @click="startOpenGroup">我要开团
           </div>
         </div>
       </div>
@@ -61,10 +61,10 @@
             </div>
             <div class="user-config flex">
               <div class="user-name">
-                <div>{{item.kanjiaMemberName | noPassByName}}</div>
+                <div>{{noPassByName(item.kanjiaMemberName)}}</div>
                 <div>使出吃的奶劲儿</div>
               </div>
-              <div class="save">砍掉：<span>￥{{item.kanjiaPrice | unitPrice}}</span></div>
+              <div class="save">砍掉：<span>￥{{unitPrice(item.kanjiaPrice)}}</span></div>
             </div>
           </div>
         </div>
@@ -74,14 +74,14 @@
         <div class="bargain">
           <div class="bargain-title">商品详情</div>
           <view class="u-content">
-            <u-parse :html="bargainDetail.mobileIntro" :tag-style="style"></u-parse>
+            <u-parse :content="bargainDetail.mobileIntro" :tag-style="style"></u-parse>
           </view>
 
         </div>
       </div>
 
       <!-- 砍价 -->
-      <u-modal title="恭喜您砍掉了" v-model="Bargaining" mask-close-able :show-confirm-button="false"
+      <u-modal title="恭喜您砍掉了" v-model:show="Bargaining" mask-close-able :show-confirm-button="false"
         :title-style="{color: lightColor}">
         <view class="slot-content">
           <u-count-to :start-val="0" ref="uCountTo" font-size="100" :color="lightColor" :end-val="kanjiaPrice"
@@ -90,7 +90,7 @@
       </u-modal>
       <!-- 帮砍 -->
 
-      <u-modal :show-title="false" v-model="helpBargainFlage" :show-confirm-button="false">
+      <u-modal :show-title="false" v-model:show="helpBargainFlage" :show-confirm-button="false">
         <view class="help-bargain" @click="handleClickHelpBargain">
           <u-image width="100%" height="600rpx"
             src="https://lilishop-oss.oss-cn-beijing.aliyuncs.com/91631d5a66c7426bbe3f7d644ee41946.jpeg"></u-image>

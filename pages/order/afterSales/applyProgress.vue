@@ -18,12 +18,11 @@
     <view class="info-view">
       <view>
         <u-time-line v-if="logList.length != 0">
-          <u-time-line-item>
-            <!-- 此处没有自定义左边的内容，会默认显示一个点 -->
-            <template v-slot:content>
-              <view v-for="(time,index) in logList" :key="index">
-                <view class="u-order-desc">{{time.message}}</view>
-                <view class="u-order-time">{{time.createTime}}</view>
+          <u-time-line-item v-for="(time, index) in logList" :key="index">
+            <template #content>
+              <view>
+                <view class="u-order-desc">{{ time.message }}</view>
+                <view class="u-order-time">{{ time.createTime }}</view>
               </view>
             </template>
           </u-time-line-item>

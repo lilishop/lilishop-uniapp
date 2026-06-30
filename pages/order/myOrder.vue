@@ -17,7 +17,7 @@
 							<view class="seller-name wes" @click="navigateToStore(order)">
 								<view class="name">{{ order.storeName }}</view>
 
-								<view class="name" v-if="order.orderPromotionType">
+								<view class="name" v-if="renderOrderTag(order.orderPromotionType)">
 									<u-tag 
 									:text="renderOrderTag(order.orderPromotionType)" 
 									:color="renderOrderTagColor(order.orderPromotionType)"
@@ -25,8 +25,7 @@
 								</view>
 
 							</view>
-							<view class="order-sn">{{
-								order.orderStatus | orderStatusList
+							<view class="order-sn">{{orderStatusList(order.orderStatus)
 							  }}</view>
 						</view>
 						<view>
@@ -34,14 +33,14 @@
 								<view class="goods-item-view" @click="navigateToOrderDetail(order.sn)">
 									<view class="goods-img" v-for="(goods, goodsIndex) in order.orderItems"
 										:key="goodsIndex">
-										<u-image border-radius="6" width="100%" height="100%"
-											:src="goods.image"></u-image>
+										<u-image border-radius="6" width="131rpx" height="131rpx" mode="aspectFill"
+											:src="getOrderItemImage(goods, order, goodsIndex)"></u-image>
 									</view>
 									<view class="goods-info">
 										<view v-if="order.orderItems.length <= 1" class="goods-title u-line-2">
 											{{ order.groupName }}</view>
 										<view v-if="order.orderItems.length <= 1" class="goods-price">
-											￥{{ order.flowPrice | unitPrice }}
+											￥{{unitPrice(order.flowPrice) }}
 										</view>
 									</view>
 									<view v-if="order.orderItems.length <= 1" class="goods-num">
@@ -54,7 +53,7 @@
 									<!-- 等待付款 -->
 									<div v-if="order.payStatus === 'PAID'">已付金额:</div>
 									<div v-else>应付金额:</div>
-									<div class="price">￥{{ order.flowPrice | unitPrice }}</div>
+									<div class="price">￥{{unitPrice(order.flowPrice) }}</div>
 								</view>
 								<view class="goods-btn flex flex-a-c">
 									<!-- 全部 -->
@@ -87,7 +86,7 @@
 				</scroll-view>
 			</swiper-item>
 		</swiper>
-		<u-popup class="cancel-popup" v-model="cancelShow" mode="bottom" length="60%">
+		<u-popup class="cancel-popup" v-model:show="cancelShow" mode="bottom" length="60%">
 			<view class="header">取消订单</view>
 			<view class="body">
 				<view class="title">取消订单后，本单享有的优惠可能会一并取消，是否继续？</view>
@@ -95,8 +94,8 @@
 					<u-radio-group v-model="reason">
 						<view class="value">
 							<view class="radio-view" :key="index" v-for="(item, index) in cancelList">
-								<u-radio :active-color="lightColor" label-size="25" shape="circle" :name="item.reason"
-									@change="reasonChange">{{ item.reason }}</u-radio>
+								<u-radio :active-color="lightColor" shape="circle" :name="item.reason"
+									:label="item.reason" @change="reasonChange"></u-radio>
 							</view>
 						</view>
 					</u-radio-group>
@@ -107,7 +106,7 @@
 			</view>
 		</u-popup>
 		<u-toast ref="uToast" />
-		<u-modal :confirm-color="lightColor" v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'"
+		<u-modal :confirm-color="lightColor" v-model:show="rogShow" :show-cancel-button="true" :content="'是否确认收货?'"
 			@confirm="confirmRog"></u-modal>
 	</view>
 </template>
@@ -209,7 +208,7 @@
 				cancelShow: false, //是否显示取消
 				orderSn: "", //ordersn
 				reason: "", //取消原因
-				cancelList: "", //取消列表
+				cancelList: [], //取消列表
 				rogShow: false, //显示是否收货
 			};
 		},
@@ -234,7 +233,7 @@
 			// this.loadData(this.status);
 		},
 		onShow() {
-			if (this.$options.filters.tipsToLogin()) {
+			if (this.tipsToLogin()) {
 				if (!this.tabCurrentIndex) {
 					this.initData(0);
 				}
@@ -286,7 +285,7 @@
 			renderOrderTag(orderPromotionType) {
 				switch (orderPromotionType) {
 					case "NORMAL":
-						return "普通订单";
+						return "";
 					case "PINTUAN":
 						return "拼团订单";
 						break;
@@ -320,6 +319,14 @@
 					default:
 						return "";
 				}
+			},
+			getOrderItemImage(goods, order, index) {
+				let image = goods.image;
+				if (!image && order.groupImages) {
+					const images = String(order.groupImages).split(",");
+					image = images[index] || images[0];
+				}
+				return this.parseGoodsImageUrl(image);
 			},
 			/**
 			 * 取消订单
@@ -588,6 +595,7 @@
 
 	.list-scroll-content {
 		height: 100%;
+		padding: 16rpx 20rpx 0;
 	}
 
 	.navbar {
@@ -633,11 +641,11 @@
 	.seller-view {
 		border-radius: 20rpx;
 		background-color: #fff;
-		margin: 20rpx 0rpx;
+		margin: 16rpx 0;
 
 		.seller-info {
-			height: 70rpx;
-			padding: 0 20rpx;
+			padding: 24rpx 20rpx 16rpx;
+			align-items: center;
 
 			.seller-name {
 				flex: 10;

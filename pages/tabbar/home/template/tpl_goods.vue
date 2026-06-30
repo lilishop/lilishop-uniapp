@@ -10,76 +10,79 @@
           :key="index"
         >
           <h4 class="h4">{{ title.title }}</h4>
-          <div>{{ title.desc }}</div>
+          <div class="title-desc">{{ title.desc }}</div>
         </div>
       </div>
     </u-sticky>
     <div class="goods-list">
-      <div
-        v-if="
-          item.___index != undefined
-            ? selected.index == item.___index
-            : selected.val == item.type
-        "
-        @click="handleClick(item)"
-        class="goods-item"
-        v-for="(item, item_index) in res.list[0].listWay"
-        :key="item_index"
-      >
-        <div class="goods-img">
-          <u-image
-            :src="item.img"
-            height="350rpx"
-            mode="aspectFit"
-            width="100%"
-          >
-            <u-loading slot="loading"></u-loading>
-          </u-image>
-        </div>
-        <div class="goods-desc">
-          <div class="goods-title">
-            {{ item.title }}
+      <template v-for="(item, item_index) in res.list[0].listWay" :key="item_index">
+        <div
+          v-if="
+            item.___index != undefined
+              ? selected.index == item.___index
+              : selected.val == item.type
+          "
+          @click="handleClick(item)"
+          class="goods-item"
+        >
+          <div class="goods-img">
+            <u-image
+              :src="item.img"
+              height="350rpx"
+              mode="aspectFit"
+              width="100%"
+            >
+              <template #loading><u-loading></u-loading></template>
+            </u-image>
           </div>
-          <div class="goods-bottom">
-            <div class="goods-price">
-              ¥<span
-                >{{ $options.filters.goodsFormatPrice(item.price)[0] }} </span
-              >.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
+          <div class="goods-desc">
+            <div class="goods-title">
+              {{ item.title }}
+            </div>
+            <div class="goods-bottom">
+              <div class="goods-price">
+                ¥<span class="price-int"
+                  >{{ goodsFormatPrice(item.price)[0] }} </span
+                >.{{ goodsFormatPrice(item.price)[1] }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
 
-      <div
+      <template
         v-if="res.list[0].titleWay[selected.index].bindCategory && goodsData.length"
-        v-for="(item, index) in goodsData"
-        :key="index"
-        class="goods-item"
-        @click="handleClick(item)"
       >
-        <div class="goods-img">
-          <u-image
-            :src="item.thumbnail"
-            height="350rpx"
-            mode="aspectFit"
-            width="100%"
-          >
-            <u-loading slot="loading"></u-loading>
-          </u-image>
-        </div>
-        <div class="goods-desc">
-          <div class="goods-title">
-            {{ item.goodsName }}
+        <div
+          v-for="(item, index) in goodsData"
+          :key="index"
+          class="goods-item"
+          @click="handleClick(item)"
+        >
+          <div class="goods-img">
+            <u-image
+              :src="item.thumbnail"
+              height="350rpx"
+              mode="aspectFit"
+              width="100%"
+            >
+              <template #loading><u-loading></u-loading></template>
+            </u-image>
           </div>
-          <div class="goods-bottom">
-            <div class="goods-price">
-              ¥<span
-                >{{ $options.filters.goodsFormatPrice(item.price)[0] }} </span
-              >.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
+          <div class="goods-desc">
+            <div class="goods-title">
+              {{ item.goodsName }}
+            </div>
+            <div class="goods-bottom">
+              <div class="goods-price">
+                ¥<span class="price-int"
+                  >{{ goodsFormatPrice(item.price)[0] }} </span
+                >.{{ goodsFormatPrice(item.price)[1] }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -170,12 +173,12 @@ $w_94: 94%;
 }
 
 .selected-title {
-  > h4 {
+  .h4 {
     font-size: 30rpx;
     color: #000 !important;
   }
 
-  > div {
+  .title-desc {
     font-weight: bold;
     color: $main-color !important;
   }
@@ -191,11 +194,11 @@ $w_94: 94%;
     flex: 1;
     text-align: center;
 
-    > h4 {
+    .h4 {
       font-size: 32rpx;
     }
 
-    > div {
+    .title-desc {
       color: #999;
       font-size: 24rpx;
     }
@@ -223,10 +226,6 @@ $w_94: 94%;
   border-top-left-radius: 20rpx;
   border-top-right-radius: 20rpx;
   overflow: hidden;
-  > img {
-    width: 100%;
-    height: 100%;
-  }
 }
 
 .goods-desc {
@@ -252,7 +251,7 @@ $w_94: 94%;
     > .goods-price {
       line-height: 2;
       color: $main-color;
-      > span {
+      .price-int {
         font-size: 42rpx;
       }
     }

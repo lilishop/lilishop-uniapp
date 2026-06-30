@@ -8,8 +8,9 @@
           width="100%"
           :src="res.list[0].img"
           alt
-          ><u-loading slot="loading"></u-loading
-        ></u-image>
+        >
+          <template #loading><u-loading></u-loading></template>
+        </u-image>
       </div>
       <div class="view-height-85" @click="modelNavigateTo(res.list[1])">
         <u-image
@@ -18,8 +19,9 @@
           width="100%"
           :src="res.list[1].img"
           alt
-          ><u-loading slot="loading"></u-loading
-        ></u-image>
+        >
+          <template #loading><u-loading></u-loading></template>
+        </u-image>
       </div>
     </div>
     <div class="view-width-100"  @click="modelNavigateTo(res.list[2])">
@@ -28,8 +30,9 @@
         height="200rpx"
         width="100%"
         :src="res.list[2].img"
-        ><u-loading slot="loading"></u-loading
-      ></u-image>
+      >
+        <template #loading><u-loading></u-loading></template>
+      </u-image>
     </div>
   </div>
 </template>

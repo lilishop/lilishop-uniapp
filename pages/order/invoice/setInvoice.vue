@@ -1,5 +1,5 @@
 <template>
-  <u-popup closeable border-radius="28" @close="close" mode="bottom" height="80%" v-model="show">
+  <u-popup closeable border-radius="28" @close="close" mode="bottom" height="80%" v-model:show="show">
 
     <div class="wrapper">
       <!-- 发票类型 -->

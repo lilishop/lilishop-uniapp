@@ -1,6 +1,6 @@
 <template>
 	<view class="wrapper">
-		<u-navbar :border-bottom="false"  :title="title">
+		<u-navbar :border="false"  :title="title">
 			<!-- 中间 -->
 			<view class="slot-wrap container-wrap">
 				<view v-if="search">
@@ -8,12 +8,12 @@
 				</view>
 			</view>
 			<!-- 右侧 -->
-			<view slot="right">
+			<template #right>
 				<view style="margin-right: 24rpx;" @click="searchFlag()">
 					<view v-if="search">取消</view>
 					<u-icon v-if="!search" size="44rpx" name="search"></u-icon>
 				</view>
-			</view>
+			</template>
 		</u-navbar>
 		<!-- 顶部栏 -->
 		<div class='header-wraper'>

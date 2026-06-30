@@ -18,7 +18,7 @@
         <!-- 如果有图片则会循环显示评价的图片 -->
         <view class="goods-imgs-view" v-if="comment.images != null && comment.images.length != 0">
           <view class="img-view" v-for="(img, imgIndex) in comment.images.split(',')" :key="imgIndex">
-            <u-image @click.native="preview(comment.images.split(','),imgIndex)" width="160rpx" height="160rpx" :src="img"></u-image>
+            <u-image @click="preview(comment.images.split(','),imgIndex)" width="160rpx" height="160rpx" :src="img"></u-image>
           </view>
         </view>
         <view class="goods-name">

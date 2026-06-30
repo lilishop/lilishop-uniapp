@@ -34,7 +34,7 @@
               <!-- 姓名 手机号 -->
               <div>
                 <span>{{ address.name }}</span>
-                <span class="mobile">{{ address.mobile | secrecyMobile }}</span>
+                <span class="mobile">{{secrecyMobile(address.mobile) }}</span>
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@
             width="81rpx"
             height="81rpx"
           >
-            <view slot="loading"></view>
+            <template #loading><view></view></template>
           </u-image>
           <u-image
             class="head-img"
@@ -174,11 +174,11 @@
             <p class="goods-prices">
               <span>￥</span>
               <span class="goods-price">{{
-                $options.filters.goodsFormatPrice(val.purchasePrice)[0]
+                goodsFormatPrice(val.purchasePrice)[0]
               }}</span>
               <span
                 >.{{
-                  $options.filters.goodsFormatPrice(val.purchasePrice)[1]
+                  goodsFormatPrice(val.purchasePrice)[1]
                 }}</span
               >
             </p>
@@ -190,7 +190,7 @@
             :span="8"
             class="tipsColor"
             textAlign="right"
-            @click.native="invoice()"
+            @click="invoice()"
           >
             <span v-if="receiptList"
               >{{ receiptList.receiptTitle }} -
@@ -214,9 +214,7 @@
             @click="shippingFlag = true"
           >
             {{
-              shippingMethod.find((e) => {
-                return e.value == shippingText;
-              }).label
+              getShippingLabel()
             }}
           </u-col>
         </u-row>
@@ -243,7 +241,7 @@
     />
     <u-select
       @confirm="confirmDistribution"
-      v-model="shippingFlag"
+      v-model:show="shippingFlag"
       v-if="shippingMethod.length != 0"
       :list="shippingMethod"
     ></u-select>
@@ -254,7 +252,7 @@
           <u-col :span="9">商品合计</u-col>
           <u-col :span="3" textAlign="right">
             <span
-              >￥{{ orderMessage.priceDetailDTO.goodsPrice | unitPrice }}</span
+              >￥{{unitPrice(orderMessage.priceDetailDTO.goodsPrice) }}</span
             >
           </u-col>
         </u-row>
@@ -274,8 +272,7 @@
               >包邮</span
             >
             <span v-else
-              >￥{{
-                orderMessage.priceDetailDTO.freightPrice | unitPrice
+              >￥{{unitPrice(orderMessage.priceDetailDTO.freightPrice)
               }}</span
             >
           </u-col>
@@ -298,10 +295,10 @@
           @click="GET_Discount()"
         >
           <span class="main-color"
-            >-￥{{ orderMessage.priceDetailDTO.couponPrice | unitPrice }}</span
+            >-￥{{unitPrice(orderMessage.priceDetailDTO.couponPrice) }}</span
           >
         </u-col>
-        <!--  orderMessage.priceDetailDTO.couponPrice | unitPrice  -->
+        <!--unitPrice(orderMessage.priceDetailDTO.couponPrice)  -->
         <u-col :span="3" v-else textAlign="right" @click="GET_Discount()">
           {{ orderMessage.canUseCoupons.length || "0" }} 张可用
           <u-icon name="arrow-right"></u-icon>
@@ -316,7 +313,7 @@
             v-if="orderMessage.priceDetailDTO.couponPrice"
           >
             <span class="main-color">
-              -￥{{ orderMessage.priceDetailDTO.couponPrice | unitPrice }}</span
+              -￥{{unitPrice(orderMessage.priceDetailDTO.couponPrice) }}</span
             >
           </u-col>
           <u-col :span="3" textAlign="right" v-else>0.00</u-col>
@@ -327,8 +324,7 @@
           <u-col :span="6">活动优惠</u-col>
           <u-col :span="6" class="tr tipsColor" textAlign="right">
             <span v-if="orderMessage.priceDetailDTO.discountPrice"
-              >-￥{{
-                orderMessage.priceDetailDTO.discountPrice | unitPrice
+              >-￥{{unitPrice(orderMessage.priceDetailDTO.discountPrice)
               }}</span
             >
             <span v-else>0.00</span>
@@ -355,21 +351,20 @@
         <div v-if="!orderMessage.priceDetailDTO.payPoint" class="number">
           <span>¥</span>
           <span class="price">{{
-            $options.filters.goodsFormatPrice(
+            goodsFormatPrice(
               orderMessage.priceDetailDTO.flowPrice
             )[0]
           }}</span>
           <span
             >.{{
-              $options.filters.goodsFormatPrice(
+              goodsFormatPrice(
                 orderMessage.priceDetailDTO.flowPrice
               )[1]
             }}
           </span>
         </div>
         <span v-else class="number"
-          ><span style="margin-right: 10rpx">{{
-            orderMessage.priceDetailDTO.payPoint | unitPrice
+          ><span style="margin-right: 10rpx">{{unitPrice(orderMessage.priceDetailDTO.payPoint)
           }}</span
           >积分</span
         >
@@ -462,25 +457,6 @@ export default {
   computed: {
     ...mapState(["remark"]),
   },
-  filters: {
-    /**
-     * 发票收据类型
-     */
-    receiptType(type) {
-      switch (type) {
-        case "1":
-        case "VATORDINARY":
-        case "ELECTRO":
-          return "电子普通发票";
-        case "2":
-        case "VATOSPECIAL":
-          return "增值税专用发票";
-        default:
-          return "不开发票";
-      }
-    },
-  },
-
   /**
    * 监听返回
    */
@@ -535,6 +511,13 @@ export default {
   mounted() {},
 
   methods: {
+    getShippingLabel() {
+      const item =
+        this.shippingMethod.find((e) => e.value === this.shippingText) ||
+        this.shippingWay.find((e) => e.value === this.shippingText);
+      return item ? item.label : "";
+    },
+
     //发票回调 选择发票之后刷新购物车
     async callbackInvoice(val) {
       this.invoiceFlag = false;
@@ -578,7 +561,7 @@ export default {
     pintuanWay() {
       const { memberId } = this.routerVal.parentOrder;
 
-      const userInfo = this.$options.filters.isLogin();
+      const userInfo = this.isLogin();
       if (memberId) {
         this.endWay = userInfo;
         this.masterWay = this.routerVal.parentOrder;
@@ -768,6 +751,9 @@ export default {
           });
         });
         this.shippingMethod = way;
+        if (way.length && !way.some((item) => item.value === this.shippingText)) {
+          this.shippingText = way[0].value;
+        }
       }
     },
 
@@ -826,7 +812,7 @@ export default {
             storeId: item.storeId,
           };
 
-          this.$set(this.remarkVal, index, repeatData);
+          this.remarkVal[index] = repeatData;
         });
 
         this.orderMessage = res.data.result;

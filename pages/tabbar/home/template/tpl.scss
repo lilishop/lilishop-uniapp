@@ -4,8 +4,11 @@
     display: block;
     padding: 2rpx;
 }
+// 首页楼层模块统一左右边距（轮播图、宫格等 .layout 容器）
+$home-layout-padding: 16rpx;
+
 .layout {
-    padding: 16rpx;
+    padding: $home-layout-padding;
     margin: 8rpx 0;
     background: #fff;
 }

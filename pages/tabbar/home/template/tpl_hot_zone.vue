@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <div class="flex-one hot-image">
-      <image mode="widthFix" :src="res.list[0].img" alt=""></image>
+      <image class="hot-image-main" mode="widthFix" :src="res.list[0].img" alt=""></image>
 
       <image
         v-for="(area, index) in res.list[0].zoneInfo"
@@ -47,11 +47,9 @@ export default {
   width: 100%;
   display: block;
   overflow: hidden;
-  image {
-    width: 100%;
-   
-    min-height: 200rpx;
-    // height: 100%;
-  }
+}
+.hot-image-main {
+  width: 100%;
+  min-height: 200rpx;
 }
 </style>

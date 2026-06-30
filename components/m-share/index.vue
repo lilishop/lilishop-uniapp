@@ -1,6 +1,6 @@
 <template>
   <!-- 遮罩层 -->
-  <u-popup @close="close" v-model="show" mode="bottom" border-radius="30" height="260rpx">
+  <u-popup @close="close" v-model:show="show" mode="bottom" border-radius="30" height="260rpx">
 
     <view class="share-title">
       <span>分享至</span>
@@ -15,14 +15,14 @@
       <!-- #endif -->
       <!-- #ifdef APP-PLUS -->
       <view class="share-item" @click="handleShare(item)" v-for="(item, index) in list" :key="index">
-        <u-icon :color="item.color" size="80" :name="item.icon"></u-icon>
-        <view>{{ item.title }}</view>
+        <u-icon class="share-icon" :color="item.color" size="80" :name="item.icon"></u-icon>
+        <view class="share-label">{{ item.title }}</view>
       </view>
       <!-- #endif -->
       <!-- #ifdef H5 -->  
       <view class="share-item" @click="copyLink()">
-        <u-icon color="#b4aee8" size="80" name="share-fill"></u-icon>
-        <view>{{ '复制链接' }}</view>
+        <u-icon class="share-icon" color="#b4aee8" size="80" name="share-fill"></u-icon>
+        <view class="share-label">{{ '复制链接' }}</view>
       </view>
       <!-- #endif -->
     </view>
@@ -31,7 +31,8 @@
 <script>
 import { h5Copy } from "@/js_sdk/h5-copy/h5-copy.js";
 import configs from "@/config/config";
-import mpShare from "uview-ui/libs/mixin/mpShare.js";
+import mpShare from "@/utils/mpShare.js";
+import { setClipboard } from "@/utils/filters.js";
 
 export default {
   mixins: [mpShare],
@@ -83,7 +84,7 @@ export default {
           this.configs.shareLink +
           getCurrentPages()[getCurrentPages().length - 1].__page__.fullPath;
       }
-      this.$options.filters.setClipboard(content)
+      setClipboard(content)
     },
     // #endif
 
@@ -155,7 +156,7 @@ export default {
     top: 30rpx;
   }
 }
-button:after {
+.share-btn:after {
   border: none;
 }
 
@@ -168,7 +169,8 @@ button:after {
     width: 25%;
     font-size: 24rpx;
     color: #666;
-    > * {
+    > .share-icon,
+    > .share-label {
       margin: 8rpx 0;
     }
   }

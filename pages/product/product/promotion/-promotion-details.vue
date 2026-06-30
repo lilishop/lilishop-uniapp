@@ -116,9 +116,7 @@ export default {
   text-align: left;
   color: #333333;
   margin-left: 20rpx;
-  > span {
-    margin-right: 15rpx;
-  }
+  word-spacing: 15rpx;
 }
 
 .wrapper {

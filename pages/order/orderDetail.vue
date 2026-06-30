@@ -2,9 +2,9 @@
   <view>
     <!-- 订单状态 -->
     <div class="info-view order-view">
-      <div class="order-status" v-if="orderStatusList[order.orderStatus]">
-        {{ orderStatusList[order.orderStatus].title }}
-        <div>{{ orderStatusList[order.orderStatus].value }}</div>
+      <div class="order-status" v-if="orderStatusMap[order.orderStatus]">
+        {{ orderStatusMap[order.orderStatus].title }}
+        <div>{{ orderStatusMap[order.orderStatus].value }}</div>
       </div>
 
     </div>
@@ -35,7 +35,7 @@
         <view>
           <view class="address-title">
             <span>{{ order.consigneeName || "未填写昵称" }}</span>
-            <span>{{ order.consigneeMobile || "未填写手机号" | secrecyMobile }}</span>
+            <span>{{ order.consigneeMobile ? secrecyMobile(order.consigneeMobile) : '未填写手机号' }}</span>
           </view>
           <view class="address">地址：{{ order.consigneeAddressPath }}
             {{ order.consigneeDetail }}</view>
@@ -67,7 +67,7 @@
         <view class="seller-info u-flex u-row-between">
           <view class="seller-name" @click="goToShopPage(order)">
             <view class="name">{{ order.storeName }}</view>
-            <view class="status" v-if="orderStatusList[order.orderStatus]"> {{ orderStatusList[order.orderStatus].title
+            <view class="status" v-if="orderStatusMap[order.orderStatus]"> {{ orderStatusMap[order.orderStatus].title
             }}</view>
           </view>
           <view class="order-sn"></view>
@@ -81,10 +81,10 @@
               <view class="goods-info" @click="gotoGoodsDetail(sku)">
                 <view class="goods-title u-line-2">{{ sku.goodsName }}</view>
                 <view class="goods-price">
-                  ￥{{ sku.goodsPrice | unitPrice }}
+                  ￥{{unitPrice(sku.goodsPrice) }}
                   <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
 				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="sku.isRefund && sku.isRefund !== 'NO_REFUND'">
-				  {{refundPriceList(sku.isRefund)}} ({{ sku.refundPrice | unitPrice("￥") }})
+				  {{refundPriceList(sku.isRefund)}} ({{unitPrice(sku.refundPrice, "￥") }})
 				   </span>
                 </view>
               </view>
@@ -106,19 +106,19 @@
       <view>
         <view class="order-info-view">
           <view class="title">商品总价：</view>
-          <view class="value">￥{{ order.goodsPrice | unitPrice }}</view>
+          <view class="value">￥{{unitPrice(order.goodsPrice) }}</view>
         </view>
         <view class="order-info-view" v-if="order.freightPrice">
           <view class="title">运费：</view>
-          <view class="value">￥{{ order.freightPrice | unitPrice }}</view>
+          <view class="value">￥{{unitPrice(order.freightPrice) }}</view>
         </view>
         <view class="order-info-view" v-if="order.priceDetailDTO">
           <view class="title">优惠券：</view>
-          <view class="value main-color">-￥{{ order.priceDetailDTO.couponPrice | unitPrice }}</view>
+          <view class="value main-color">-￥{{unitPrice(order.priceDetailDTO.couponPrice) }}</view>
         </view>
         <view class="order-info-view">
           <view class="title">活动优惠：</view>
-          <view class="value main-color">-￥{{ order.discountPrice | unitPrice }}</view>
+          <view class="value main-color">-￥{{unitPrice(order.discountPrice) }}</view>
         </view>
         <!-- <view class="order-info-view" v-if="order.use_point">
 					<view class="title">使用积分：</view>
@@ -148,9 +148,9 @@
       <view style="width: 100%">
         <view class="order-info-view">
           <view class="title">订单编号：</view>
-          <view class="value">
-            {{ order.sn }}
-            <u-tag class="copy" text="复制" type="info" size="mini" @click="onCopy(order.sn)" />
+          <view class="value order-sn-value">
+            <text class="order-sn-text">{{ order.sn }}</text>
+            <u-tag class="copy" text="复制" type="info" mode="plain" size="mini" @click="onCopy(order.sn)" />
           </view>
         </view>
         <view class="order-info-view">
@@ -203,7 +203,7 @@
           <text v-if="order.payStatus === 'PAID'">已付金额：</text>
           <text v-else>应付金额：</text>
 
-          <text class="price" v-if="order.priceDetailDTO">￥{{ order.priceDetailDTO.flowPrice | unitPrice }}</text>
+          <text class="price" v-if="order.priceDetailDTO">￥{{unitPrice(order.priceDetailDTO.flowPrice) }}</text>
         </view>
         <view>
           <!-- 全部 -->
@@ -221,7 +221,7 @@
         </view>
       </view>
     </view>
-    <u-popup class="cancel-popup" v-model="cancelShow" mode="bottom" length="60%">
+    <u-popup class="cancel-popup" v-model:show="cancelShow" mode="bottom" length="60%">
       <view class="header">取消订单</view>
       <view class="body">
         <view class="title">取消订单后，本单享有的优惠可能会一并取消，是否继续？</view>
@@ -229,8 +229,8 @@
           <u-radio-group v-model="reason">
             <view class="value">
               <view class="radio-view" v-for="(item, index) in cancelList" :key="index">
-                <u-radio :active-color="lightColor" label-size="25" shape="circle" :name="item.reason"
-                  @change="reasonChange">{{ item.reason }}</u-radio>
+                <u-radio :active-color="lightColor" shape="circle" :name="item.reason"
+                  :label="item.reason" @change="reasonChange"></u-radio>
               </view>
             </view>
           </u-radio-group>
@@ -241,7 +241,7 @@
       </view>
     </u-popup>
     <u-toast ref="uToast" />
-    <u-modal v-model="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" :confirm-color="lightColor"
+    <u-modal v-model:show="rogShow" :show-cancel-button="true" :content="'是否确认收货?'" :confirm-color="lightColor"
       @confirm="confirmRog"></u-modal>
 
     <!-- 分享 -->
@@ -268,7 +268,7 @@ export default {
       lightColor: this.$lightColor,
       logisticsList: "", //物流信息
       shareFlag: false, //拼团分享开关
-      orderStatusList: {
+      orderStatusMap: {
         UNPAID: {
           title: "未付款",
           value: "商品暂未付款",
@@ -351,11 +351,11 @@ export default {
 		}
 	},
     callPhone(){
-      this.$options.filters.callPhone(this.order.storeAddressMobile )
+      this.callPhone(this.order.storeAddressMobile )
     },
     //联系客服
     contact(storeId){
-      this.$options.filters.talkIm(storeId)
+      this.talkIm(storeId)
     },
     goToShopPage(val) {
       uni.navigateTo({
@@ -413,7 +413,7 @@ export default {
       });
     },
     onCopy(sn) {
-      this.$options.filters.setClipboard(sn)
+      setClipboard(sn)
     },
 
     /**
@@ -701,11 +701,20 @@ page,
       flex:10;
     }
 
+    .order-sn-value {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .order-sn-text {
+      word-break: break-all;
+    }
+
     .copy {
-      font-size: 20rpx;
-      color: #333;
-      border: 1px solid #dddddd;
-      margin-left: 30rpx;
+      margin-left: 16rpx;
+      flex-shrink: 0;
     }
   }
 

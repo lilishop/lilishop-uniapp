@@ -2,7 +2,7 @@
 <template>
   <div class="layout">
     <u-image @click="modelNavigateTo(item)" height="240rpx" width="240rpx" class="image-mode" :src="item.img" v-for="(item, index) in res.list" :key="index">
-      <u-loading slot="loading"></u-loading>
+      <template #loading><u-loading></u-loading></template>
     </u-image>
   </div>
 </template>
@@ -32,8 +32,5 @@ export default {
   align-items: center;
   justify-content: center;
   background-size: cover;
-}
-img {
-  width: 111px;
 }
 </style>

@@ -24,14 +24,13 @@
 
 		<!-- 输入框 - 组 -->
 		<view id="xt__input-ground" class="xt__input-ground">
-			<template v-for="(item, index) in size">
+			<template v-for="(item, index) in size" :key="index">
 				<view
-					:key="index"
 					:style="{ borderColor: code.length === index && cursorVisible ? boxActiveColor : boxNormalColor }"
 					:class="['xt__box', `xt__box-${type + ''}`, `xt__box::after`]"
 				>
 					<view :style="{ borderColor: boxActiveColor }" class="xt__middle-line" v-if="type === 'middle' && !code[index]"></view>
-					<text class="xt__code-text">{{ code[index] | codeFormat(isPassword) }}</text>
+					<text class="xt__code-text">{{ codeFormat(code[index], isPassword) }}</text>
 				</view>
 			</template>
 		</view>
@@ -178,20 +177,18 @@ export default {
 		// 输入失去焦点
 		inputBlur() {
 			this.cursorVisible = false;
-		}
-	},
-	watch: {
-		value(val) {
-			this.code = val;
-		}
-	},
-	filters: {
+		},
 		codeFormat(val, isPassword) {
 			let value = '';
 			if (val) {
 				value = isPassword ? '*' : val;
 			}
 			return value;
+		}
+	},
+	watch: {
+		value(val) {
+			this.code = val;
 		}
 	}
 };

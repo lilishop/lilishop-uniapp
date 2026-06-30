@@ -7,7 +7,8 @@
       </view>
       <swiper class="swiper-box" :current="current" @change="changeSwiper" duration="500">
         <swiper-item v-for="(item, listIndex) in list" :key="listIndex">
-          <scroll-view scroll-y style="height: 100%" @scrolltolower="renderData(listIndex)">
+          <scroll-view scroll-y :enable-flex="true" class="evaluate-scroll" @scrolltolower="renderData(listIndex)">
+            <view class="evaluate-scroll-inner">
             <u-empty text="尚无需要评价的商品" mode="list" v-if="orderList.length == 0"></u-empty>
             <view class="seller-view" v-for="(order, index) in orderList" :key="index">
               <!-- 店铺名称 -->
@@ -38,7 +39,7 @@
                     <view class="goods-imgs-view" v-if="order.image">
                       <view class="img-view" v-if="order.image" v-for="(img, imgIndex) in order.image.split(',')"
                         :key="imgIndex">
-                        <u-image v-if="order.image" @click.native="
+                        <u-image v-if="order.image" @click="
                             preview(order.image.split(','), imgIndex)
                           " width="160rpx" height="160rpx" :src="img"></u-image>
                       </view>
@@ -62,6 +63,7 @@
 
             </view>
             <uni-load-more :status="params.loadStatus"></uni-load-more>
+            </view>
           </scroll-view>
         </swiper-item>
       </swiper>
@@ -325,6 +327,16 @@ page {
 
 .swiper-box {
   height: calc(100% - 88rpx);
+}
+
+.evaluate-scroll {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.evaluate-scroll-inner {
+  width: 100%;
 }
 
 .goods-specs {

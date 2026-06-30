@@ -1,8 +1,17 @@
 import { logout, logoffConfirm } from "@/api/login";
 import { getUserInfo } from "@/api/members";
 import storage from "@/utils/storage.js";
-import Vue from "vue";
+import config from "@/config/config";
 import Foundation from "./Foundation.js";
+
+/**
+ * 解析商品图片地址，兼容上传 JSON 与纯 URL，非法时返回占位图
+ */
+export function parseGoodsImageUrl(item, fallback = config.logo) {
+  const url = Foundation.parseGoodsImageUrl(item);
+  return url || fallback || "";
+}
+
 /**
  * 金钱单位置换  2999 --> 2,999.00
  * @param val
@@ -347,7 +356,7 @@ export function quiteLoginOut () {
   uni.showModal({
     title: "提示",
     content: "是否退出登录？",
-    confirmColor: Vue.prototype.$mainColor,
+    confirmColor: config.mainColor,
     async success (res) {
       if (res.confirm) {
         storage.setAccessToken("");
@@ -369,7 +378,7 @@ export function logoff () {
   uni.showModal({
     title: "提示",
     content: "确认注销用户么？注销用户将无法再次登录并失去当前数据。",
-    confirmColor: Vue.prototype.$mainColor,
+    confirmColor: config.mainColor,
     async success (res) {
       if (res.confirm) {
         await logoffConfirm();
@@ -406,7 +415,7 @@ export function tipsToLogin (type) {
       content: "当前用户未登录是否登录？",
       confirmText: "确定",
       cancelText: "取消",
-      confirmColor: Vue.prototype.$mainColor,
+      confirmColor: config.mainColor,
       success: (res) => {
         if (res.confirm) {
           navigateToLogin();
@@ -426,7 +435,7 @@ export function tipsToLogin (type) {
 /**
  * 获取用户信息并重新添加到缓存里面
  */
-export async function userInfo () {
+export async function refreshUserInfo () {
   let res = await getUserInfo();
   if (res.data.success) {
     storage.setUserInfo(res.data.result);

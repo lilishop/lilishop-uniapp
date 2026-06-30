@@ -19,7 +19,7 @@
           </div>
           <div class="flex store-distance">
             <div>
-              <span class="store-score">{{item.serviceScore | unitPrice}}</span>
+              <span class="store-score">{{unitPrice(item.serviceScore)}}</span>
               <span class="line">|</span>
               <span class="store-collection">收藏 {{item.collectionNum}}</span>
             </div>

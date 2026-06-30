@@ -12,7 +12,7 @@
           <view class="section-info">
             <u-avatar mode="circle" size="60" class="portrait" :src="commItem.memberProfile"></u-avatar>
             <view class="star-con">
-              <text class="name">{{ commItem.memberName | noPassByName }}</text>
+              <text class="name">{{noPassByName(commItem.memberName) }}</text>
             </view>
           </view>
           <view class="section-contant">
@@ -38,7 +38,7 @@
     </view>
     <!-- 查看全部评价按钮 -->
     <view v-if="commDetail && commDetail.records && commDetail.records.length > 0" class="eva-section-btn" @click="toComment(goodsDetail.goodsId, goodsDetail.grade)">
-      <text>查看全部评价</text>
+      <text class="btn-text">查看全部评价</text>
     </view>
   </view>
 </template>
@@ -131,7 +131,7 @@ export default {
   margin: 2px 0 20rpx 0;
   background: #fff;
 
-  text {
+  .btn-text {
     width: 200rpx;
     height: 50rpx;
     font-size: 22rpx;
@@ -207,7 +207,7 @@ export default {
       margin-right: 20rpx;
     }
 
-    > view > text {
+    > .star-con > .name {
       margin-left: 6rpx;
     }
   }

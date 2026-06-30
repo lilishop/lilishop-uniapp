@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-navbar :border-bottom="false"></u-navbar>
+    <u-navbar :border="false"></u-navbar>
     <step1 v-if="current == 1" :companyData="companyData" @callback="next()" />
     <step2 v-if="current == 2" :companyData="companyData" @callback="next()" />
     <step3

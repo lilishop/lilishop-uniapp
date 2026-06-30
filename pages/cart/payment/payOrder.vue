@@ -10,7 +10,7 @@
         </p>
         <p class="ptips">
           支付金额
-          <span>¥{{ cashierParams.price | unitPrice }}</span>
+          <span>¥{{unitPrice(cashierParams.price) }}</span>
         </p>
       </div>
     </div>
@@ -31,7 +31,7 @@
             </div>
             <div v-if="item == 'WALLET'">
               <u-icon class="method_icon" name="red-packet-fill" color="#dd6161" size="80"></u-icon>
-              <span class="method_name">余额支付(当前余额：¥{{ walletValue | unitPrice }})</span>
+              <span class="method_name">余额支付(当前余额：¥{{unitPrice(walletValue) }})</span>
             </div>
           </div>
           <div class="col3" @click="awaitPay(item)" textAlign="right">

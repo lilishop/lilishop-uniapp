@@ -1,7 +1,7 @@
 <template>
   <view class="add-address">
     <div class="uForm">
-      <u-form :border-bottom="false" :model="form" ref="uForm" :error-type="['toast']" :rule="rules">
+      <u-form :border-bottom="false" :model="form" ref="uForm" error-type="toast" :rules="rules">
 				<!-- #ifndef H5 -->
         <view class="selectAddress" @click="clickUniMap">
           选择收货地址
@@ -25,9 +25,7 @@
         <u-form-item label="地址别名" label-width="130">
           <u-input v-model="form.alias" placeholder="请输入地址别名" />
         </u-form-item>
-        <u-checkbox-group shape="circle" size="30">
-          <u-checkbox :active-color="lightColor" v-model="form.isDefault">设为默认地址</u-checkbox>
-        </u-checkbox-group>
+        <u-checkbox usedAlone shape="circle" size="30" :active-color="lightColor" v-model:checked="form.isDefault" label="设为默认地址"></u-checkbox>
 
         <div class="saveBtn" @click="save">保存</div>
       </u-form>
@@ -144,33 +142,43 @@ export default {
 
     // 保存当前 地址
     save() {
-      this.$refs.uForm.validate((valid) => {
-        if (valid) {
-          let pages = getCurrentPages(); //获取页面栈
-          let beforePage = pages[pages.length - 2]; //上个页面
+      this.$refs.uForm.validate().then(() => {
+        const params = { ...this.form };
+        delete params.___path;
 
-          // 如果没有id则为新增地址
-          if (!this.form.id) {
-            // 删除没有的数据
-            delete this.form.___path;
-            addAddress(this.form).then((res) => {
-              if (res.data.success) {
-                uni.navigateBack();
-              }
-            });
-          } else {
-            // 修改地址
-            delete this.form.___path;
-            delete this.form.updateBy;
-            delete this.form.updateTime;
-            editAddress(this.form).then((res) => {
-              if (res.data.success) {
-                uni.navigateBack();
-              }
-            });
-          }
+        if (Array.isArray(params.consigneeAddressIdPath)) {
+          params.consigneeAddressIdPath = params.consigneeAddressIdPath.join(",");
         }
-      });
+        if (Array.isArray(params.consigneeAddressPath)) {
+          params.consigneeAddressPath = params.consigneeAddressPath.join(",");
+        }
+
+        if (!params.id) {
+          addAddress(params).then((res) => {
+            if (res.data.success) {
+              uni.navigateBack();
+            } else {
+              uni.showToast({
+                title: res.data.message || "保存失败",
+                icon: "none",
+              });
+            }
+          });
+        } else {
+          delete params.updateBy;
+          delete params.updateTime;
+          editAddress(params).then((res) => {
+            if (res.data.success) {
+              uni.navigateBack();
+            } else {
+              uni.showToast({
+                title: res.data.message || "保存失败",
+                icon: "none",
+              });
+            }
+          });
+        }
+      }).catch(() => {});
     },
 
     // 三级地址联动回调
@@ -277,7 +285,7 @@ export default {
       getAddressDetail(option.id).then((res) => {
         const params = res.data.result;
         params.___path = params.consigneeAddressPath;
-        this.$set(this, "form", params);
+        this["form"] = params;
 
          if (this.$store.state.isShowToast){ uni.hideLoading() };
       });

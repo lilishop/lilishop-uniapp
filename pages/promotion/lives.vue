@@ -6,7 +6,7 @@
       </view>
     </u-navbar>
     <!-- 轮播图 -->
-    <u-swiper @click="clickSwiper" class="swiper" :effect3d="true" :list="swiperImg">
+    <u-swiper @click="clickSwiper" class="swiper" keyName="image" :list="swiperImg">
 
     </u-swiper>
     <u-tabs :is-scroll="false" @change="changeTabs" :current="current" :active-color="activeColor" inactive-color="#606266" ref="tabs" :list="tabs"></u-tabs>
@@ -174,18 +174,18 @@ export default {
 
         if (!this.recommendLives.length) {
           if (this.liveList[0].shareImg) {
-            this.$set(this, "swiperImg", [
+            this["swiperImg"] = [
               {
                 image: this.liveList[0].shareImg,
                 roomId: this.liveList[0].roomId,
               },
-            ]);
+            ];
           }
         } else {
           this.recommendLives.forEach((item) => {
-            this.$set(this, "swiperImg", [
+            this["swiperImg"] = [
               { image: item.shareImg, roomId: item.roomId },
-            ]);
+            ];
           });
         }
       }

@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-       <u-navbar :border-bottom="false"></u-navbar>
+       <u-navbar :border="false"></u-navbar>
     <div>
       <div class="title">店铺入驻</div>
       <div class="step-list">
@@ -57,7 +57,7 @@ export default {
     };
   },
   onShow() {
-    if(this.$options.filters.tipsToLogin()){
+    if(this.tipsToLogin()){
         this.init();
     }
   },

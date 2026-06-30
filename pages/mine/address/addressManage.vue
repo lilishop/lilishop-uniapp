@@ -34,12 +34,12 @@
       <view style="height: 100px"></view>
     </view>
 
-    <button type="default" class="btn" @click="addAddress('')">
-      <u-icon name="plus-circle"></u-icon>
-      添加新收货人
-    </button>
+    <view class="btn" @click="addAddress('')">
+      <u-icon name="plus-circle" color="#ffffff" size="18"></u-icon>
+      <text class="btn-text">添加新收货人</text>
+    </view>
 
-    <u-action-sheet :list="removeList" :tips="tips" v-model="showAction" @click="deleteAddressMessage"></u-action-sheet>
+    <u-action-sheet :list="removeList" :tips="tips" v-model:show="showAction" @click="deleteAddressMessage"></u-action-sheet>
   </view>
 </template>
 
@@ -86,7 +86,7 @@ export default {
    * 进入页面检测当前账户是否登录
    */
   onShow() {
-    if (this.$options.filters.tipsToLogin()) {
+    if (this.tipsToLogin()) {
       this.getAddressList();
     }
   },

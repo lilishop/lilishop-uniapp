@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-popup v-model="show" mode="bottom" height="800rpx" border-radius="14">
+    <u-popup v-model:show="show" mode="bottom" height="800rpx" border-radius="14">
       <div class="wrapper">
         <view class="down-goods-tips">该商品已下架</view>
         <scroll-view scroll-y="true" style="height: 670rpx">

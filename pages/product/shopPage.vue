@@ -2,7 +2,7 @@
   <view>
     <!-- 楼层装修店铺信息 -->
     <div>
-      <u-navbar :border-bottom="false">
+      <u-navbar :border="false">
         <u-search
           v-model="keyword"
           @search="search"
@@ -74,7 +74,7 @@
             <view class="xian"></view>
             <view class="text">
               <text>{{ "领取优惠券" }}</text>
-              <text>满{{ item.consumeThreshold | unitPrice }}元可用</text>
+              <text>满{{unitPrice(item.consumeThreshold) }}元可用</text>
             </view>
           </view>
         </view>
@@ -113,7 +113,7 @@
           <u-navbar
             class="navbar"
             v-if="item.type == 'search'"
-            :is-fixed="index === 1 ? false : true"
+            :fixed="index === 1 ? false : true"
           >
             <div class="navbar-right"></div>
 
@@ -293,7 +293,7 @@ export default {
 
   methods: {
     talk(){
-      this.$options.filters.talkIm(this.storeInfo.storeId)
+      this.talkIm(this.storeInfo.storeId)
     },
     back() {
       uni.navigateBack();
@@ -325,7 +325,7 @@ export default {
       this.categoryList = [];
       this.couponList = [];
       this.goodsParams.pageNumber = 1;
-      if (this.$options.filters.isLogin("auth")) {
+      if (this.isLogin("auth")) {
         this.enableGoodsIsCollect();
       }
       // 店铺信息
@@ -482,14 +482,14 @@ export default {
      * 领取
      */
     getCoupon(item) {
-      if (!this.$options.filters.isLogin("auth")) {
+      if (!this.isLogin("auth")) {
         uni.showToast({
           icon: "none",
           duration: 3000,
           title: "请先登录！",
         });
 
-        this.$options.filters.navigateToLogin("redirectTo");
+        this.navigateToLogin("redirectTo");
         return false;
       }
       receiveCoupons(item.id).then((res) => {

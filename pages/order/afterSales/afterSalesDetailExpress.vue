@@ -17,7 +17,7 @@
             <view class="goods-info">
               <view class="goods-title u-line-2">{{ sku.name }}</view>
               <view class="goods-price">
-                <span>￥{{ sku.price | unitPrice }}</span>
+                <span>￥{{unitPrice(sku.price) }}</span>
                 <span class="num">购买数量: {{ sku.num }} </span>
               </view>
             </view>
@@ -55,9 +55,9 @@
         </u-button>
       </view>
     </u-form>
-    <u-select mode="single-column" :list="companyList" v-model="companySelectShow"
+    <u-select mode="single-column" :list="companyList" v-model:show="companySelectShow"
               @confirm="companySelectConfirm"></u-select>
-    <u-calendar v-model="timeshow" :mode="'date'" @change="onTimeChange"></u-calendar>
+    <u-calendar v-model:show="timeshow" :mode="'date'" @change="onTimeChange"></u-calendar>
     <u-toast ref="uToast"/>
   </view>
 </template>

@@ -208,7 +208,7 @@ export default {
               this.tabCurrentIndex++;
 
               // 当前距离重新为最上面
-              this.$set(this,'scrollTop',0)
+              this['scrollTop'] = 0
             }
             } catch (error) {
               uni.hideLoading();
@@ -391,12 +391,10 @@ export default {
   flex-direction: column;
   /* #endif */
   margin-right: 5px;
+  margin-left: 40rpx;
   vertical-align: middle;
 }
 .color {
   color: $light-color;
-}
-icon {
-  margin-left: 40rpx;
 }
 </style>

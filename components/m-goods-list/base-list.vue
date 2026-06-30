@@ -10,7 +10,7 @@
             height="330rpx"
            mode="aspectFit"
           >
-            <u-loading slot="loading"></u-loading>
+            <template #loading><u-loading></u-loading></template>
           </u-image>
         </view>
         <view class="goods-detail">
@@ -23,9 +23,9 @@
             <div class="price" v-if="item.price != undefined">
               ¥<span
                 >{{
-                  $options.filters.goodsFormatPrice(item.price)[0]
+                  goodsFormatPrice(item.price)[0]
                 }} </span
-              >.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
+              >.{{ goodsFormatPrice(item.price)[1] }}
             </div>
           </view>
           <div class="count-config" @click="navigateToDetailPage(item)">
@@ -67,7 +67,7 @@
 							mode="aspectFit"
               :src="item.goodsImage || item.thumbnail"
             >
-              <u-loading slot="loading"></u-loading>
+              <template #loading><u-loading></u-loading></template>
             </u-image>
           </div>
           <div class="goods-detail">
@@ -77,8 +77,8 @@
             <view class="price-box" @click="navigateToDetailPage(item)">
               <div class="price" v-if="item.price != undefined">
                 ¥<span
-                  >{{ $options.filters.goodsFormatPrice(item.price)[0] }} </span
-                >.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
+                  >{{ goodsFormatPrice(item.price)[0] }} </span
+                >.{{ goodsFormatPrice(item.price)[1] }}
               </div>
             </view>
             <div class="promotion" @click="navigateToDetailPage(item)">

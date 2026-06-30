@@ -15,15 +15,15 @@
     <!-- {{localVersion}} -->
     <u-cell-group class="cell" :border="false">
       <!--  #ifdef APP-PLUS -->
-      <u-cell-item v-if="IosWhether" @click="checkStar" title="去评分"></u-cell-item>
-      <u-cell-item title="功能介绍" @click="navigateTo('/pages/mine/set/versionFunctionList')"></u-cell-item>
-      <u-cell-item title="检查更新" @click="checkUpdate"></u-cell-item>
+      <u-cell v-if="IosWhether" @click="checkStar" title="去评分"></u-cell>
+      <u-cell title="功能介绍" @click="navigateTo('/pages/mine/set/versionFunctionList')"></u-cell>
+      <u-cell title="检查更新" @click="checkUpdate"></u-cell>
       <!--  #endif -->
 	 
-      <u-cell-item title="证照信息" @click="navigateTo('/pages/mine/help/tips?type=LICENSE_INFORMATION')"></u-cell-item>
-      <u-cell-item title="服务协议" @click="navigateTo('/pages/mine/help/tips?type=USER_AGREEMENT')"></u-cell-item>
-      <u-cell-item title="隐私协议" @click="navigateTo('/pages/mine/help/tips?type=PRIVACY_POLICY')"></u-cell-item>
-      <u-cell-item title="关于我们" :border-bottom="false" @click="navigateTo('/pages/mine/help/tips?type=ABOUT')"></u-cell-item>
+      <u-cell title="证照信息" @click="navigateTo('/pages/mine/help/tips?type=LICENSE_INFORMATION')"></u-cell>
+      <u-cell title="服务协议" @click="navigateTo('/pages/mine/help/tips?type=USER_AGREEMENT')"></u-cell>
+      <u-cell title="隐私协议" @click="navigateTo('/pages/mine/help/tips?type=PRIVACY_POLICY')"></u-cell>
+      <u-cell title="关于我们" :border="false" @click="navigateTo('/pages/mine/help/tips?type=ABOUT')"></u-cell>
 
     </u-cell-group>
 

@@ -4,7 +4,7 @@
 			<div class="flex goods-col">
 				<div class="goods-img">
 					<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.goodsImage || item.thumbnail">
-						<u-loading slot="loading"></u-loading>
+						<template #loading><u-loading></u-loading></template>
 					</u-image>
 				</div>
 				<div class="goods-detail">
@@ -13,28 +13,28 @@
 						<view class="price-box">
 							<!-- 秒杀 / 拼团 -->
 							<div class="price" v-if="!type && item.price!=undefined">
-								¥<span>{{ $options.filters.goodsFormatPrice(item.price )[0] }} </span>.{{
-										$options.filters.goodsFormatPrice(item.price )[1]
+								¥<span class="price-int">{{ goodsFormatPrice(item.price )[0] }} </span>.{{
+										goodsFormatPrice(item.price )[1]
 									}}
 							</div>
 							<!-- 砍价 -->
 							<div class="price" v-if="type && item.purchasePrice!=undefined">
 								最低：
-								¥<span>{{ $options.filters.goodsFormatPrice(item.purchasePrice )[0] }} </span>.{{
-										$options.filters.goodsFormatPrice(item.purchasePrice )[1]
+								¥<span class="price-int">{{ goodsFormatPrice(item.purchasePrice )[0] }} </span>.{{
+										goodsFormatPrice(item.purchasePrice )[1]
 									}}
 							</div>
 							<!-- 兜底策略如果金额是0 -->
 							<div class="price" v-if="!item.price && !type">
-								¥<span>0 </span>.00
+								¥<span class="price-int">0 </span>.00
 							</div>
 						</view>
 						<div>
-							<image class='buy' :src="buy"></image>
+							<image class="buy" src="/static/buy.png"></image>
 						</div>
 					</div>
 					<div class='count-config' v-if="!type">
-						<span>即将恢复{{ item.originalPrice}}元</span>
+						<text class="count-config-text">即将恢复{{ item.originalPrice}}元</text>
 					</div>
 				</div>
 			</div>
@@ -49,7 +49,6 @@
 		data() {
 			return {
 				lightColor: this.$mainColor,
-				buy: require('@/static/buy.png')
 			}
 		},
 		mixins: [commonTpl],
@@ -119,21 +118,6 @@
 			overflow: hidden;
 		}
 
-		.promotion {
-			margin-top: 4rpx;
-			display: flex;
-
-			div {
-				span {
-					font-size: 24rpx;
-					color: $light-color;
-					margin-right: 10rpx;
-					padding: 0 4rpx;
-					border-radius: 2rpx;
-				}
-			}
-		}
-
 		.count-config {
 			padding: 5rpx 0;
 			color: #666;
@@ -141,6 +125,10 @@
 			font-size: 24rpx;
 			letter-spacing:2rpx;
 			padding-left: 10rpx;
+
+			.count-config-text {
+				font-size: 24rpx;
+			}
 		}
 
 
@@ -162,7 +150,7 @@
 			color: $main-color;
 			font-weight: bold;
 
-			::v-deep span:nth-of-type(1) {
+			.price-int {
 				font-size: 48rpx;
 			}
 		}

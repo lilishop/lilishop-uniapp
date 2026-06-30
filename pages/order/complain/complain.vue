@@ -5,29 +5,31 @@
       <view class="seller-info u-flex u-row-between">
         <view class="seller-name">
           <view class="name">{{ order.storeName || "" }}</view>
-          <view class="status">{{ orderStatusList[order.orderStatus] }}</view>
+          <view class="status">{{ orderStatusMap[order.orderStatus] }}</view>
         </view>
         <view class="order-sn"></view>
       </view>
       <u-line color="#DCDFE6"></u-line>
-      <view class="goods-item-view" v-for="(sku, index) in orderGoodsList" :key="index" v-if="sku.skuId == skuId">
+      <template v-for="(sku, index) in orderGoodsList" :key="index">
+      <view class="goods-item-view" v-if="sku.skuId == skuId">
         <view class="goods-img">
           <u-image border-radius="6" width="131rpx" height="131rpx" :src="sku.image"></u-image>
         </view>
         <view class="goods-info">
           <view class="goods-title u-line-2">{{ sku.goodsName }}</view>
           <view class="goods-price">
-            ￥{{ sku.flowPrice | unitPrice }}
+            ￥{{unitPrice(sku.flowPrice) }}
           </view>
         </view>
         <view class="goods-num">
           <view>x{{ sku.num }}</view>
         </view>
       </view>
+      </template>
     </view>
 
     <!-- 投诉主题 -->
-    <u-select @confirm="confirmComplain" v-model="complainShow" :list="complainList"></u-select>
+    <u-select @confirm="confirmComplain" v-model:show="complainShow" :list="complainList"></u-select>
     <!-- 投诉模块 -->
     <view class="cell">
       <view class="cell-item between" @click="complainShow = true">
@@ -45,7 +47,7 @@
       <view class="cell-item">
         <view class="cell-title"> 投诉凭证 </view>
         <view class="cell-view">
-          <u-upload ref="uUpload" :header=" { accessToken: storage.getAccessToken() }"   :action="action" width="200" @on-uploaded="onUploaded" :max-count="5">
+          <u-upload :file-list="uploadFileList" :auto-upload="false" width="200" @afterRead="onUploadAfterRead" :max-count="5">
           </u-upload>
         </view>
       </view>
@@ -59,13 +61,13 @@
 import storage from "@/utils/storage.js";
 import { getOrderDetail } from "@/api/order.js";
 import { getComplainReason, addComplain } from "@/api/after-sale.js";
-import { upload } from "@/api/common.js";
+import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
 export default {
   data() {
     return {
       storage,
-      action: upload, //上传图片地址
-      orderStatusList: {
+      uploadFileList: [],
+      orderStatusMap: {
         //订单状态列表
         UNDELIVERED: "待发货",
         PARTS_DELIVERED: "部分发货",
@@ -97,15 +99,10 @@ export default {
   },
 
   methods: {
-    /**
-     * 上传完成
-     */
-    onUploaded(lists) {
-      let images = [];
-      lists.forEach((item) => {
-        images.push(item.response.result);
+    onUploadAfterRead(event) {
+      handleUploadAfterRead(event, this.uploadFileList, (urls) => {
+        this.images = urls;
       });
-      this.images = images;
     },
     /**
      * 提交

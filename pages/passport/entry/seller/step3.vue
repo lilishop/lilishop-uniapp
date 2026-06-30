@@ -19,12 +19,10 @@
           <div>
             <u-upload
               :file-list="storeLogoFileList"
-              :header="{ accessToken: storage.getAccessToken() }"
-              :action="action"
+              :auto-upload="false"
               width="200"
-              @on-uploaded="onUploaded($event, 'storeLogo')"
+              @afterRead="onUploadAfterRead($event, 'storeLogo', 'storeLogoFileList')"
               :max-count="1"
-              :show-progress="false"
             ></u-upload>
           </div>
         </u-form-item>
@@ -101,7 +99,7 @@
     </m-city>
 
     <u-select
-      v-model="enableCategory"
+      v-model:show="enableCategory"
       @confirm="confirmCategory"
       :list="categoryList"
     ></u-select>
@@ -115,7 +113,7 @@ import { applyThird } from "@/api/entry";
 import { getCategoryList } from "@/api/goods";
 import city from "@/components/m-city/m-city.vue";
 import storage from "@/utils/storage.js";
-import { upload } from "@/api/common.js";
+import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
 import uniMap from "@/components/uniMap";
 import permision from "@/js_sdk/wa-permission/permission.js";
 export default {
@@ -124,7 +122,6 @@ export default {
     return {
       storage,
       mapFlag: false,
-      action: upload, //图片上传数据
       defaultInputStyle: {
         background: "#f7f7f7",
         padding: "0 20rpx",
@@ -171,7 +168,7 @@ export default {
   watch: {
     companyData: {
       handler(val) {
-        this.$set(this, "form", val);
+        this["form"] = val;
         // 给图片赋值
         const judgeDeepPhoto = ["storeLogo"];
 
@@ -282,13 +279,10 @@ export default {
         }
       }
     },
-    // 图片上传
-    onUploaded(lists, key) {
-      let images = [];
-      lists.forEach((item) => {
-        images.push(item.response.result);
+    onUploadAfterRead(event, key, fileListKey) {
+      handleUploadAfterRead(event, this[fileListKey], (urls) => {
+        this.form[key] = urls;
       });
-      this.form[key] = images;
     },
     getPickerParentValue(e) {
       this.form.storeAddressIdPath = [];
@@ -303,7 +297,7 @@ export default {
           } else {
             name += item.localName + ",";
           }
-          this.$set(this.form,'storeAddressPath',name)
+          this.form['storeAddressPath'] = name
         }
       });
 

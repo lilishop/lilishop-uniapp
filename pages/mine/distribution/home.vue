@@ -3,9 +3,9 @@
 	
     <view class="nav-list">
       <view class="total">可提现金额</view>
-      <view class="price">{{ distributionData.canRebate | unitPrice }}</view>
+      <view class="price">{{unitPrice(distributionData.canRebate) }}</view>
       <view class="frozen"
-        >冻结金额{{ distributionData.commissionFrozen | unitPrice }}</view
+        >冻结金额{{unitPrice(distributionData.commissionFrozen) }}</view
       >
     </view>
     <view class="nav">
@@ -122,9 +122,7 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  > * {
-    margin: 10rpx 0;
-  }
+  gap: 20rpx;
   width: 33%;
   //   color: #fff;
 }

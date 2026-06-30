@@ -1,7 +1,7 @@
 <template>
   <view class="serach">
     <view class="left-box" @tap="onClickLeft">
-      <u-icon name="arrow-left" size="40" color="#666"></u-icon>
+      <u-icon name="arrow-left" size="28" color="#666"></u-icon>
     </view>
     <view class="content" :style="{ 'border-radius': radius + 'px' }">
       <!-- HM修改 增加进入输入状态的点击范围 -->
@@ -21,8 +21,8 @@
       </view>
 
       <view v-else class="button-item">
-        <u-icon name="grid-fill" size="50" @click="handelListClass()" v-if="!switchLayout"></u-icon>
-        <u-icon v-else @click="handelListClass()" name="list-dot" size="50"></u-icon>
+        <u-icon name="grid-fill" size="32" @click="handelListClass()" v-if="!switchLayout"></u-icon>
+        <u-icon v-else @click="handelListClass()" name="list-dot" size="32"></u-icon>
       </view>
     </view>
   </view>
@@ -162,7 +162,7 @@ export default {
 .serach {
   display: flex;
   width: 100%;
-  //border-bottom: 1px #f5f5f5 solid; //HM修改 去掉边框
+  align-items: center;
   box-sizing: border-box;
   font-size: 24rpx;
 
@@ -170,53 +170,41 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 15%;
-    /* #ifndef APP-NVUE */
-    text-align: center;
-    // display: flex;
-    // /* #endif */
+    flex-shrink: 0;
+    width: auto;
+    padding: 0 8rpx;
   }
 
   .content {
     display: flex;
     align-items: center;
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     height: 70rpx;
     color: #999;
     background: #eee;
     overflow: hidden;
     transition: all 0.2s linear;
+    border-radius: 1000rpx;
+
     .content-box {
       width: 100%;
       display: flex;
       align-items: center;
       &.center {
-        justify-content: center;
-      }
-
-      .icon {
-        padding: 0 15rpx;
-
-        &.icon-serach:before {
-          content: "\e61c";
-        }
+        justify-content: flex-start;
       }
 
       .input {
-        width: 100%;
-        max-width: 100%;
+        flex: 1;
+        min-width: 0;
+        width: auto;
         line-height: 60rpx;
         height: 60rpx;
         transition: all 0.2s linear;
 
         &.center {
-          width: 200rpx;
-        }
-
-        &.sub {
-          // position: absolute;
           width: auto;
-          color: grey;
         }
       }
     }
@@ -226,16 +214,16 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
     flex-shrink: 0;
     width: 0;
+    overflow: hidden;
     transition: all 0.2s linear;
     white-space: nowrap;
-    overflow: hidden;
 
     &.active {
-      padding-left: 15rpx;
-      width: 100rpx;
+      padding-left: 12rpx;
+      width: auto;
+      min-width: 80rpx;
     }
   }
 }

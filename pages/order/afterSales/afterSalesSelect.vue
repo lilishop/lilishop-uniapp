@@ -9,7 +9,8 @@
         </view>
       </view>
       <view>
-        <view class="goods-item-view" :key="index" v-for="(item,index) in sku.orderItems" v-if="item.sn == sn" @click="navigateToGoodsDetail(sku.skuId)">
+        <template v-for="(item,index) in sku.orderItems" :key="index">
+        <view class="goods-item-view" v-if="item.sn == sn" @click="navigateToGoodsDetail(sku.skuId)">
           <view class="goods-img">
             <u-image border-radius="6" width="131rpx" height="131rpx" :src="item.image"></u-image>
           </view>
@@ -22,6 +23,7 @@
             </view>
           </view>
         </view>
+        </template>
       </view>
     </view>
 

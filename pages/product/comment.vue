@@ -22,7 +22,7 @@
             <view class="section-info">
               <image class="portrait" :src="item.memberProfile || userImage" mode="aspectFit"></image>
               <view class="star-content">
-                <text class="name">{{ item.memberName | noPassByName }}</text>
+                <text class="name">{{noPassByName(item.memberName) }}</text>
                 <text class="time">{{ item.createTime }}</text>
               </view>
               <view class="stars">
@@ -351,9 +351,7 @@ page {
           flex-wrap: wrap;
           /* height: 140rpx; */
           overflow: hidden;
-          > * {
-            margin-right: 16rpx;
-          }
+          gap: 16rpx;
         }
 
         .bot {

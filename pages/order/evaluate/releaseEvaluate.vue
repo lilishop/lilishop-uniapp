@@ -51,8 +51,8 @@
       </view>
       <view class="info-evaluate-view">
         <view class="images-view">
-          <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150"
-            @on-uploaded="onUploaded" :max-count="5" :show-progress="false"></u-upload>
+          <u-upload :file-list="uploadFileList" :auto-upload="false" width="150"
+            @afterRead="onUploadAfterRead" :max-count="5"></u-upload>
         </view>
       </view>
     </view>
@@ -62,20 +62,20 @@
         <view class="seller-rate-view">
           <view class="rate-title">描述相符</view>
           <view>
-            <u-rate count="count" gutter="20" active-color="#FFC71C" v-model="form.descriptionScore" :size="40">
+            <u-rate :count="5" gutter="20" active-color="#FFC71C" v-model="form.descriptionScore" :size="40">
             </u-rate>
           </view>
         </view>
         <view class="seller-rate-view">
           <view class="rate-title">服务态度</view>
           <view>
-            <u-rate count="count" gutter="20" active-color="#FFC71C" v-model="form.serviceScore" :size="40"></u-rate>
+            <u-rate :count="5" gutter="20" active-color="#FFC71C" v-model="form.serviceScore" :size="40"></u-rate>
           </view>
         </view>
         <view class="seller-rate-view">
           <view class="rate-title">物流服务</view>
           <view>
-            <u-rate count="count" gutter="20" active-color="#FFC71C" v-model="form.deliveryScore" :size="40"></u-rate>
+            <u-rate :count="5" gutter="20" active-color="#FFC71C" v-model="form.deliveryScore" :size="40"></u-rate>
           </view>
         </view>
       </view>
@@ -89,7 +89,7 @@
 <script>
 import storage from "@/utils/storage.js";
 import { commentsMemberOrder } from "@/api/members.js";
-import { upload } from "@/api/common.js";
+import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
 
 export default {
   data() {
@@ -111,7 +111,7 @@ export default {
         serviceScore: 5, //默认服务得分为5分
         deliveryScore: 5, //默认物流得分为5分
       },
-      action: upload, //图片上传地址
+      uploadFileList: [],
     };
   },
   onLoad(options) {
@@ -153,15 +153,10 @@ export default {
       });
     },
 
-    /**
-     * 图片成功后回调
-     */
-    onUploaded(lists) {
-      let images = [];
-      lists.forEach((item) => {
-        images.push(item.response.result);
+    onUploadAfterRead(event) {
+      handleUploadAfterRead(event, this.uploadFileList, (urls) => {
+        this.form.images = urls;
       });
-      this.form.images = images;
     },
   },
 };

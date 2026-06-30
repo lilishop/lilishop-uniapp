@@ -119,14 +119,22 @@
       background: $light-color;
       position: fixed;
       width: 690rpx;
-      bottom: 60rpx;
+      bottom: calc(60rpx + constant(safe-area-inset-bottom));
+      bottom: calc(60rpx + env(safe-area-inset-bottom));
       height: 80rpx;
       left: 30rpx;
       font-size: 30rpx;
-      line-height: 80rpx;
-  
-      .u-icon {
-        margin-right: 10rpx;
+      color: #fff;
+      border-radius: 40rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+      overflow: hidden;
+
+      .btn-text {
+        margin-left: 12rpx;
+        line-height: 1;
       }
     }
   }

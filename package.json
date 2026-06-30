@@ -1,0 +1,24 @@
+{
+  "name": "lilishop-uniapp",
+  "version": "4.5.3",
+  "description": "Lilishop uni-app mobile client (Vue 3)",
+  "main": "main.js",
+  "scripts": {
+    "migrate:vue3": "node scripts/migrate-vue3.js && node scripts/migrate-filters-usage.js",
+    "postinstall": "patch-package"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "sass": "^1.89.2",
+    "uview-plus": "^3.4.72",
+    "vuex": "^4.1.0"
+  },
+  "devDependencies": {
+    "patch-package": "^8.0.1",
+    "postinstall-postinstall": "^2.1.0"
+  }
+}

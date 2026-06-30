@@ -37,7 +37,6 @@
 
           <!-- 数据 -->
           <view
-            v-if="navItem.dataList && coupon"
             class="coupon-item"
             :class="{ 'coupon-used': navIndex != 0 }"
             v-for="(coupon, index) in navItem.dataList"
@@ -57,7 +56,7 @@
                 >
                 <view class="price" v-else>{{ coupon.price }}元</view>
                 <view class="sub-price"
-                  >满{{ coupon.consumeThreshold | unitPrice }}可用</view
+                  >满{{unitPrice(coupon.consumeThreshold) }}可用</view
                 >
               </view>
               <view class="circle circle-top"></view>

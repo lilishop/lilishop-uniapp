@@ -2,9 +2,11 @@
 <template>
   <view class="finger">
     <u-cell-group>
-      <u-cell-item class="border-top" :arrow="false" title="指纹登录">
-        <u-switch slot="right-icon" @change="fingerSwitchChange" :active-color="lightColor" size="40" v-model="checked"></u-switch>
-      </u-cell-item>
+      <u-cell class="border-top" :isLink="false" title="指纹登录">
+        <template #right-icon>
+          <u-switch @change="fingerSwitchChange" :active-color="lightColor" size="40" v-model="checked"></u-switch>
+        </template>
+      </u-cell>
     </u-cell-group>
     <view class="describe">开启后可使用指纹认证完成快捷登录，设置仅对本机生效。如需修改指纹，请在系统设置中操作。</view>
   </view>

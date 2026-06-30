@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <u-navbar :custom-back="back" back-icon-color="#fff" :background="background" :border-bottom="false" >
+    <u-navbar :auto-back="false" @leftClick="back" left-icon-color="#fff" :bg-color="background.backgroundColor" :border="false" >
     </u-navbar>
     <div class="wrapper">
       <!-- 砍价列表 -->

@@ -9,7 +9,7 @@
       >
         <div>
           <div class="join-title">
-            <div>{{ item.title }}</div>
+            <div class="join-title-name">{{ item.title }}</div>
             <div
               class="sub"
               v-if="item.type !== 'SECKILL'"
@@ -54,7 +54,7 @@
                 {{ i.goodsName ? i.goodsName : i.name }}
               </div>
               <div class="item-price">
-                <span>￥{{ i.price ? i.price : i.originalPrice }}</span>
+                <span class="price-text">￥{{ i.price ? i.price : i.originalPrice }}</span>
               </div>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default {
   width: 316rpx !important;
 }
 .item-price {
-  > span {
+  .price-text {
     font-size: 28rpx;
     font-weight: 500;
     color: #e1212b;
@@ -214,7 +214,7 @@ export default {
   position: relative;
 }
 .item-line-through {
-  > span {
+  .price-text {
     font-size: 20rpx;
     font-weight: 400;
     text-decoration: line-through;
@@ -234,11 +234,12 @@ export default {
   align-items: center;
   background: #fff;
   height: 100rpx;
-  > div:nth-of-type(1) {
+  .join-title-name {
     font-size: 30rpx;
     font-weight: bold;
   }
-  > div:nth-of-type(2) {
+  .sub,
+  .sub-seckill {
     font-size: 20rpx;
     line-height: 1.75;
     border-radius: 16rpx;

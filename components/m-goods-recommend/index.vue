@@ -100,10 +100,6 @@ $w_94: 94%;
   border-top-left-radius: 20rpx;
   border-top-right-radius: 20rpx;
   overflow: hidden;
-  > img {
-    width: 100%;
-    height: 100%;
-  }
 }
 .goods-desc {
   border-bottom-left-radius: 20rpx;

@@ -8,7 +8,7 @@
           <view class="-number" v-if="item.inspectRemark || item.errorMessage">{{ item.inspectRemark || item.errorMessage }}</view>
         </view>
         <view class="view-item-change">
-          <view class="-money">-{{ item.applyMoney | unitPrice }}</view>
+          <view class="-money">-{{unitPrice(item.applyMoney) }}</view>
           <view class="-time">{{ item.createTime || item.inspectTime || "" }}</view>
           <view v-if="item.applyStatus === 'WAIT_USER_CONFIRM'" class="confirm-btn" @click.stop="confirmWechatReceive(item)">确认收款</view>
         </view>

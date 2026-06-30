@@ -4,7 +4,6 @@
 	</view>
 </template>
 <script>
-	var chat = requirePlugin('myPlugin')
 	export default {
 		data() {
 			return {
@@ -15,6 +14,19 @@
 			
 		},
 		onLoad (e) {
+			// 腾讯云智服客服插件需在 manifest.json 的 mp-weixin.plugins 中注册后方可使用，
+			// 未注册时 requirePlugin 会抛出 "has not registered any plugins"，此处做容错处理。
+			let chat
+			try {
+				chat = requirePlugin('myPlugin')
+			} catch (err) {
+				uni.showToast({
+					title: '客服功能暂未配置',
+					icon: 'none',
+					duration: 2000
+				})
+				return
+			}
 			const params = JSON.parse((decodeURIComponent(e.params)))
 			chat.init({
 				sign: params.mpSign,  //必传，公司渠道唯一标识，腾讯云智服后台系统创建「小程序插件」渠道后，在「渠道管理」获取

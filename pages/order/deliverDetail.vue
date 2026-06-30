@@ -3,7 +3,7 @@
 		<view class="logistics-detail">
 			<view class="card">
 				<div v-if="logisticsList && logisticsList.length>0">
-					<ul class="express-log" v-for="(packageItem, packageIndex) in logisticsList" :key="packageIndex" v-if="packageItem">
+					<ul class="express-log" v-for="(packageItem, packageIndex) in logisticsList" :key="packageIndex">
 						<div class="layui-layer-wrap">
 							<dl>
 								<dt>物流公司：</dt>

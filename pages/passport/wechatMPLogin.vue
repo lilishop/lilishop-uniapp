@@ -1,7 +1,7 @@
 <template>
 	<view class="container">
-		<u-navbar :custom-back="back" title="小程序登录"></u-navbar>
-		<u-modal v-model="phoneAuthPopup" :mask-close-able="true" :title="projectName+'商城'"
+		<u-navbar :auto-back="false" :fixed="true" :placeholder="true" @leftClick="back" title="小程序登录"></u-navbar>
+		<u-modal v-model:show="phoneAuthPopup" :mask-close-able="true" :title="projectName+'商城'"
 			:show-confirm-button="false">
 			<div class="tips">
 				为了更好地用户体验，需要您授权手机号
@@ -24,14 +24,23 @@
 						class="btn-auth">登录</button>
 					<div @click="backToHome" class="btn-callback">暂不登录</div>
 				</view>
-				<div class="privacy">
-            <u-checkbox shape="circle" v-model="checked" :active-color="lightColor">
-              <div class="flex">
-                阅读并同意<navigator class="light-color" url="/pages/mine/help/tips?type=PRIVACY_POLICY">《隐私协议》</navigator>
-                <navigator class="light-color" url="/pages/mine/help/tips?type=USER_AGREEMENT">《用户协议》</navigator>
-              </div>
-            </u-checkbox>
-        </div>
+				<view class="privacy">
+					<view class="privacy-row">
+						<u-checkbox
+							class="privacy-check"
+							usedAlone
+							shape="circle"
+							v-model:checked="checked"
+							:active-color="lightColor"
+							:icon-size="18"
+						></u-checkbox>
+						<view class="privacy-text">
+							阅读并同意
+							<navigator class="privacy-link" url="/pages/mine/help/tips?type=PRIVACY_POLICY">《隐私协议》</navigator>
+							<navigator class="privacy-link" url="/pages/mine/help/tips?type=USER_AGREEMENT">《用户协议》</navigator>
+						</view>
+					</view>
+				</view>
 			</div>
 		</view>
 	</view>
@@ -237,18 +246,14 @@
 
 	.wx-auth-container {
 		width: 100%;
-		margin-top: 20%;
+		padding-top: 120rpx;
 	}
 
 	.logo-info {
 		display: flex;
-		flex-wrap: nowrap;
-		justify-content: flex-start;
-		flex-direction: row;
-		align-items: flex-start;
-		padding: 20rpx;
-
 		flex-direction: column;
+		align-items: flex-start;
+		padding: 0 20rpx;
 		font-weight: bold;
 	}
 
@@ -375,9 +380,38 @@
 		}
 	}
 
-.privacy{
-  text-align: center;
-  margin-top: 20rpx;
+.privacy {
+  margin-top: 32rpx;
   width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.privacy-row {
+  display: flex;
+  align-items: flex-start;
+  width: 92%;
+}
+
+.privacy-check {
+  flex-shrink: 0;
+  margin-top: 4rpx;
+
+  ::v-deep .u-checkbox {
+    margin: 0;
+  }
+}
+
+.privacy-text {
+  flex: 1;
+  margin-left: 12rpx;
+  font-size: 24rpx;
+  line-height: 36rpx;
+  color: #666;
+}
+
+.privacy-link {
+  display: inline;
+  color: $light-color;
 }
 </style>

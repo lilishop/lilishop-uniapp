@@ -10,11 +10,11 @@
 		</div>
         <div class="msgMsg">{{$u.timeFormat(row.send_time, 'yyyy-mm-dd')}}</div>
         <u-card :title="title" :title-size="35" :border="false">
-          <view class slot="body">
+          <template #body>
             <view class="u-body-item u-flex u-row-between u-p-b-0">
               <view class="u-body-item-title u-line-2">{{row.content}}</view>
             </view>
-          </view>
+          </template>
         </u-card>
       </view>
     </block>

@@ -1,6 +1,6 @@
 <template>
 	<div class="wrapper">
-		<u-popup class="popup" v-model="buyMask" :height="setup.height" closeable :mode="setup.mode" :border-radius="setup.radius" @close="closeMask()">
+		<u-popup class="popup" :show="buyMask" :height="setup.height" closeable :mode="setup.mode" :border-radius="setup.radius" @close="closeMask()">
 			<!-- 商品 -->
 			<view class="goods-box bottom">
 				<view class="goods-header">
@@ -12,8 +12,8 @@
 						<view class="goods-price" v-if="goodsDetail.promotionPrice && ((isGroup && buyType === 'PINTUAN') || !isGroup)">
 							<span v-if="goodsDetail.promotionPrice && !pointDetail">
 								￥
-								<span class="goods-price-promotionShow goods-price-bigshow">{{ $options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[0] }}</span>
-								.{{ $options.filters.goodsFormatPrice(goodsDetail.promotionPrice)[1] }}
+								<span class="goods-price-promotionShow goods-price-bigshow">{{ goodsFormatPrice(goodsDetail.promotionPrice)[0] }}</span>
+								.{{ goodsFormatPrice(goodsDetail.promotionPrice)[1] }}
 							</span>
 							<span v-if="pointDetail.points">
 								<span class="goods-price-promotionShow goods-price-bigshow">{{ pointDetail.points }}</span>
@@ -21,8 +21,8 @@
 							</span>
 							<div class="promotion-box">
 								￥
-								<span class="goods-price-bigshow">{{ $options.filters.goodsFormatPrice(goodsDetail.price)[0] }}</span>
-								.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
+								<span class="goods-price-bigshow">{{ goodsFormatPrice(goodsDetail.price)[0] }}</span>
+								.{{ goodsFormatPrice(goodsDetail.price)[1] }}
 							</div>
 						</view>
 						<!-- 正常商品的价格 -->
@@ -32,8 +32,8 @@
 								<div class="goods-price" v-for="(item, index) in wholesaleList" :key="index">
 									<span>
 										￥
-										<span class="goods-price-bigshow">{{ $options.filters.goodsFormatPrice(item.price)[0] }}</span>
-										.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
+										<span class="goods-price-bigshow">{{ goodsFormatPrice(item.price)[0] }}</span>
+										.{{ goodsFormatPrice(item.price)[1] }}
 									</span>
 									<span class="wholesale-item">{{ item.num }}{{ goodsDetail.goodsUnit }}</span>
 								</div>
@@ -41,8 +41,8 @@
 							<div class="goods-price" v-else>
 								<span>
 									￥
-									<span class="goods-price-bigshow">{{ $options.filters.goodsFormatPrice(goodsDetail.price)[0] }}</span>
-									.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
+									<span class="goods-price-bigshow">{{ goodsFormatPrice(goodsDetail.price)[0] }}</span>
+									.{{ goodsFormatPrice(goodsDetail.price)[1] }}
 								</span>
 							</div>
 						</view>
@@ -81,16 +81,16 @@
 							</view>
 
 							<!-- 拼团购买，仅筛选出当前拼团类型商品 -->
+							<template v-for="(spec_val, spec_index) in spec.values" :key="spec_index">
 							<view
 								v-if="parentOrder && spec_val.skuId == goodsDetail.id"
 								:class="{ active: spec_val.value == currentSelected[specIndex] }"
 								class="skus-view-item"
-								v-for="(spec_val, spec_index) in spec.values"
-								:key="spec_index"
 								@click="handleClickSpec(spec, specIndex, spec_val)"
 							>
 								{{ spec_val.value }}
 							</view>
+							</template>
 						</view>
 					</view>
 					<div class="soldout" v-if="goodsDetail.quantity === 0">
@@ -261,7 +261,7 @@ export default {
 				}
 			});
 			if (selectedSkuId?.skuId) {
-				this.$set(this.currentSelected, index, specValue.value);
+				this.currentSelected[index] = specValue.value;
 				this.selectSkuList = {
 					spec: {
 						specName: val.name,
@@ -531,11 +531,6 @@ export default {
 	color: $price-color;
 	line-height: 80rpx;
 	margin-right: 20rpx;
-
-	> * {
-		color: $price-color;
-		line-height: 80rpx;
-	}
 }
 
 .promotion-box {
@@ -565,9 +560,6 @@ export default {
 
 	> .goods-check-skus-name {
 		margin-left: 4rpx;
-	}
-
-	> span {
 		color: #333;
 	}
 }

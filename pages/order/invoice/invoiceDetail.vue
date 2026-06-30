@@ -8,7 +8,7 @@
             <view></view>
           </view>
         </view>
-        <view>{{order.receiptPrice | unitPrice('￥')}}</view>
+        <view>{{unitPrice(order.receiptPrice, '￥')}}</view>
       </view>
     </view>
     <view class="common-msg flex-center">
@@ -29,19 +29,19 @@
       </view>
     </view>
     <u-cell-group :border="false">
-      <u-cell-item title="发票类型" :border-top="false" :value="order.receiptType || '-'" :arrow="false"></u-cell-item>
-      <u-cell-item title="发票内容" :value="order.receiptContent" :arrow="false"></u-cell-item>
-      <u-cell-item :title="title_type + '名称'" :value="getTitleNameValue()" :arrow="false"></u-cell-item>
-      <u-cell-item title="纳税人识别号" v-if="order.taxpayerId" :value="order.taxpayerId" :arrow="false"></u-cell-item>
-      <u-cell-item title="单位地址" v-if="order.companyAddress" :value="order.companyAddress" :arrow="false"></u-cell-item>
-      <u-cell-item title="单位电话" v-if="order.companyPhone" :value="order.companyPhone" :arrow="false"></u-cell-item>
-      <u-cell-item title="开户银行" v-if="order.bankName" :value="order.bankName" :arrow="false"></u-cell-item>
-      <u-cell-item title="银行账号" v-if="order.bankAccount" :value="order.bankAccount" :arrow="false"></u-cell-item>
-      <u-cell-item title="收票人手机" :value="order.receiptPhone" :arrow="false"></u-cell-item>
-      <u-cell-item title="收票人邮箱" v-if="order.receiptEmail" :value="order.receiptEmail" :arrow="false"></u-cell-item>
+      <u-cell title="发票类型" :border-top="false" :value="order.receiptType || '-'" :isLink="false"></u-cell>
+      <u-cell title="发票内容" :value="order.receiptContent" :isLink="false"></u-cell>
+      <u-cell :title="title_type + '名称'" :value="getTitleNameValue()" :isLink="false"></u-cell>
+      <u-cell title="纳税人识别号" v-if="order.taxpayerId" :value="order.taxpayerId" :isLink="false"></u-cell>
+      <u-cell title="单位地址" v-if="order.companyAddress" :value="order.companyAddress" :isLink="false"></u-cell>
+      <u-cell title="单位电话" v-if="order.companyPhone" :value="order.companyPhone" :isLink="false"></u-cell>
+      <u-cell title="开户银行" v-if="order.bankName" :value="order.bankName" :isLink="false"></u-cell>
+      <u-cell title="银行账号" v-if="order.bankAccount" :value="order.bankAccount" :isLink="false"></u-cell>
+      <u-cell title="收票人手机" :value="order.receiptPhone" :isLink="false"></u-cell>
+      <u-cell title="收票人邮箱" v-if="order.receiptEmail" :value="order.receiptEmail" :isLink="false"></u-cell>
     </u-cell-group>
     <u-popup
-      v-model="showInvoicePopup"
+      v-model:show="showInvoicePopup"
       mode="center"
       width="90%"
       border-radius="20"
@@ -60,8 +60,8 @@
       </view>
     </u-popup>
     <!-- <u-cell-group :border="false" style="margin-top: 20rpx;">
-      <u-cell-item title="订单状态" :border-top="false" :value="order.order_status_text" :arrow="false"></u-cell-item>
-      <u-cell-item title="订单编号" :value="order.sn" :arrow="false"></u-cell-item>
+      <u-cell title="订单状态" :border-top="false" :value="order.order_status_text" :isLink="false"></u-cell>
+      <u-cell title="订单编号" :value="order.sn" :isLink="false"></u-cell>
     </u-cell-group> -->
     <!-- <view class="show-pic" @click="preview">
 

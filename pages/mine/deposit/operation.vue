@@ -1,9 +1,9 @@
 <template>
   <div class="wrapper">
-    <u-navbar :custom-back="back" title="余额"></u-navbar>
+    <u-navbar :auto-back="false" @leftClick="back" title="余额"></u-navbar>
     <div class="box">
       <div class="deposit">预存款金额</div>
-      <div class="money">￥{{walletNum | unitPrice }}</div>
+      <div class="money">￥{{unitPrice(walletNum) }}</div>
       <div class="operation-btns">
         <div class="operation-btn light" @click="navigateTo('/pages/mine/deposit/withdrawal')">提现</div>
         <div class="operation-btn" @click="navigateTo('/pages/mine/deposit/recharge')">充值</div>
@@ -33,11 +33,11 @@ export default {
     };
   },
   async onShow() {
-    if (this.$options.filters.isLogin("auth")) {
+    if (this.isLogin("auth")) {
       let result = await getUserWallet(); //预存款
       this.walletNum = result.data.result.memberWallet;
     } else {
-      this.$options.filters.navigateToLogin("redirectTo");
+      this.navigateToLogin("redirectTo");
     }
   },
   methods: {

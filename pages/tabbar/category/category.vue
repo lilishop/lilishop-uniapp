@@ -1,13 +1,28 @@
 <template>
   <view class="category-wrap">
-    <u-navbar class="navbar" :is-back="false">
-      <div class="title">商品分类</div>
-      <!-- #ifdef H5 -->
-      <u-search class="nav-search"  @click.native="search" placeholder="搜索商品" :show-action="false"></u-search>
-      <!-- #endif -->
-      <!-- #ifndef H5 -->
-      <u-search class="nav-search" disabled @click.native="search" placeholder="搜索商品" :show-action="false"></u-search>
-      <!-- #endif -->
+    <u-navbar
+      class="navbar"
+      :auto-back="false"
+      :fixed="true"
+      :placeholder="true"
+      :border="false"
+      left-icon=""
+      title=""
+      bg-color="#ffffff"
+    >
+      <template #left>
+        <view class="nav-content">
+          <text class="title">商品分类</text>
+          <view class="nav-search-wrap" :style="searchBarStyle">
+            <!-- #ifdef H5 -->
+            <u-search class="nav-search" @click="search" placeholder="搜索商品" :show-action="false"></u-search>
+            <!-- #endif -->
+            <!-- #ifndef H5 -->
+            <u-search class="nav-search" disabled @click="search" placeholder="搜索商品" :show-action="false"></u-search>
+            <!-- #endif -->
+          </view>
+        </view>
+      </template>
     </u-navbar>
     <view class="content">
       <scroll-view scroll-y scroll-with-animation class="left-aside">
@@ -26,12 +41,14 @@
           <text class="s-item">{{ item.name }}</text>
           <!-- 分类详情 -->
           <view class="t-list">
-            <view @click="navigateToList(item.id, children.id)" v-if="children.parentId === item.id" class="t-item" v-for="(children, cIndex) in item.children" :key="children.id"
+            <template v-for="(children, cIndex) in item.children" :key="children.id">
+            <view @click="navigateToList(item.id, children.id)" v-if="children.parentId === item.id" class="t-item"
               :class="{ 'margin-right': (cIndex + 1) % 3 == 0 }">
               <u-image width="70px" height="70px" :src="children.image" :lazy-load="true">
               </u-image>
               <text>{{ children.name }}</text>
             </view>
+            </template>
           </view>
         </view>
       </scroll-view>
@@ -48,7 +65,16 @@ export default {
       tabList: [], //左侧标题列表
       categoryList: [], //右侧分类数据列表
       topImg: "", //顶部图片
+      searchBarWidth: 0, //导航栏搜索框宽度（避让微信胶囊）
     };
+  },
+  computed: {
+    searchBarStyle() {
+      if (this.searchBarWidth) {
+        return { width: `${this.searchBarWidth}px` };
+      }
+      return { width: "460rpx" };
+    },
   },
   onLoad() {
     this.loadData();
@@ -57,7 +83,29 @@ export default {
     uni.showShareMenu({ withShareTicket: true });
     // #endif
   },
+  onReady() {
+    this.setSearchBarWidth();
+  },
   methods: {
+    /**
+     * 根据微信胶囊位置计算搜索框宽度，避免被胶囊遮挡
+     */
+    setSearchBarWidth() {
+      // #ifdef MP-WEIXIN
+      try {
+        const menuButton = uni.getMenuButtonBoundingClientRect();
+        const { windowWidth } = uni.getWindowInfo();
+        const capsuleInsetRight = windowWidth - menuButton.left;
+        const titleWidth = uni.upx2px(160); // “商品分类” 标题宽度
+        const leftPadding = uni.upx2px(60); // 左侧内边距
+        const gap = uni.upx2px(20); // 搜索框与胶囊间距
+        this.searchBarWidth =
+          windowWidth - capsuleInsetRight - titleWidth - leftPadding - gap;
+      } catch (e) {
+        this.searchBarWidth = 180;
+      }
+      // #endif
+    },
     /**
      * 查询
      */
@@ -124,22 +172,30 @@ uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
 .s-list {
   box-shadow: 0 4rpx 12rpx 0 rgba(0, 0, 0, 0.05);
 }
+.nav-content {
+  display: flex;
+  align-items: center;
+}
+.nav-search-wrap {
+  flex-shrink: 0;
+}
 .nav-search {
-  padding-left: 30rpx !important;
-  padding-right: 20rpx !important;
+  width: 100%;
 }
 .title {
-  display: block;
-  width: 259rpx;
+  flex-shrink: 0;
   text-align: center;
-   font-size: 28rpx;
-
- 
+  font-size: 28rpx;
+  padding-right: 16rpx;
+  white-space: nowrap;
 }
 .category-wrap {
   height: 100%;
+  display: flex;
+  flex-direction: column;
   .content {
-    height: calc(100vh - 94px);
+    flex: 1;
+    min-height: 0;
     display: flex;
     color: #333;
     font-size: 28rpx;

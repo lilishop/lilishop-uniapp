@@ -2,11 +2,11 @@
   <view class="wrapper">
     <view class="tips">我的投诉信息</view>
     <u-cell-group>
-      <u-cell-item :arrow="false" :value="complainDetail.goodsName" title="投诉商品"></u-cell-item>
-      <u-cell-item :arrow="false" :value="statusData[complainDetail.complainStatus]" title="投诉状态"></u-cell-item>
-      <u-cell-item :arrow="false" :value="complainDetail.createTime" title="投诉时间"></u-cell-item>
-      <u-cell-item :arrow="false" :value="complainDetail.complainTopic" title="投诉主题"></u-cell-item>
-      <u-cell-item :arrow="false" :value="complainDetail.content" title="投诉内容"></u-cell-item>
+      <u-cell :isLink="false" :value="complainDetail.goodsName" title="投诉商品"></u-cell>
+      <u-cell :isLink="false" :value="statusData[complainDetail.complainStatus]" title="投诉状态"></u-cell>
+      <u-cell :isLink="false" :value="complainDetail.createTime" title="投诉时间"></u-cell>
+      <u-cell :isLink="false" :value="complainDetail.complainTopic" title="投诉主题"></u-cell>
+      <u-cell :isLink="false" :value="complainDetail.content" title="投诉内容"></u-cell>
       <view class="row" v-if="complainDetail.orderComplaintImages">
         <u-image width="100rpx" height="100rpx" border-radius="10" style="margin: 0 10rpx" v-for="(item, index) in complainDetail.orderComplaintImages" :key="index" :src="item"
           @click="preview(complainDetail.orderComplaintImages, index)" />
@@ -14,8 +14,8 @@
     </u-cell-group>
     <view class="tips">商家申诉信息</view>
     <u-cell-group>
-      <u-cell-item :arrow="false" :value="complainDetail.appealTime || '暂无'" title="申诉时间"></u-cell-item>
-      <u-cell-item :arrow="false" :value="complainDetail.appealContent || '暂无'" title="申诉内容"></u-cell-item>
+      <u-cell :isLink="false" :value="complainDetail.appealTime || '暂无'" title="申诉时间"></u-cell>
+      <u-cell :isLink="false" :value="complainDetail.appealContent || '暂无'" title="申诉内容"></u-cell>
       <view class="row" v-if="complainDetail.appealImagesList">
         <u-image width="100rpx" height="100rpx" border-radius="10" style="margin: 0 10rpx" v-for="(item, index) in complainDetail.appealImagesList"
           @click="preview(complainDetail.appealImagesList, index)" :key="index" :src="item" />
@@ -46,7 +46,7 @@
 	</div>
     <view class="tips">平台仲裁</view>
     <u-cell-group>
-      <u-cell-item :arrow="false" title="仲裁意见" :value="complainDetail.arbitrationResult || '暂无'"></u-cell-item>
+      <u-cell :isLink="false" title="仲裁意见" :value="complainDetail.arbitrationResult || '暂无'"></u-cell>
     </u-cell-group>
   </view>
 </template>

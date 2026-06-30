@@ -8,24 +8,27 @@
 
       </view>
     </view>
-    <u-row class="portrait-box2">
-      <u-col span="6" class="portrait-box2-col" :gutter="16">
+    <view class="point-summary">
+      <view class="point-summary-item">
         <text>累计获得：</text>
         <text class="pcolor">{{ pointData.totalPoint || 0 }}</text>
-      </u-col>
-      <u-col span="6" class="portrait-box2-col">
+      </view>
+      <view class="point-summary-divider"></view>
+      <view class="point-summary-item">
         <text>剩余积分：</text>
         <text class="pcolor">{{ pointData.point || 0 }}</text>
-      </u-col>
-    </u-row>
+      </view>
+    </view>
 
     <div class="point-list">
       <view class="point-item" v-for="(item, index) in pointList" :key="index">
-        <view>
+        <view class="point-item-left">
           <view class="point-label">{{ item.content }}</view>
-          <view>{{ item.createTime}}</view>
+          <view class="point-item-time">{{ item.createTime }}</view>
         </view>
-        <view :class="[item.pointType == 'INCREASE' ? 'plus' : 'reduce']"><span>{{item.pointType == "INCREASE" ? '+' : '-'}}</span>{{ item.variablePoint }}</view>
+        <view class="point-item-value" :class="[item.pointType == 'INCREASE' ? 'plus' : 'reduce']">
+          <text>{{ item.pointType == "INCREASE" ? "+" : "-" }}</text>{{ item.variablePoint }}
+        </view>
       </view>
       <uni-load-more :status="count.loadStatus"></uni-load-more>
     </div>
@@ -76,11 +79,11 @@ export default {
         if (res.data.success) {
           let data = res.data.result.records;
           if (data.length < 10) {
-            this.$set(this.count, "loadStatus", "noMore");
+            this.count["loadStatus"] = "noMore";
             this.pointList.push(...data);
           } else {
             this.pointList.push(...data);
-            if (data.length < 10) this.$set(this.count, "loadStatus", "noMore");
+            if (data.length < 10) this.count["loadStatus"] = "noMore";
           }
         }
       });
@@ -99,8 +102,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.point-list{
-  margin-top: 50rpx;
+.point-list {
+  margin-top: 20rpx;
 }
 .title {
   height: 80rpx;
@@ -120,45 +123,61 @@ export default {
 
 .point-item {
   width: 100%;
-  height: 130rpx;
-  padding: 0 20rpx;
+  min-height: 130rpx;
+  padding: 24rpx 20rpx;
   background: #ffffff;
   font-size: $font-sm;
   border-bottom: 1px solid $border-color-light;
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
   align-items: center;
-  > view:nth-child(1) {
+  box-sizing: border-box;
+
+  .point-item-left {
     flex: 1;
+    min-width: 0;
     line-height: 40rpx;
-    view {
-      color: #666666;
-    }
-    :last-child {
-      color: #999;
-    }
   }
 
-  > view:nth-child(2) {
+  .point-item-time {
+    color: #999;
+  }
+
+  .point-item-value {
+    flex-shrink: 0;
     width: 100rpx;
     text-align: center;
   }
 }
 
-.portrait-box2 {
-  height: 100rpx;
+.point-summary {
+  display: flex;
+  align-items: center;
+  min-height: 100rpx;
+  padding: 28rpx 0;
   background: #ffffff;
   border-radius: 0 0 20rpx 20rpx;
   margin: 0 20rpx;
   font-size: 26rpx;
-  ::v-deep .u-col {
-    text-align: center !important;
+  box-sizing: border-box;
+
+  .point-summary-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  ::v-deep .u-col:first-child {
-    border-right: 1px solid $border-color-light;
+
+  .point-summary-divider {
+    width: 1px;
+    height: 48rpx;
+    background: $border-color-light;
+    flex-shrink: 0;
   }
+
   .pcolor {
     color: $light-color;
+    margin-left: 8rpx;
   }
 }
 
@@ -222,8 +241,9 @@ export default {
   }
   
 }
-.point-label{
-    font-weight: bold;
-    margin-bottom: 10rpx;
+.point-label {
+  font-weight: bold;
+  margin-bottom: 10rpx;
+  color: #666666;
 }
 </style>

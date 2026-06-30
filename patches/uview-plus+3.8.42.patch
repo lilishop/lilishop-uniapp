@@ -1,0 +1,306 @@
+diff --git a/node_modules/uview-plus/components/u-image/u-image.vue b/node_modules/uview-plus/components/u-image/u-image.vue
+index 24e3b10..1360704 100644
+--- a/node_modules/uview-plus/components/u-image/u-image.vue
++++ b/node_modules/uview-plus/components/u-image/u-image.vue
+@@ -26,7 +26,7 @@
+ 				}"
+ 			></image>
+ 			<view
+-				v-if="showLoading && loading"
++				v-if="uShowLoading && loading"
+ 				class="u-image__loading"
+ 				:style="{
+ 					borderRadius: shape == 'circle' ? '50%' : addUnit(radius),
+@@ -42,7 +42,7 @@
+ 				</slot>
+ 			</view>
+ 			<view
+-				v-if="showError && isError && !loading"
++				v-if="uShowError && isError && !loading"
+ 				class="u-image__error"
+ 				:style="{
+ 					borderRadius: shape == 'circle' ? '50%' : addUnit(radius),
+@@ -126,6 +126,12 @@
+ 			}
+ 		},
+ 		computed: {
++			uShowError() {
++				return this.$props.showError !== false
++			},
++			uShowLoading() {
++				return this.$props.showLoading !== false
++			},
+ 			transStyle() {
+ 				let style = {};
+ 				// 通过调用addUnit()方法，如果有单位，如百分比，px单位等，直接返回，如果是纯粹的数值，则加上rpx单位
+diff --git a/node_modules/uview-plus/components/u-navbar/theme-vars.scss b/node_modules/uview-plus/components/u-navbar/theme-vars.scss
+index d057ee6..791a092 100644
+--- a/node_modules/uview-plus/components/u-navbar/theme-vars.scss
++++ b/node_modules/uview-plus/components/u-navbar/theme-vars.scss
+@@ -1,21 +1,3 @@
+-:root,
+-page,
+-body {
+-	--up-navbar-bg-color: #ffffff;
+-}
+-
+-@media (prefers-color-scheme: dark) {
+-	:root,
+-	page,
+-	body {
+-		--up-navbar-bg-color: #1c1c1e;
+-	}
+-}
+-
+-[data-up-theme='light'] {
+-	--up-navbar-bg-color: #ffffff;
+-}
+-
+-[data-up-theme='dark'] {
+-	--up-navbar-bg-color: #1c1c1e;
+-}
++/* 主题变量已由全局 uview-plus/index.scss(app.wxss) 提供。
++ * 此处原有 page/body 标签选择器与 [data-up-theme] 属性选择器，
++ * 在微信小程序组件级 wxss 中不被允许，会触发编译告警，故移除。 */
+diff --git a/node_modules/uview-plus/components/u-notice-bar/theme-vars.scss b/node_modules/uview-plus/components/u-notice-bar/theme-vars.scss
+index ed4c8ea..b1e4a3e 100644
+--- a/node_modules/uview-plus/components/u-notice-bar/theme-vars.scss
++++ b/node_modules/uview-plus/components/u-notice-bar/theme-vars.scss
+@@ -1,25 +1,3 @@
+-:root,
+-page,
+-body {
+-	--up-notice-bar-color: #f9ae3d;
+-	--up-notice-bar-bg-color: #fdf6ec;
+-}
+-
+-@media (prefers-color-scheme: dark) {
+-	:root,
+-	page,
+-	body {
+-		--up-notice-bar-color: #f9ae3d;
+-		--up-notice-bar-bg-color: #3d2f1b;
+-	}
+-}
+-
+-[data-up-theme='light'] {
+-	--up-notice-bar-color: #f9ae3d;
+-	--up-notice-bar-bg-color: #fdf6ec;
+-}
+-
+-[data-up-theme='dark'] {
+-	--up-notice-bar-color: #f9ae3d;
+-	--up-notice-bar-bg-color: #3d2f1b;
+-}
++/* 主题变量改由组件 JS 的 upThemeVar 默认值兜底。
++ * 原有 page/body 标签选择器与 [data-up-theme] 属性选择器，
++ * 在微信小程序组件级 wxss 中不被允许，会触发编译告警，故移除。 */
+diff --git a/node_modules/uview-plus/components/u-popup/u-popup.vue b/node_modules/uview-plus/components/u-popup/u-popup.vue
+index e06f46e..2557244 100644
+--- a/node_modules/uview-plus/components/u-popup/u-popup.vue
++++ b/node_modules/uview-plus/components/u-popup/u-popup.vue
+@@ -11,11 +11,11 @@
+ 		<u-overlay
+ 			:show="show && pageInline == false"
+ 			@click="overlayClick"
+-			v-if="overlay"
++			v-if="uOverlay"
+ 			:zIndex="zIndex"
+ 			:duration="overlayDuration"
+-			:customStyle="overlayStyle"
+-			:opacity="overlayOpacity"
++			:customStyle="uOverlayStyle"
++			:opacity="uOverlayOpacity"
+ 		></u-overlay>
+ 		<u-transition
+ 			class="u-popup__content—transition"
+@@ -105,7 +105,13 @@
+ 	 */
+ 	export default {
+ 		name: 'u-popup',
++		// 微信小程序不使用 mpMixin，避免 virtualHost 导致 props 无法挂到实例
++		// #ifndef MP-WEIXIN
+ 		mixins: [mpMixin, mixin, props],
++		// #endif
++		// #ifdef MP-WEIXIN
++		mixins: [mixin, props],
++		// #endif
+ 		data() {
+ 			return {
+ 				overlayDuration: this.duration + 50,
+@@ -128,6 +134,15 @@
+ 			}
+ 		},
+ 		computed: {
++			uOverlay() {
++				return this.$props.overlay !== false
++			},
++			uOverlayStyle() {
++				return this.$props.overlayStyle
++			},
++			uOverlayOpacity() {
++				return this.$props.overlayOpacity
++			},
+ 			transitionStyle() {
+ 				const style = {
+ 					display: 'flex',
+diff --git a/node_modules/uview-plus/components/u-subsection/theme-vars.scss b/node_modules/uview-plus/components/u-subsection/theme-vars.scss
+index eeb867e..b1e4a3e 100644
+--- a/node_modules/uview-plus/components/u-subsection/theme-vars.scss
++++ b/node_modules/uview-plus/components/u-subsection/theme-vars.scss
+@@ -1,41 +1,3 @@
+-:root,
+-page,
+-body {
+-	--up-subsection-bg-color: #eeeeef;
+-	--up-subsection-bar-color: #ffffff;
+-	--up-subsection-inactive-color: #303133;
+-	--up-subsection-disabled-text-color: #c8c9cc;
+-	--up-subsection-disabled-border-color: #d4d4d4;
+-	--up-subsection-disabled-bar-color: #f5f5f5;
+-}
+-
+-@media (prefers-color-scheme: dark) {
+-	:root,
+-	page,
+-	body {
+-		--up-subsection-bg-color: #2b2c30;
+-		--up-subsection-bar-color: #3a3b40;
+-		--up-subsection-inactive-color: #d1d5db;
+-		--up-subsection-disabled-text-color: #6b7280;
+-		--up-subsection-disabled-border-color: #3a3a3c;
+-		--up-subsection-disabled-bar-color: #3a3a3c;
+-	}
+-}
+-
+-[data-up-theme='light'] {
+-	--up-subsection-bg-color: #eeeeef;
+-	--up-subsection-bar-color: #ffffff;
+-	--up-subsection-inactive-color: #303133;
+-	--up-subsection-disabled-text-color: #c8c9cc;
+-	--up-subsection-disabled-border-color: #d4d4d4;
+-	--up-subsection-disabled-bar-color: #f5f5f5;
+-}
+-
+-[data-up-theme='dark'] {
+-	--up-subsection-bg-color: #2b2c30;
+-	--up-subsection-bar-color: #3a3b40;
+-	--up-subsection-inactive-color: #d1d5db;
+-	--up-subsection-disabled-text-color: #6b7280;
+-	--up-subsection-disabled-border-color: #3a3a3c;
+-	--up-subsection-disabled-bar-color: #3a3a3c;
+-}
++/* 主题变量改由组件 JS 的 upThemeVar 默认值兜底。
++ * 原有 page/body 标签选择器与 [data-up-theme] 属性选择器，
++ * 在微信小程序组件级 wxss 中不被允许，会触发编译告警，故移除。 */
+diff --git a/node_modules/uview-plus/components/u-swiper/u-swiper.vue b/node_modules/uview-plus/components/u-swiper/u-swiper.vue
+index a872ba7..3b9cde3 100644
+--- a/node_modules/uview-plus/components/u-swiper/u-swiper.vue
++++ b/node_modules/uview-plus/components/u-swiper/u-swiper.vue
+@@ -51,6 +51,7 @@
+ 							:mode="imgMode"
+ 							@tap="clickHandler(index)"
+ 							:style="{
++								width: '100%',
+ 								height: addUnit(height),
+ 								borderRadius: addUnit(radius)
+ 							}"
+@@ -240,6 +241,7 @@
+ 
+ 					&__image {
+ 						flex: 1;
++						width: 100%;
+ 					}
+ 
+ 					&__video {
+diff --git a/node_modules/uview-plus/components/u-switch/theme-vars.scss b/node_modules/uview-plus/components/u-switch/theme-vars.scss
+index 1ca7595..b1e4a3e 100644
+--- a/node_modules/uview-plus/components/u-switch/theme-vars.scss
++++ b/node_modules/uview-plus/components/u-switch/theme-vars.scss
+@@ -1,41 +1,3 @@
+-:root,
+-page,
+-body {
+-	--up-switch-active-color: #3c9cff;
+-	--up-switch-inactive-color: #ffffff;
+-	--up-switch-dot-active-color: #ffffff;
+-	--up-switch-dot-inactive-color: #ffffff;
+-	--up-switch-loading-inactive-color: #aaabad;
+-	--up-switch-border-color: rgba(0, 0, 0, 0.12);
+-}
+-
+-@media (prefers-color-scheme: dark) {
+-	:root,
+-	page,
+-	body {
+-		--up-switch-active-color: #3c9cff;
+-		--up-switch-inactive-color: #3a3a3c;
+-		--up-switch-dot-active-color: #ffffff;
+-		--up-switch-dot-inactive-color: #d1d5db;
+-		--up-switch-loading-inactive-color: #9ca3af;
+-		--up-switch-border-color: #4b5563;
+-	}
+-}
+-
+-[data-up-theme='light'] {
+-	--up-switch-active-color: #3c9cff;
+-	--up-switch-inactive-color: #ffffff;
+-	--up-switch-dot-active-color: #ffffff;
+-	--up-switch-dot-inactive-color: #ffffff;
+-	--up-switch-loading-inactive-color: #aaabad;
+-	--up-switch-border-color: rgba(0, 0, 0, 0.12);
+-}
+-
+-[data-up-theme='dark'] {
+-	--up-switch-active-color: #3c9cff;
+-	--up-switch-inactive-color: #3a3a3c;
+-	--up-switch-dot-active-color: #ffffff;
+-	--up-switch-dot-inactive-color: #d1d5db;
+-	--up-switch-loading-inactive-color: #9ca3af;
+-	--up-switch-border-color: #4b5563;
+-}
++/* 主题变量改由组件 JS 的 upThemeVar 默认值兜底。
++ * 原有 page/body 标签选择器与 [data-up-theme] 属性选择器，
++ * 在微信小程序组件级 wxss 中不被允许，会触发编译告警，故移除。 */
+diff --git a/node_modules/uview-plus/components/u-tabs/u-tabs.vue b/node_modules/uview-plus/components/u-tabs/u-tabs.vue
+index 46caac2..5736483 100644
+--- a/node_modules/uview-plus/components/u-tabs/u-tabs.vue
++++ b/node_modules/uview-plus/components/u-tabs/u-tabs.vue
+@@ -3,7 +3,7 @@
+ 		<view class="u-tabs__wrapper">
+ 			<slot name="left" />
+ 			<view class="u-tabs__wrapper__scroll-view-wrapper">
+-				<scroll-view :scroll-x="scrollable" :scroll-left="scrollLeft" scroll-with-animation
++				<scroll-view :scroll-x="scrollable" :scroll-left="scrollLeft" scroll-with-animation :enable-flex="true"
+ 					class="u-tabs__wrapper__scroll-view" :show-scrollbar="false" ref="u-tabs__wrapper__scroll-view">
+ 					<view class="u-tabs__wrapper__nav" ref="u-tabs__wrapper__nav">
+ 						<view class="u-tabs__wrapper__nav__item" v-for="(item, index) in tabList" :key="index"
+diff --git a/node_modules/uview-plus/components/u-tag/theme-vars.scss b/node_modules/uview-plus/components/u-tag/theme-vars.scss
+index bf38484..b1e4a3e 100644
+--- a/node_modules/uview-plus/components/u-tag/theme-vars.scss
++++ b/node_modules/uview-plus/components/u-tag/theme-vars.scss
+@@ -1,21 +1,3 @@
+-:root,
+-page,
+-body {
+-	--up-tag-close-bg-color: #c8c9cc;
+-}
+-
+-@media (prefers-color-scheme: dark) {
+-	:root,
+-	page,
+-	body {
+-		--up-tag-close-bg-color: #4b5563;
+-	}
+-}
+-
+-[data-up-theme='light'] {
+-	--up-tag-close-bg-color: #c8c9cc;
+-}
+-
+-[data-up-theme='dark'] {
+-	--up-tag-close-bg-color: #4b5563;
+-}
++/* 主题变量改由组件 JS 的 upThemeVar 默认值兜底。
++ * 原有 page/body 标签选择器与 [data-up-theme] 属性选择器，
++ * 在微信小程序组件级 wxss 中不被允许，会触发编译告警，故移除。 */

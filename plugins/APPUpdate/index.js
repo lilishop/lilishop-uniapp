@@ -918,3 +918,12 @@ export default function (isPrompt = false) {
   });
 }
 // #endif
+
+// #ifndef APP-PLUS
+export default function APPUpdate() {}
+export const getCurrentNo = function (callback) {
+  callback && callback({ versionCode: "", version: "" });
+};
+export const getServerNo = function () {};
+export const getDownload = function () {};
+// #endif

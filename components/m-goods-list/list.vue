@@ -5,7 +5,7 @@
 			<view v-for="(item, index) in res" :key="index" class="goods-item">
 				<view class="image-wrapper" @click="navigateToDetailPage(item)">
 					<u-image :src="item.thumbnail" width="100%" height='330rpx' mode="aspectFit">
-						<u-loading slot="loading"></u-loading>
+						<template #loading><u-loading></u-loading></template>
 					</u-image>
 				</view>
 				<view class="goods-detail">
@@ -15,19 +15,19 @@
 					</div>
 					<view class="price-box" @click="navigateToDetailPage(item)">
 						<div class="price" v-if="item.price!=undefined">
-							¥<span>{{ $options.filters.goodsFormatPrice(item.price )[0] }} </span>.{{
-	            $options.filters.goodsFormatPrice(item.price )[1]
+							¥<span class="price-int">{{ goodsFormatPrice(item.price )[0] }} </span>.{{
+	            goodsFormatPrice(item.price )[1]
 	          }}
 						</div>
 					</view>
 					<div class="promotion" @click="navigateToDetailPage(item)">
 						<div v-if="item.salesModel == 'WHOLESALE'">
-							<span>批</span>
+							<span class="promotion-tag">批</span>
 						</div>
 						<div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
-							<span v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
-							<span v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
-							<span v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
+							<span class="promotion-tag" v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
+							<span class="promotion-tag" v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
+							<span class="promotion-tag" v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
 						</div>
 					</div>
 					<div class="count-config" @click="navigateToDetailPage(item)">
@@ -35,14 +35,12 @@
 						<span>{{ item.commentNum || "0" }}条评论</span>
 					</div>
 					<div class="store-seller-name" v-if="storeName" @click="navigateToStoreDetailPage(item)">
-						<div class="text-hidden">
-							<u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated"
-								text="自营" type="error" />
-							<span>{{ item.storeName || "暂无" }}</span>
-						</div>
-						<span>
-							<u-icon name="arrow-right"></u-icon>
-						</span>
+						<view class="store-name-row">
+							<text class="self-tag" v-if="item.selfOperated">自营</text>
+							<text class="store-name-text">{{ item.storeName || "暂无" }}</text>
+							<text class="to-store">进店</text>
+						</view>
+						<u-icon name="arrow-right" size="12" color="#c5c5c5"></u-icon>
 					</div>
 				</view>
 			</view>
@@ -53,43 +51,39 @@
 				<div class="flex goods-col">
 					<div class="goods-img" @click="navigateToDetailPage(item)">
 						<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.thumbnail">
-							<u-loading slot="loading"></u-loading>
+							<template #loading><u-loading></u-loading></template>
 						</u-image>
 					</div>
 					<div class="goods-detail">
 						<div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.goodsName }}</div>
 						<view class="price-box" @click="navigateToDetailPage(item)">
 							<div class="price" v-if="item.price!=undefined">
-								¥<span>{{ $options.filters.goodsFormatPrice(item.price )[0] }} </span>.{{
-			            $options.filters.goodsFormatPrice(item.price )[1]
+								¥<span class="price-int">{{ goodsFormatPrice(item.price )[0] }} </span>.{{
+			            goodsFormatPrice(item.price )[1]
 			          }}
 							</div>
 						</view>
 						<div class="promotion" @click="navigateToDetailPage(item)">
 							<div v-if="item.salesModel == 'WHOLESALE'">
-								<span>批</span>
+								<span class="promotion-tag">批</span>
 							</div>
 							<div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
-								<span v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
-								<span v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
-								<span v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
+								<span class="promotion-tag" v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
+								<span class="promotion-tag" v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
+								<span class="promotion-tag" v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
 							</div>
 						</div>
 						<div style="overflow: hidden" @click="navigateToDetailPage(item)" class="count-config">
 							<span style="float: left; font-size: 22rpx">已售 {{ item.buyCount || '0' }}</span>
 							<span style="float: right; font-size: 22rpx">{{ item.commentNum || '0' }}条评论</span>
 						</div>
-						<div style="overflow: hidden" @click="navigateToStoreDetailPage(item)" class="count-config">
-							<div class="text-hidden" v-if="storeName">
-								<u-tag style="margin-right: 10rpx" size="mini" mode="dark" v-if="item.selfOperated"
-									text="自营" type="error" />
-								<span class="line1-store-name">{{ item.storeName }}</span>
-								<span class="to-store">进店<u-icon size="24" name="arrow-right" color="#666"></u-icon>
-								</span>
-							</div>
-							<span>
-								<u-icon name="arrow-right" color="#c5c5c5"></u-icon>
-							</span>
+						<div class="store-seller-name" @click="navigateToStoreDetailPage(item)">
+							<view class="store-name-row" v-if="storeName">
+								<text class="self-tag" v-if="item.selfOperated">自营</text>
+								<text class="store-name-text">{{ item.storeName }}</text>
+								<text class="to-store">进店</text>
+							</view>
+							<u-icon name="arrow-right" size="12" color="#c5c5c5"></u-icon>
 						</div>
 					</div>
 				</div>
@@ -245,32 +239,78 @@
 				font-size: $font-sm;
 			}
 	
-			.text-hidden {
+			.store-seller-name {
+				color: #666;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-top: 4rpx;
+				font-size: 24rpx;
+			}
+
+			.store-name-row {
+				flex: 1;
+				min-width: 0;
+				display: flex;
+				align-items: center;
+				overflow: hidden;
+			}
+
+			.store-name-text {
+				flex: 1;
+				min-width: 0;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
+				font-size: 24rpx;
+				color: #999;
+			}
+
+			.to-store {
+				flex-shrink: 0;
+				font-size: 24rpx;
+				color: #333;
+				margin-left: 8rpx;
+			}
+
+			.self-tag {
+				flex-shrink: 0;
+				margin-right: 8rpx;
+				padding: 2rpx 10rpx;
+				border-radius: 8rpx;
+				background: $main-color;
+				color: #fff;
+				font-size: 20rpx;
+				line-height: 1.4;
+			}
+
+			.count-config {
+				padding: 5rpx 0;
+				color: #666;
+				display: flex;
+				font-size: 24rpx;
+				justify-content: space-between;
 			}
 		}
-	
-	
+
 		.goods-row {
 			background: #fff;
 			padding: 16rpx;
-	
+
 			>.goods-col {
 				display: flex;
-	
+
 				>.goods-img {
 					overflow: hidden;
 					flex: 4;
 				}
-	
+
 				>.goods-detail {
 					flex: 7;
 				}
 			}
 		}
-	
+
 		.goods-detail {
 			margin: 0 20rpx;
 	
@@ -289,25 +329,61 @@
 			.promotion {
 				margin-top: 4rpx;
 				display: flex;
-	
-				div {
-					span {
-						font-size: 24rpx;
-						color: $light-color;
-						margin-right: 10rpx;
-						padding: 0 4rpx;
-						border-radius: 2rpx;
-					}
+
+				.promotion-tag {
+					font-size: 24rpx;
+					color: $light-color;
+					margin-right: 10rpx;
+					padding: 0 4rpx;
+					border-radius: 2rpx;
 				}
 			}
 	
 			.store-seller-name {
 				color: #666;
-				overflow: hidden;
 				display: flex;
+				align-items: center;
 				justify-content: space-between;
+				margin-top: 4rpx;
+				font-size: 24rpx;
 			}
-	
+
+			.store-name-row {
+				flex: 1;
+				min-width: 0;
+				display: flex;
+				align-items: center;
+				overflow: hidden;
+			}
+
+			.store-name-text {
+				flex: 1;
+				min-width: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				font-size: 24rpx;
+				color: #999;
+			}
+
+			.to-store {
+				flex-shrink: 0;
+				font-size: 24rpx;
+				color: #333;
+				margin-left: 8rpx;
+			}
+
+			.self-tag {
+				flex-shrink: 0;
+				margin-right: 8rpx;
+				padding: 2rpx 10rpx;
+				border-radius: 8rpx;
+				background: $main-color;
+				color: #fff;
+				font-size: 20rpx;
+				line-height: 1.4;
+			}
+
 			.count-config {
 				padding: 5rpx 0;
 				color: #666;
@@ -315,7 +391,7 @@
 				font-size: 24rpx;
 				justify-content: space-between;
 			}
-	
+
 			>.price-box {
 				margin-top: 10rpx;
 				display: flex;
@@ -330,8 +406,8 @@
 					line-height: 1;
 					color: $main-color;
 					font-weight: bold;
-	
-					::v-deep span:nth-of-type(1) {
+
+					.price-int {
 						font-size: 38rpx;
 					}
 				}

@@ -46,7 +46,7 @@ export default {
     },
   },
   onShow() {
-    this.$options.filters.forceLogin();
+    this.forceLogin();
     scannerCodeLogin({ token: this.token }).then((res) => {
       if (res.data.code == 200) {
         let code = res.data.result;

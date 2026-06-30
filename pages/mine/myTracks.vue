@@ -1,48 +1,56 @@
 <template>
 	<view class="myTracks">
 		<u-navbar title="我的足迹">
-			<div slot="right">
+			<template #right>
         <div class="light-color edit" @click="isEdit = !isEdit">{{ !isEdit ? '编辑' : '完成'}}</div>
-      </div>
+      </template>
 		</u-navbar>
-		<u-notice-bar mode="vertical" :list="['右划删除浏览记录']"></u-notice-bar>
+		<view class="tracks-tip">
+			<u-icon name="volume" color="#f9ae3d" size="19"></u-icon>
+			<text class="tracks-tip-text">右划删除浏览记录</text>
+		</view>
 		<u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
-		<div v-else>
-			<view v-for="(item, index) in trackList" :key="index">
-				<view class="myTracks-title" @click="navigateToStore(item)">{{item.storeName}}</view>
-				<view class="myTracks-items">
-
-					<u-swipe-action style="width: 100%;" :show="item.show" :index="index" :key="item.id"
-						@click="delTracks" @open="open" :options="options">
-						
+		<view v-else class="tracks-list">
+			<block v-for="(item, index) in trackList" :key="index">
+				<view class="myTracks-title" @click="navigateToStore(item)">{{ item.storeName }}</view>
+				<u-swipe-action class="myTracks-swipe">
+					<u-swipe-action-item
+						:show="item.show"
+						:name="index"
+						@click="delTracks"
+						@open="open"
+						:options="options"
+					>
 						<view class="myTracks-item">
 							<u-checkbox-group v-if="isEdit" class="store-line-check">
-								<u-checkbox shape="circle" :active-color="lightColor" v-model="item.checked"
-                @change="checkboxChangeDP(item)"></u-checkbox>
+								<u-checkbox
+									usedAlone
+									shape="circle"
+									:active-color="lightColor"
+									v-model:checked="item.checked"
+									@change="checkboxChangeDP(item)"
+								></u-checkbox>
 							</u-checkbox-group>
 							<view class="myTracks-item-img" @click.stop="navigateToDetail(item)">
-								<image :src="item.thumbnail"></image>
+								<image class="track-thumb" :src="item.thumbnail"></image>
 							</view>
 							<view class="myTracks-item-content" @click.stop="navigateToDetail(item)">
 								<view class="myTracks-item-title">
 									{{ item.goodsName }}
-									<view class="myTracks-item-title-desc"> </view>
 								</view>
 								<view class="myTracks-item-price">
-									￥{{ item.price | unitPrice }}
+									￥{{ unitPrice(item.price) }}
 								</view>
 							</view>
 						</view>
-					</u-swipe-action>
-
-				</view>
+					</u-swipe-action-item>
+				</u-swipe-action>
 				<view class="myTracks-divider"></view>
-
-			</view>
-			<div @click="handleClickDeleteSelected" v-if="isEdit" class="submit">
+			</block>
+			<view v-if="isEdit" class="submit" @click="handleClickDeleteSelected">
 				删除所选
-			</div>
-		</div>
+			</view>
+		</view>
 
 	</view>
 </template>
@@ -163,8 +171,11 @@
 			/**
 			 * 删除足迹
 			 */
-			delTracks(index,ids) {
-				deleteHistoryListId(ids || this.trackList[index].goodsId).then((res) => {
+			delTracks(e, ids) {
+				const index = typeof e === 'object' ? (e.name ?? e.index) : e;
+				const goodsId = ids || this.trackList[index]?.goodsId;
+				if (!goodsId) return;
+				deleteHistoryListId(goodsId).then((res) => {
 					if (res.data.code == 200) {
 						this.trackList = [];
 						this.params.pageNumber = 1
@@ -183,9 +194,10 @@
 </script>
 
 <style lang="scss" scoped>
-	.submit{
+	.submit {
 		position: fixed;
-		bottom: 20rpx;
+		bottom: calc(20rpx + constant(safe-area-inset-bottom));
+		bottom: calc(20rpx + env(safe-area-inset-bottom));
 		left: 10%;
 		width: 80%;
 		height: 80rpx;
@@ -195,110 +207,110 @@
 		align-items: center;
 		justify-content: center;
 		background: $light-color;
+		z-index: 99;
 	}
+
 	.myTracks {
 		width: 100%;
 		padding-top: 2rpx;
 	}
 
+	.tracks-tip {
+		display: flex;
+		align-items: center;
+		padding: 18rpx 24rpx;
+		background: #fdf6ec;
+	}
+
+	.tracks-tip-text {
+		margin-left: 10rpx;
+		font-size: 28rpx;
+		color: #f9ae3d;
+		line-height: 1.4;
+	}
+
+	.tracks-list {
+		width: 100%;
+	}
+
+	.myTracks-swipe,
+	:deep(.u-swipe-action),
+	:deep(.u-swipe-action-item),
+	:deep(.u-swipe-action-item__content) {
+		width: 100%;
+	}
+
+	:deep(.u-swipe-action-item__content) {
+		overflow: hidden;
+	}
+
 	.myTracks-title {
 		width: 100%;
 		height: 110rpx;
-		padding-left: 20rpx;
+		padding: 0 20rpx;
 		font-size: 28rpx;
 		color: #666;
 		font-weight: bold;
 		background-color: #fff;
-		align-items: center;
-		display: -webkit-box;
-		display: -webkit-flex;
 		display: flex;
-	}
-
-	.myTracks-items {
-		padding-top: 2rpx;
 		align-items: center;
-		display: -webkit-box;
-		display: -webkit-flex;
-		display: flex;
-		flex-direction: column;
+		box-sizing: border-box;
 	}
 
 	.myTracks-item {
 		width: 100%;
-		height: 226rpx;
-		padding-left: 20rpx;
-		padding-right: 20rpx;
-		margin-bottom: 2rpx;
-		// border-radius: 6/@px;
+		min-height: 226rpx;
+		padding: 30rpx 20rpx;
 		background-color: #fff;
-		position: relative;
-		align-items: center;
-		display: -webkit-box;
-		display: -webkit-flex;
+		box-sizing: border-box;
 		display: flex;
+		align-items: center;
+	}
+
+	.store-line-check {
+		margin-right: 16rpx;
+		flex-shrink: 0;
 	}
 
 	.myTracks-item-img {
 		margin-right: 20rpx;
-		border-radius: 8rpx;
+		flex-shrink: 0;
 
-		image {
+		.track-thumb {
 			width: 130rpx;
 			height: 130rpx;
 			border-radius: 8rpx;
+			display: block;
 		}
+	}
+
+	.myTracks-item-content {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 	}
 
 	.myTracks-item-title {
 		font-size: 28rpx;
 		color: #333;
-	}
-
-	.myTracks-item-title-desc {
-		font-size: 28rpx;
-		color: #999;
+		line-height: 1.4;
 	}
 
 	.myTracks-item-price {
 		font-size: 28rpx;
 		color: $light-color;
-		padding: 10rpx 0 0 0;
-	}
-
-	.myTracks-action {
-		display: flex;
-		justify-content: space-between;
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		background: #fff;
-		height: 75rpx;
-		align-items: center;
-		padding: 0 32rpx;
-	}
-
-	.myTracks-action-btn {
-		width: 130rpx;
-		height: 60rpx;
-		line-height: 60rpx;
+		padding-top: 10rpx;
 	}
 
 	.myTracks-divider {
 		width: 100%;
 		height: 20rpx;
+		background: #f5f5f5;
 	}
 
-
-
-	.myTracks-action-check {
-		align-items: center;
-		display: -webkit-box;
-		display: -webkit-flex;
-		display: flex;
-	}
-	.edit{
-  	padding-right: 32rpx;
+	.edit {
+		padding-right: 32rpx;
 	}
 </style>

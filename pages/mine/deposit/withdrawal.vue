@@ -18,7 +18,7 @@
 	
 	    <view class="all">
 	      <view @click="handleAll" :style="{ color: $mainColor }">全部</view>
-	      <view style="font-size: 24rpx; color: #999">可提现金额<span>{{ walletNum | unitPrice }}</span>元</view>
+	      <view style="font-size: 24rpx; color: #999">可提现金额<span>{{unitPrice(walletNum) }}</span>元</view>
 	    </view>
 	
 	  </view>

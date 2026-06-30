@@ -35,8 +35,7 @@
                           JSON.parse(item.text)['goodsName']
                         }}</text>
                       </view>
-                      <view class="goods-desc-rice" >￥{{
-                            JSON.parse(item.text)['price'] | unitPrice
+                      <view class="goods-desc-rice" >￥{{unitPrice(JSON.parse(item.text)['price'])
                           }}
                       </view>
                     </view>
@@ -52,8 +51,7 @@
                         <div class="wes-2" >{{
                         order.name
                         }}</div>
-                        <div class="main-color goods-desc-rice">{{
-                          order.goodsPrice | unitPrice("￥")
+                        <div class="main-color goods-desc-rice">{{unitPrice(order.goodsPrice, "￥")
                         }}</div>
                         
                       </view>
@@ -145,8 +143,7 @@
                   goodListData.goodsName
                 }}</text>
               </view>
-              <view class="goods-desc-rice" > ￥{{
-                goodListData.price | unitPrice
+              <view class="goods-desc-rice" > ￥{{unitPrice(goodListData.price)
               }}
               </view>
             </view>

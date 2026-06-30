@@ -16,7 +16,7 @@
       </view>
       <view style="height: 100px"></view>
     </view>
-    <u-action-sheet :list="removeList" :tips="tips" v-model="showAction" @click="deleteAddressMessage"></u-action-sheet>
+    <u-action-sheet :list="removeList" :tips="tips" v-model:show="showAction" @click="deleteAddressMessage"></u-action-sheet>
   </view>
 </template>
 

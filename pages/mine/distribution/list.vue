@@ -1,7 +1,7 @@
 <template>
   <view class="wrapper">
     <!-- 筛选弹出层 TODO后续版本更新 -->
-    <!-- <u-popup width="90%" v-model="popup" mode="right">
+    <!-- <u-popup width="90%" v-model:show="popup" mode="right">
       <view class="screen-title">商品筛选</view>
 
       <view class="screen-view">
@@ -67,8 +67,9 @@
 
     <view class="goods-list">
       <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
-        <u-swipe-action v-for="(item, index) in goodsList" :disabled="!params.checked" :show="item.___selected" @open="openAction(item)" :index="index" :options="options" bg-color="#fff"
-                        ref="swiperAction" :key="item.id" @click="changeActionTab(item)">
+        <u-swipe-action v-for="(item, index) in goodsList" ref="swiperAction" :key="item.id">
+          <u-swipe-action-item :disabled="!params.checked" :show="item.___selected" @open="openAction(item)" :name="index" :options="options"
+                        @click="changeActionTab(item)">
 
           <div class="goods-item">
             <view class="goods-item-img" @click="handleNavgationGoods(item)">
@@ -82,7 +83,7 @@
               <!-- 商品金额 -->
               <view class="-item-price" @click="handleNavgationGoods(item)">
                 佣金:
-                <span> ￥{{ item.commission | unitPrice }}</span>
+                <span> ￥{{unitPrice(item.commission) }}</span>
               </view>
               <!-- 比率佣金 -->
               <view class="-item-bottom">
@@ -92,7 +93,7 @@
                   <span>{{ "5.00%" }}</span>
                 </view> -->
                   <view class="-item-yj">
-                    <span>￥{{ item.price | unitPrice }}</span>
+                    <span>￥{{unitPrice(item.price) }}</span>
                   </view>
                 </view>
                 <view>
@@ -102,6 +103,7 @@
               </view>
             </view>
           </div>
+        </u-swipe-action-item>
         </u-swipe-action>
       </scroll-view>
 
@@ -112,7 +114,7 @@
     </view>
     <canvas class="canvas-hide" canvas-id="qrcode" />
     <drawCanvas ref="drawCanvas" v-if="showFlag" :res="res" />
-    <u-modal v-model="deleteShow" :confirm-style="{'color':lightColor}" @confirm="delectConfirm" show-cancel-button :content="deleteContent" :async-close="true"></u-modal>
+    <u-modal v-model:show="deleteShow" :confirm-style="{'color':lightColor}" @confirm="delectConfirm" show-cancel-button :content="deleteContent" :async-close="true"></u-modal>
 
   </view>
 </template>
@@ -215,9 +217,9 @@ export default {
      */
     openAction(val) {
       this.goodsList.forEach((item) => {
-        this.$set(item, "___selected", false);
+        item["___selected"] = false;
       });
-      this.$set(val, "___selected", true);
+      val["___selected"] = true;
     },
 
     /**
@@ -242,7 +244,7 @@ export default {
         let callback = result.data.result;
         this.res.container.title = `${goods.goodsName}`;
         this.res.bottom.code = `data:image/png;base64,${callback}`;
-        this.res.bottom.price = this.$options.filters.unitPrice(
+        this.res.bottom.price = this.unitPrice(
           goods.price,
           "￥"
         );
@@ -294,7 +296,7 @@ export default {
       distributionGoods(this.params).then((res) => {
         if (res.data.success && res.data.result.records.length >= 1) {
           res.data.result.records.forEach((item) => {
-            this.$set(item, "___selected", false);
+            item["___selected"] = false;
           });
           this.goodsList.push(...res.data.result.records);
         }

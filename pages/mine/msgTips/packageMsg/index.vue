@@ -6,13 +6,15 @@
 			<div class="bagbar">{{$u.timeFormat(row.send_time, 'yyyy-mm-dd')}}</div>
 		  </div>
 		  <u-card @click="goDetail(row.sn,row.logi_id,row.ship_no)" :title="title" title-color="#666666" title-size="24" sub-title-color="#666666" sub-title-size="24" :border="false" :sub-title=row.status>
-			<view class="msg-body" slot="body">
+			<template #body>
+			  <view class="msg-body">
 			  <image class="msgImg" :src="row.goods_img" mode=""></image>
 			  <view class="msgView">
 				<view>{{row.goodsName}}</view>
 				<view class="msgNum">订单号:{{row.sn}}</view>
 			  </view>
-			</view>
+			  </view>
+			</template>
 		  </u-card>
 		</view>
 	</block>	
@@ -99,7 +101,7 @@ export default {
   color: #fff;
   font-size: 24rpx;
   padding: 10rpx 20rpx;
-  background: $u-type-info-disabled;
+  background: $u-info-disabled;
 }
 .storeImg {
   width: 100%;

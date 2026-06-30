@@ -17,7 +17,7 @@
 
       <u-form-item label="生日" label-width="150" right-icon="arrow-right">
         <div style="width: 100%;" @click="showBirthday = true">{{ birthday || '请选择出生日期' }}</div>
-       <u-picker v-model="showBirthday" mode="time" :confirm-color="lightColor" @confirm="selectTime"></u-picker>
+       <u-picker v-model:show="showBirthday" mode="time" :confirm-color="lightColor" @confirm="selectTime"></u-picker>
       </u-form-item>
       <u-form-item label="城市" label-width="150" placeholder="请选择城市" right-icon="arrow-right">
         <div style="width: 100%;" @click="clickRegion">{{ form.___path || '请选择城市' }}</div>
@@ -44,10 +44,9 @@
 import { saveUserInfo, getUserInfo } from "@/api/members.js";
 import { upload } from "@/api/common.js";
 import storage from "@/utils/storage.js";
-import uFormItem from "@/uview-ui/components/u-form-item/u-form-item.vue";
 import city from "@/components/m-city/m-city.vue";
 export default {
-  components: { uFormItem, "m-city": city },
+  components: { "m-city": city },
   data() {
     return {
       lightColor: this.$lightColor, //高亮颜色
@@ -83,7 +82,7 @@ export default {
 	   * 退出登录
 	   */
 	  quiteLoginOut() {
-      this.$options.filters.quiteLoginOut();
+      this.quiteLoginOut();
 	  },
 	  
     /**
@@ -157,11 +156,9 @@ export default {
      * 选择地址
      */
     selectRegion(region) {
-      this.$set(
-        this.form,
-        "address",
-        `${region.province.label} ${region.city.label} ${region.area.label}`
-      );
+      
+        this.form["address"] = `${region.province.label} ${region.city.label} ${region.area.label}`
+      ;
     },
 
     /**

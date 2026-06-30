@@ -58,13 +58,8 @@ export default {
   background-size: cover;
   padding: 0;
 }
-.-item-image{
-     
-     padding: 10px ;
-     >img{
-        
-         width: 100%;
-     }
+.-item-image {
+  padding: 10px;
 }
 .-item-tilte {
   background: $aider-light-color;

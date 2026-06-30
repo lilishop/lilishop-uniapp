@@ -1,10 +1,17 @@
 <template>
   <div class="wrapper">
-    <u-navbar :is-back="false" title="购物车">
-      <div slot="right">
-        <div class="light-color edit" @click="isEdit = !isEdit">{{ !isEdit ? '编辑' : '完成'}}</div>
-      </div>
-    </u-navbar> 
+    <u-navbar
+      class="cart-navbar"
+      :style="cartNavbarStyle"
+      :auto-back="false"
+      :fixed="true"
+      :placeholder="true"
+      :border="false"
+      left-icon=""
+      title="购物车"
+      :right-text="isEdit ? '完成' : '编辑'"
+      @rightClick="toggleEdit"
+    ></u-navbar>
     <!-- 空白页-->
     <view v-if="!loading && (cartDetail.cartList == '' || cartDetail.cartList == [] || !cartDetail)" class="empty">
       <image src="/static/emptyCart.png" mode="aspectFit"></image>
@@ -19,29 +26,22 @@
         :key="index">
         <view class="tab">
           <view class="store-line">
-            <u-checkbox-group class="store-line-check">
-              <!-- #ifndef MP-WEIXIN -->
-              <u-checkbox shape="circle" :active-color="lightColor" v-model="item.checked"
-                @change="checkboxChangeDP(item)"></u-checkbox>
-              <!-- #endif -->
-              <!-- 微信小程序这里 v-model出现问题，改用:value -->
-              <!-- #ifdef MP-WEIXIN -->
-              <u-checkbox shape="circle" :active-color="lightColor" :value="item.checked"
-                @change="checkboxChangeDP(item)"></u-checkbox>
-              <!-- #endif -->
-            </u-checkbox-group>
-            <span class="store-name wes store-line-desc" @click.stop="navigateToStore(item)">{{
+            <view class="store-line-check">
+              <u-checkbox usedAlone shape="circle" :active-color="lightColor" v-model:checked="item.checked"
+                :label-size="14" @change="(checked) => onStoreCheckChange(item, checked)"></u-checkbox>
+            </view>
+            <text class="store-name wes" @click.stop="navigateToStore(item)">{{
               item.storeName
-            }}</span>
-            <u-icon @click="navigateToStore(item)"  size="24" style="margin-left:10rpx;"  name="arrow-right"></u-icon>
+            }}</text>
           </view>
           <view class="right-col" v-if="item.canReceiveCoupon" @click="navigateToCoupon(item)">
             <div class="right-line"></div>
             <span>领劵</span>
           </view>
         </view>
-        <u-swipe-action :show="skuItem.selected" @open="openAction(skuItem)" :options="options" bg-color="#fff"
-          ref="swiperAction" class="cart-item" v-for="(skuItem, i) in item.skuList" :index="i" :key="skuItem.goodsSku.id"
+        <u-swipe-action ref="swiperAction" class="cart-item" v-for="(skuItem, i) in item.skuList" :key="skuItem.goodsSku.id">
+          <u-swipe-action-item :show="skuItem.selected" @open="openAction(skuItem)" :options="options"
+          :name="i"
           @click="changeActionTab(skuItem)" @longpress="changeActionTab(skuItem)">
           <!-- 满减活动 -->
           <div v-if="Object.keys(skuItem.promotionMap).length != 0">
@@ -55,21 +55,13 @@
           <view class="goods-row" :class="{ invalid: isInvalid(skuItem) }">
             <view class="goods-config">
               <view>
-                <u-checkbox-group v-if="skuItem.invalid == 0 && !skuItem.errorMessage">
-                  <!-- #ifndef MP-WEIXIN -->
-                  <u-checkbox shape="circle" :active-color="lightColor" class="c-left" v-model="skuItem.checked"
-                    @change="checkboxChange(skuItem)"></u-checkbox>
-                  <!-- #endif -->
-                  <!-- 微信小程序这里 v-model出现问题，改用:value -->
-                  <!-- #ifdef MP-WEIXIN -->
-                  <u-checkbox shape="circle" :active-color="lightColor" class="c-left" :value="skuItem.checked"
-                    @change="checkboxChange(skuItem)"></u-checkbox>
-                  <!-- #endif -->
-                </u-checkbox-group>
+                <u-checkbox v-if="skuItem.invalid == 0 && !skuItem.errorMessage" usedAlone shape="circle"
+                  :active-color="lightColor" class="c-left" v-model:checked="skuItem.checked"
+                  @change="(checked) => onSkuCheckChange(skuItem, checked)"></u-checkbox>
                 <span class="invalid" v-else style="font-size: 24rpx">失效</span>
               </view>
               <u-image border-radius="10" :fade="true" @click="navigateToGoods(skuItem)" width="160rpx" height="160rpx"
-                :src="skuItem.goodsSku.thumbnail" />
+                mode="aspectFill" :src="getSkuThumbnail(skuItem.goodsSku.thumbnail)" />
             </view>
             <view class="goods-content">
               <!-- 商品名称 -->
@@ -83,8 +75,8 @@
                 <view class="sp-price">
                   <!-- <div class="default-color" :class="{'main-color':Object.keys(skuItem.promotionMap).length ==0  }"> -->
                   <div class="main-color">
-                    ￥<span>{{ $options.filters.goodsFormatPrice(skuItem.goodsSku.price)[0] }}</span>
-                    <span>.{{ $options.filters.goodsFormatPrice(skuItem.goodsSku.price)[1] }}</span>
+                    ￥<span>{{ goodsFormatPrice(skuItem.goodsSku.price)[0] }}</span>
+                    <span>.{{ goodsFormatPrice(skuItem.goodsSku.price)[1] }}</span>
                   </div>
                 </view>
                 <view>
@@ -105,8 +97,8 @@
                 <!-- 如果有活动 并且是选中的状态,显示预估到手价格 -->
                 <!-- <div class="priceDetail-flowPrice" :class="{'main-color':skuItem.priceDetailDTO}"
                   v-if="skuItem.priceDetailDTO && skuItem.invalid == 0  && Object.keys(skuItem.promotionMap).length != 0 && skuItem.checked && skuItem.checked">
-                  预估到手价 ￥<span>{{ $options.filters.goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
-                  <span>.{{ $options.filters.goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
+                  预估到手价 ￥<span>{{ goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
+                  <span>.{{ goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
                 </div> -->
                 <div style='margin-left: 20rpx;' v-if="!skuItem.checked && skuItem.errorMessage">
                   {{skuItem.errorMessage}}
@@ -115,29 +107,31 @@
               
             </view>
           </view>
+        </u-swipe-action-item>
         </u-swipe-action>
       </div>
     </div>
-    <u-modal v-model="deleteShow" :confirm-style="{'color':lightColor}" @confirm="deleteConfirm" show-cancel-button
+    <u-modal v-model:show="deleteShow" :confirm-style="{'color':lightColor}" @confirm="deleteConfirm" show-cancel-button
       :content="deleteContent" :async-close="true"></u-modal>
     <!-- 结账 -->
     <div class="box box6">
       <view class="navL">
-        <u-checkbox shape="circle" :active-color="lightColor" v-model="checkout" @change="checkOut()" label-size="24">全选
+        <u-checkbox class="checkout-all" usedAlone shape="circle" :active-color="lightColor" v-model:checked="checkout"
+          :label-size="12" label="全选" @change="checkOut">
         </u-checkbox>
-        <span class="price">
+        <span class="price checkout-total">
           <div class="prices">
             <div class="fullPrice">
               <span class="number" v-if="cartDetail && cartDetail.priceDetailDTO">
                 总计:
-                <span>¥{{ $options.filters.goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ $options.filters.goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
+                <span>¥{{ goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
               </span>
               <span class="number" v-else>总计:0.00</span>
             </div>
             <div
               v-if="cartDetail.cartList && cartDetail.cartList.length!=0 && cartDetail.priceDetailDTO && cartDetail.priceDetailDTO.discountPrice!=0 "
               class="discountPrice">
-              <span>优惠减:￥{{(cartDetail.priceDetailDTO.goodsPrice - cartDetail.priceDetailDTO.flowPrice) | unitPrice}}
+              <span>优惠减:￥{{(cartDetail.priceDetailDTO.goodsPrice -unitPrice(cartDetail.priceDetailDTO.flowPrice))}}
               </span>
               <span class="discount-details" @click="discountDetails">优惠明细</span>
             </div>
@@ -145,22 +139,22 @@
         </span>
       </view>
       <!-- 优惠详情 -->
-      <u-popup z-index="3" close mode="bottom" height="50%" closeable v-model="discountDetailsFlag" border-radius="20">
+      <u-popup z-index="3" close mode="bottom" height="50%" closeable v-model:show="discountDetailsFlag" border-radius="20">
         <div class="discount-list">
           <view class="discount-title">优惠明细</view>
           <div class="discount-way">
             <div class="discount-item" v-if="cartDetail.priceDetailDTO">
               <span>商品总额</span>
-              <span>￥{{cartDetail.priceDetailDTO.goodsPrice | unitPrice}}</span>
+              <span>￥{{unitPrice(cartDetail.priceDetailDTO.goodsPrice)}}</span>
 
             </div>
             <div class="discount-item" v-if="cartDetail.priceDetailDTO">
               <span>优惠券</span>
-              <span>-￥{{cartDetail.priceDetailDTO.couponPrice | unitPrice}}</span>
+              <span>-￥{{unitPrice(cartDetail.priceDetailDTO.couponPrice)}}</span>
             </div>
             <div class="discount-item" v-if="cartDetail.priceDetailDTO">
               <span>其他优惠</span>
-              <span>-￥{{cartDetail.priceDetailDTO.discountPrice | unitPrice}}</span>
+              <span>-￥{{unitPrice(cartDetail.priceDetailDTO.discountPrice)}}</span>
             </div>
           </div>
         </div>
@@ -181,6 +175,7 @@
 import * as API_Trade from "@/api/trade";
 import { debounce } from "@/utils/tools.js";
 import uniNumberBox from '@/components/uni-number-box'
+import config from "@/config/config";
 export default {
   components:{uniNumberBox}, // 数量加减组件
   data() {
@@ -212,10 +207,24 @@ export default {
       isEdit: false, // 是否是编辑
       checkout: false, //全选按钮
       WEIXIN_num: "", //购物车兼容微信步进器
+      defaultGoodsImage: config.logo,
+      capsuleInsetRight: 0,
     };
   },
 
+  computed: {
+    cartNavbarStyle() {
+      if (!this.capsuleInsetRight) {
+        return {};
+      }
+      return {
+        "--cart-capsule-inset": `${this.capsuleInsetRight}px`,
+      };
+    },
+  },
+
   mounted() {
+    this.setCapsuleInset();
     // #ifdef MP-WEIXIN
     // 小程序默认分享
     uni.showShareMenu({ withShareTicket: true });
@@ -240,6 +249,29 @@ export default {
     }
   },
   methods: {
+    setCapsuleInset() {
+      // #ifdef MP-WEIXIN
+      try {
+        const menuButton = uni.getMenuButtonBoundingClientRect();
+        const { windowWidth } = uni.getWindowInfo();
+        this.capsuleInsetRight = windowWidth - menuButton.left + uni.upx2px(8);
+      } catch (e) {
+        this.capsuleInsetRight = 90;
+      }
+      // #endif
+    },
+
+    toggleEdit() {
+      this.isEdit = !this.isEdit;
+    },
+
+    getSkuThumbnail(url) {
+      if (url && /^(https?:)?\/\//.test(String(url))) {
+        return url;
+      }
+      return this.defaultGoodsImage;
+    },
+
     /**
 			 * 倒数计时
 			 */
@@ -266,11 +298,11 @@ export default {
       this.cartDetail.cartList.forEach((cartItem) => {
         if (cartItem.skuList) {
           cartItem.skuList.forEach((sku) => {
-            this.$set(sku, "selected", false);
+            sku["selected"] = false;
           });
         }
       });
-      this.$set(skuItem, "selected", true);
+      skuItem["selected"] = true;
     },
 
     /**
@@ -380,7 +412,7 @@ export default {
      * 验证是否选中商品
      */
     whetherChecked() {
-    this.$options.filters.forceLogin()
+    this.forceLogin()
 
       let canBuy = false;
       this.cartDetail.cartList.forEach((item) => {
@@ -418,11 +450,11 @@ export default {
     /**
      * 全选
      */
-    checkOut() {
-      API_Trade.checkAll(this.checkout).then((result) => {
+    checkOut(checked) {
+      const selected = typeof checked === "boolean" ? checked : this.checkout;
+      API_Trade.checkAll(selected).then((result) => {
         if (result.data.success) {
           this.getCardData();
-          return true;
         }
       });
     },
@@ -438,14 +470,12 @@ export default {
       });
     },
 
-    /**
-     * 店铺点击
-     */
-    checkboxChangeDP(e) {
-      // #ifdef MP-WEIXIN
-      e.checked = !e.checked;
-      // #endif
-      this.checkStoreFun(e.storeId, e.checked);
+    onStoreCheckChange(storeItem, checked) {
+      this.checkStoreFun(storeItem.storeId, checked);
+    },
+
+    onSkuCheckChange(skuItem, checked) {
+      this.updateSkuCheckedFun(skuItem.goodsSku.id, checked);
     },
 
     /**
@@ -486,7 +516,7 @@ export default {
      * 获取购物车数据
      */
     getCardData() {
-      if (this.$options.filters.isLogin("auth")) {
+      if (this.isLogin("auth")) {
         uni.showLoading({
           title: "加载中",
         });
@@ -499,15 +529,16 @@ export default {
               let checkOuted = true;
               for (let i = 0; i < this.cartDetail.cartList.length; i++) {
                 let item = this.cartDetail.cartList[i];
-                console.log(item);
+                item.checked = item.checked == 1;
                 // 循环出当前商品是否全选
-                if (item.checked == 0) {
+                if (!item.checked) {
                   checkOuted = false;
                 }
                 // 如果有拼团活动顺便删除
                 item.skuList &&
                   item.skuList.forEach((sku) => {
-                    if (sku.checked == 0) {
+                    sku.checked = sku.checked == 1;
+                    if (!sku.checked) {
                       checkOuted = false;
                     }
                     if(Object.keys(sku.promotionMap).length != 0)
@@ -533,15 +564,6 @@ export default {
       }
     },
 
-    /**
-     *  选中某个复选框时，由checkbox时触发
-     */
-    checkboxChange(e) {
-      // #ifdef MP-WEIXIN
-      e.checked = !e.checked;
-      // #endif
-      this.updateSkuCheckedFun(e.goodsSku.id, e.checked);
-    },
   },
 };
 </script>
@@ -558,9 +580,16 @@ page {
 .u-image {
   box-shadow: 0 4rpx 12rpx 0 rgba(0, 0, 0, 0.05);
 }
-.edit{
-  padding-right: 32rpx;
-  font-size: 28rpx;
+
+.cart-navbar {
+  ::v-deep .u-navbar__content__right {
+    padding-right: var(--cart-capsule-inset, 13px);
+  }
+
+  ::v-deep .u-navbar__content__right__text {
+    color: $light-color;
+    font-size: 28rpx;
+  }
 }
 .promotion-notice {
   margin-top: 10px;
@@ -591,16 +620,26 @@ page {
 }
 
 .store-name {
+  flex: 1;
+  min-width: 0;
   font-weight: bold;
   font-size: 28rpx;
+  margin-left: 8rpx;
+}
+
+.store-arrow {
+  flex-shrink: 0;
+  margin-left: 10rpx;
 }
 .invalid {
   filter: grayscale(1);
 }
 
 .cart-item {
+  width: 100%;
   border-radius: 0.4em;
   transition: 0.35s;
+  overflow: hidden;
 }
 
 /* 空白页 */
@@ -696,11 +735,16 @@ page {
 }
 
 .goods-content {
-  width: 100%;
-  height: 100%;
+  flex: 1;
+  min-width: 0;
+  margin-left: 20rpx;
   overflow: hidden;
-  > p {
-    padding-left: 20rpx;
+
+  > p,
+  .sp-name,
+  .sp-type,
+  .sp-number {
+    padding-left: 0;
   }
 }
 
@@ -716,25 +760,27 @@ page {
   border-right: 1px solid $light-color;
 }
 
-.store-line-check,
-.store-line-img,
-.store-line-desc {
-  // #ifdef MP-WEIXIN
-  float: left;
-  // #endif
+.store-line-check {
+  flex-shrink: 0;
+
+  ::v-deep .u-checkbox {
+    margin: 0;
+  }
 }
 
 .store-line {
-  // #ifndef MP-WEIXIN
   display: flex;
-  // #endif
+  align-items: center;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
-  flex:10;
 }
 
 .goods-config {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+
   ::v-deep .invalid {
     display: block;
     width: 80rpx !important;
@@ -744,15 +790,17 @@ page {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30rpx 0 0 0;
+  padding: 24rpx 0 8rpx;
 }
 
 .right-col {
-  flex:2;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
   text-align: center;
-  width: 100rpx;
   color: $light-color;
   font-size: 26rpx;
+  margin-left: 16rpx;
 
   > span {
     margin-left: 20rpx;
@@ -760,14 +808,10 @@ page {
 }
 
 .right-line {
-  width: 3px;
-  float: left;
+  width: 2rpx;
   height: 40rpx;
   border-left: 1px solid #eeeeee;
-
-  ::v-deep span {
-    margin-left: 20rpx;
-  }
+  margin-right: 20rpx;
 }
 
 .box6 {
@@ -793,6 +837,21 @@ page {
     padding: 0 32rpx;
     display: flex;
     align-items: center;
+    flex: 1;
+    min-width: 0;
+    gap: 24rpx;
+
+    .checkout-all {
+      flex-shrink: 0;
+    }
+
+    ::v-deep .u-checkbox {
+      margin: 0;
+    }
+  }
+
+  .checkout-total {
+    margin-left: 8rpx;
   }
 }
 

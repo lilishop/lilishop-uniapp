@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <u-navbar :border-bottom="false" title="积分商品"></u-navbar>
+    <u-navbar :border="false" title="积分商品"></u-navbar>
 
     <div class="wrapper">
       <!-- 积分商品列表 -->
@@ -16,9 +16,9 @@
                 {{goodsData.goodsName}}
               </div>
               <div class="flex price-box">
-                <div class="purchase-price">积分:<span>{{ pointDetail.points | unitPrice }}</span>
+                <div class="purchase-price">积分:<span>{{unitPrice(pointDetail.points) }}</span>
                 </div>
-                <div class="max-price">原价:<span>￥{{ goodsData.price | unitPrice}}</span>
+                <div class="max-price">原价:<span>￥{{unitPrice(goodsData.price)}}</span>
 
                 </div>
               </div>
@@ -37,7 +37,7 @@
         <div class="bargain">
           <div class="row-title">商品详情</div>
           <view class="u-content">
-            <u-parse :html="goodsData.mobileIntro" :tag-style="style"></u-parse>
+            <u-parse :content="goodsData.mobileIntro" :tag-style="style"></u-parse>
           </view>
         </div>
       </div>

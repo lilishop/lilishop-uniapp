@@ -9,7 +9,7 @@
 
     <div class="feedBack-box">
       <h4>问题反馈 <span style="margin-left:10rpx;" v-if="feedBack.type">@{{ list.find(item=>{return item.value == feedBack.type }).text  }}</span></h4>
-      <u-input class="field-input" height="500" :border-bottom="false" v-model="feedBack.context" type="textarea" placeholder="请输入反馈信息">
+      <u-input class="field-input" height="500" border="none" v-model="feedBack.context" type="textarea" placeholder="请输入反馈信息">
       </u-input>
     </div>
 
@@ -18,14 +18,14 @@
       <view class="opt-view">
         <view class="img-title">上传凭证（最多2张）</view>
         <view class="images-view">
-          <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150" @on-uploaded="onUploaded" :max-count="2" :show-progress="false"></u-upload>
+          <u-upload :file-list="uploadFileList" :auto-upload="false" width="150" @afterRead="onUploadAfterRead" :max-count="2"></u-upload>
         </view>
       </view>
     </div>
 
     <div class="feedBack-box">
       <h4>手机号</h4>
-      <u-input :border-bottom="false" v-model="feedBack.mobile" placeholder="请输入您的手机号">
+      <u-input border="none" v-model="feedBack.mobile" placeholder="请输入您的手机号">
       </u-input>
     </div>
 
@@ -38,7 +38,7 @@
 import storage from "@/utils/storage.js";
 import config from "@/config/config";
 import { feedBack } from "@/api/members.js";
-import { upload } from "@/api/common.js";
+import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
 export default {
   data() {
     return {
@@ -47,7 +47,7 @@ export default {
       feedBack: {
         type: "FUNCTION", //默认反馈问题为 '功能相关'
       },
-      action: upload, //图片上传地址
+      uploadFileList: [],
       list: [
         { text: "功能相关", value: "FUNCTION" },
         { text: "优化反馈", value: "OPTIMIZE" },
@@ -58,16 +58,13 @@ export default {
   methods: {
     // 点击反馈内容
     handleClick(index) {
-      this.$set(this.feedBack, "type", this.list[index].value);
+      this.feedBack["type"] = this.list[index].value;
     },
 
-    //图片上传
-    onUploaded(lists) {
-      let images = [];
-      lists.forEach((item) => {
-        images.push(item.response.result);
+    onUploadAfterRead(event) {
+      handleUploadAfterRead(event, this.uploadFileList, (urls) => {
+        this.feedBack.images = urls.join(",");
       });
-      this.feedBack.images = images.join(",");
     },
 
     /**

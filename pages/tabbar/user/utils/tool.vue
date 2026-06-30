@@ -6,51 +6,51 @@
       <div class="paddingBox">
         <view class="interact-container">
 			<view class="interact-item" @click="navigateTo('/pages/mine/address/addressManage')">
-			  <image src="/static/mine/myaddress.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/myaddress.png" mode=""></image>
 			  <view>地址管理</view>
 			</view>
 			
 			<view class="interact-item" @click="navigateTo('/pages/mine/myTracks')">
-			  <image src="/static/mine/logistics.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/logistics.png" mode=""></image>
 			  <view>我的足迹</view>
 			</view>
 		
 			<view class="interact-item" @click="navigateTo('/pages/order/evaluate/myEvaluate')">
-			  <image src="/static/mine/feedback.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/feedback.png" mode=""></image>
 			  <view>我的评价</view>
 			</view>
 			<!-- <view class="interact-item" @click="linkMsgDetail()">
-			  <image src="/static/mine/mycommit.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/mycommit.png" mode=""></image>
 			  <view>我的消息</view>
 			</view> -->
 		
 		
 			<view class="interact-item" @click="navigateTo('/pages/mine/myCollect')">
-			  <image src="/static/mine/myfavorite.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/myfavorite.png" mode=""></image>
 			  <view>我的关注</view>
 			</view>
 			
 			
 			
 			<view class="interact-item" @click="navigateTo('/pages/mine/point/myPoint')">
-			  <image src="/static/mine/mypoint.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/mypoint.png" mode=""></image>
 			  <view>我的积分</view>
 			</view>
 			
 			<view class="interact-item" @click="distribution">
-			  <image src="/static/mine/distribution.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/distribution.png" mode=""></image>
 			  <view>我的分销</view>
 			</view>
 			
 			
 			
 			<view class="interact-item" @click="navigateTo('/pages/order/complain/complainList')">
-			  <image src="/static/mine/shensu.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/shensu.png" mode=""></image>
 			  <view>我的投诉</view>
 			</view>
 				   
 			<view class="interact-item" @click="navigateTo('/pages/cart/coupon/myCoupon')">
-			  <image src="/static/mine/mycoupon.png" mode=""></image>
+			  <image class="interact-item-icon" src="/static/mine/mycoupon.png" mode=""></image>
 			  <view>优惠券</view>
 			</view>
 			
@@ -58,7 +58,7 @@
 			        
 					
           <view class="interact-item" @click="navigateTo('/pages/mine/signIn')">
-            <image src="/static/mine/sign.png" mode=""></image>
+            <image class="interact-item-icon" src="/static/mine/sign.png" mode=""></image>
             <view>每日签到</view>
           </view>
          
@@ -68,41 +68,41 @@
 
       
           <view class="interact-item" @click="navigateTo('/pages/cart/coupon/couponCenter')">
-            <image src="/static/mine/couponcenter.png" mode=""></image>
+            <image class="interact-item-icon" src="/static/mine/couponcenter.png" mode=""></image>
             <view>领券中心</view>
           </view>
           
          
           
           <view class="interact-item" @click="navigateTo('/pages/promotion/bargain/log')">
-            <image src="/static/mine/kanjia.png" mode=""></image>
+            <image class="interact-item-icon" src="/static/mine/kanjia.png" mode=""></image>
             <view>砍价记录</view>
           </view>
 		  
 		
 		  
           <view class="interact-item" @click="navigateTo('/pages/mine/set/feedBack')">
-            <image src="/static/mine/feedback.png" mode=""></image>
+            <image class="interact-item-icon" src="/static/mine/feedback.png" mode=""></image>
             <view>意见反馈</view>
           </view>
           
           <view class="interact-item" @click="navigateTo('/pages/mine/set/editionIntro')">
-            <image src="/static/mine/pointgift.png" mode=""></image>
+            <image class="interact-item-icon" src="/static/mine/pointgift.png" mode=""></image>
             <view>关于</view>
           </view>
           
           <view class="interact-item" @click="navigateTo('/pages/passport/entry/seller/index')">
-            <image src="/static/mine/feedback.png" mode=""></image>
+            <image class="interact-item-icon" src="/static/mine/feedback.png" mode=""></image>
             <view>店铺入驻</view>
           </view>
           
           
 <!--          <view class="interact-item" @click="inviter()">-->
-<!--          	<image src="/static/mine/share.png" mode=""></image>-->
+<!--          	<image class="interact-item-icon" src="/static/mine/share.png" mode=""></image>-->
 <!--          	<view>邀新</view>-->
 <!--          </view>-->
           <view class="interact-item" @click="navigateTo('/pages/mine/set/setUp')">
-            <image src="/static/mine/setting.png" mode=""></image>
+            <image class="interact-item-icon" src="/static/mine/setting.png" mode=""></image>
             <view>设置</view>
           </view>
         
@@ -111,10 +111,10 @@
       </div>
 	  
 	  			<template>
-	  				<u-popup v-model="sharingShow" mode="bottom" border-radius="14">
+	  				<u-popup v-model:show="sharingShow" mode="bottom" border-radius="14">
 	  					<view style="margin: 10px; text-align: center;"> 请邀请用户扫描二维码或者将地址复制转发给其他用户 </view>
 	  					<view class='qrcode'>
-	  						<uqrcode ref="uqrcode" canvas-id="qrcode" :value="sharingLink" :options="{ margin: 10 }">
+	  						<uqrcode v-if="sharingLink" ref="uqrcode" canvas-id="qrcode" :value="sharingLink" :options="{ margin: 10 }">
 	  						</uqrcode>
 	  					</view>
 	  
@@ -171,7 +171,7 @@ export default {
 				'/pages/mine/set/feedBack'
 			]
 			if (!ignores.includes(url)) {
-				if (this.$options.filters.tipsToLogin('normal')) {
+				if (this.tipsToLogin('normal')) {
 					this.handleNavigate(url)
 				}
 			}
@@ -253,17 +253,10 @@ export default {
 		border-radius: 20rpx;
 		box-shadow: 0 4rpx 24rpx 0 rgba($color: #f6f6f6, $alpha: 1);
 
-		.interact-item-img {
-			width: 52rpx !important;
-			height: 52rpx !important;
-			// margin-bottom:  !important;
-			margin: 0 auto 6rpx auto !important;
-		}
-
-		image {
-			width: 52rpx;
-			height: 52rpx;
-			margin-bottom: 6rpx;
+		.interact-item-icon {
+			width: 56rpx;
+			height: 56rpx;
+			margin-bottom: 10rpx;
 		}
 
 		display: flex;
@@ -272,10 +265,17 @@ export default {
 		text-align: center;
 
 		.interact-item {
-			font-size: $font-sm;
+			font-size: 24rpx;
 			width: 25%;
-			height: 160rpx;
-			padding: 30rpx;
+			flex: 0 0 25%;
+			box-sizing: border-box;
+			height: 150rpx;
+			padding: 20rpx 8rpx;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			color: #666;
 		}
 	}
 }

@@ -16,7 +16,7 @@
         </div>
       </view>
       <view class="to-store-btn" @click="tostorePage(goodsDetail)">
-        <view>进店逛逛</view>
+        <view class="to-store-text">进店逛逛</view>
       </view>
     </view>
 
@@ -25,14 +25,14 @@
       <view class="recommend-list">
         <view class="recommend-item" @click="clickGoods(item)" v-for="(item, index) in res" :key="index">
           <u-image class="recommend-item-img" :fade="true" duration="450" :lazy-load="true" :src="item.thumbnail" height="218rpx">
-            <u-loading slot="loading"></u-loading>
-            <view slot="error" style="font-size: 24rpx; ">加载失败</view>
+            <template #loading><u-loading></u-loading></template>
+            <template #error><view style="font-size: 24rpx; ">加载失败</view></template>
           </u-image>
           <view class="recommend-item-name">
             {{ item.goodsName }}
           </view>
           <view class="item-price" v-if="item.price != undefined">
-            ￥<span class="item-price-blod">{{ $options.filters.goodsFormatPrice(item.price)[0] }}</span>.{{ $options.filters.goodsFormatPrice(item.price)[1] }}
+            ￥<span class="item-price-blod">{{ goodsFormatPrice(item.price)[0] }}</span>.{{ goodsFormatPrice(item.price)[1] }}
           </view>
         </view>
       </view>
@@ -122,11 +122,6 @@ export default {
   .logo {
     overflow: hidden;
     border-radius: 6px;
-
-    > img {
-      width: 100%;
-      height: 100%;
-    }
   }
 
   .name-star {
@@ -144,9 +139,6 @@ export default {
       font-size: 12px;
       color: #999;
       margin-left: 10px;
-      text {
-        margin-right: 10px;
-      }
     }
   }
 
@@ -154,7 +146,7 @@ export default {
     display: flex;
     align-items: center;
 
-    > view {
+    > .to-store-text {
       font-size: 24rpx;
       color: #fff;
       width: 160rpx;
@@ -171,18 +163,6 @@ export default {
 .star-con {
   display: flex;
   flex-direction: column;
-
-  view {
-    display: flex;
-    align-items: center;
-
-    .star {
-      width: 30rpx;
-      height: 30rpx;
-      background: url(https://image.shutterstock.com/image-vector/star-icon-vector-illustration-260nw-474687040.jpg);
-      background-size: 100%;
-    }
-  }
 }
 
 .recommend-list {
@@ -230,8 +210,10 @@ export default {
 }
 .store-row {
   display: flex;
+  align-items: center;
   margin: 10rpx 0;
-  > div {
+  > .collectionNum,
+  > .goodsNum {
     margin-right: 20rpx;
   }
 }

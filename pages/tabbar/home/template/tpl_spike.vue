@@ -2,8 +2,8 @@
   <div class="layout">
     <div class="join-list">
       <div class="join-title">
-        <div>{{ res.list[0].title }}</div>
-        <div>更多</div>
+        <div class="join-title-name">{{ res.list[0].title }}</div>
+        <div class="join-title-more">更多</div>
       </div>
       <div class="join-box">
         <div class="join-item" v-for="item in 4" :key="item">
@@ -15,10 +15,10 @@
             />
           </div>
           <div class="item-price">
-            <span>￥120.00</span>
+            <span class="price-text">￥120.00</span>
           </div>
           <div class="item-line-through">
-            <span>￥190.00</span>
+            <span class="price-text">￥190.00</span>
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 <template>
   <view class="securityCenter">
     <u-cell-group>
-      <u-cell-item title="验证密码" @click="navigateTo('/pages/mine/set/securityCenter/editLoginPassword')"></u-cell-item>
-      <u-cell-item title="验证手机号" @click="navigateTo('/pages/mine/set/securityCenter/editPassword')"></u-cell-item>
+      <u-cell title="验证密码" @click="navigateTo('/pages/mine/set/securityCenter/editLoginPassword')"></u-cell>
+      <u-cell title="验证手机号" @click="navigateTo('/pages/mine/set/securityCenter/editPassword')"></u-cell>
     </u-cell-group>
   </view>
 </template>

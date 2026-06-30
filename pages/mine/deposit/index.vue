@@ -5,7 +5,7 @@
     <view class="wrapper-show-money">
       <view class="money-view">
         <h3>预存款金额 </h3>
-        <view class="money">￥{{walletNum | unitPrice }}</view>
+        <view class="money">￥{{unitPrice(walletNum) }}</view>
 
       </view>
     </view>
@@ -20,9 +20,9 @@
                 <!-- <view class="-number">{{logItem.detail}}</view> -->
               </view>
               <view class="view-item-change">
-                <view class="-money green" v-if="logItem.serviceType == 'WALLET_PAY' || logItem.serviceType == 'WALLET_WITHDRAWAL'"> {{logItem.money | unitPrice}} </view>
+                <view class="-money green" v-if="logItem.serviceType == 'WALLET_PAY' || logItem.serviceType == 'WALLET_WITHDRAWAL'"> {{unitPrice(logItem.money)}} </view>
                 <view class="-money" v-if="logItem.serviceType == 'WALLET_REFUND' || logItem.serviceType == 'WALLET_RECHARGE' || logItem.serviceType == 'WALLET_COMMISSION' ">
-                  +{{logItem.money | unitPrice}} </view>
+                  +{{unitPrice(logItem.money)}} </view>
                 <view class="-time">{{logItem.createTime}}</view>
               </view>
             </view>

@@ -1,6 +1,6 @@
 /* 页面左右间距 */
 $page-color-base: #f8f8f8;
-@import "uview-ui/theme.scss";
+@import "uview-plus/theme.scss";
 
 /* 文字尺寸 */
 $font-sm: 24rpx;
@@ -65,9 +65,6 @@ $font-weight: 400;
 }
 .bg-light-color {
 	background-color: $light-color !important;
-	::v-deep * {
-		background-color: $light-color !important;
-	}
 }
 .bg-main-color {
 	background-color: $main-color !important;

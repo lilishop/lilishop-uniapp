@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <u-navbar :custom-back="back" title="公众网页登录"></u-navbar>
+    <u-navbar :auto-back="false" @leftClick="back" title="公众网页登录"></u-navbar>
     <view class="wx-auth-container">
       <div class="box">
         <view class="logo-info">

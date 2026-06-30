@@ -10,7 +10,8 @@
           </view>
         </view>
         <view>
-          <view class="goods-item-view" v-for="(item,index) in sku.orderItems" v-if="item.sn == sn"
+          <template v-for="(item,index) in sku.orderItems" :key="index">
+          <view class="goods-item-view" v-if="item.sn == sn"
             @click="gotoGoodsDetail(sku.goods_id)">
             <view class="goods-img">
               <u-image border-radius="6" width="131rpx" height="131rpx" :src="item.image"></u-image>
@@ -24,6 +25,7 @@
               </view>
             </view>
           </view>
+          </template>
         </view>
         <view class="after-num">
           <view>申请数量</view>
@@ -49,8 +51,8 @@
         <view class="opt-view">
           <view class="img-title">上传凭证（最多5张）</view>
           <view class="images-view">
-            <u-upload :header=" { accessToken: storage.getAccessToken() }" :action="action" width="150"
-              @on-uploaded="onUploaded" :max-count="5" :show-progress="false"></u-upload>
+            <u-upload :file-list="fileList" :auto-upload="false" width="150"
+              @afterRead="onUploadAfterRead" :max-count="5"></u-upload>
           </view>
         </view>
 
@@ -87,10 +89,10 @@
       <u-button type="primary" ripple shape="circle" v-if="applyInfo.refundWay" :custom-style="customStyle"
         @click="onSubmit">提交申请</u-button>
     </view>
-    <u-select mode="single-column" :list="reasonList" v-model="reasonSelectShow" @confirm="reasonSelectConfirm">
+    <u-select mode="single-column" :list="reasonList" v-model:show="reasonSelectShow" @confirm="reasonSelectConfirm">
     </u-select>
-    <u-select mode="single-column" :list="typeList" v-model="typeSelectShow" @confirm="typeSelectConfirm"></u-select>
-    <u-select mode="single-column" :list="returnList" v-model="returnSelectShow" @confirm="returnSelectConfirm">
+    <u-select mode="single-column" :list="typeList" v-model:show="typeSelectShow" @confirm="typeSelectConfirm"></u-select>
+    <u-select mode="single-column" :list="returnList" v-model:show="returnSelectShow" @confirm="returnSelectConfirm">
     </u-select>
     <u-toast ref="uToast" />
   </view>
@@ -104,7 +106,7 @@ import {
 } from "@/api/after-sale";
 
 import city from "@/components/m-city/m-city";
-import { upload } from "@/api/common.js";
+import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
 import { checkBankno } from "@/utils/Foundation";
 import storage from "@/utils/storage.js";
 export default {
@@ -115,7 +117,6 @@ export default {
     return {
       storage,
       list: [{ id: "", localName: "请选择", children: [] }],
-      action: upload, //图片上传数据
       fileList: [],
       sn: "",
       sku: {},
@@ -263,14 +264,10 @@ export default {
     valChange(e) {
       this.form.num = e.value;
     },
-    //图片上传
-    onUploaded(lists) {
-      let images = [];
-
-      lists.forEach((item) => {
-        images.push(item.response.result);
+    onUploadAfterRead(event) {
+      handleUploadAfterRead(event, this.fileList, (urls) => {
+        this.form.images = urls;
       });
-      this.form.images = images;
     },
     //提交申请
     onSubmit() {

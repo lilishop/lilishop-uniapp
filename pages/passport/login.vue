@@ -1,12 +1,12 @@
 <template>
 	<div class="wrapper">
 		<div v-if="!wechatLogin">
-			<u-navbar :is-back="showBack" :border-bottom="false"></u-navbar>
+			<u-navbar :auto-back="showBack" :border="false"></u-navbar>
 			<div>
 				<div class="title">{{ loginTitleWay[current].title }}</div>
 				<div :class="current == 1 ? 'desc-light' : 'desc'">
 					{{ loginTitleWay[current].desc
-          }}<span v-if="current == 1">{{ mobile | secrecyMobile }}</span>
+          }}<span v-if="current == 1">{{secrecyMobile(mobile) }}</span>
 				</div>
 			</div>
 			<!-- 手机号 -->
@@ -24,9 +24,9 @@
 						boxNormalColor="#D8D8D8" cursorColor="#D8D8D8" />
 
 					<div class="fetch-btn">
-						<u-verification-code change-text="验证码已发送（x）" end-text="重新获取验证码" unique-key="page-login"
+						<u-code change-text="验证码已发送（x）" end-text="重新获取验证码" unique-key="page-login"
 							:seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange">
-						</u-verification-code>
+						</u-code>
 						<span @tap="fetchCode" :style="{ color: codeColor }">
 							{{ tips }}</span>
 					</div>
@@ -46,9 +46,7 @@
 			</div>
 
 			<div class="flex" v-show="current != 1">
-				<u-checkbox-group :icon-size="24" width="45rpx">
-					<u-checkbox shape="circle" v-model="enablePrivacy" active-color="#FF5E00"></u-checkbox>
-				</u-checkbox-group>
+				<u-checkbox usedAlone :icon-size="24" shape="circle" v-model:checked="enablePrivacy" active-color="#FF5E00"></u-checkbox>
 				<div class="tips">
 					未注册的手机号验证后将自动创建用户账号，登录即代表您已同意<span @click="navigateToPrivacy('PRIVACY_POLICY')">《隐私协议》</span>
 					<span @click="navigateToPrivacy('USER_AGREEMENT')">
@@ -63,14 +61,15 @@
 
 			<!-- 循环出当前可使用的第三方登录模式 -->
 			<div class="flex login-list">
-				<div v-if="item.code" :style="{ background: item.color }" class="login-item"
-					v-for="(item, index) in loginList" :key="index">
+				<template v-for="(item, index) in loginList" :key="index">
+				<div v-if="item.code" :style="{ background: item.color }" class="login-item">
 					<u-icon v-if="item.title != 'APPLE'" color="#fff" size="42" :name="item.icon"
 						@click="navigateLogin(item)">
 					</u-icon>
 					<u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" @click="navigateLogin(item)"
 						width="80" height="80" />
 				</div>
+				</template>
 			</div>
 			<myVerification v-if="codeFlag" @send="verification" class="verification" ref="verification"
 				business="LOGIN" />

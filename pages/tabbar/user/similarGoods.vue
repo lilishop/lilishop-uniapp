@@ -5,7 +5,7 @@
 			<view class="goods-intro">
 				<view>{{goods.goodsName}}</view>
 				<view>{{goods.goods_sn}}</view>
-				<view>¥{{goods.goods_price | unitPrice}}</view>
+				<view>¥{{unitPrice(goods.goods_price)}}</view>
 			</view>
 			<!-- <button>找相似</button> -->
 		</view>
@@ -16,7 +16,7 @@
 				<image :src="item.thumbnail" mode=""></image>
 				<view class="nowrap">{{item.name}}</view>
 				<view>
-					<text>￥{{item.price | unitPrice}}
+					<text>￥{{unitPrice(item.price)}}
 					<!-- <text v-if="item.point">+{{item.point || 0}}积分</text> -->
 					</text>
 					<text>￥{{item.mktprice}}</text>

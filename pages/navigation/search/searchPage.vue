@@ -1,18 +1,31 @@
 <template>
 	<view class="content">
-		<u-navbar :background="navObj" :is-back="false">
-			<mSearch
-				ref="mSearch"
-				class="mSearch-input-box"
-				@clickLeft="back"
-				:mode="2"
-				:placeholder="defaultKeyword"
-				@search="doSearch(false)"
-				@confirm="doSearch(false)"
-				@SwitchType="doSearchSwitch()"
-				v-model="keyword"
-				:isFocusVal="!isShowSeachGoods"
-			></mSearch>
+		<u-navbar
+			:bg-color="navObj.background"
+			:auto-back="false"
+			:fixed="true"
+			:placeholder="true"
+			:border="false"
+			left-icon=""
+			title=""
+			class="search-navbar"
+		>
+			<template #left>
+				<view class="search-navbar-wrap" :style="searchNavbarStyle">
+					<mSearch
+						ref="mSearch"
+						class="mSearch-input-box"
+						@clickLeft="back"
+						:mode="2"
+						:placeholder="defaultKeyword"
+						@search="doSearch(false)"
+						@confirm="doSearch(false)"
+						@SwitchType="doSearchSwitch()"
+						v-model="keyword"
+						:isFocusVal="!isShowSeachGoods"
+					></mSearch>
+				</view>
+			</template>
 		</u-navbar>
 
 		<view class="search-keyword" v-if="!isShowSeachGoods">
@@ -33,9 +46,11 @@
 				<view class="keyword-block" v-if="oldKeywordList.length > 0">
 					<view class="keyword-list-header"><view class="u-tips">搜索历史</view></view>
 					<div class="oldKeyList">
-						<div class="oldKeyItem" v-if="keyword" v-for="(keyword, index) in oldKeywordList" :key="index" @click="doSearch(keyword)">
+						<template v-for="(keyword, index) in oldKeywordList" :key="index">
+						<div class="oldKeyItem" v-if="keyword" @click="doSearch(keyword)">
 							<span>{{ keyword }}</span>
 						</div>
+						</template>
 
 						<div @click="showMore" v-if="oldKeywordIndex > loadIndex" class="oldKeyItem">展示更多</div>
 					</div>
@@ -77,39 +92,35 @@
 				<view class="nav-item" @click="sortGoods">筛选</view>
 			</view>
 			<!-- 一行一个商品展示 -->
-			<div v-if="isSWitch">
-				<scroll-view
-					:style="{ height: goodsHeight }"
-					enableBackToTop="true"
-					lower-threshold="250"
-					@scrolltolower="loadmore()"
-					scroll-with-animation
-					scroll-y
-					class="scoll-page"
-				>
-					<goodsList :res="goodsList" type="oneColumns" :keyword="keyword" />
-					<uni-load-more :status="loadingType" @loadmore="loadmore()"></uni-load-more>
-				</scroll-view>
-			</div>
+			<scroll-view
+				v-if="isSWitch"
+				class="goods-scroll"
+				enableBackToTop="true"
+				lower-threshold="250"
+				@scrolltolower="loadmore()"
+				scroll-with-animation
+				scroll-y
+			>
+				<goodsList :res="goodsList" type="oneColumns" :keyword="keyword" />
+				<uni-load-more :status="loadingType" @loadmore="loadmore()"></uni-load-more>
+			</scroll-view>
 			<!-- 一行两个商品展示 -->
-			<div v-if="!isSWitch && !(goodsList == [] || goodsList == '' || goodsList == null)">
-				<scroll-view
-					:style="{ height: goodsHeight }"
-					scroll-anchoring
-					enableBackToTop="true"
-					@scrolltolower="loadmore()"
-					scroll-with-animation
-					scroll-y
-					lower-threshold="250"
-					class="scoll-page"
-				>
-					<goodsList :res="goodsList" :keyword="keyword" />
-					<uni-load-more :status="loadingType"></uni-load-more>
-				</scroll-view>
-			</div>
+			<scroll-view
+				v-if="!isSWitch && !(goodsList == [] || goodsList == '' || goodsList == null)"
+				class="goods-scroll"
+				scroll-anchoring
+				enableBackToTop="true"
+				@scrolltolower="loadmore()"
+				scroll-with-animation
+				scroll-y
+				lower-threshold="250"
+			>
+				<goodsList :res="goodsList" :keyword="keyword" />
+				<uni-load-more :status="loadingType"></uni-load-more>
+			</scroll-view>
 		</view>
 
-		<u-popup border-radius="20" mode="right" width="90%" v-model="sortPopup">
+		<u-popup border-radius="20" mode="right" width="90%" v-model:show="sortPopup">
 			<view class="status_bar"></view>
 			<view class="sort-box  ">
 				<view class="sort-list">
@@ -229,7 +240,6 @@ export default {
 				type: '',
 				index: ''
 			},
-			goodsHeight: '',
 			defaultKeyword: '',
 			keyword: '',
 			oldKeywordList: [],
@@ -267,8 +277,23 @@ export default {
 				categoryId: ''
 			},
 
-			routerVal: ''
+			routerVal: '',
+			capsuleInsetRight: 0,
+			searchNavbarWidth: 0,
 		};
+	},
+
+	computed: {
+		searchNavbarStyle() {
+			if (this.searchNavbarWidth) {
+				return {
+					width: `${this.searchNavbarWidth}px`,
+				};
+			}
+			return {
+				width: '100%',
+			};
+		},
 	},
 
 	onPageScroll(e) {
@@ -309,6 +334,9 @@ export default {
 		}
 		this.loadData();
 	},
+	onReady() {
+		this.setSearchNavbarWidth();
+	},
 	components: {
 		mSearch,
 		goodsList
@@ -338,40 +366,22 @@ export default {
 		this.loadData();
 	},
 
-	mounted() {
-		const { windowWidth, windowHeight } = uni.getSystemInfoSync();
-
-		let topHeight = 0;
-		let navHeight = 0;
-
-		uni.getSystemInfo({
-			success: function(res) {
-				// res - 各种参数
-
-				let top = uni.createSelectorQuery().select('.u-navbar');
-				top.boundingClientRect(function(data) {
-					if (data && data.height) {
-						//data - 各种参数
-						topHeight = data.height; // 获取元素宽度
-					}
-				}).exec();
-				let nav = uni.createSelectorQuery().select('.navbar');
-				nav.boundingClientRect(function(data) {
-					if (data && data.height) {
-						//data - 各种参数
-						navHeight = data.height; // 获取元素宽度
-					}
-				}).exec();
-			}
-		});
-		this.goodsHeight = windowHeight - navHeight - topHeight;
-		// #ifdef APP-PLUS
-		this.goodsHeight = this.goodsHeight - 100;
-		// #endif
-		this.goodsHeight += 'px';
-	},
-
 	methods: {
+		setSearchNavbarWidth() {
+			// #ifdef MP-WEIXIN
+			try {
+				const menuButton = uni.getMenuButtonBoundingClientRect();
+				const { windowWidth } = uni.getWindowInfo();
+				this.capsuleInsetRight = windowWidth - menuButton.left;
+				const leftPadding = uni.upx2px(16);
+				const gap = uni.upx2px(8);
+				this.searchNavbarWidth =
+					windowWidth - this.capsuleInsetRight - leftPadding - gap;
+			} catch (e) {
+				this.searchNavbarWidth = 280;
+			}
+			// #endif
+		},
 		// 数据去重一下 只显示一次 减免 劵 什么的
 		getPromotion(item) {
 			if (item.promotionMap) {
@@ -539,10 +549,10 @@ export default {
 			if (this.params.sort == type) {
 				this.params.order == 'asc' ? (this.params.order = 'desc') : (this.params.order = 'asc');
 
-				this.$set(this.params, 'sort', type);
+				this.params['sort'] = type;
 			} else {
 				this.params.order = 'desc';
-				this.$set(this.params, 'sort', type);
+				this.params['sort'] = type;
 			}
 
 			if (index == 0) {
@@ -709,7 +719,7 @@ export default {
 			this.$refs.mSearch.inputVal = keyword;
 			this.params.keyword = this.keyword;
 			this.params.pageNumber = 1;
-			this.$set(this.sortParams, 'keyword', keyword);
+			this.sortParams['keyword'] = keyword;
 			this.loadData('refresh', 1);
 		},
 		//保存关键字到历史记录

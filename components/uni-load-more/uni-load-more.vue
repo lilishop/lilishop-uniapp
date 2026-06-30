@@ -2,22 +2,22 @@
 	<view class="uni-load-more">
 		<view class="uni-load-more__img" v-show="status === 'loading' && showIcon">
 			<view class="load1">
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
 			</view>
 			<view class="load2">
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
 			</view>
 			<view class="load3">
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
-				<view :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
+				<view class="load-item" :style="{ background: color }"></view>
 			</view>
 		</view>
 		<text class="uni-load-more__text" :style="{ color: color }" v-if="showText">
@@ -86,11 +86,13 @@ export default {
 	margin-right: 10px;
 }
 
-.uni-load-more__img > view {
+.load1,
+.load2,
+.load3 {
 	position: absolute;
 }
 
-.uni-load-more__img > view view {
+.load-item {
 	width: 6px;
 	height: 2px;
 	border-top-left-radius: 1px;
@@ -102,25 +104,25 @@ export default {
 	animation: load 1.56s ease infinite;
 }
 
-.uni-load-more__img > view view:nth-child(1) {
+.load-item:nth-child(1) {
 	transform: rotate(90deg);
 	top: 2px;
 	left: 9px;
 }
 
-.uni-load-more__img > view view:nth-child(2) {
+.load-item:nth-child(2) {
 	transform: rotate(180deg);
 	top: 11px;
 	right: 0;
 }
 
-.uni-load-more__img > view view:nth-child(3) {
+.load-item:nth-child(3) {
 	transform: rotate(270deg);
 	bottom: 2px;
 	left: 9px;
 }
 
-.uni-load-more__img > view view:nth-child(4) {
+.load-item:nth-child(4) {
 	top: 11px;
 	left: 0;
 }
@@ -140,51 +142,51 @@ export default {
 	transform: rotate(60deg);
 }
 
-.load1 view:nth-child(1) {
+.load1 .load-item:nth-child(1) {
 	animation-delay: 0s;
 }
 
-.load2 view:nth-child(1) {
+.load2 .load-item:nth-child(1) {
 	animation-delay: 0.13s;
 }
 
-.load3 view:nth-child(1) {
+.load3 .load-item:nth-child(1) {
 	animation-delay: 0.26s;
 }
 
-.load1 view:nth-child(2) {
+.load1 .load-item:nth-child(2) {
 	animation-delay: 0.39s;
 }
 
-.load2 view:nth-child(2) {
+.load2 .load-item:nth-child(2) {
 	animation-delay: 0.52s;
 }
 
-.load3 view:nth-child(2) {
+.load3 .load-item:nth-child(2) {
 	animation-delay: 0.65s;
 }
 
-.load1 view:nth-child(3) {
+.load1 .load-item:nth-child(3) {
 	animation-delay: 0.78s;
 }
 
-.load2 view:nth-child(3) {
+.load2 .load-item:nth-child(3) {
 	animation-delay: 0.91s;
 }
 
-.load3 view:nth-child(3) {
+.load3 .load-item:nth-child(3) {
 	animation-delay: 1.04s;
 }
 
-.load1 view:nth-child(4) {
+.load1 .load-item:nth-child(4) {
 	animation-delay: 1.17s;
 }
 
-.load2 view:nth-child(4) {
+.load2 .load-item:nth-child(4) {
 	animation-delay: 1.3s;
 }
 
-.load3 view:nth-child(4) {
+.load3 .load-item:nth-child(4) {
 	animation-delay: 1.43s;
 }
 

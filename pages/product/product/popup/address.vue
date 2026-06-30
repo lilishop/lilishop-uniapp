@@ -1,5 +1,5 @@
 <template>
-  <u-popup class="popup" v-model="addressFlag" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius" @close="closeAddress()"   closeable>
+  <u-popup class="popup" :show="addressFlag" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius" @close="closeAddress()"   closeable>
     <view class="header-title">选择地址</view>
     <view class="view-box" v-if="addressDetail">
       <view class="view-item" v-for="(item, index) in addressDetail" :key="index" @click="clickAddress(item)">
@@ -8,7 +8,7 @@
             <u-icon v-if="item.isDefault" :class="{ active: item.isDefault }" name="checkmark" size="12"></u-icon>
           </view>
         </view>
-        <view class="view-box-dress" :class="{ 'box-dress-blod': item.isDefault }">{{ item.consigneeAddressPath | clearStrComma }}</view>
+        <view class="view-box-dress" :class="{ 'box-dress-blod': item.isDefault }">{{clearStrComma(item.consigneeAddressPath) }}</view>
       </view>
     </view>
     <view class="view-box" v-else>
@@ -46,21 +46,17 @@ export default {
       ],
     };
   },
-  filters: {},
-  watch: {},
+  props: ["goodsId", "addressFlag"],
+
   mounted() {
-    this.addressFlag = false;
-    if( this.$options.filters.isLogin("auth") ){
-      this.getShippingAddress()
-    }
-    else{
+    if (this.isLogin("auth")) {
+      this.getShippingAddress();
+    } else {
       uni.navigateTo({
-         url: 'pages/passport/login'
+        url: "/pages/passport/login",
       });
     }
- 
   },
-  props: ["goodsId", "addressFlag"],
 
   methods: {
     /**关闭地址 */
@@ -70,7 +66,6 @@ export default {
     },
 
     getpicker() {
-      // this.$refs.cityPicker.show();
       uni.navigateTo({
         url: "/pages/mine/address/add",
       });
@@ -79,7 +74,7 @@ export default {
 
     /**获取地址 */
     getShippingAddress() {
-      if (this.$options.filters.isLogin("auth")) {
+      if (this.isLogin("auth")) {
         API_Address.getAddressList(1, 50).then((res) => {
           if (res.data.success) {
             this.addressDetail = res.data.result.records;
@@ -91,10 +86,6 @@ export default {
               this.checked = addr[0];
               this.$emit("deliveryData", this.checked);
             }
-            // addr[0] ? "" : (addr = res.data);
-
-            // /**获取默认地址是否有货 */
-            // this.clickAddress(addr[0]);
           }
         });
       }

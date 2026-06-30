@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="pay-wrapper">
       <div class="pay-money">
-        ￥{{ Number(payPrice) | unitPrice }}
+        ￥{{unitPrice(Number(payPrice)) }}
       </div>
       <div class="pay-btns">
         <div v-show="!from" @click="checkOrder">查看{{ this.orderType == "RECHARGE" ? '余额' : '订单' }}</div>
@@ -16,7 +16,7 @@
           <div>
             支付方式：
           </div>
-          <div>{{ paymentMethod | paymentTypeFilter }}</div>
+          <div>{{ paymentTypeFilter(paymentMethod) }}</div>
         </div>
       </div>
     </div>
@@ -41,7 +41,14 @@ export default {
   components: {
     goodsRecommend,
   },
-  filters: {
+  onLoad(options) {
+    this.paymentMethod = options.paymentMethod || "";
+    this.from = options.from || "";
+    this.payPrice = options.payPrice || 0;
+    this.orderType = options.orderType;
+
+  },
+  methods: {
     paymentTypeFilter(val) {
       switch (val) {
         case "WECHAT":
@@ -54,15 +61,6 @@ export default {
           return "";
       }
     },
-  },
-  onLoad(options) {
-    this.paymentMethod = options.paymentMethod || "";
-    this.from = options.from || "";
-    this.payPrice = options.payPrice || 0;
-    this.orderType = options.orderType;
-
-  },
-  methods: {
     checkOrder() {
       /**
        * 查看订单

@@ -1,4 +1,5 @@
 {
+    "vueVersion" : "3",
     "name" : "lilishop",
     "appid" : "__UNI__ED807EA",
     "description" : "",
@@ -204,9 +205,6 @@
         "permission" : {
             "scope.userLocation" : {
                 "desc" : "位置信息将用于高德地图的效果展示"
-            },
-            "scope.writePhotosAlbum" : {
-                "desc" : "将用于保存图片"
             }
         },
         "plugins" : {},

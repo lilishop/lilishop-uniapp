@@ -2,7 +2,7 @@
   <!-- 轮播图 -->
   <view class="carousel">
 
-    <swiper circular="true" duration="400" @change="swiperChange">
+    <swiper class="goods-swiper" circular="true" duration="400" @change="swiperChange">
       <swiper-item v-if='video'>
         <!-- #ifndef APP-PLUS -->
         <video class="video" show-mute-btn style="width:100%; height:100%;" muted autoplay :src='video' loop
@@ -20,9 +20,7 @@
       <swiper-item class="swiper-item" v-for="(item, index) in res" :key="index">
 
         <view class="image-wrapper">
-          <u-image :src="item" mode="aspectFit" class="loaded" width="100%" height="100%">
-            <u-loading slot="loading"></u-loading>
-          </u-image>
+          <image class="swiper-img" :src="item" mode="aspectFit"></image>
         </view>
       </swiper-item>
     </swiper>
@@ -63,11 +61,16 @@ export default {
   height: 750rpx;
   position: relative;
 
-  swiper {
+  .goods-swiper {
     height: 100%;
   }
 
   .image-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-img {
     width: 100%;
     height: 100%;
   }
@@ -78,11 +81,6 @@ export default {
     align-content: center;
     height: 750rpx;
     overflow: hidden;
-
-    image {
-      width: 100%;
-      height: 100%;
-    }
   }
 
   position: relative;
@@ -104,7 +102,7 @@ export default {
   }
 }
 
-::v-deep .image-wrapper image {
+::v-deep .image-wrapper .u-image__image {
   opacity: 1 !important;
 }
 

@@ -5,8 +5,8 @@
 			<view class="coupon-item">
 				<view class="top">
 					<div class="price">
-						<span v-if="item.couponType == 'DISCOUNT'">{{ item.couponDiscount }}折</span>
-						<span v-if="item.couponType == 'PRICE'">￥{{ item.price | unitPrice }}</span>
+						<span class="price-num" v-if="item.couponType == 'DISCOUNT'">{{ item.couponDiscount }}折</span>
+						<span class="price-num" v-if="item.couponType == 'PRICE'">￥{{unitPrice(item.price) }}</span>
 					</div>
 					<view class="text">
 						<div class="coupon-List-title">
@@ -18,16 +18,16 @@
                        }}使用</view>
 							</view>
 						</div>
-						<div>满{{ item.consumeThreshold | unitPrice }}可用</div>
+						<div>满{{unitPrice(item.consumeThreshold) }}可用</div>
 					</view>
 					<view class="lingqu-btn" @click="getCoupon(item, index)">
-						<div :class="yhqFlag[index] ? 'cur' : ''">
+						<div class="lingqu-text" :class="yhqFlag[index] ? 'cur' : ''">
 							{{ yhqFlag[index] ? "已领取或领完" : "立即领取" }}
 						</div>
 					</view>
 				</view>
 				<view class="line"></view>
-				<view class="time">{{ item.startTime / 1000 | unixToDate }} - {{ item.endTime / 1000 | unixToDate }}</view>
+				<view class="time">{{ item.startTime /unixToDate(1000) }} - {{ item.endTime /unixToDate(1000) }}</view>
 			</view>
 		</view>
 	</view>
@@ -139,7 +139,7 @@
 			height: 100%;
 			align-items: center;
 
-			span {
+			.price-num {
 				font-size: 50rpx;
 			}
 		}
@@ -164,7 +164,7 @@
 			align-items: center;
 			margin-left: 40rpx;
 
-			text {
+			.lingqu-text {
 				width: 140rpx;
 				height: 40rpx;
 				text-align: center;

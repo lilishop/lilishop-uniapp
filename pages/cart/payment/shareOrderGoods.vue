@@ -1,9 +1,9 @@
 <template>
   <view class="wrapper" v-if="flag">
     <div class='goods' v-if="selectedGoods">
-      <image class="goods-image" :src="selectedGoods.thumbnail" alt="">
-        <p class="goodsName">{{selectedGoods.goodsName}}</p>
-        <div class="goodsPrice">{{(selectedGoods.promotionPrice || selectedGoods.price  ) | unitPrice('￥')}}</div>
+      <image class="goods-image" :src="selectedGoods.thumbnail" alt="" />
+      <p class="goodsName">{{selectedGoods.goodsName}}</p>
+      <div class="goodsPrice">{{ unitPrice(selectedGoods.promotionPrice || selectedGoods.price, '￥') }}</div>
     </div>
     <div>
       <div class="tips">
@@ -55,7 +55,7 @@
     <div class="user-list" v-if="data.pintuanMemberVOS">
       <div class="user-item" v-for="(item,index) in data.pintuanMemberVOS" :key="index">
         <span class="master" v-if="item.orderSn == ''">团长</span>
-        <image class="img" :src="item.face" alt="">
+        <image class="img" :src="item.face" alt="" />
       </div>
     </div>
 

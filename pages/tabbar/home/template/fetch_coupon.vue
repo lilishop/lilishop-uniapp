@@ -1,6 +1,6 @@
 <template>
   <div>
-    <u-popup v-model="enableShowCoupon" mode="center" width="550rpx" height="400px">
+    <u-popup v-model:show="enableShowCoupon" mode="center" width="550rpx" height="400px">
       <view style="height: 130rpx">
         <view
           style="
@@ -32,14 +32,13 @@
                 >{{ item.discount }}折</view
               >
               <view v-else
-                >优惠金额：<span style="color: red; font-size: 32rpx">{{
-                  item.price | unitPrice
+                >优惠金额：<span style="color: red; font-size: 32rpx">{{unitPrice(item.price)
                 }}</span
                 >元</view
               >
               <view
                 >满<span style="color: red; font-size: 32rpx"
-                  >{{ item.consumeThreshold | unitPrice }}元</span
+                  >{{unitPrice(item.consumeThreshold) }}元</span
                 >可用</view
               >
               <view v-if="item.scopeType == 'ALL' && item.storeId == '0'"
@@ -100,7 +99,7 @@ export default {
   },
   methods: {
     firstGetAuto() {
-      if(!this.$options.filters.isLogin('auth')) return false
+      if(!this.isLogin('auth')) return false
       let data = new Date();
       let now = data.getDate();
       let hours = data.getHours();

@@ -21,15 +21,15 @@
                   >
                     ￥
                     <span class="flex-price">
-                      {{ $options.filters.goodsFormatPrice(detail.promotionPrice)[0] }}.{{
-                        $options.filters.goodsFormatPrice(detail.promotionPrice)[1]
+                      {{ goodsFormatPrice(detail.promotionPrice)[0] }}.{{
+                        goodsFormatPrice(detail.promotionPrice)[1]
                       }}</span
                     >
                   </span>
                   <view class="u-group-flex" v-if="detail.price != undefined">
                     <span class="old-price"
-                      >￥{{ $options.filters.goodsFormatPrice(detail.price)[0] }}.{{
-                        $options.filters.goodsFormatPrice(detail.price)[1]
+                      >￥{{ goodsFormatPrice(detail.price)[0] }}.{{
+                        goodsFormatPrice(detail.price)[1]
                       }}</span
                     >
                     <view class="promotion">限时抢购</view>
@@ -42,8 +42,8 @@
                     <span
                       class="flex-price"
                       v-if="promotion.groupbuy_goods_vo.price != undefined"
-                      >￥{{ $options.filters.goodsFormatPrice(promotion.groupbuy_goods_vo.price)[0] }}.{{
-                        $options.filters.goodsFormatPrice(promotion.groupbuy_goods_vo.price)[1]
+                      >￥{{ goodsFormatPrice(promotion.groupbuy_goods_vo.price)[0] }}.{{
+                        goodsFormatPrice(promotion.groupbuy_goods_vo.price)[1]
                       }}</span
                     >
                     <!-- <span v-if="promotion.point">+{{promotion.point}}积分</span> -->
@@ -53,9 +53,9 @@
                       class="old-price"
                       v-if="promotion.groupbuy_goods_vo.original_price != undefined"
                       >￥{{
-                        $options.filters.goodsFormatPrice(promotion.groupbuy_goods_vo.original_price)[0]
+                        goodsFormatPrice(promotion.groupbuy_goods_vo.original_price)[0]
                       }}.{{
-                        $options.filters.goodsFormatPrice(promotion.groupbuy_goods_vo.original_price)[1]
+                        goodsFormatPrice(promotion.groupbuy_goods_vo.original_price)[1]
                       }}</span
                     >
                     <view class="promotion">团购活动</view>
@@ -68,13 +68,13 @@
                     v-if="detail.promotionPrice != undefined"
                   >
                     ￥<span class="flex-price">
-                      {{ $options.filters.goodsFormatPrice(detail.promotionPrice)[0] }}.</span
-                    >{{ $options.filters.goodsFormatPrice(detail.promotionPrice)[1] }}
+                      {{ goodsFormatPrice(detail.promotionPrice)[0] }}.</span
+                    >{{ goodsFormatPrice(detail.promotionPrice)[1] }}
                   </span>
                   <view class="u-group-flex" v-if="detail.price != undefined">
                     <span class="old-price"
-                      >￥{{ $options.filters.goodsFormatPrice(detail.price)[0] }}.{{
-                        $options.filters.goodsFormatPrice(detail.price)[1]
+                      >￥{{ goodsFormatPrice(detail.price)[0] }}.{{
+                        goodsFormatPrice(detail.price)[1]
                       }}</span
                     >
                     <view class="promotion">拼团活动</view>

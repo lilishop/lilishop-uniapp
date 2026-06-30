@@ -1,8 +1,7 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 var b64re = /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
-exports.weBtoa = function (string) {
+export function weBtoa(string) {
     string = String(string);
     var bitmap, a, b, c, result = "", i = 0, rest = string.length % 3;
     for (; i < string.length;) {
@@ -15,8 +14,8 @@ exports.weBtoa = function (string) {
             b64.charAt(bitmap >> 6 & 63) + b64.charAt(bitmap & 63);
     }
     return rest ? result.slice(0, rest - 3) + "===".substring(rest) : result;
-};
-exports.weAtob = function (string) {
+}
+export function weAtob(string) {
     string = String(string).replace(/[\t\n\f\r ]+/g, "");
     if (!b64re.test(string))
         throw new TypeError("Failed to execute 'atob' on 'Window': The string to be decoded is not correctly encoded.");
@@ -30,9 +29,9 @@ exports.weAtob = function (string) {
                 String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255, bitmap & 255);
     }
     return result;
-};
+}
 function b64DecodeUnicode(str) {
-    return decodeURIComponent(exports.weAtob(str).replace(/(.)/g, function (p) {
+    return decodeURIComponent(weAtob(str).replace(/(.)/g, function (p) {
         var code = p.charCodeAt(0).toString(16).toUpperCase();
         if (code.length < 2) {
             code = "0" + code;
@@ -58,7 +57,7 @@ function base64_url_decode(str) {
         return b64DecodeUnicode(output);
     }
     catch (err) {
-        return exports.weAtob(output);
+        return weAtob(output);
     }
 }
 function weappJwtDecode(token, options) {
@@ -74,4 +73,4 @@ function weappJwtDecode(token, options) {
         throw ("Invalid token specified: " + e.message);
     }
 }
-exports.default = weappJwtDecode;
+export default weappJwtDecode;

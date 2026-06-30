@@ -8,9 +8,9 @@
 			</view>
 			<u-cell-group v-if="current == 0">
 				<view v-for="(item,index) in lists" :key="index">
-					<u-cell-item :arrow="false" v-if="item.status =='UN_READY'" style="position: relative;"
+					<u-cell :isLink="false" v-if="item.status =='UN_READY'" style="position: relative;"
 						@click="linkMsgDetail(item)">
-						<template slot="label">
+						<template #label>
 							<view style="display: inline-block;
                 width: 100%;
                 height: auto;
@@ -26,15 +26,15 @@
 							</view>
 						</template>
 						<!-- <button  style="width:100rpx;height:60rpx;float:right;font-size:20rpx;line-height:60rpx;background:#000000;color:white;">未读</button> -->
-					</u-cell-item>
+					</u-cell>
 				</view>
 
 			</u-cell-group>
 			<u-cell-group v-if="current == 1">
 				<view v-for="(item,index) in lists" :key="index">
-					<u-cell-item :arrow="false" v-if="item.status == 'ALREADY_READY'" style="position: relative;"
+					<u-cell :isLink="false" v-if="item.status == 'ALREADY_READY'" style="position: relative;"
 						@click="linkMsgDetail(item)">
-						<template slot="label">
+						<template #label>
 							<view style="display: inline-block;
 							  width: 100%;
 							  height: auto;
@@ -51,7 +51,7 @@
 							</view>
 						</template>
 						<!-- <button  style="width:100rpx;height:60rpx;float:right;font-size:20rpx;line-height:60rpx;background:#F3F3FA;color:black;">已读</button> -->
-					</u-cell-item>
+					</u-cell>
 				</view>
 			</u-cell-group>
 		</view>
@@ -150,7 +150,7 @@
 				this.getMessage()
 			},
 			getMessage() {
-				this.params.memberId = this.$options.filters.isLogin().id;
+				this.params.memberId = this.isLogin().id;
 				
 				messages(this.params).then(res => {
 					console.log(res)

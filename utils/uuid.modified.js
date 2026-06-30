@@ -4,7 +4,7 @@
 //     MIT License - http://opensource.org/licenses/mit-license.php
 
 /*global window, require, define */
-(function(_window) {
+var uuid = (function(_window) {
   'use strict';
 
 
@@ -241,22 +241,7 @@
   uuid._whatwgRNG = _whatwgRNG;
 
 
-  if (('undefined' !== typeof module) && module.exports) {
-    // Publish as node.js module
-    module.exports = uuid;
-  } else if (typeof define === 'function' && define.amd) {
-    // Publish as AMD module
-    define(function() { return uuid; });
-  } else {
-    // Publish as global (in browsers)
-    _previousRoot = _window.uuid;
+  return uuid;
+})('undefined' !== typeof window ? window : (typeof globalThis !== 'undefined' ? globalThis : {}));
 
-    // **`noConflict()` - (browser only) to reset global 'uuid' var**
-    uuid.noConflict = function() {
-      _window.uuid = _previousRoot;
-      return uuid;
-    };
-
-    _window.uuid = uuid;
-  }
-})('undefined' !== typeof window ? window : null);
+export default uuid;

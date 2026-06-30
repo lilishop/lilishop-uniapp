@@ -13,16 +13,16 @@
     <!-- #endif -->
     <u-cell-group :border="false">
       <!-- #ifdef APP-PLUS -->
-      <u-cell-item title="清除缓存" :value="fileSizeString" @click="clearCache"></u-cell-item>
+      <u-cell title="清除缓存" :value="fileSizeString" @click="clearCache"></u-cell>
       <!-- #endif -->
       <!-- #ifndef MP-WEIXIN -->
-      <u-cell-item title="安全中心" @click="navigateTo('/pages/mine/set/securityCenter/securityCenter')"></u-cell-item>
+      <u-cell title="安全中心" @click="navigateTo('/pages/mine/set/securityCenter/securityCenter')"></u-cell>
       <!-- #endif -->
-	  <u-cell-item title="用户注销" v-if="userInfo.id" @click="logoff"></u-cell-item>
-      <u-cell-item title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell-item>
+	  <u-cell title="用户注销" v-if="userInfo.id" @click="logoff"></u-cell>
+      <u-cell title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell>
       <!-- #ifndef H5 -->
       <!-- #endif -->
-      <u-cell-item :title="`关于${config.name}`" @click="navigateTo('/pages/mine/set/editionIntro')"></u-cell-item>
+      <u-cell :title="`关于${config.name}`" @click="navigateTo('/pages/mine/set/editionIntro')"></u-cell>
     </u-cell-group>
     <view class="submit" v-if="userInfo.id" @click="quiteLoginOut">退出登录</view>
   </view>
@@ -54,14 +54,14 @@ export default {
 	   * 退出登录
 	   */
 	  quiteLoginOut() {
-      this.$options.filters.quiteLoginOut();
+      this.quiteLoginOut();
 	  },
   
 	/**
 	 * 用户注销
 	 */
 	logoff(){
-		this.$options.filters.logoff();
+		this.logoff();
 	},
 
     /**
@@ -91,10 +91,10 @@ export default {
      * 判断当前是否进入用户中心
      */
     checkUserInfo() {
-      if (this.$options.filters.isLogin("auth")) {
+      if (this.isLogin("auth")) {
         this.navigateTo("/pages/mine/set/personMsg");
       } else {
-        this.$options.filters.tipsToLogin();
+        this.tipsToLogin();
       }
     },
 
@@ -155,7 +155,7 @@ export default {
     },
   },
   onShow() {
-    this.userInfo = this.$options.filters.isLogin();
+    this.userInfo = this.isLogin();
     // #ifdef APP-PLUS
     this.getCacheSize();
     // #endif

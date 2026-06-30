@@ -61,9 +61,6 @@ import {
 				return true; //阻止默认返回行为
 			}
 		},
-		methods: {
-			...mapMutations(["login"]),
-		},
 		onLaunch: function(val) {
 			if(val.query.inviter){
 				storage.setInviter(val.query.inviter)
@@ -98,6 +95,7 @@ import {
 			// #endif
 		},
 		methods: {
+			...mapMutations(["login"]),
 			/**
 			 * 微信小程序版本提交更新版本 解决缓存问题
 			 */
@@ -224,7 +222,7 @@ import {
 </script>
 
 <style lang="scss">
-	@import "uview-ui/index.scss";
+	@import "uview-plus/index.scss";
 
 	// -------适配底部安全区  苹果x系列刘海屏
 

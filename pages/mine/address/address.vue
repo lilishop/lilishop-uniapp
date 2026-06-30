@@ -34,11 +34,11 @@
       </view>
       <view style="height: 100px"></view>
     </view>
-    <button type="default" class="btn" @click="addAddress('')">
-      <u-icon name="plus-circle"></u-icon>
-      添加新收货人
-    </button>
-    <u-action-sheet :list="removeList" :tips="tips" v-model="showAction" @click="deleteAddressMessage"></u-action-sheet>
+    <view class="btn" @click="addAddress('')">
+      <u-icon name="plus-circle" color="#ffffff" size="18"></u-icon>
+      <text class="btn-text">添加新收货人</text>
+    </view>
+    <u-action-sheet :list="removeList" :tips="tips" v-model:show="showAction" @click="deleteAddressMessage"></u-action-sheet>
   </view>
 </template>
 

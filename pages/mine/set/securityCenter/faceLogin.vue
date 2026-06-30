@@ -2,9 +2,11 @@
 <template>
   <view class="face-login">
     <u-cell-group>
-      <u-cell-item class="border-top" :arrow="false" title="面容登录">
-        <u-switch slot="right-icon" @change="faceSwitchChange" active-color="#1abc9c" size="40" v-model="checked"></u-switch>
-      </u-cell-item>
+      <u-cell class="border-top" :isLink="false" title="面容登录">
+        <template #right-icon>
+          <u-switch @change="faceSwitchChange" active-color="#1abc9c" size="40" v-model="checked"></u-switch>
+        </template>
+      </u-cell>
     </u-cell-group>
     <view class="describe">开启后可使用面容认证完成快捷登录，设置仅对本机生效。</view>
   </view>

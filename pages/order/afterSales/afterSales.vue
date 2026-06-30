@@ -54,7 +54,7 @@
               <view class="goods-title u-line-2">{{ sku.name }}</view>
               <!-- 如果商品多个则不显示每个商品价格-->
               <view class="goods-price" v-if="order.orderItems.length <= 1">
-                ￥{{ order.flowPrice | unitPrice }}
+                ￥{{unitPrice(order.flowPrice) }}
               </view>
             </view>
             <view class="goods-num">
@@ -89,31 +89,31 @@
                 class="cannot_apply not_center"
                 v-if="order.serviceType == 'RETURN_GOODS'"
               >
-                退货处理-{{ order.serviceStatus | serviceStatusList }}</view
+                退货处理-{{serviceStatusList(order.serviceStatus) }}</view
               >
               <view
                 class="cannot_apply not_center"
                 v-if="order.serviceType == 'SUPPLY_AGAIN_GOODS'"
               >
-                补发商品-{{ order.serviceStatus | serviceStatusList }}</view
+                补发商品-{{serviceStatusList(order.serviceStatus) }}</view
               >
               <view
                 class="cannot_apply not_center"
                 v-if="order.serviceType == 'RETURN_MONEY'"
               >
-                退款-{{ order.serviceStatus | serviceStatusList }}</view
+                退款-{{serviceStatusList(order.serviceStatus) }}</view
               >
               <view
                 class="cannot_apply not_center"
                 v-if="order.serviceType == 'EXCHANGE_GOODS'"
               >
-                换货-{{ order.serviceStatus | serviceStatusList }}</view
+                换货-{{serviceStatusList(order.serviceStatus) }}</view
               >
               <view
                 class="cannot_apply not_center"
                 v-if="order.serviceType == 'CANCEL'"
               >
-                取消订单-{{ order.serviceStatus | serviceStatusList }}</view
+                取消订单-{{serviceStatusList(order.serviceStatus) }}</view
               >
             </div>
 
@@ -177,7 +177,7 @@
           <!-- 多个商品显示订单总价格 -->
           <view class="cannot_apply">
             订单总金额:<span class="countMoney"
-              >￥{{ order.flowPrice | unitPrice }}</span
+              >￥{{unitPrice(order.flowPrice) }}</span
             >
           </view>
         </view>
@@ -187,11 +187,11 @@
     <u-modal
       show-cancel-button
       @confirm="closeService"
-      v-model="cancelShow"
+      v-model:show="cancelShow"
       content="确认取消售后"
     ></u-modal>
     <u-modal
-      v-model="tipsShow"
+      v-model:show="tipsShow"
       content="当订单未确认收货|已过售后服务有效期|已申请售后服务时，不能申请售后"
     ></u-modal>
   </view>

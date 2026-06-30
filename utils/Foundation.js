@@ -230,6 +230,38 @@ function navigationToBack(type) {
 }
 
 /**
+ * 解析商品相册/图片项，兼容上传组件的 JSON 字符串与纯 URL。
+ * 后端 goodsGalleryList 可能同时存在两种格式：
+ *   - '{"url":"https://...jpg","name":"x.jpg","status":"finished"}'
+ *   - 'https://...jpg'
+ * @param {String} item 单个相册项
+ * @returns {String} 解析出的图片地址，无法解析时返回空字符串
+ */
+export function parseGoodsImageUrl(item) {
+  if (item === null || item === undefined) return "";
+  if (typeof item !== "string") return "";
+  const trimmed = item.trim();
+  if (!trimmed) return "";
+  // 纯 URL 直接返回
+  if (/^https?:\/\//.test(trimmed)) return trimmed;
+  // JSON 字符串，尝试解析取 url 字段
+  if (trimmed.charAt(0) === "{") {
+    try {
+      const parsed = JSON.parse(trimmed);
+      const url = parsed && (parsed.url || parsed.path || parsed.link);
+      if (typeof url === "string" && /^https?:\/\//.test(url.trim())) {
+        return url.trim();
+      }
+    } catch (e) {
+      // 解析失败时退化为正则提取
+    }
+    const match = trimmed.match(/https?:\/\/[^\s"'\\}]+/);
+    if (match) return match[0];
+  }
+  return "";
+}
+
+/**
  * 计算当前时间到第二天0点的倒计时[秒]
  * @returns {number}
  */
@@ -246,7 +278,7 @@ export function theNextDayTime() {
     ).getTime() - nowDate.getTime();
   return parseInt(time / 1000);
 }
-module.exports = {
+export default {
   unixToDate,
   dateToUnix,
   formatPrice,
@@ -256,4 +288,5 @@ module.exports = {
   theNextDayTime,
   whetherNavigate,
   checkBankno,
+  parseGoodsImageUrl,
 };

@@ -7,7 +7,7 @@
         <search style="width: 100%" :res="item.options" />
         <!-- #ifndef H5 -->
         <!-- 扫码功能 不兼容h5 详情文档: https://uniapp.dcloud.io/api/system/barcode?id=scancode -->
-        <div slot="right" class="navbar-right">
+        <div class="navbar-right">
           <u-icon name="scan" @click="scan()" color="#666" size="50"></u-icon>
         </div>
         <!-- #endif -->

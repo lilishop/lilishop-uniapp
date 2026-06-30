@@ -2,8 +2,8 @@
   <div class="layout">
     <div class="join-list">
       <div class="join-title">
-        <div>{{ res.list[0].title }}</div>
-        <div>更多</div>
+        <div class="join-title-name">{{ res.list[0].title }}</div>
+        <div class="join-title-more">更多</div>
       </div>
       <div class="join-box">
         <div class="join-item" v-for="item in 4" :key="item">
@@ -11,10 +11,10 @@
             <img class="item-img" src="https://picsum.photos/id/268/200/200" alt />
           </div>
           <div class="item-price">
-            <span>20积分</span>
+            <span class="price-text">20积分</span>
           </div>
           <div class="item-line-through">
-            <span>30积分</span>
+            <span class="price-text">30积分</span>
           </div>
         </div>
       </div>
@@ -34,7 +34,7 @@ export default {
   display: flex;
 }
 .item-price {
-  > span {
+  .price-text {
     font-size: 15px;
     font-weight: 500;
     color: #e1212b;
@@ -53,7 +53,7 @@ export default {
   position: relative;
 }
 .item-line-through {
-  > span {
+  .price-text {
     font-size: 10px;
     font-weight: 400;
     text-decoration: line-through;
@@ -73,11 +73,11 @@ export default {
   align-items: center;
   background: #fff;
   height: 50px;
-  > div:nth-of-type(1) {
+  .join-title-name {
     font-size: 16px;
     font-weight: bold;
   }
-  > div:nth-of-type(2) {
+  .join-title-more {
     font-size: 12px;
     color: #999;
   }

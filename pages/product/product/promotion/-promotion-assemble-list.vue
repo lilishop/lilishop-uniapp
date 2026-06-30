@@ -5,7 +5,7 @@
       <view class="group-item" v-for="(order, index) in assembleOrder" :key="index">
         <view class="group-item-user">
           <u-image shape="circle" width="40px" height="40px" :src="order.face || userImage"></u-image>
-          <span class="group-item-name">{{ order.nickName | noPassByName }}</span>
+          <span class="group-item-name">{{noPassByName(order.nickName) }}</span>
         </view>
         <view>
           <span class="group-item-name">还差{{ order.toBeGroupedNum }}人成团</span>

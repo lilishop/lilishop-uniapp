@@ -11,12 +11,10 @@
       <view class="apply-info-view">
         <view class="status-info">
           <view class="status-info-box">
-            <view class="status-val">{{
-            serviceDetail.serviceStatus | serviceStatusList
+            <view class="status-val">{{serviceStatusList(serviceDetail.serviceStatus)
             }}</view>
 
-            <view class="status-tip">{{
-              serviceDetail.serviceStatus | statusFilter
+            <view class="status-tip">{{statusFilter(serviceDetail.serviceStatus)
             }}</view>
           </view>
         </view>
@@ -43,7 +41,7 @@
               }}</view>
 
               <view class="goods-price">
-                <view class="price"> ￥{{ serviceDetail.flowPrice | unitPrice }}</view>
+                <view class="price"> ￥{{unitPrice(serviceDetail.flowPrice) }}</view>
                 <view>
                   <view>申请售后数量：{{ serviceDetail.num }}</view>
                 </view>
@@ -116,44 +114,40 @@
         v-if="serviceDetail.serviceType != 'RETURN_MONEY'  && serviceDetail.serviceStatus != 'APPLY'">
         <view class="title">联系方式:</view>
         <view class="value">{{
-          storeAfterSaleAddress.salesConsigneeMobile || "" | secrecyMobile
+          storeAfterSaleAddress.salesConsigneeMobile
+            ? secrecyMobile(storeAfterSaleAddress.salesConsigneeMobile)
+            : ''
         }}</view>
       </view>
       <view v-if="refundShow">
         <view class="detail-item">
           <view class="title">退款金额:</view>
-          <view class="value">{{
-            serviceDetail.flowPrice | unitPrice("￥")
+          <view class="value">{{unitPrice(serviceDetail.flowPrice, "￥")
           }}</view>
         </view>
         <view class="detail-item" v-if="serviceDetail.agree_price">
           <view class="title">同意退款:</view>
-          <view class="value">{{
-            serviceDetail.agree_price | unitPrice("￥")
+          <view class="value">{{unitPrice(serviceDetail.agree_price, "￥")
           }}</view>
         </view>
         <view class="detail-item" v-if="serviceDetail.actual_price">
           <view class="title">实际退款:</view>
-          <view class="value">{{
-            serviceDetail.actual_price | unitPrice("￥")
+          <view class="value">{{unitPrice(serviceDetail.actual_price, "￥")
           }}</view>
         </view>
         <view class="detail-item" v-if="serviceDetail.actual_price">
           <view class="title">退款时间:</view>
-          <view class="value">{{
-            serviceDetail.refund_time | unixToDate
+          <view class="value">{{unixToDate(serviceDetail.refund_time)
           }}</view>
         </view>
         <view class="detail-item" v-if="serviceDetail.refund_price !== 0">
           <view class="title">退款方式:</view>
-          <view class="value">{{
-            serviceDetail.refundWay | refundWayFilter
+          <view class="value">{{refundWayFilter(serviceDetail.refundWay)
           }}</view>
         </view>
         <view class="detail-item" v-if="accountShow && serviceDetail.refund_price != 0">
           <view class="title">账户类型:</view>
-          <view class="value">{{
-            serviceDetail.accountType | accountTypeFilter
+          <view class="value">{{accountTypeFilter(serviceDetail.accountType)
           }}</view>
         </view>
         <view class="detail-item" v-if="
@@ -232,10 +226,7 @@ export default {
     this.getAddress();
     this.getLog(options.sn);
   },
-  filters: {
-    /**
-     * 售后状态信息
-     */
+  methods: {
     statusFilter(val) {
       switch (val) {
         case "APPLY":
@@ -264,25 +255,16 @@ export default {
           return "";
       }
     },
-
-    /**
-     * 退款信息
-     */
     refundWayFilter(val) {
       switch (val) {
         case "OFFLINE":
           return "账户退款";
-        case "OFFLINE":
-          return "线下退款";
         case "ORIGINAL":
           return "原路退回";
         default:
           return "";
       }
     },
-    /**
-     * 账户信息
-     */
     accountTypeFilter(val) {
       switch (val) {
         case "WEIXINPAY":
@@ -295,8 +277,6 @@ export default {
           return "";
       }
     },
-  },
-  methods: {
     /**
      * 点击图片放大或保存
      */

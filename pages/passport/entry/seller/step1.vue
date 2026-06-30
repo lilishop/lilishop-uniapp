@@ -116,12 +116,10 @@
           <div>
             <u-upload
               :file-list="licencePhotoFileList"
-              :header="{ accessToken: storage.getAccessToken() }"
-              :action="action"
+              :auto-upload="false"
               width="200"
-              @on-uploaded="onUploaded($event, 'licencePhoto')"
+              @afterRead="onUploadAfterRead($event, 'licencePhoto', 'licencePhotoFileList')"
               :max-count="1"
-              :show-progress="false"
             ></u-upload>
 
             <div class="tips">
@@ -155,21 +153,17 @@
           <div>
             <u-upload
               :file-list="legalPhotoFileList"
-              :header="{ accessToken: storage.getAccessToken() }"
-              :action="action"
+              :auto-upload="false"
               width="200"
-              @on-uploaded="onUploaded($event, 'legalPhoto')"
+              @afterRead="onUploadAfterRead($event, 'legalPhoto', 'legalPhotoFileList')"
               :max-count="1"
-              :show-progress="false"
             ></u-upload>
             <u-upload
-              :file-list="legalPhotoFileList"
-              :header="{ accessToken: storage.getAccessToken() }"
-              :action="action"
+              :file-list="legalPhotoBackFileList"
+              :auto-upload="false"
               width="200"
-              @on-uploaded="onUploaded($event, 'legalPhoto')"
+              @afterRead="onUploadAfterRead($event, 'legalPhoto', 'legalPhotoBackFileList')"
               :max-count="1"
-              :show-progress="false"
             ></u-upload>
           </div>
         </u-form-item>
@@ -192,20 +186,20 @@
 import { applyFirst } from "@/api/entry";
 import city from "@/components/m-city/m-city.vue";
 import storage from "@/utils/storage.js";
-import { upload } from "@/api/common.js";
+import { handleUploadAfterRead, getUploadedUrls } from "@/utils/uploadHelper.js";
 import * as RegExp from "@/utils/RegExp.js";
 export default {
   components: { "m-city": city },
   data() {
     return {
       storage,
-      action: upload, //图片上传数据
       defaultInputStyle: {
         background: "#f7f7f7",
         padding: "0 20rpx",
         "border-radius": "10rpx",
       },
       legalPhotoFileList: [],
+      legalPhotoBackFileList: [],
       licencePhotoFileList: [],
       form: {
         companyName: "",
@@ -316,7 +310,7 @@ export default {
     companyData: {
       handler(val) {
         if (val) {
-          this.$set(this, "form", val);
+          this["form"] = val;
           // 给图片赋值
           const judgeDeepPhoto = ["legalPhoto", "licencePhoto"];
           judgeDeepPhoto.forEach((key) => {
@@ -332,16 +326,20 @@ export default {
     },
   },
   methods: {
-    // 图片上传
-    onUploaded(lists, key) {
-      let images = [];
-      if(!this.form[key]){
+    onUploadAfterRead(event, key, fileListKey) {
+      if (!Array.isArray(this.form[key])) {
         this.form[key] = [];
       }
-      lists.forEach((item) => {
-        images.push(item.response.result);
+      handleUploadAfterRead(event, this[fileListKey], () => {
+        if (key === "legalPhoto") {
+          this.form[key] = [
+            ...getUploadedUrls(this.legalPhotoFileList),
+            ...getUploadedUrls(this.legalPhotoBackFileList),
+          ];
+        } else {
+          this.form[key] = getUploadedUrls(this[fileListKey]);
+        }
       });
-      this.form[key].push(images[0]);
     },
     getPickerParentValue(e) {
       this.form.companyAddressIdPath = [];

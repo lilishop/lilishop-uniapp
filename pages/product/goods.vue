@@ -17,7 +17,7 @@
       :y="navbarListY" placement="top-start" />
     <view class="index">
       <!-- topBar -->
-      <u-navbar :background="navbar" :is-back="false" :class="headerFlag ? 'header' : 'header bg-none scroll-hide'">
+      <u-navbar :bg-color="navbar.background" :auto-back="false" @leftClick="back" :class="headerFlag ? 'header' : 'header bg-none scroll-hide'">
         <div class="headerRow">
           <div class="backs">
             <u-icon @click="back()" name="arrow-left" class="icon-back"></u-icon>
@@ -35,8 +35,8 @@
         </div>
       </u-navbar>
 
-      <u-navbar :border-bottom="false" v-show="!headerFlag" class="header-only-back" :background="navbarOnlyBack"
-        :is-back="false">
+      <u-navbar :border="false" v-show="!headerFlag" class="header-only-back" :bg-color="navbarOnlyBack.background"
+        :auto-back="false" @leftClick="back">
         <div>
           <div class="bg-back">
             <u-icon size="40" @click="back()" name="arrow-left" class="icon-back"></u-icon>
@@ -87,21 +87,21 @@
                     <span>
                       <span v-if="wholesaleList.length">
                         <span>¥</span><span class="price">{{
-                          $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[0]
+                          goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[0]
                         }}</span>.{{
-                          $options.filters.goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[1]
+                          goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[1]
                         }}
                         ~
                         <span>¥</span><span class="price">{{
-                          $options.filters.goodsFormatPrice(wholesaleList[0].price)[0]
+                          goodsFormatPrice(wholesaleList[0].price)[0]
                         }}</span>.{{
-                          $options.filters.goodsFormatPrice(wholesaleList[0].price)[1]
+                          goodsFormatPrice(wholesaleList[0].price)[1]
                         }}
                       </span>
                       <span v-else>
                         <span>¥</span><span class="price">{{
-                          $options.filters.goodsFormatPrice(goodsDetail.price)[0]
-                        }}</span>.{{ $options.filters.goodsFormatPrice(goodsDetail.price)[1] }}
+                          goodsFormatPrice(goodsDetail.price)[0]
+                        }}</span>.{{ goodsFormatPrice(goodsDetail.price)[1] }}
                       </span>
                     </span>
                   </view>
@@ -169,8 +169,7 @@
             <view class="card-flex" @click="shutMask(3)">
               <view class="card-title"> 送至</view>
               <view class="card-content">
-                <span v-if="delivery">{{
-                  delivery.consigneeAddressPath | clearStrComma
+                <span v-if="delivery">{{clearStrComma(delivery.consigneeAddressPath)
                 }}</span>
                 <span v-else>暂无地址信息</span>
               </view>
@@ -199,15 +198,15 @@
       <view class="page-bottom mp-iphonex-bottom" id="pageBottom">
         <view class="icon-btn">
           <view class="icon-btn-item" @click="navigateToStore(goodsDetail.storeId)">
-            <u-icon size="34" class="red" name="home-fill"></u-icon>
+            <u-icon size="22" class="red" name="home-fill"></u-icon>
             <view class="red icon-btn-name">店铺</view>
           </view>
           <view class="icon-btn-item" @click="linkMsgDetail()">
-            <u-icon size="34" name="kefu-ermai"></u-icon>
+            <u-icon size="22" name="kefu-ermai"></u-icon>
             <view class="icon-btn-name">客服</view>
           </view>
           <view class="icon-btn-item" @click="reluchToCart()">
-            <u-icon size="34" name="storeping-cart"></u-icon>
+            <u-icon size="22" name="shopping-cart"></u-icon>
             <view class="icon-btn-name">购物车</view>
             <view v-if="nums && nums > 0" class="num-icon">{{ nums }}</view>
           </view>
@@ -227,11 +226,11 @@
         <!-- 拼团结算 -->
         <view class="detail-btn" v-else-if="isGroup">
           <view class="to-store-car pt-buy to-store-btn" @click="shutMask(4, 'buy')">
-            <view>￥{{ goodsDetail.price | unitPrice }}</view>
+            <view>￥{{unitPrice(goodsDetail.price) }}</view>
             <view>单独购买</view>
           </view>
           <view class="to-buy pt-buy to-store-btn" @click="toAssembleBuyNow">
-            <view>￥{{ goodsDetail.promotionPrice | unitPrice }}</view>
+            <view>￥{{unitPrice(goodsDetail.promotionPrice) }}</view>
             <view>拼团价格</view>
           </view>
         </view>
@@ -239,7 +238,7 @@
       <!-- 规格-模态层弹窗 -->
       <view class="spec">
         <!-- 促销弹窗 -->
-        <u-popup v-model="promotionShow" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius"
+        <u-popup v-model:show="promotionShow" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius"
           @close="promotionShow = false" :mask-close-able="setup.close" closeable>
           <view class="header-title">优惠</view>
           <view class="cuxiao">
@@ -567,7 +566,7 @@ export default {
         // }, 500);
       }
       // 这里是绑定分销员
-      if ((distributionId || this.$store.state.distributionId) && this.$options.filters.isLogin("auth")) {
+      if ((distributionId || this.$store.state.distributionId) && this.isLogin("auth")) {
         let disResult = await getGoodsDistribution(distributionId);
         if (!disResult.data.success || disResult.statusCode == 403) {
           this.$store.state.distributionId = distributionId;
@@ -575,6 +574,10 @@ export default {
       }
       /**商品信息以及规格信息存储 */
       this.goodsDetail = response.data.result.data;
+      // 清洗缩略图，避免损坏地址（如 1?x-oss-process=style/400X400）触发渲染层 500
+      if (this.goodsDetail) {
+        this.goodsDetail.thumbnail = this.parseGoodsImageUrl(this.goodsDetail.thumbnail);
+      }
       this.wholesaleList = response.data.result.wholesaleList;
       this.goodsSpec = response.data.result.specs;
       this.PromotionList = response.data.result.promotionMap;
@@ -593,8 +596,12 @@ export default {
             this.isSeckill = true
           }
         });
-      // 轮播图
-      this.imgList = this.goodsDetail.goodsGalleryList.filter(i => i.indexOf("\"url\":") === -1 && i.indexOf("\"status\":") === -1);
+      // 轮播图：兼容上传 JSON 与纯 URL，解析后去重
+      const gallery = (this.goodsDetail.goodsGalleryList || [])
+        .map((i) => this.parseGoodsImageUrl(i, ""))
+        .filter(Boolean);
+      this.imgList = [...new Set(gallery)];
+
 
       // 获取店铺基本信息
       this.getStoreBaseInfoFun(this.goodsDetail.storeId);
@@ -609,7 +616,7 @@ export default {
       this.getOtherLikeGoods();
       // 获取商品是否已被收藏 如果未登录不获取
 
-      if (this.$options.filters.isLogin("auth")) {
+      if (this.isLogin("auth")) {
         this.getGoodsCollectionFun(this.goodsDetail.id);
       }
       // 获取IM 需要的话使用
@@ -625,7 +632,7 @@ export default {
 
     linkMsgDetail () {
       // lili 基础客服
-      this.$options.filters.talkIm(this.goodsDetail.storeId, this.routerVal.goodsId, this.routerVal.id)
+      this.talkIm(this.goodsDetail.storeId, this.routerVal.goodsId, this.routerVal.id)
       // uni.navigateTo({
       //   url: `/pages/mine/im/index?userId=${this.goodsDetail.storeId}&goodsid=${this.routerVal.goodsId}&skuid=${this.routerVal.id}`
       // });
@@ -741,6 +748,9 @@ export default {
       API_store.getStoreBaseInfo(id).then((res) => {
         if (res.data.success) {
           this.storeDetail = res.data.result;
+          if (this.storeDetail) {
+            this.storeDetail.storeLogo = this.parseGoodsImageUrl(this.storeDetail.storeLogo);
+          }
         }
       });
     },
@@ -781,7 +791,10 @@ export default {
         storeId: this.goodsDetail.storeId,
         recommend: true,
       }).then((res) => {
-        this.recommendList = res.data.result.records;
+        this.recommendList = (res.data.result.records || []).map((item) => ({
+          ...item,
+          thumbnail: this.parseGoodsImageUrl(item.thumbnail),
+        }));
       });
     },
 
@@ -796,7 +809,10 @@ export default {
         currentGoodsId: this.goodsDetail.id,
         keyword: this.goodsDetail.name
       }).then((res) => {
-        this.likeGoodsList = res.data.result.records;
+        this.likeGoodsList = (res.data.result.records || []).map((item) => ({
+          ...item,
+          thumbnail: this.parseGoodsImageUrl(item.thumbnail),
+        }));
       });
     },
 

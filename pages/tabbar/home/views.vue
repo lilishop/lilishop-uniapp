@@ -3,14 +3,26 @@
     <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
     <div v-for="(item, index) in pageData.list" :key="index">
       <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
-      <u-navbar class="navbar" v-if="item.type == 'search'" :is-back="false" :is-fixed="index === 1 ? false : true">
-        <search style="width: 100%" :res="item.options" />
-        <!-- #ifndef H5 -->
-        <!-- 扫码功能 不兼容h5 详情文档: https://uniapp.dcloud.io/api/system/barcode?id=scancode -->
-        <div slot="right" class="navbar-right">
-          <u-icon name="scan" @click="scan()" color="#666" size="50"></u-icon>
-        </div>
-        <!-- #endif -->
+      <u-navbar
+        class="navbar"
+        v-if="item.type == 'search'"
+        :auto-back="false"
+        :fixed="index === 1 ? false : true"
+        :placeholder="index === 1 ? false : true"
+        left-icon=""
+        title=""
+        bg-color="#ffffff"
+      >
+        <template #left>
+          <view class="navbar-search-wrap" :style="searchBarStyle" @click.stop>
+            <search :res="item.options" />
+          </view>
+        </template>
+        <template #right>
+          <view class="navbar-message" :style="messageIconStyle" @click="linkMsgDetail">
+            <image class="message-icon" src="/static/img/title.png" mode="aspectFit"></image>
+          </view>
+        </template>
       </u-navbar>
       <carousel v-if="item.type == 'carousel'" :res="item.options" />
       <titleLayout v-if="item.type == 'title'" :res="item.options" />
@@ -66,6 +78,8 @@ import tpl_notice from "@/pages/tabbar/home/template/tpl_notice"; //标题栏模
 import tpl_promotions from "@/pages/tabbar/home/template/tpl_promotions_detail"; //标题栏模块
 import storage from "@/utils/storage.js";
 import fetchCoupon from '@/pages/tabbar/home/template/fetch_coupon'
+// 与 tpl.scss $home-layout-padding 保持一致
+const HOME_LAYOUT_PADDING_RPX = 16;
 // import {receiveCoupons} from "@/api/members"
 
 export default {
@@ -77,7 +91,29 @@ export default {
       pageData: "", //楼层页面数据
       isIos: "",
       enableLoad: false, //触底加载 针对于商品模块
+      capsuleInsetRight: 0,
+      searchBarWidth: 0,
     };
+  },
+  computed: {
+    messageIconStyle() {
+      if (!this.capsuleInsetRight) {
+        return {};
+      }
+      return {
+        marginRight: `${this.capsuleInsetRight}px`,
+      };
+    },
+    searchBarStyle() {
+      if (this.searchBarWidth) {
+        return {
+          width: `${this.searchBarWidth}px`,
+        };
+      }
+      return {
+        width: '560rpx',
+      };
+    },
   },
   components: {
     carousel: tpl_banner,
@@ -102,6 +138,7 @@ export default {
   },
 
   mounted () {
+    this.setCapsuleInset();
     this.init();
     // #ifdef MP-WEIXIN
     // 小程序默认分享
@@ -110,6 +147,28 @@ export default {
    
   },
   methods: {
+    setCapsuleInset() {
+      // #ifdef MP-WEIXIN
+      try {
+        const menuButton = uni.getMenuButtonBoundingClientRect();
+        const { windowWidth } = uni.getWindowInfo();
+        this.capsuleInsetRight = windowWidth - menuButton.left;
+        const messageWidth = uni.upx2px(20);
+        const leftPadding = uni.upx2px(HOME_LAYOUT_PADDING_RPX);
+        const gap = uni.upx2px(0);
+        this.searchBarWidth =
+          windowWidth - this.capsuleInsetRight - messageWidth - leftPadding - gap;
+      } catch (e) {
+        this.capsuleInsetRight = 90;
+        this.searchBarWidth = 260;
+      }
+      // #endif
+    },
+    linkMsgDetail() {
+      uni.navigateTo({
+        url: "/pages/tabbar/home/title",
+      });
+    },
     fetchCoupon(){
        this.$refs.coupon.firstGetAuto();
     },
@@ -243,7 +302,31 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.navbar-right {
-  padding: 0 16rpx 0 0;
+@import "@/pages/tabbar/home/template/tpl.scss";
+
+.navbar {
+  width: 100%;
+
+  :deep(.u-navbar__content__left) {
+    width: auto !important;
+    padding: 0 0 0 $home-layout-padding !important;
+  }
+}
+
+.navbar-search-wrap {
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.navbar-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-icon {
+  width: 53rpx;
+  height: 53rpx;
+  display: block;
 }
 </style>
