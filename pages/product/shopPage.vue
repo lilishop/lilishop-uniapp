@@ -82,7 +82,13 @@
 
       <!-- 基础店铺模式 -->
       <div v-if="basePageData">
-        <u-tabs :list="tabs" :active-color="mainColor" :is-scroll="false" :current="current" @change="changeTab"></u-tabs>
+        <u-tabs
+          :list="tabs"
+          :lineColor="mainColor"
+          :activeStyle="{ color: mainColor }"
+          :scrollable="false"
+          v-model:current="current"
+        ></u-tabs>
         <div class="content" v-if="current == 0">
           <u-empty style='margin-top:100rpx' v-if="goodsList.length == 0" class="empty" text='暂无商品信息'></u-empty>
           <goodsTemplate style="width:100%;" v-else :res="goodsList" :storeName="false" />
@@ -394,11 +400,6 @@ export default {
       uni.navigateTo({
         url: `/pages/navigation/search/searchPage?storeId=${this.storeId}&keyword=${this.keyword}`,
       });
-    },
-
-    /** 点击tab */
-    changeTab(index) {
-      this.current = index;
     },
 
     /**

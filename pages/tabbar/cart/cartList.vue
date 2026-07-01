@@ -17,7 +17,7 @@
       <image src="/static/emptyCart.png" mode="aspectFit"></image>
       <view class="empty-tips">
         空空如也
-        <navigator class="navigator" url="/pages/tabbar/home/index" open-type="switchTab">随便逛逛></navigator>
+        <navigator class="navigator" url="/pages/tabbar/home/index" open-type="switchTab">随便逛逛</navigator>
       </view>
     </view>
     <!-- 店铺商品信息 -->

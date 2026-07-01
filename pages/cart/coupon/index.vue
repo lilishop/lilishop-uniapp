@@ -1,15 +1,12 @@
 <template>
   <div class="wrapper">
     <u-tabs
+      class="coupon-tabs"
       :list="list"
-      :is-scroll="false"
-      :active-color="lightColor"
-      :current="current"
-      @change="
-        (i) => {
-          current = i;
-        }
-      "
+      :scrollable="false"
+      :lineColor="lightColor"
+      :activeStyle="{ color: lightColor }"
+      v-model:current="current"
     >
     </u-tabs>
 
@@ -160,6 +157,11 @@ export default {
 .wrapper {
   background: #f9f9f9;
   overflow: hidden;
+
+  .coupon-tabs {
+    width: 100%;
+    background: #fff;
+  }
 }
 .coupon-item {
   display: flex;

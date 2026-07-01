@@ -2,10 +2,10 @@
   <view class="wrapper">
     <u-tabs
       :list="list"
-      :is-scroll="false"
-      :current="current"
-      @change="change"
-      :active-color="$lightColor"
+      :scrollable="false"
+      v-model:current="current"
+      :lineColor="lightColor"
+      :activeStyle="{ color: lightColor }"
     ></u-tabs>
 
   
@@ -53,6 +53,7 @@ export default {
   data() {
     return {
       current:0,
+      lightColor: this.$lightColor,
       list: [
         {
           name: "推广人资料",

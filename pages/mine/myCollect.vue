@@ -10,12 +10,12 @@
 			<template #center>
 				<view class="slot-wrap">
 					<u-tabs
-						:active-color="lightColor"
+						:lineColor="lightColor"
+						:activeStyle="{ color: lightColor }"
 						class="collect-tabs"
 						:list="navList"
-						:is-scroll="true"
-						:current="tabCurrentIndex"
-						@change="tabClick"
+						:scrollable="true"
+						v-model:current="tabCurrentIndex"
 					></u-tabs>
 				</view>
 			</template>
@@ -204,13 +204,6 @@
 						this.getStoreList();
 					}
 				});
-			},
-
-			/**
-			 * 顶部tab点击
-			 */
-			tabClick(index) {
-				this.tabCurrentIndex = index;
 			},
 
 			/**

@@ -461,34 +461,7 @@ export default {
     },
   },
   mounted () {
-    const { windowHeight } = uni.getSystemInfoSync();
-    let bottomHeight = 0;
-    let topHeight = 0;
-    uni.getSystemInfo({
-      success: function (res) {
-        // res - 各种参数
-        let bottom = uni.createSelectorQuery().select(".page-bottom");
-        bottom
-          .boundingClientRect(function (data) {
-            if (data && data.height) {
-              //data - 各种参数
-              bottomHeight = data.height; // 获取元素宽度
-            }
-          })
-          .exec();
-        let top = uni.createSelectorQuery().select(".header");
-        top
-          .boundingClientRect(function (data) {
-            if (data && data.height) {
-              //data - 各种参数
-              topHeight = data.height; // 获取元素宽度
-            }
-          })
-          .exec();
-      },
-    });
-
-    this.productRefHeight = windowHeight - bottomHeight + "px";
+    this.calcProductHeight();
   },
   async onLoad (options) {
     this.routerVal = options;
@@ -516,6 +489,19 @@ export default {
   },
 
   methods: {
+    calcProductHeight () {
+      this.$nextTick(() => {
+        const { windowHeight } = uni.getWindowInfo();
+        uni.createSelectorQuery()
+          .in(this)
+          .select('#pageBottom')
+          .boundingClientRect((data) => {
+            const bottomHeight = data && data.height ? data.height : 0;
+            this.productRefHeight = `${windowHeight - bottomHeight}px`;
+          })
+          .exec();
+      });
+    },
     // 重新打开下架
     reStartTakeDownSale(){
       this.$refs.takeDownSale.show = true

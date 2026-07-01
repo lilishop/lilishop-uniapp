@@ -2,12 +2,12 @@
   <view class="content">
     <view class="u-tabs-box">
       <u-tabs
-        bg-color="#fff"
         :list="list"
-        :is-scroll="false"
-        :current="current"
+        :scrollable="false"
+        v-model:current="current"
         @change="change"
-        :active-color="$lightColor"
+        :lineColor="$lightColor"
+        :activeStyle="{ color: $lightColor }"
       ></u-tabs>
     </view>
     <div class="u-tabs-search">
@@ -272,7 +272,8 @@ export default {
     /**
      * 切换tab页时，初始化数据
      */
-    change(index) {
+    change(e) {
+      const index = typeof e === 'object' && e != null ? e.index : e;
       this.current = index;
       this.params = {
         pageNumber: 1,

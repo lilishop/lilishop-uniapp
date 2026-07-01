@@ -1,7 +1,12 @@
 <template>
 	<view>
 		<view>
-			<u-tabs :list="list" :is-scroll="false" :current="current" @change="change"></u-tabs>
+			<u-tabs
+				:list="list"
+				:scrollable="false"
+				v-model:current="current"
+				@change="change"
+			></u-tabs>
 			<view v-if="showLoading" style="width:500rpx;margin:0 auto;text-align: center;height:800rpx;line-height: 800rpx;">
 				<u-loading mode="flower" ></u-loading>
 				<text>正在加载中</text>
@@ -136,13 +141,13 @@
 				}
 			},
 			change(e) {
+				const index = typeof e === 'object' && e != null ? e.index : e;
 				this.showLoading = true;
-				console.log(e)
-				this.current = e;
-				if (e == 0) {
+				this.current = index;
+				if (index == 0) {
 					this.params.status = "UN_READY"
 					this.params.pageNumber = 1;
-				} else if (e == 1) {
+				} else if (index == 1) {
 					this.params.status = "ALREADY_READY"
 					this.params.pageNumber = 1;
 				}

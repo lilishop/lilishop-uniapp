@@ -263,18 +263,85 @@ index 1ca7595..b1e4a3e 100644
 + * 原有 page/body 标签选择器与 [data-up-theme] 属性选择器，
 + * 在微信小程序组件级 wxss 中不被允许，会触发编译告警，故移除。 */
 diff --git a/node_modules/uview-plus/components/u-tabs/u-tabs.vue b/node_modules/uview-plus/components/u-tabs/u-tabs.vue
-index 46caac2..5736483 100644
+index 46caac2..0989e2e 100644
 --- a/node_modules/uview-plus/components/u-tabs/u-tabs.vue
 +++ b/node_modules/uview-plus/components/u-tabs/u-tabs.vue
-@@ -3,7 +3,7 @@
+@@ -1,11 +1,11 @@
+ <template>
+-	<view class="u-tabs" :class="[customClass, shapeModeClass]">
++	<view class="u-tabs" :class="[customClass, shapeModeClass, scrollable ? '' : 'u-tabs--fixed']">
  		<view class="u-tabs__wrapper">
  			<slot name="left" />
  			<view class="u-tabs__wrapper__scroll-view-wrapper">
 -				<scroll-view :scroll-x="scrollable" :scroll-left="scrollLeft" scroll-with-animation
 +				<scroll-view :scroll-x="scrollable" :scroll-left="scrollLeft" scroll-with-animation :enable-flex="true"
  					class="u-tabs__wrapper__scroll-view" :show-scrollbar="false" ref="u-tabs__wrapper__scroll-view">
- 					<view class="u-tabs__wrapper__nav" ref="u-tabs__wrapper__nav">
+-					<view class="u-tabs__wrapper__nav" ref="u-tabs__wrapper__nav">
++					<view class="u-tabs__wrapper__nav" ref="u-tabs__wrapper__nav" :style="[!scrollable && { width: '100%' }]">
  						<view class="u-tabs__wrapper__nav__item" v-for="(item, index) in tabList" :key="index"
+ 							@tap="clickHandler(item, index)" @longpress="longPressHandler(item,index)"
+ 							:ref="`u-tabs__wrapper__nav__item-${index}`"
+@@ -236,7 +236,7 @@
+ 			addUnit,
+ 			setLineLeft() {
+ 				const tabItem = this.tabList[this.innerCurrent];
+-				if (!tabItem) {
++				if (!tabItem || !tabItem.rect) {
+ 					return;
+ 				}
+ 				// 获取滑块该移动的位置
+@@ -300,16 +300,22 @@
+ 				})
+ 			},
+ 			setScrollLeft() {
++				if (!this.scrollable) {
++					return;
++				}
+ 				// 当前活动tab的布局信息，有tab菜单的width和left(为元素左边界到父元素左边界的距离)等信息
+ 				if (this.innerCurrent < 0) {
+ 					this.innerCurrent = 0;
+ 				}
+ 				const tabRect = this.tabList[this.innerCurrent]
++				if (!tabRect || !tabRect.rect) {
++					return;
++				}
+ 				// 累加得到当前item到左边的距离
+ 				const offsetLeft = this.tabList
+ 					.slice(0, this.innerCurrent)
+ 					.reduce((total, curr) => {
+-						return total + curr.rect.width
++						return total + (curr.rect ? curr.rect.width : 0)
+ 					}, 0)
+ 				// 此处为屏幕宽度
+ 				const windowWidth = getWindowInfo().windowWidth
+@@ -550,5 +556,27 @@
+ 				background-color: #2a6bf6;
+ 			}
+ 		}
++
++		&--fixed {
++			width: 100%;
++
++			.u-tabs__wrapper {
++				width: 100%;
++			}
++
++			.u-tabs__wrapper__scroll-view-wrapper,
++			.u-tabs__wrapper__scroll-view {
++				width: 100%;
++			}
++
++			.u-tabs__wrapper__nav {
++				width: 100%;
++			}
++
++			.u-tabs__wrapper__nav__item {
++				flex: 1 !important;
++				min-width: 0;
++			}
++		}
+ 	}
+ </style>
 diff --git a/node_modules/uview-plus/components/u-tag/theme-vars.scss b/node_modules/uview-plus/components/u-tag/theme-vars.scss
 index bf38484..b1e4a3e 100644
 --- a/node_modules/uview-plus/components/u-tag/theme-vars.scss

@@ -10,9 +10,7 @@ import * as filterUtils from './utils/filters.js'
 export function createApp() {
   const app = createSSRApp(App)
 
-  // #ifdef MP-WEIXIN
-  // 微信开发者工具部分版本在输出 Vue warn 时会触发
-  // TypeError: Cannot read property '__global' of null，自定义 handler 绕过默认路径
+  // uview-plus 内部会触发 Vue3 开发态告警（枚举组件实例 keys），不影响运行
   app.config.warnHandler = (msg, _instance, trace) => {
     if (
       typeof msg === 'string' &&
@@ -23,10 +21,12 @@ export function createApp() {
     try {
       console.warn(`[Vue warn]: ${msg}${trace || ''}`)
     } catch (e) {
-      // 忽略开发者工具 console 代理异常
+      // #ifdef MP-WEIXIN
+      // 微信开发者工具部分版本在输出 Vue warn 时会触发
+      // TypeError: Cannot read property '__global' of null
+      // #endif
     }
   }
-  // #endif
 
   app.use(store)
   app.use(uviewPlus)

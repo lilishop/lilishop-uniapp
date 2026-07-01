@@ -219,14 +219,14 @@
           </u-col>
         </u-row>
         <u-row>
-          <u-col :offset="0" :span="4" class="tl" style="text-align: left"
-            >备注信息</u-col
-          >
-          <u-col :span="8" textAlign="right">
+          <u-col :offset="0" :span="4" class="tl">备注信息</u-col>
+          <u-col :span="8" textAlign="right" class="remark-col">
             <u-input
-              style="text-align: right"
               class="uinput"
               v-model="remarkVal[index].remark"
+              border="none"
+              input-align="right"
+              placeholder="请输入备注信息"
             />
           </u-col>
         </u-row>
@@ -239,12 +239,15 @@
       @callbackInvoice="callbackInvoice"
       v-if="invoiceFlag"
     />
-    <u-select
-      @confirm="confirmDistribution"
+    <u-picker
       v-model:show="shippingFlag"
       v-if="shippingMethod.length != 0"
-      :list="shippingMethod"
-    ></u-select>
+      :columns="[shippingMethod]"
+      keyName="label"
+      valueName="value"
+      title="配送方式"
+      @confirm="confirmDistribution"
+    ></u-picker>
 
     <div class="box box5" v-if="orderMessage.priceDetailDTO">
       <div>
@@ -284,9 +287,9 @@
           orderMessage.priceDetailDTO.goodsPrice != null
         "
       >
-        <u-col :offset="0" :span="9" @click="GET_Discount()">优惠券</u-col>
+        <u-col :offset="0" :span="8" @click="GET_Discount()">优惠券</u-col>
         <u-col
-          :span="3"
+          :span="4"
           v-if="
             orderMessage.priceDetailDTO &&
             orderMessage.priceDetailDTO.couponPrice
@@ -299,9 +302,11 @@
           >
         </u-col>
         <!--unitPrice(orderMessage.priceDetailDTO.couponPrice)  -->
-        <u-col :span="3" v-else textAlign="right" @click="GET_Discount()">
-          {{ orderMessage.canUseCoupons.length || "0" }} 张可用
-          <u-icon name="arrow-right"></u-icon>
+        <u-col :span="4" v-else textAlign="right" class="coupon-col" @click="GET_Discount()">
+          <view class="coupon-col__content">
+            <text>{{ orderMessage.canUseCoupons.length || "0" }} 张可用</text>
+            <u-icon name="arrow-right" size="14" color="#909399"></u-icon>
+          </view>
         </u-col>
       </u-row>
       <div>
@@ -759,12 +764,16 @@ export default {
 
     // 选择配送
     async confirmDistribution(val) {
+      const selected = val?.value?.[0] || val?.[0];
+      if (!selected?.value) {
+        return;
+      }
       let res = await API_Trade.setShipMethod({
-        shippingMethod: val[0].value,
+        shippingMethod: selected.value,
         way: this.routerVal.way,
       });
 
-      this.shippingText = val[0].value;
+      this.shippingText = selected.value;
       if (res.data.success) {
         this.getOrderList();
       }
@@ -868,9 +877,21 @@ page {
 }
 
 .uinput {
-  ::v-deep input {
-    text-align: right;
+  width: 100%;
+
+  ::v-deep .u-input {
+    width: 100%;
   }
+
+  ::v-deep .u-input__content__field-wrapper__field {
+    text-align: right;
+    font-size: 28rpx;
+  }
+}
+
+.remark-col {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .promotionNotice {
@@ -965,6 +986,15 @@ page {
 
 ::v-deep .u-col-3 {
   text-align: right;
+}
+
+.coupon-col__content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 4rpx;
+  white-space: nowrap;
 }
 
 .bar {

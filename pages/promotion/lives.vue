@@ -9,7 +9,16 @@
     <u-swiper @click="clickSwiper" class="swiper" keyName="image" :list="swiperImg">
 
     </u-swiper>
-    <u-tabs :is-scroll="false" @change="changeTabs" :current="current" :active-color="activeColor" inactive-color="#606266" ref="tabs" :list="tabs"></u-tabs>
+    <u-tabs
+      :scrollable="false"
+      v-model:current="current"
+      @change="changeTabs"
+      :lineColor="activeColor"
+      :activeStyle="{ color: activeColor }"
+      :inactiveStyle="{ color: '#606266' }"
+      ref="tabs"
+      :list="tabs"
+    ></u-tabs>
 
     <div class="wrapper">
       <!-- 直播中 全部 直播回放 -->
@@ -114,8 +123,7 @@ export default {
     /**
      * 点击标签栏切换
      */
-    changeTabs(index) {
-      this.current = index;
+    changeTabs() {
       this.init();
     },
 

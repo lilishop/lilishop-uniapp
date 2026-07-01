@@ -2,8 +2,15 @@
   <view>
     <view class="wrap">
       <view class="u-tabs-box">
-        <u-tabs :list="list" :is-scroll="false" inactive-color="#333" :current="current" class="utabs"
-          :active-color="$lightColor" @change="changeTab"></u-tabs>
+        <u-tabs
+          :list="list"
+          :scrollable="false"
+          :inactiveStyle="{ color: '#333' }"
+          v-model:current="current"
+          class="utabs"
+          :lineColor="$lightColor"
+          :activeStyle="{ color: $lightColor }"
+        ></u-tabs>
       </view>
       <swiper class="swiper-box" :current="current" @change="changeSwiper" duration="500">
         <swiper-item v-for="(item, listIndex) in list" :key="listIndex">
@@ -181,13 +188,6 @@ export default {
           fail: function (err) {},
         },
       });
-    },
-
-    /**
-     * 点击tab触发
-     */
-    changeTab(index) {
-      this.current = index;
     },
 
     /**

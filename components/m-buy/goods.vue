@@ -415,8 +415,6 @@ export default {
 
 	mounted() {
 		this.formatSku(this.goodsSpec);
-
-		console.log("goodsDetail",this.goodsDetail)
 	}
 };
 </script>
@@ -437,9 +435,9 @@ export default {
 	box-shadow: 0 2px 6px 0 rgba(255, 65, 66, 0.2);
 }
 
-::v-deep.u-icon-plus,
-.u-icon-minus,
-.u-icon-disabled {
+::v-deep .u-icon-plus,
+::v-deep .u-icon-minus,
+::v-deep .u-icon-disabled {
 	height: 30rpx !important;
 	background: #fff !important;
 }
@@ -541,7 +539,7 @@ export default {
 	color: #999;
 	margin-left: 10rpx;
 
-	::v-deep span {
+	.goods-price-bigshow {
 		font-size: 30rpx;
 	}
 }

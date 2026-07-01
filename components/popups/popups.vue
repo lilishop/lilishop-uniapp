@@ -79,20 +79,15 @@ export default {
       this.$emit("input", !this.value);
     },
     getStatusBar() {
-      let promise = new Promise((resolve, reject) => {
-        uni.getSystemInfo({
-          success: function (e) {
-            let customBar;
-            // #ifdef H5
-
-            customBar = e.statusBarHeight + e.windowTop;
-
-            // #endif
-            resolve(customBar);
-          },
-        });
-      });
-      return promise;
+      const windowInfo = uni.getWindowInfo();
+      // #ifdef H5
+      return Promise.resolve(
+        (windowInfo.statusBarHeight || 0) + (windowInfo.windowTop || 0)
+      );
+      // #endif
+      // #ifndef H5
+      return Promise.resolve(windowInfo.statusBarHeight || 0);
+      // #endif
     },
     async popupsPosition() {
       let statusBar = await this.getStatusBar();
@@ -104,6 +99,10 @@ export default {
               size: true,
             },
             (data) => {
+              if (!data) {
+                resolve();
+                return;
+              }
               let width = data.width;
               let height = data.height;
 
@@ -154,8 +153,7 @@ export default {
       return promise;
     },
     getPlacement(x, y) {
-      let width = uni.getSystemInfoSync().windowWidth;
-      let height = uni.getSystemInfoSync().windowHeight;
+      const { windowWidth: width, windowHeight: height } = uni.getWindowInfo();
       if (x > width / 2 && y > height / 2) {
         return "bottom-end";
       } else if (x < width / 2 && y < height / 2) {
@@ -171,20 +169,21 @@ export default {
       }
     },
     dynamicGetY(y, gap) {
-      let height = uni.getSystemInfoSync().windowHeight;
+      const { windowHeight: height } = uni.getWindowInfo();
       y = y < gap ? gap : y;
       y = height - y < gap ? height - gap : y;
 
       return y;
     },
     dynamicGetX(x, gap) {
-      let width = uni.getSystemInfoSync().windowWidth;
+      const { windowWidth: width } = uni.getWindowInfo();
       x = x < gap ? gap : x;
       x = width - x < gap ? width - gap : x;
       return x;
     },
     transformRpx(params) {
-      return (params * uni.getSystemInfoSync().screenWidth) / 375;
+      const { screenWidth } = uni.getWindowInfo();
+      return (params * screenWidth) / 375;
     },
   },
   watch: {
