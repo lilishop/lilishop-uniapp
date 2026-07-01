@@ -1,6 +1,12 @@
 <template>
   <view class="container">
-    <u-navbar title="扫码登录授权"></u-navbar>
+    <u-navbar
+      title="扫码登录授权"
+      :fixed="true"
+      :placeholder="true"
+      :border="false"
+      :auto-back="true"
+    ></u-navbar>
     <view class="wx-auth-container">
       <div class="box">
         <!-- <div v-if="!errorMsg"> -->

@@ -95,6 +95,30 @@ index ed4c8ea..b1e4a3e 100644
 +/* 主题变量改由组件 JS 的 upThemeVar 默认值兜底。
 + * 原有 page/body 标签选择器与 [data-up-theme] 属性选择器，
 + * 在微信小程序组件级 wxss 中不被允许，会触发编译告警，故移除。 */
+diff --git a/node_modules/uview-plus/components/u-parse/node/node.vue b/node_modules/uview-plus/components/u-parse/node/node.vue
+index 8e971c0..8b7c893 100644
+--- a/node_modules/uview-plus/components/u-parse/node/node.vue
++++ b/node_modules/uview-plus/components/u-parse/node/node.vue
+@@ -124,10 +124,18 @@ export default {
+     // #endif
+   },
+   data () {
++    let isiOS = false
++    // #ifdef MP-WEIXIN
++    if (uni.canIUse('getDeviceInfo')) {
++      isiOS = uni.getDeviceInfo().system.includes('iOS')
++    } else {
++      isiOS = uni.getSystemInfoSync().system.includes('iOS')
++    }
++    // #endif
+     return {
+       ctrl: {},
+       // #ifdef MP-WEIXIN
+-      isiOS: uni.getSystemInfoSync().system.includes('iOS')
++      isiOS
+       // #endif
+     }
+   },
 diff --git a/node_modules/uview-plus/components/u-popup/u-popup.vue b/node_modules/uview-plus/components/u-popup/u-popup.vue
 index e06f46e..2557244 100644
 --- a/node_modules/uview-plus/components/u-popup/u-popup.vue

@@ -1,6 +1,14 @@
 <template>
   <view class="wrapper">
-    <u-navbar class="my-title" title-size="32" :title="toUser.name"></u-navbar>
+    <u-navbar
+      class="my-title"
+      title-size="32"
+      :title="toUser.name"
+      :fixed="true"
+      :placeholder="true"
+      :border="false"
+      :auto-back="true"
+    ></u-navbar>
     <!-- 空盒子用来防止消息过少时 拉起键盘会遮盖消息 -->
     <view :animation="anData" style="height:0;">
     </view>

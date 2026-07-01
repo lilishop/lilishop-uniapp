@@ -1,69 +1,75 @@
 <template>
   <view class="wap">
-    <u-navbar  title="预存款列表">
-    </u-navbar>
+    <u-navbar
+      title="预存款列表"
+      :fixed="true"
+      :placeholder="true"
+      :border="false"
+      :auto-back="true"
+    ></u-navbar>
+
     <view class="wrapper-show-money">
       <view class="money-view">
-        <h3>预存款金额 </h3>
-        <view class="money">￥{{unitPrice(walletNum) }}</view>
-
+        <text class="money-label">预存款金额</text>
+        <text class="money">￥{{ unitPrice(walletNum) }}</text>
       </view>
     </view>
-    <view class="wrapper-tabs">
 
-      <swiper class="swiper-box"  :current="swiperCurrent">
+    <view class="wrapper-tabs">
+      <swiper class="swiper-box" :current="swiperCurrent">
         <swiper-item class="swiper-item" v-for="index in list.length" :key="index">
-          <scroll-view class="scroll-v view-wrapper" enableBackToTop="true" scroll-with-animation scroll-y @scrolltolower="loadMore">
-            <view v-if="depositData.length!=0" class="view-item" v-for="(logItem, logIndex) in depositData" :key="logIndex">
-              <view class="view-item-detail">
-                <view class="-title">{{logItem.detail}}</view>
-                <!-- <view class="-number">{{logItem.detail}}</view> -->
-              </view>
-              <view class="view-item-change">
-                <view class="-money green" v-if="logItem.serviceType == 'WALLET_PAY' || logItem.serviceType == 'WALLET_WITHDRAWAL'"> {{unitPrice(logItem.money)}} </view>
-                <view class="-money" v-if="logItem.serviceType == 'WALLET_REFUND' || logItem.serviceType == 'WALLET_RECHARGE' || logItem.serviceType == 'WALLET_COMMISSION' ">
-                  +{{unitPrice(logItem.money)}} </view>
-                <view class="-time">{{logItem.createTime}}</view>
+          <scroll-view
+            class="scroll-v view-wrapper"
+            enable-back-to-top
+            scroll-with-animation
+            scroll-y
+            @scrolltolower="loadMore"
+          >
+            <view v-if="depositData.length != 0" class="list-card">
+              <view
+                class="view-item"
+                v-for="(logItem, logIndex) in depositData"
+                :key="logIndex"
+              >
+                <view class="view-item-detail">
+                  <text class="item-title">{{ logItem.detail }}</text>
+                </view>
+                <view class="view-item-change">
+                  <text
+                    class="item-money"
+                    :class="getMoneyClass(logItem.serviceType)"
+                  >{{ formatLogMoney(logItem) }}</text>
+                  <text class="item-time">{{ logItem.createTime }}</text>
+                </view>
               </view>
             </view>
 
-            <u-empty v-if="depositData.length==0" mode="history" text="暂无记录" />
-      
+            <u-empty v-if="depositData.length == 0" mode="history" text="暂无记录" />
           </scroll-view>
-
         </swiper-item>
-
       </swiper>
     </view>
   </view>
 </template>
 
 <script>
-import { getUserRecharge, getWalletLog } from "@/api/members";
-import { getUserWallet } from "@/api/members";
+import { getUserRecharge, getWalletLog, getUserWallet } from "@/api/members";
 export default {
   data() {
     return {
       walletNum: 0,
       current: 0,
       swiperCurrent: 0,
-      userInfo: "", //用户详情信息
+      userInfo: "",
       params: {
         pageNumber: 1,
         pageSize: 10,
         order: "desc",
       },
-      depositData: [], //遍历的数据集合
-      rechargeList: "", //充值明细列表
-      walletLogList: "", //钱包变动列表
-      list: [
-        // {
-        //   name: "充值明细",
-        // },
-        {
-          name: "预存款变动明细",
-        },
-      ],
+      depositData: [],
+      rechargeList: "",
+      walletLogList: "",
+      list: [{ name: "预存款变动明细" }],
     };
   },
   watch: {
@@ -73,47 +79,51 @@ export default {
   },
   async mounted() {
     this.getWallet();
-    let result = await getUserWallet(); //预存款
-
+    const result = await getUserWallet();
     this.walletNum = result.data.result.memberWallet;
   },
   methods: {
-   
-    /**分页获取预存款充值记录 */
+    isOutgoing(serviceType) {
+      return serviceType === "WALLET_PAY" || serviceType === "WALLET_WITHDRAWAL";
+    },
+    isIncoming(serviceType) {
+      return (
+        serviceType === "WALLET_REFUND" ||
+        serviceType === "WALLET_RECHARGE" ||
+        serviceType === "WALLET_COMMISSION"
+      );
+    },
+    getMoneyClass(serviceType) {
+      if (this.isOutgoing(serviceType)) return "out";
+      if (this.isIncoming(serviceType)) return "in";
+      return "";
+    },
+    formatLogMoney(logItem) {
+      const amount = this.unitPrice(logItem.money);
+      if (this.isOutgoing(logItem.serviceType)) return `-${amount}`;
+      if (this.isIncoming(logItem.serviceType)) return `+${amount}`;
+      return amount;
+    },
     getRecharge() {
       getUserRecharge(this.params).then((res) => {
-        if (res.data.success) {
-          if (res.data.result.records.length != 0) {
-            this.depositData.push(...res.data.result.records);
-          }
+        if (res.data.success && res.data.result.records.length) {
+          this.depositData.push(...res.data.result.records);
         }
       });
     },
-
     getWallet() {
-    
       getWalletLog(this.params).then((res) => {
-        if (res.data.success) {
-          if (res.data.result.records.length != 0) {
-            this.depositData.push(...res.data.result.records);
-          }
+        if (res.data.success && res.data.result.records.length) {
+          this.depositData.push(...res.data.result.records);
         }
       });
     },
-
-  
     changed(index) {
       this.depositData = [];
       this.swiperCurrent = index;
       this.params.pageNumber = 1;
-      if (index == 0) {
-        // this.getRecharge();
-        this.getWallet();
-      } else {
-        this.getWallet();
-      }
+      this.getWallet();
     },
-
     loadMore() {
       this.params.pageNumber++;
       this.getWallet();
@@ -123,97 +133,123 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.green {
-    color: $aider-color-green !important;
+.wap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+}
+
+.wrapper-show-money {
+  flex-shrink: 0;
+  height: 200rpx;
+}
+
+.money-view {
+  height: 100%;
+  padding: 32rpx 40rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  color: #fff;
+  background-image: linear-gradient(
+    25deg,
+    $main-color,
+    $light-color,
+    $aider-light-color
+  );
+}
+
+.money-label {
+  font-size: 28rpx;
+  opacity: 0.95;
+}
+
+.money {
+  margin-top: 12rpx;
+  max-width: 100%;
+  font-size: 56rpx;
+  font-weight: 600;
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+.wrapper-tabs {
+  flex: 1;
+  min-height: 0;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.swiper-box,
+.swiper-item,
+.scroll-v {
+  height: 100%;
+}
+
+.list-card {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.view-item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+  border-bottom: 1px solid #f5f5f5;
+
+  &:last-child {
+    border-bottom: none;
   }
-  .view-item {
-    padding: 32rpx;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+}
+
+.view-item-detail {
+  flex: 1;
+  min-width: 0;
+  padding-right: 24rpx;
+}
+
+.item-title {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.view-item-change {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: center;
+  text-align: right;
+}
+
+.item-money {
+  font-size: 34rpx;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+
+  &.in {
+    color: $aider-color-green;
   }
-  .view-item-change {
-    text-align: right;
-    > .-money {
-      font-size: 36rpx;
-      color: $main-color;
-      font-weight: bold;
-    }
-    > .-time {
-      font-size: 22rpx;
-      color: #999;
-    }
+
+  &.out {
+    color: #ff5a5f;
   }
-  .view-item-detail {
-    line-height: 1.75;
-    > .-title {
-      font-size: 28rpx;
-    }
-    > .-number {
-      font-size: 22rpx;
-      color: #999;
-    }
-  }
-  .submit-btn {
-    line-height: 90rpx;
-    text-align: center;
-  
-    color: #fff;
-    background: $main-color;
-  
-    margin: 0 auto;
-    height: 90rpx;
-  }
-  
-  .operation {
-    font-size: 32rpx;
-    margin-right: 24rpx;
-    color: rgb(96, 98, 102);
-  }
-  .money {
-    font-size: 40rpx;
-    font-weight: bold;
-  }
-  
-  .money-view {
-    height: 100%;
-    width: 100%;
-    padding: 0 32rpx;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    flex-direction: column;
-    color: #fff;
-    background-image: linear-gradient(
-      25deg,
-      $main-color,
-      $light-color,
-      $aider-light-color
-    );
-  }
-  
-  .swiper-item,
-  .scroll-v {
-    height: 100%;
-  }
-  
-  .swiper-box {
-    /* #ifndef H5 */
-    height: calc(100vh - 200rpx);
-    /* #endif */
-  
-    /* #ifdef H5 */
-    height: calc(100vh - 288rpx);
-    /* #endif */
-  }
-  
-  .wap {
-    width: 100%;
-    height: calc(100vh - 44px);
-  }
-  
-  .wrapper-show-money {
-    height: 200rpx;
-    // background-image: url('/static/img/main-bg.jpg');
-  }
+}
+
+.item-time {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.3;
+  white-space: nowrap;
+}
 </style>

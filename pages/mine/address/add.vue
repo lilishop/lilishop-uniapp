@@ -1,40 +1,79 @@
 <template>
   <view class="add-address">
-    <div class="uForm">
-      <u-form :border-bottom="false" :model="form" ref="uForm" error-type="toast" :rules="rules">
-				<!-- #ifndef H5 -->
-        <view class="selectAddress" @click="clickUniMap">
-          选择收货地址
+    <u-form :model="form" ref="uForm" error-type="toast" :rules="rules">
+      <u-form-item label="收货人" label-width="130" prop="name" :border-bottom="true">
+        <u-input
+          v-model="form.name"
+          border="none"
+          input-align="right"
+          clearable
+          placeholder="请输入收货人姓名"
+        />
+      </u-form-item>
+
+      <u-form-item label="手机号码" label-width="130" prop="mobile" :border-bottom="true">
+        <u-input
+          v-model="form.mobile"
+          type="number"
+          maxlength="11"
+          border="none"
+          input-align="right"
+          placeholder="请输入收货人手机号码"
+        />
+      </u-form-item>
+
+      <u-form-item label="所在区域" label-width="130" prop="___path" :border-bottom="true">
+        <view class="form-value" @click="showPicker">
+          {{ form.___path || '请选择所在地区' }}
         </view>
-				<!-- #endif -->
-        <u-form-item class="border" label="收货人" label-width="130" prop="name">
-          <u-input v-model="form.name" clearable placeholder="请输入收货人姓名" />
-        </u-form-item>
+        <template #right>
+          <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
+        </template>
+      </u-form-item>
 
-        <u-form-item label="手机号码" label-width="130" prop="mobile">
-          <u-input v-model="form.mobile" type="number" maxlength="11" placeholder="请输入收货人手机号码" />
-        </u-form-item>
-        <u-form-item label="所在区域" label-width="130" prop="___path">
-          <div  @click="showPicker" >
-            {{ form.___path || '请选择所在地区' }}
-          </div>
-        </u-form-item>
-        <u-form-item class="detailAddress" label="详细地址" label-width="130" prop="detail">
-          <u-input type="textarea" v-model="form.detail" maxlength="100" height="150" placeholder="街道楼牌号等" />
-        </u-form-item>
-        <u-form-item label="地址别名" label-width="130">
-          <u-input v-model="form.alias" placeholder="请输入地址别名" />
-        </u-form-item>
-        <u-checkbox usedAlone shape="circle" size="30" :active-color="lightColor" v-model:checked="form.isDefault" label="设为默认地址"></u-checkbox>
+      <u-form-item class="detailAddress" label="详细地址" label-width="130" prop="detail" :border-bottom="true">
+        <u-input
+          type="textarea"
+          v-model="form.detail"
+          maxlength="100"
+          height="150"
+          border="none"
+          placeholder="街道楼牌号等"
+        />
+      </u-form-item>
 
-        <div class="saveBtn" @click="save">保存</div>
-      </u-form>
+      <u-form-item label="地址别名" label-width="130" :border-bottom="false">
+        <u-input
+          v-model="form.alias"
+          border="none"
+          input-align="right"
+          placeholder="请输入地址别名"
+        />
+      </u-form-item>
 
-      <m-city :provinceData="list" headTitle="区域选择" ref="cityPicker" @funcValue="getpickerParentValue" pickerSize="4">
-      </m-city>
+      <view class="default-row">
+        <u-checkbox
+          usedAlone
+          shape="circle"
+          size="30"
+          :active-color="lightColor"
+          v-model:checked="form.isDefault"
+          label="设为默认地址"
+        ></u-checkbox>
+      </view>
 
-      <uniMap v-if="mapFlag" @close="closeMap" @callback="callBackAddress" />
-    </div>
+      <view class="saveBtn" @click="save">保存</view>
+    </u-form>
+
+    <m-city
+      :provinceData="list"
+      headTitle="区域选择"
+      ref="cityPicker"
+      @funcValue="getpickerParentValue"
+      pickerSize="4"
+    ></m-city>
+
+    <uniMap v-if="mapFlag" @close="closeMap" @callback="callBackAddress" />
   </view>
 </template>
 <script>
@@ -299,66 +338,89 @@ export default {
 };
 </script>
 <style scoped lang="scss">
+page {
+  background: #f5f5f5;
+}
+
+.add-address {
+  min-height: 100vh;
+  background: #fff;
+  padding-bottom: 40rpx;
+}
+
+:deep(.u-form-item) {
+  padding: 0 30rpx;
+  min-height: 100rpx;
+}
+
+:deep(.u-form-item__body) {
+  min-height: 100rpx;
+  align-items: center;
+}
+
+:deep(.u-form-item__body__left__content__label) {
+  font-size: 30rpx;
+  color: #333;
+}
+
+:deep(.u-form-item__body__right__content__slot) {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+:deep(.u-input) {
+  padding: 0 !important;
+}
+
+:deep(.u-input__content__field-wrapper__field) {
+  font-size: 28rpx !important;
+  color: #666 !important;
+}
+
+.form-value {
+  width: 100%;
+  text-align: right;
+  font-size: 28rpx;
+  color: #666;
+}
+
 .detailAddress {
-  ::v-deep .u-form-item--left {
-    display: flex;
+  :deep(.u-form-item__body) {
+    align-items: flex-start;
+    padding-top: 24rpx;
+    padding-bottom: 24rpx;
+    min-height: auto;
+  }
+
+  :deep(.u-form-item__body__left) {
+    padding-top: 8rpx;
+  }
+
+  :deep(.u-form-item__body__right__content__slot) {
+    justify-content: flex-start;
     align-items: flex-start;
   }
 }
-.saveBtn,
-.selectAddress {
-  height: 70rpx;
 
-  line-height: 70rpx;
+.default-row {
+  padding: 24rpx 30rpx;
+}
+
+:deep(.default-row .u-checkbox__label) {
+  font-size: 28rpx;
+  color: $font-color-light;
+}
+
+.saveBtn {
+  margin: 40rpx 30rpx 0;
+  height: 80rpx;
+  line-height: 80rpx;
   text-align: center;
   font-size: 30rpx;
-  background: $aider-light-color;
+  background: $light-color;
   color: #fff;
-  width: 70%;
-  margin: 40rpx auto 0 auto;
-  border-radius: 20rpx;
-}
-.selectAddress {
-  margin-top: 40rpx;
-  background: #fff;
-
-  color: $aider-light-color;
-  border: 2rpx solid $aider-light-color;
-}
-
-.uForm {
-  width: 94%;
-  overflow: hidden;
-  left: 3%;
-  position: relative;
-  top: 2%;
-  background: #fff;
-  border-radius: 20rpx;
-  padding: 0 0 40rpx 0;
-}
-.add-address {
-  width: 100%;
-  padding-top: 3%;
-
-  ::v-deep .u-form-item {
-    background-color: #fff;
-    padding: 24rpx 30rpx;
-  }
-  .u-btn {
-    margin: 30rpx 30rpx 0 30rpx;
-    background-color: $main-color;
-  }
-
-  ::v-deep.u-checkbox {
-    margin: 30rpx 30rpx 0 30rpx;
-
-    .u-label-class.u-checkbox__label {
-      color: $font-color-light;
-      font-size: $font-sm;
-    }
-  }
-}
-::v-deep .u-checkbox__label {
-  font-size: 28rpx;
+  border-radius: 40rpx;
 }
 </style>

@@ -1,93 +1,133 @@
 <template>
   <view class="person-msg">
-    <view class="head c-content" @click="changeFace">
-      <image :src="form.face || '/static/missing-face.png'" mode=""></image>
+    <view class="head" @click="changeFace">
+      <image :src="form.face || '/static/missing-face.png'" mode="aspectFill"></image>
       <view>点击修改头像</view>
     </view>
+
     <u-form :model="form" ref="uForm" class="form">
-      <u-form-item label="昵称" label-width="150">
-        <u-input v-model="form.nickName" placeholder="请输入昵称" />
-      </u-form-item>
-      <u-form-item label="性别" label-width="150">
-        <u-radio-group v-model="form.sex" :active-color="lightColor">
-          <u-radio name="1">男</u-radio>
-          <u-radio name="0">女</u-radio>
-        </u-radio-group>
+      <u-form-item label="昵称" label-width="150" :border-bottom="true">
+        <u-input
+          v-model="form.nickName"
+          border="none"
+          input-align="right"
+          placeholder="请输入昵称"
+        />
       </u-form-item>
 
-      <u-form-item label="生日" label-width="150" right-icon="arrow-right">
-        <div style="width: 100%;" @click="showBirthday = true">{{ birthday || '请选择出生日期' }}</div>
-       <u-picker v-model:show="showBirthday" mode="time" :confirm-color="lightColor" @confirm="selectTime"></u-picker>
+      <u-form-item label="性别" label-width="150" :border-bottom="true">
+        <view class="sex-row">
+          <u-radio-group v-model="form.sex" :active-color="lightColor" :gap="40">
+            <u-radio name="1" label="男" shape="circle"></u-radio>
+            <u-radio name="0" label="女" shape="circle"></u-radio>
+          </u-radio-group>
+        </view>
       </u-form-item>
-      <u-form-item label="城市" label-width="150" placeholder="请选择城市" right-icon="arrow-right">
-        <div style="width: 100%;" @click="clickRegion">{{ form.___path || '请选择城市' }}</div>
+
+      <u-form-item label="生日" label-width="150" :border-bottom="true">
+        <view class="form-value" @click="showBirthday = true">
+          {{ birthday || '请选择出生日期' }}
+        </view>
+        <template #right>
+          <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
+        </template>
       </u-form-item>
-	  
-	  <u-form-item label="手机号" label-width="150">
-		<view v-if="form.mobile">
-			{{form.mobile}}
-		</view>
-		<view v-else>
-			<view class="submit" style="text-align: left;" @click="navigateTo(form.username)">绑定手机号码</view>
-		</view>
-	  </u-form-item>
-    
+
+      <u-form-item label="城市" label-width="150" :border-bottom="true">
+        <view class="form-value" @click="clickRegion">
+          {{ form.___path || '请选择城市' }}
+        </view>
+        <template #right>
+          <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
+        </template>
+      </u-form-item>
+
+      <u-form-item label="手机号" label-width="150" :border-bottom="false">
+        <view v-if="form.mobile" class="form-value">{{ form.mobile }}</view>
+        <view v-else class="bind-mobile" @click="navigateTo(form.username)">绑定手机号码</view>
+      </u-form-item>
     </u-form>
-    <div class="bottom">
+
+    <view class="bottom">
       <view class="submit" @click="submit">保存</view>
-	    <view class="submit light" @click="quiteLoginOut">退出登录</view>
-    </div>
-    <m-city :provinceData="region" headTitle="区域选择" ref="cityPicker" @funcValue="getPickerParentValue" pickerSize="4"></m-city>
+      <view class="submit light" @click="quiteLoginOut">退出登录</view>
+    </view>
+
+    <u-datetime-picker
+      v-model:show="showBirthday"
+      v-model="birthdayValue"
+      mode="date"
+      :min-date="minBirthdayDate"
+      :max-date="maxBirthdayDate"
+      :confirm-color="lightColor"
+      @confirm="selectTime"
+      @cancel="closeBirthdayPicker"
+    ></u-datetime-picker>
+
+    <m-city
+      :provinceData="region"
+      headTitle="区域选择"
+      ref="cityPicker"
+      @funcValue="getPickerParentValue"
+      pickerSize="4"
+    ></m-city>
   </view>
 </template>
+
 <script>
-import { saveUserInfo, getUserInfo } from "@/api/members.js";
+import { saveUserInfo } from "@/api/members.js";
 import { upload } from "@/api/common.js";
 import storage from "@/utils/storage.js";
 import city from "@/components/m-city/m-city.vue";
+
+function parseBirthdayTimestamp(str) {
+  if (!str) {
+    return Date.now();
+  }
+  const timestamp = Date.parse(String(str).replace(/-/g, "/"));
+  return Number.isFinite(timestamp) ? timestamp : Date.now();
+}
+
+function formatBirthday(timestamp) {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default {
   components: { "m-city": city },
   data() {
+    const userInfo = storage.getUserInfo() || {};
     return {
-      lightColor: this.$lightColor, //高亮颜色
+      lightColor: this.$lightColor,
       form: {
-        nickName: storage.getUserInfo().nickName || "",
-        birthday: storage.getUserInfo().birthday || "",
-        face: storage.getUserInfo().face || "/static/missing-face.png", //默认头像
-        regionId: [], //地址Id
-        region: storage.getUserInfo().region || [], //地址
-        sex: storage.getUserInfo().sex, //性别
-        ___path: storage.getUserInfo().region,
-        mobile: storage.getUserInfo().mobile,
-        username: storage.getUserInfo().username,
+        nickName: userInfo.nickName || "",
+        birthday: userInfo.birthday || "",
+        face: userInfo.face || "/static/missing-face.png",
+        regionId: [],
+        region: userInfo.region || [],
+        sex: userInfo.sex != null ? String(userInfo.sex) : "1",
+        ___path: userInfo.region,
+        mobile: userInfo.mobile,
+        username: userInfo.username,
       },
-      birthday: storage.getUserInfo().birthday || "", //生日
-      photo: [
-        { text: "立即拍照", color: this.$mainColor },
-        { text: "从相册选择", color: this.$mainColor },
-      ],
+      birthday: userInfo.birthday || "",
+      birthdayValue: parseBirthdayTimestamp(userInfo.birthday),
+      minBirthdayDate: new Date("1950-01-01").getTime(),
+      maxBirthdayDate: Date.now(),
       region: [
-        //请求城市默认地址
         {
           id: "",
           localName: "请选择",
           children: [],
         },
       ],
-      showBirthday: false, //显示生日日期
+      showBirthday: false,
     };
   },
   methods: {
-	  /**
-	   * 退出登录
-	   */
-	  quiteLoginOut() {
-      this.quiteLoginOut();
-	  },
-	  
-    /**
-     * 选择地址回调
-     */
     getPickerParentValue(e) {
       this.form.region = [];
       this.form.regionId = [];
@@ -107,19 +147,13 @@ export default {
       });
     },
 
-    /**
-     * 点击选择地址
-     */
     clickRegion() {
       this.$refs.cityPicker.show();
     },
 
-    /**
-     * 提交保存
-     */
     submit() {
       delete this.form.___path;
-      let params = JSON.parse(JSON.stringify(this.form));
+      const params = JSON.parse(JSON.stringify(this.form));
       saveUserInfo(params).then((res) => {
         if (res.statusCode == 200) {
           storage.setUserInfo(res.data.result);
@@ -128,10 +162,7 @@ export default {
       });
     },
 
-    /**
-     * 修改头像
-     */
-    changeFace(index) {
+    changeFace() {
       uni.chooseImage({
         success: (chooseImageRes) => {
           const tempFilePaths = chooseImageRes.tempFilePaths;
@@ -143,8 +174,7 @@ export default {
               accessToken: storage.getAccessToken(),
             },
             success: (uploadFileRes) => {
-              let data = JSON.parse(uploadFileRes.data);
-
+              const data = JSON.parse(uploadFileRes.data);
               this.form.face = data.result;
             },
           });
@@ -152,74 +182,59 @@ export default {
       });
     },
 
-    /**
-     * 选择地址
-     */
-    selectRegion(region) {
-      
-        this.form["address"] = `${region.province.label} ${region.city.label} ${region.area.label}`
-      ;
+    selectTime(e) {
+      const timestamp = typeof e?.value === "number" ? e.value : this.birthdayValue;
+      const formatted = formatBirthday(timestamp);
+      this.birthdayValue = timestamp;
+      this.form.birthday = formatted;
+      this.birthday = formatted;
+      this.showBirthday = false;
     },
 
-    /**
-     * 选择时间
-     */
-    selectTime(time) {
-      this.form.birthday = `${time.year}-${time.month}-${time.day}`;
-      this.birthday = `${time.year} - ${time.month} - ${time.day}`;
+    closeBirthdayPicker() {
+      this.showBirthday = false;
     },
-	
-	navigateTo(username) {
-	  uni.navigateTo({
-	    url: '/pages/mine/set/securityCenter/bindMobile' + '?username=' + username,
-	  });
-	},
+
+    navigateTo(username) {
+      uni.navigateTo({
+        url: "/pages/mine/set/securityCenter/bindMobile?username=" + username,
+      });
+    },
+
+    syncUserInfo() {
+      const userInfo = storage.getUserInfo() || {};
+      this.form.nickName = userInfo.nickName || "";
+      this.form.birthday = userInfo.birthday || "";
+      this.form.face = userInfo.face || "/static/missing-face.png";
+      this.form.region = userInfo.region || [];
+      this.form.sex = userInfo.sex != null ? String(userInfo.sex) : "1";
+      this.form.___path = userInfo.region;
+      this.form.mobile = userInfo.mobile;
+      this.form.username = userInfo.username;
+      this.birthday = userInfo.birthday || "";
+      this.birthdayValue = parseBirthdayTimestamp(userInfo.birthday);
+    },
   },
 
-  /**
-   * 加载数据
-   */
-  onLoad() {},
-  
-  /**
-   * 页面显示时执行
-   */
   onShow() {
-    // 从缓存中重新获取用户信息
-    const userInfo = storage.getUserInfo();
-    // 更新表单数据
-    this.form.nickName = userInfo.nickName || "";
-    this.form.birthday = userInfo.birthday || "";
-    this.form.face = userInfo.face || "/static/missing-face.png";
-    this.form.region = userInfo.region || [];
-    this.form.sex = userInfo.sex;
-    this.form.___path = userInfo.region;
-    this.form.mobile = userInfo.mobile;
-    this.form.username = userInfo.username;
-    this.birthday = userInfo.birthday || "";
+    this.syncUserInfo();
   },
 };
 </script>
-<style>
-page{
+
+<style lang="scss" scoped>
+page {
   background: #fff;
 }
-</style>
-<style lang="scss" scoped>
-.submit {
-  height: 90rpx;
-  line-height: 90rpx;
-  text-align: center;
-  margin-top: 90rpx;
 
-  width: 100%;
-  margin: 0 auto;
-  color: $main-color;
-  border-radius: 100px;
-
+.person-msg {
+  min-height: 100vh;
+  background: #fff;
+  padding-bottom: 180rpx;
 }
+
 .head {
-  height: 260rpx;
+  padding: 40rpx 0 20rpx;
   color: $font-color-light;
   font-size: $font-sm;
   display: flex;
@@ -227,39 +242,104 @@ page{
   justify-content: center;
   align-items: center;
   line-height: 2em;
+
   image {
     width: 144rpx;
     height: 144rpx;
     border-radius: 50%;
   }
 }
-::v-deep .u-form {
-  background-color: #ffffff;
-  padding: 0;
-  margin-top: 30rpx;
-  .u-form-item {
-    padding: 0 20rpx;
-    height: 110rpx;
-    line-height: 110rpx;
-  }
-}
+
 .form {
-  background-color: #ffffff;
+  background: #fff;
 }
-.bottom{
+
+:deep(.u-form-item) {
+  padding: 0 30rpx;
+  min-height: 100rpx;
+}
+
+:deep(.u-form-item__body) {
+  min-height: 100rpx;
+  align-items: center;
+}
+
+:deep(.u-form-item__body__left__content__label) {
+  font-size: 30rpx;
+  color: #333;
+}
+
+:deep(.u-form-item__body__right__content__slot) {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+:deep(.u-input) {
+  padding: 0 !important;
+}
+
+:deep(.u-input__content__field-wrapper__field) {
+  font-size: 28rpx !important;
+  color: #666 !important;
+}
+
+.sex-row {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+:deep(.sex-row .u-radio-group) {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.form-value {
+  width: 100%;
+  text-align: right;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.bind-mobile {
+  width: 100%;
+  text-align: right;
+  font-size: 28rpx;
+  color: $main-color;
+}
+
+.bottom {
   position: fixed;
-  bottom: 40px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
-  width: 100%;
-  >.submit{
-    background: $light-color;
-    color: #fff;
-    width: 40%;
-  }
-
+  justify-content: space-between;
+  padding: 24rpx 30rpx calc(24rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  box-sizing: border-box;
 }
-.light{
+
+.submit {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  border-radius: 100px;
+  font-size: 30rpx;
+  background: $light-color;
+  color: #fff;
+}
+
+.submit + .submit {
+  margin-left: 24rpx;
+}
+
+.light {
   background: rgba($color: $light-color, $alpha: 0.2) !important;
   color: $light-color !important;
 }

@@ -473,9 +473,9 @@
 				},
 				{ //商品评价
 					"path": "comment",
-					"navigationStyle": "custom",
 					"style": {
 						"navigationBarTitleText": "商品评价",
+						"navigationStyle": "custom",
 						"app-plus": {
 							//app页面不显示滚动条
 							"scrollIndicator": "none"

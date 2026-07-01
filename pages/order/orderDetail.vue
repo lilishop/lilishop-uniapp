@@ -90,11 +90,6 @@
               </view>
               <view class="goods-num">
                 <view>x{{ sku.num }}</view>
-
-                <view class="good-complaint">
-                  <u-tag size="mini" mode="plain" @click="complaint(sku)" v-if="sku.complainStatus == 'NO_APPLY'"
-                    text="投诉" type="info" />
-                </view>
               </view>
             </view>
 
@@ -195,29 +190,28 @@
     <view style="padding-bottom: 150rpx"></view>
 
     <view class="bottom_view">
-      <view class="btn-view u-flex u-row-between">
+      <view class="btn-view">
         <view class="description">
-          <!-- 全部 -->
-          <!-- 等待付款 -->
-
           <text v-if="order.payStatus === 'PAID'">已付金额：</text>
           <text v-else>应付金额：</text>
-
           <text class="price" v-if="order.priceDetailDTO">￥{{unitPrice(order.priceDetailDTO.flowPrice) }}</text>
         </view>
-        <view>
-          <!-- 全部 -->
-          <!-- 等待付款 -->
-          <u-button type="error" ripple size="mini" v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.pay"
-            @click="toPay(order)">立即付款</u-button>
-
-          <!-- <u-button class="rebuy-btn" size="mini" v-if="order.order_operate_allowable_vo.allow_service_cancel"> 提醒发货</u-button> -->
-          <!-- <div class="pay-btn">确认收货</div> -->
-          <u-button shape="circle" ripple type="warning" size="mini" v-if="order.orderStatus == 'DELIVERED'"
-            @click="onRog(order.sn)">确认收货</u-button>
-          <!-- 交易完成 未评价 -->
-          <u-button shape="circle" ripple size="mini" v-if="order.orderStatus == 'COMPLETE'"
-            @click="onComment(order.sn)">评价商品</u-button>
+        <view class="goods-btn">
+          <view
+            class="pay-btn"
+            v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.pay"
+            @click="toPay(order)"
+          >立即付款</view>
+          <view
+            class="pay-btn"
+            v-if="order.orderStatus == 'DELIVERED'"
+            @click="onRog(order.sn)"
+          >确认收货</view>
+          <view
+            class="rebuy-btn"
+            v-if="order.orderStatus == 'COMPLETE'"
+            @click="onComment(order.sn)"
+          >评价商品</view>
         </view>
       </view>
     </view>
@@ -416,18 +410,6 @@ export default {
       setClipboard(sn)
     },
 
-    /**
-     * 投诉
-     */
-    complaint(sku) {
-      uni.navigateTo({
-        url:
-          "/pages/order/complain/complain?sn=" +
-          this.sn +
-          "&skuId=" +
-          sku.skuId,
-      });
-    },
     //售后按钮
     onAfterSales(sn, sku) {
       uni.navigateTo({
@@ -549,6 +531,15 @@ export default {
 <style lang="scss">
 @import "./goods.scss";
 
+.goods-item-view {
+  .goods-info {
+    .goods-title {
+      font-size: 24rpx;
+      line-height: 1.4;
+    }
+  }
+}
+
 .empty {
   width: 100%;
 }
@@ -582,12 +573,15 @@ export default {
   color: #fff;
   width: 100%;
   text-align: center;
-  font-size: 36rpx;
-  margin-top: 40rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  margin-top: 36rpx;
 
   >div {
-    font-size: 24rpx;
-    margin-top: 10rpx;
+    font-size: 22rpx;
+    font-weight: normal;
+    margin-top: 8rpx;
+    opacity: 0.95;
   }
 }
 
@@ -749,20 +743,57 @@ page,
   position: fixed;
   bottom: 0;
   left: 0;
+  z-index: 99;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
 
   .btn-view {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100rpx;
     padding: 0 30rpx;
-    line-height: 100rpx;
     font-size: 26rpx;
 
     .description {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
       color: #909399;
-      size: 25rpx;
+      font-size: 26rpx;
 
       .price {
         color: $main-color;
+        font-weight: 600;
       }
     }
+  }
+
+  .goods-btn {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 20rpx;
+  }
+
+  .pay-btn,
+  .rebuy-btn {
+    text-align: center;
+    font-size: 26rpx;
+    padding: 16rpx 36rpx;
+    border-radius: 8rpx;
+    white-space: nowrap;
+  }
+
+  .pay-btn {
+    background-color: $main-color;
+    color: #ffffff;
+  }
+
+  .rebuy-btn {
+    color: $light-color;
+    border: 1rpx solid $light-color;
+    background-color: #ffffff;
   }
 
   .cancel-btn {

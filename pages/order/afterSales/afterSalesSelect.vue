@@ -12,14 +12,19 @@
         <template v-for="(item,index) in sku.orderItems" :key="index">
         <view class="goods-item-view" v-if="item.sn == sn" @click="navigateToGoodsDetail(sku.skuId)">
           <view class="goods-img">
-            <u-image border-radius="6" width="131rpx" height="131rpx" :src="item.image"></u-image>
+            <u-image
+              border-radius="6"
+              width="131rpx"
+              height="131rpx"
+              mode="aspectFill"
+              :src="getGoodsImage(item)"
+            ></u-image>
           </view>
           <view class="goods-info">
-            <view class="goods-title u-line-2">{{ item.name }}</view>
+            <view class="goods-title">{{ getGoodsName(item) }}</view>
             <view class="goods-price">
-              <span v-if="sku.orderItems.length <= 1">￥{{ sku.flowPrice }}</span>
-              <span class="num" v-else>购买数量{{item.num}}</span>
-              <span v-if="sku.orderItems.length <= 1" class="num">购买数量: {{ item.num }}</span>
+              <text v-if="sku.orderItems.length <= 1">￥{{ unitPrice(sku.flowPrice) }}</text>
+              <text class="num">购买数量: {{ item.num }}</text>
             </view>
           </view>
         </view>
@@ -28,29 +33,25 @@
     </view>
 
     <view class="select-view">
-      <view class="select-cell"  v-if="applyInfo.returnGoods"  @click="onSelect(1)">
+      <view class="select-cell" v-if="applyInfo.returnGoods" @click="onSelect(1)">
         <view class="select-image">
-          <image style="height: 51rpx; width: 51rpx" src="/static/order/t1.png"></image>
+          <image class="select-icon" src="/static/order/t1.png"></image>
         </view>
-        <view class="right">
+        <view class="cell-body">
           <view class="select-title">退货</view>
-          <view class="select-sub-title">
-            退回收到的商品
-            <u-icon name="arrow-right"  color="#bababa"></u-icon>
-          </view>
+          <view class="select-sub-title">退回收到的商品</view>
         </view>
+        <u-icon name="arrow-right" color="#bababa" size="28rpx"></u-icon>
       </view>
-      <view class="select-cell" v-if="applyInfo.returnMoney"  @click="onSelect(3)">
+      <view class="select-cell" v-if="applyInfo.returnMoney" @click="onSelect(3)">
         <view class="select-image">
-          <image style="height: 51rpx; width: 51rpx" src="/static/order/t3.png"></image>
+          <image class="select-icon" src="/static/order/t3.png"></image>
         </view>
-        <view class="right">
+        <view class="cell-body">
           <view class="select-title">退款</view>
-          <view class="select-sub-title">
-            退款商品返还金额
-            <u-icon name="arrow-right"  color="#bababa"></u-icon>
-          </view>
+          <view class="select-sub-title">退款商品返还金额</view>
         </view>
+        <u-icon name="arrow-right" color="#bababa" size="28rpx"></u-icon>
       </view>
     </view>
   </view>
@@ -74,6 +75,13 @@ export default {
     this.init()
   },
   methods: {
+    getGoodsName(item) {
+      return item.goodsName || item.name || "";
+    },
+    getGoodsImage(item) {
+      const image = item.image || item.goodsImage || item.thumbnail;
+      return this.parseGoodsImageUrl(image);
+    },
     // 初始化数据
     init() {
       getAfterSaleInfo(this.sn).then((response) => {
@@ -134,69 +142,97 @@ page,
   .goods-item-view {
     display: flex;
     flex-direction: row;
-    padding: 10rpx 30rpx;
+    align-items: flex-start;
+    padding: 24rpx 30rpx;
     background-color: #eef1f2;
+
     .goods-img {
+      flex-shrink: 0;
+      width: 131rpx;
+      height: 131rpx;
+      border-radius: 6rpx;
+      overflow: hidden;
     }
+
     .goods-info {
-      padding-left: 30rpx;
       flex: 1;
+      min-width: 0;
+      padding-left: 24rpx;
+
       .goods-title {
-        margin-bottom: 10rpx;
+        margin-bottom: 12rpx;
         color: $font-color-dark;
+        font-size: 26rpx;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        word-break: break-all;
       }
-      .goods-specs {
-        font-size: 24rpx;
-        margin-bottom: 10rpx;
-        color: #cccccc;
-      }
+
       .goods-price {
         display: flex;
         flex-direction: row;
+        align-items: center;
         justify-content: space-between;
         font-size: 28rpx;
-        margin-bottom: 10rpx;
         color: $light-color;
+
         .num {
+          flex-shrink: 0;
+          margin-left: 16rpx;
           font-size: 24rpx;
           color: #999999;
         }
       }
-    }
-    .goods-num {
-      width: 60rpx;
-      color: $main-color;
     }
   }
 }
 .select-view {
   background-color: #fff;
   margin-top: 20rpx;
+
   .select-cell {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    margin: 0rpx 20rpx;
-    line-height: 110rpx;
+    padding: 32rpx 30rpx;
     border-bottom: 1px solid $page-color-base;
-    .select-image {
-      width: 51rpx;
-      height: 110rpx;
-      line-height: 110rpx;
-      display: flex;
-      align-items: center;
+
+    &:last-child {
+      border-bottom: none;
     }
-    .right {
-      flex: 1;
+
+    .select-image {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      .select-title {
-        margin-left: 18rpx;
-        color: #666666;
-        width: 200rpx;
+      justify-content: center;
+
+      .select-icon {
+        width: 51rpx;
+        height: 51rpx;
       }
+    }
+
+    .cell-body {
+      flex: 1;
+      min-width: 0;
+      margin-left: 24rpx;
+      margin-right: 16rpx;
+
+      .select-title {
+        font-size: 30rpx;
+        color: #666666;
+        line-height: 1.4;
+      }
+
       .select-sub-title {
+        margin-top: 8rpx;
+        font-size: 24rpx;
         color: #cccccc;
+        line-height: 1.4;
       }
     }
   }

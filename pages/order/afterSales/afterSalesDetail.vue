@@ -1,7 +1,8 @@
 <template>
-  <view class="content">
-    <u-form :model="form" ref="uForm">
-      <view class="after-sales-goods-detail-view">
+  <view class="page-wrap">
+    <scroll-view scroll-y class="page-scroll">
+      <u-form :model="form" ref="uForm">
+        <view class="after-sales-goods-detail-view">
         <view class="header">
           <view>
             本次售后服务将由
@@ -12,88 +13,147 @@
         <view>
           <template v-for="(item,index) in sku.orderItems" :key="index">
           <view class="goods-item-view" v-if="item.sn == sn"
-            @click="gotoGoodsDetail(sku.goods_id)">
+            @click="gotoGoodsDetail(sku.goodsId || sku.goods_id)">
             <view class="goods-img">
-              <u-image border-radius="6" width="131rpx" height="131rpx" :src="item.image"></u-image>
+              <u-image
+                border-radius="6"
+                width="131rpx"
+                height="131rpx"
+                mode="aspectFill"
+                :src="getGoodsImage(item)"
+              ></u-image>
             </view>
             <view class="goods-info">
-              <view class="goods-title u-line-2">{{ item.name }}</view>
+              <view class="goods-title">{{ getGoodsName(item) }}</view>
               <view class="goods-price">
-                <span>￥{{ applyInfo.applyRefundPrice }}</span>
-
-                <span class="num">购买数量:{{ item.num }}</span>
+                <text>￥{{ unitPrice(applyInfo.applyRefundPrice) }}</text>
+                <text class="num">购买数量: {{ item.num }}</text>
               </view>
             </view>
           </view>
           </template>
         </view>
         <view class="after-num">
-          <view>申请数量</view>
-          <view>
-            <u-number-box :value="parseInt(form.num)" disabled-input :min="1" :max="parseInt(sku.num)" bg-color="#fff"
-              @change="valChange"></u-number-box>
-          </view>
+          <text class="after-num-label">申请数量</text>
+          <u-number-box
+            :value="parseInt(form.num)"
+            disabled-input
+            :min="1"
+            :max="parseInt(sku.num)"
+            bg-color="#fff"
+            @change="valChange"
+          ></u-number-box>
         </view>
       </view>
 
       <view class="body-view">
         <!-- 退款原因 -->
-        <view class="opt-view">
-          <u-form-item label="申请原因" :label-width="150" >
-            <div style="width: 100%; text-align: right;" @click="reasonSelectShow = true">{{ form.reason || '请选择申请原因' }}</div>
+        <view class="opt-view form-block">
+          <view class="form-row" @click="openReasonPicker">
+            <text class="form-row-label">申请原因</text>
+            <view class="form-row-value">
+              <text class="form-value" :class="{ placeholder: !form.reason }">
+                {{ form.reason || '请选择申请原因' }}
+              </text>
+              <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
+            </view>
+          </view>
+          <u-form-item label="申请说明" label-width="150" :border-bottom="false" class="desc-item">
+            <u-input
+              v-model="form.problemDesc"
+              type="textarea"
+              border="none"
+              input-align="right"
+              height="120"
+              placeholder="请描述申请售后的说明"
+            />
           </u-form-item>
-          <u-form-item label="申请说明" :label-width="150">
-            <u-input input-align="right" type="textarea" v-model="form.problemDesc" placeholder="请描述申请售后的说明" />
+        </view>
+
+        <!-- 退款方式 / 银行信息 -->
+        <view class="opt-view form-block">
+          <u-form-item label="退款方式" label-width="150" :border-bottom="true">
+            <view class="form-value">{{
+              applyInfo.refundWay == 'ORIGINAL' ? '原路退回' : '账号退款'
+            }}</view>
+          </u-form-item>
+          <template v-if="
+              applyInfo.accountType === 'BANK_TRANSFER' &&
+              applyInfo.applyRefundPrice != 0
+            ">
+            <u-form-item label="银行开户行" label-width="150" :border-bottom="true">
+              <u-input
+                v-model="form.bankDepositName"
+                border="none"
+                input-align="right"
+                placeholder="请输入银行开户行"
+              />
+            </u-form-item>
+            <u-form-item label="银行开户名" label-width="150" :border-bottom="true">
+              <u-input
+                v-model="form.bankAccountName"
+                border="none"
+                input-align="right"
+                placeholder="请输入银行开户名"
+              />
+            </u-form-item>
+            <u-form-item label="银行账号" label-width="150" :border-bottom="true" class="bank-account-item">
+              <u-input
+                v-model="form.bankAccountNumber"
+                border="none"
+                input-align="right"
+                placeholder="请输入银行账号"
+              />
+            </u-form-item>
+          </template>
+
+          <u-form-item
+            v-if="form.serviceType !== 'RETURN_MONEY'"
+            label="返回方式"
+            label-width="150"
+            :border-bottom="false"
+          >
+            <view class="form-value">快递至第三方卖家</view>
           </u-form-item>
         </view>
 
         <!-- 上传凭证 -->
-        <view class="opt-view">
+        <view class="opt-view upload-block">
           <view class="img-title">上传凭证（最多5张）</view>
           <view class="images-view">
-            <u-upload :file-list="fileList" :auto-upload="false" width="150"
-              @afterRead="onUploadAfterRead" :max-count="5"></u-upload>
+            <u-upload
+              :file-list="fileList"
+              :auto-upload="false"
+              width="150"
+              @afterRead="onUploadAfterRead"
+              :max-count="5"
+            ></u-upload>
           </view>
-        </view>
-
-        <view class="opt-view">
-          <u-form-item label="退款方式" :label-width="150">
-            <u-input :value="
-                applyInfo.refundWay == 'ORIGINAL' ? '原路退回' : '账号退款'
-              " type="text" input-align="right" :disabled="true" />
-          </u-form-item>
-          <view v-if="
-              applyInfo.accountType === 'BANK_TRANSFER' &&
-              applyInfo.applyRefundPrice != 0">
-            <u-form-item label="银行开户行" :label-width="150">
-              <u-input v-model="form.bankDepositName" type="text" input-align="right" placeholder="请输入银行开户行" />
-            </u-form-item>
-            <u-form-item label="银行开户名" :label-width="150">
-              <u-input v-model="form.bankAccountName" type="text" input-align="right" placeholder="请输入银行开户名" />
-            </u-form-item>
-            <u-form-item label="银行账号" :label-width="150">
-              <u-input v-model="form.bankAccountNumber" type="text" input-align="right" placeholder="请输入银行账号" />
-            </u-form-item>
-          </view>
-
-          <u-form-item label="返回方式" :label-width="150">
-            <u-input type="text" input-align="right" value="快递至第三方卖家" :disabled="true" />
-          </u-form-item>
         </view>
 
         <view class="opt-tip">提交服务单后，售后专员可能与您电话沟通，请保持手机畅通</view>
       </view>
-    </u-form>
+      </u-form>
+    </scroll-view>
 
     <view class="submit-view">
-      <u-button type="primary" ripple shape="circle" v-if="applyInfo.refundWay" :custom-style="customStyle"
-        @click="onSubmit">提交申请</u-button>
+      <u-button
+        type="primary"
+        ripple
+        shape="circle"
+        v-if="applyInfo.refundWay"
+        :custom-style="{ backgroundColor: $lightColor, width: '100%' }"
+        @click="onSubmit"
+      >提交申请</u-button>
     </view>
-    <u-select mode="single-column" :list="reasonList" v-model:show="reasonSelectShow" @confirm="reasonSelectConfirm">
-    </u-select>
-    <u-select mode="single-column" :list="typeList" v-model:show="typeSelectShow" @confirm="typeSelectConfirm"></u-select>
-    <u-select mode="single-column" :list="returnList" v-model:show="returnSelectShow" @confirm="returnSelectConfirm">
-    </u-select>
+    <u-picker
+      v-model:show="reasonSelectShow"
+      :columns="[reasonList]"
+      keyName="label"
+      valueName="value"
+      title="申请原因"
+      @confirm="reasonSelectConfirm"
+    ></u-picker>
     <u-toast ref="uToast" />
   </view>
 </template>
@@ -107,7 +167,6 @@ import {
 
 import city from "@/components/m-city/m-city";
 import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
-import { checkBankno } from "@/utils/Foundation";
 import storage from "@/utils/storage.js";
 export default {
   component: {
@@ -127,34 +186,6 @@ export default {
       //退款原因 弹出框
       reasonSelectShow: false,
       reasonList: [],
-      //退款方式为账号退款 账号类型弹出框
-      typeSelectShow: false,
-      typeList: [
-        {
-          value: "ALIPAY",
-          label: "支付宝",
-        },
-        {
-          value: "WEIXINPAY",
-          label: "微信",
-        },
-        {
-          value: "BANK_TRANSFER",
-          label: "银行卡",
-        },
-      ],
-      //返回方式
-      returnSelectShow: false,
-      returnList: [
-        {
-          value: 1,
-          label: "快递至第三方卖家",
-        },
-      ],
-
-      customStyle: {
-        backgroundColor: this.$lightColor,
-      },
       applyInfo: {},
       form: {
         orderItemSn: "", // 订单sn
@@ -206,6 +237,19 @@ export default {
     this.init(options.sn);
   },
   methods: {
+    getGoodsName(item) {
+      return item.goodsName || item.name || "";
+    },
+    getGoodsImage(item) {
+      const image = item.image || item.goodsImage || item.thumbnail;
+      return this.parseGoodsImageUrl(image);
+    },
+    gotoGoodsDetail(goodsId) {
+      if (!goodsId) return;
+      uni.navigateTo({
+        url: `/pages/product/goods?id=${this.form.skuId}&goodsId=${goodsId}`,
+      });
+    },
     /** 获取申请原因下拉框数据 */
     async getReasonActions(serviceType) {
       uni.showLoading({
@@ -248,17 +292,24 @@ export default {
       });
     },
 
+    openReasonPicker() {
+      if (!this.reasonList.length) {
+        uni.showToast({
+          title: "暂无可选原因",
+          icon: "none",
+        });
+        return;
+      }
+      this.reasonSelectShow = true;
+    },
+
     //退款原因
-    reasonSelectConfirm(e) {
-      this.form.reason = e[0].label;
+    reasonSelectConfirm(val) {
+      const selected = val?.value?.[0] || val?.[0];
+      if (selected) {
+        this.form.reason = selected.label || selected.text || "";
+      }
     },
-    //退款方式
-    typeSelectConfirm(e) {
-      this.form.accountType = e[0].value;
-      this.form.accountType_label = e[0].label;
-    },
-    //返回方式
-    returnSelectConfirm(e) {},
 
     //修改申请数量
     valChange(e) {
@@ -267,6 +318,17 @@ export default {
     onUploadAfterRead(event) {
       handleUploadAfterRead(event, this.fileList, (urls) => {
         this.form.images = urls;
+      });
+    },
+    showToast(message, type = "error") {
+      const text = message || (type === "success" ? "操作成功" : "操作失败");
+      if (this.$refs.uToast) {
+        this.$refs.uToast.show({ message: text, type });
+        return;
+      }
+      uni.showToast({
+        title: text,
+        icon: type === "success" ? "success" : "none",
       });
     },
     //提交申请
@@ -286,62 +348,48 @@ export default {
       applyReturn(this.sn, this.form).then((resp) => {
          if (this.$store.state.isShowToast){ uni.hideLoading() };
         if (resp.data.success) {
-          this.$refs.uToast.show({ title: "提交成功", type: "success" });
+          this.showToast("提交成功", "success");
           uni.redirectTo({
             url: "/pages/order/afterSales/applySuccess",
           });
         } else {
-          this.$refs.uToast.show({ title: resp.data.message, type: "error" });
+          this.showToast(resp.data.message || "提交失败", "error");
         }
       });
     },
     //检测提交参数
     handleCheckParams() {
       if (this.$u.test.isEmpty(this.form.reason)) {
-        this.$refs.uToast.show({ title: "请选择 退款原因", type: "error" });
+        this.showToast("请选择退款原因");
         return false;
       }
       if (this.$u.test.isEmpty(this.form.problemDesc)) {
-        this.$refs.uToast.show({ title: "请输入 退款说明", type: "error" });
+        this.showToast("请输入退款说明");
         return false;
       }
 
-      console.log(this.form.accountType)
-      if (this.form.accountType == "BANK_TRANSFER") {
-        // 银行开户行校验
+      if (
+        this.applyInfo.accountType === "BANK_TRANSFER" &&
+        this.applyInfo.applyRefundPrice != 0
+      ) {
         if (this.$u.test.isEmpty(this.form.bankDepositName)) {
-          this.$refs.uToast.show({
-            title: "请输入 银行开户行",
-            type: "error",
-          });
+          this.showToast("请输入银行开户行");
           return false;
         }
-        // 银行开户名校验
         if (this.$u.test.isEmpty(this.form.bankAccountName)) {
-          this.$refs.uToast.show({
-            title: "请输入 银行开户名",
-            type: "error",
-          });
+          this.showToast("请输入银行开户名");
           return false;
         }
-        // 银行账号校验
         if (this.$u.test.isEmpty(this.form.bankAccountNumber)) {
-          this.$refs.uToast.show({
-            title: "请输入 银行账号",
-            type: "error",
-          });
+          this.showToast("请输入银行账号");
           return false;
-        } else if (this.$u.test.chinese(this.form.bankAccountName) === false) {
-          this.$refs.uToast.show({
-            title: "银行开户名输入错误",
-            type: "error",
-          });
+        }
+        if (this.$u.test.chinese(this.form.bankAccountName) === false) {
+          this.showToast("银行开户名需为中文");
           return false;
-        } else if (this.$u.test.chinese(this.form.bankDepositName) === false) {
-          this.$refs.uToast.show({
-            title: "银行开户行输入错误",
-            type: "error",
-          });
+        }
+        if (this.$u.test.chinese(this.form.bankDepositName) === false) {
+          this.showToast("银行开户行需为中文");
           return false;
         }
       }
@@ -353,16 +401,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-page,
-.content {
+page {
   background: $page-color-base;
   height: 100%;
 }
-.body-view {
-  margin-bottom: 150rpx;
+
+.page-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: $page-color-base;
 }
+
+.page-scroll {
+  flex: 1;
+  height: 0;
+  box-sizing: border-box;
+}
+
+.body-view {
+  padding-bottom: 24rpx;
+}
+
 .after-sales-goods-detail-view {
   background-color: #fff;
+
   .header {
     background-color: #f7f7f7;
     color: #999999;
@@ -372,11 +435,7 @@ page,
     align-items: center;
     justify-content: center;
     line-height: 70rpx;
-    .header-text {
-      background-color: #999999;
-      padding: 10rpx 30rpx;
-      border-radius: 50rpx;
-    }
+
     .seller-name {
       color: $main-color;
     }
@@ -385,78 +444,157 @@ page,
   .goods-item-view {
     display: flex;
     flex-direction: row;
-    padding: 10rpx 30rpx;
+    align-items: flex-start;
+    padding: 24rpx 30rpx;
     background-color: #eef1f2;
 
+    .goods-img {
+      flex-shrink: 0;
+      width: 131rpx;
+      height: 131rpx;
+      border-radius: 6rpx;
+      overflow: hidden;
+    }
+
     .goods-info {
-      padding-left: 30rpx;
       flex: 1;
+      min-width: 0;
+      padding-left: 24rpx;
+
       .goods-title {
-        margin-bottom: 10rpx;
+        margin-bottom: 12rpx;
         color: $font-color-dark;
+        font-size: 26rpx;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        word-break: break-all;
       }
-      .goods-specs {
-        font-size: 24rpx;
-        margin-bottom: 10rpx;
-        color: #cccccc;
-      }
+
       .goods-price {
         display: flex;
         flex-direction: row;
+        align-items: center;
         justify-content: space-between;
         font-size: 28rpx;
-        margin-bottom: 10rpx;
         color: $light-color;
+
         .num {
+          flex-shrink: 0;
+          margin-left: 16rpx;
           font-size: 24rpx;
           color: #999999;
         }
       }
     }
-    .goods-num {
-      width: 60rpx;
-      color: $main-color;
-    }
   }
 }
+
 .after-num {
-  margin: 0rpx 30rpx;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  height: 80rpx;
+  margin: 0 30rpx;
+  padding: 24rpx 0;
+  border-top: 1px solid #f0f0f0;
+
+  .after-num-label {
+    font-size: 30rpx;
+    color: #333;
+  }
 }
 
 .opt-tip {
   margin-top: 20rpx;
-  padding: 10rpx 30rpx;
+  padding: 10rpx 30rpx 30rpx;
   font-size: 22rpx;
+  color: #999;
+  line-height: 1.6;
 }
+
 .opt-view {
   background-color: #fff;
   margin-top: 20rpx;
-  padding: 10rpx 30rpx;
-  .how-view {
+}
+
+.form-block {
+  padding: 0;
+
+  .form-row {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    height: 80rpx;
-    border-bottom: 1px solid $page-color-base;
+    min-height: 100rpx;
+    padding: 0 30rpx;
+    border-bottom: 1px solid #f0f0f0;
+
+    .form-row-label {
+      flex-shrink: 0;
+      width: 150rpx;
+      font-size: 30rpx;
+      color: #333;
+    }
+
+    .form-row-value {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8rpx;
+    }
   }
-  .explain-view {
-    display: flex;
-    flex-direction: row;
+
+  :deep(.u-form-item) {
+    padding: 0 30rpx;
+    min-height: 100rpx;
+  }
+
+  :deep(.u-form-item__body) {
+    min-height: 100rpx;
     align-items: center;
-    height: 150rpx;
   }
+
+  :deep(.u-form-item__body__left__content__label) {
+    font-size: 30rpx;
+    color: #333;
+  }
+
+  :deep(.u-form-item__body__right__content__slot) {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  :deep(.u-input) {
+    padding: 0 !important;
+  }
+
+  :deep(.u-input__content) {
+    background: transparent !important;
+  }
+
+  :deep(.u-input__content__field-wrapper__field) {
+    font-size: 28rpx !important;
+    color: #666 !important;
+  }
+}
+
+.upload-block {
+  padding: 24rpx 30rpx 30rpx;
+
   .img-title {
-    height: 80rpx;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    font-size: 30rpx;
+    color: #333;
+    margin-bottom: 20rpx;
   }
+
   .images-view {
     display: flex;
     flex-direction: row;
@@ -464,26 +602,50 @@ page,
     flex-wrap: wrap;
   }
 }
-.item-apply-voucher {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-}
-.submit-view {
-  position: fixed;
-  z-index: 999;
-  bottom: 0px;
-  left: 0px;
-  margin-top: 100rpx;
-  border: solid 2rpx #f2f2f2;
-  background-color: #ffffff;
-  height: 100rpx;
-  width: 750rpx;
-  justify-content: flex-end;
 
-  display: flex;
-  align-items: center;
+.form-value {
   width: 100%;
-  padding-right: 32rpx;
+  text-align: right;
+  font-size: 28rpx;
+  color: #666;
+
+  &.placeholder {
+    color: #c0c4cc;
+  }
+}
+
+.desc-item {
+  :deep(.u-form-item__body) {
+    align-items: flex-start;
+    padding-top: 24rpx;
+    padding-bottom: 24rpx;
+    min-height: auto;
+  }
+
+  :deep(.u-form-item__body__left) {
+    padding-top: 8rpx;
+  }
+
+  :deep(.u-form-item__body__right__content__slot) {
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
+
+  :deep(.u-input__content__field-wrapper__field) {
+    text-align: right !important;
+  }
+
+  :deep(.u-input__content__field-wrapper__field--placeholder) {
+    text-align: right !important;
+  }
+}
+
+.submit-view {
+  flex-shrink: 0;
+  z-index: 999;
+  box-sizing: border-box;
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
+  background-color: #ffffff;
+  border-top: 1px solid #f2f2f2;
 }
 </style>

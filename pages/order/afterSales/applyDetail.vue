@@ -11,40 +11,35 @@
       <view class="apply-info-view">
         <view class="status-info">
           <view class="status-info-box">
-            <view class="status-val">{{serviceStatusList(serviceDetail.serviceStatus)
-            }}</view>
-
-            <view class="status-tip">{{statusFilter(serviceDetail.serviceStatus)
-            }}</view>
+            <view class="status-val">{{ serviceStatusList(serviceDetail.serviceStatus) }}</view>
+            <view class="status-tip">{{ statusFilter(serviceDetail.serviceStatus) }}</view>
           </view>
         </view>
-        <view class="log-box-bottom"></view>
         <view class="log-box-top" @click="onProgress()">
           <view class="top01">
-            <view>审核日志</view>
-            <view class="log-first-show" v-if="logs[0]">{{
-              logs[0].message
-            }}</view>
+            <view class="log-title">审核日志</view>
+            <view class="log-first-show wes" v-if="logs[0]">{{ logs[0].message }}</view>
           </view>
-         <u-icon name="arrow-right" style="margin-right: 5px" size="30" color="#999"></u-icon>
+          <u-icon name="arrow-right" size="16" color="#999"></u-icon>
         </view>
       </view>
       <view class="goods-info">
         <view class="info-box">
           <view class="goods-item-view" @click="navgiateToGoodsDetail(serviceDetail)">
             <view class="goods-img">
-              <u-image border-radius="6" width="131rpx" height="131rpx" :src="serviceDetail.goodsImage"></u-image>
+              <u-image
+                border-radius="6"
+                width="131rpx"
+                height="131rpx"
+                mode="aspectFill"
+                :src="parseGoodsImageUrl(serviceDetail.goodsImage)"
+              ></u-image>
             </view>
-            <view class="goods-info">
-              <view class="goods-title u-line-2">{{
-                serviceDetail.goodsName
-              }}</view>
-
+            <view class="goods-content">
+              <view class="goods-title">{{ serviceDetail.goodsName }}</view>
               <view class="goods-price">
-                <view class="price"> ￥{{unitPrice(serviceDetail.flowPrice) }}</view>
-                <view>
-                  <view>申请售后数量：{{ serviceDetail.num }}</view>
-                </view>
+                <text class="price">￥{{ unitPrice(serviceDetail.flowPrice) }}</text>
+                <text class="num">申请售后数量：{{ serviceDetail.num }}</text>
               </view>
             </view>
           </view>
@@ -384,13 +379,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-page,
-.content {
+page {
   background: $page-color-base;
-  height: 100%;
 }
+
 .after-sales-goods-detail-view {
   background-color: #fff;
+
   .header {
     background-color: #f7f7f7;
     color: #999999;
@@ -400,149 +395,166 @@ page,
     align-items: center;
     justify-content: center;
     line-height: 70rpx;
-    .header-text {
-      background-color: #999999;
-      padding: 10rpx 30rpx;
-      border-radius: 50rpx;
-    }
+
     .seller-name {
       color: $main-color;
     }
   }
+
   .apply-info-view {
     background: $page-color-base;
+    padding-bottom: 8rpx;
+  }
+
+  .goods-info {
+    background: #fff;
   }
 
   .goods-item-view {
     display: flex;
     flex-direction: row;
-    padding: 20rpx 30rpx;
+    align-items: flex-start;
+    padding: 24rpx 30rpx;
     background-color: #eef1f2;
-    .goods-info {
-      padding-left: 30rpx;
+
+    .goods-img {
+      flex-shrink: 0;
+      width: 131rpx;
+      height: 131rpx;
+      border-radius: 6rpx;
+      overflow: hidden;
+    }
+
+    .goods-content {
       flex: 1;
+      min-width: 0;
+      padding-left: 24rpx;
+
       .goods-title {
-        margin-bottom: 10rpx;
-        font-size: 28rpx;
+        margin-bottom: 12rpx;
+        font-size: 26rpx;
+        line-height: 1.4;
         color: $font-color-dark;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        word-break: break-all;
       }
-      .goods-specs {
-        font-size: 24rpx;
-        margin-bottom: 10rpx;
-        color: #cccccc;
-      }
+
       .goods-price {
         display: flex;
+        flex-direction: row;
+        align-items: center;
         justify-content: space-between;
         font-size: 24rpx;
         color: #999999;
+
+        .price {
+          color: $light-color;
+          font-size: 28rpx;
+        }
+
+        .num {
+          flex-shrink: 0;
+          margin-left: 16rpx;
+        }
       }
-      .price {
-        color: $light-color;
-      }
-    }
-    .goods-num {
-      width: 60rpx;
-      color: $main-color;
-    }
-  }
-}
-.apply-detail-view {
-  background-color: #f7f7f7;
-  margin-top: 10rpx;
-  padding: 20rpx;
-  color: #666666;
-
-  .detail-item {
-    padding: 12rpx;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    font-size: 24rpx;
-    .title {
-      padding-left: 10rpx;
-      width: 140rpx;
-    }
-    .value {
-      padding-left: 40rpx;
     }
   }
 }
 
-.log-box-bottom {
-  height: 120rpx;
-  flex-direction: column;
-  background-color: rgb(247, 247, 247);
-}
-.log-box-top {
-  height: 153rpx;
-  display: flex;
-  flex-direction: row;
-  background-color: rgb(255, 255, 255);
-  position: absolute;
-  top: 200rpx;
-  left: 0rpx;
-  right: 0rpx;
-  bottom: 0rpx;
-  margin-left: 22rpx;
-  margin-right: 22rpx;
-  margin-top: 22rpx;
-  border-radius: 22rpx;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 52rpx;
-  padding-top: 52rpx;
-  padding-left: 32rpx;
-
-  .top01 {
-    width: 90%;
-    font-family: PingFangSC-Regular;
-    font-size: 28rpx;
-    line-height: 30rpx;
-    color: rgb(46, 45, 45);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    overflow-wrap: break-word;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    white-space: normal;
-
-    .log-first-show {
-      flex-direction: row;
-      margin-top: 16rpx;
-      margin-right: 44rpx;
-      font-family: PingFangSC-Regular;
-      font-size: 22rpx;
-      color: rgb(140, 140, 140);
-      line-height: 30rpx;
-    }
-  }
-}
 .status-info {
-  flex-direction: row;
+  display: flex;
   background-color: $light-color;
+  padding: 32rpx 54rpx 56rpx;
 
   .status-info-box {
-    height: 180rpx;
-    flex-direction: row;
-    padding-left: 54rpx;
-    padding-right: 54rpx;
-    padding-top: 20rpx;
-    font-family: PingFangSC-Regular;
-    color: rgb(255, 255, 255);
-    background-color: rgba(0, 0, 0, 0);
-    line-height: 50rpx;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    line-height: 1.5;
 
     .status-val {
       font-size: 32rpx;
+      font-weight: 600;
     }
+
     .status-tip {
+      margin-top: 12rpx;
       font-size: 24rpx;
+      opacity: 0.95;
     }
   }
 }
+
+.log-box-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: -36rpx 22rpx 0;
+  padding: 28rpx 32rpx;
+  background-color: #fff;
+  border-radius: 22rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+
+  .top01 {
+    flex: 1;
+    min-width: 0;
+    padding-right: 16rpx;
+
+    .log-title {
+      font-size: 28rpx;
+      color: #333;
+      line-height: 1.4;
+    }
+
+    .log-first-show {
+      margin-top: 12rpx;
+      font-size: 22rpx;
+      color: #8c8c8c;
+      line-height: 1.4;
+    }
+  }
+}
+
 .info-box {
-  padding-right: 40rpx 0rpx;
   background-color: #eef1f2;
+}
+
+.apply-detail-view {
+  background-color: #fff;
+  margin-top: 20rpx;
+  padding: 8rpx 30rpx 30rpx;
+  color: #666666;
+
+  .detail-item {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 24rpx 0;
+    font-size: 28rpx;
+    border-bottom: 1px solid #f5f5f5;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .title {
+      flex-shrink: 0;
+      width: 160rpx;
+      color: #333;
+    }
+
+    .value {
+      flex: 1;
+      min-width: 0;
+      text-align: right;
+      color: #666;
+      word-break: break-all;
+    }
+  }
 }
 </style>

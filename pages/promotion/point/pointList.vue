@@ -17,15 +17,23 @@
 
         <scroll-view class="scroll-v" enableBackToTop="true" scroll-with-animation scroll-y @scrolltolower="loadMore">
           <view class="index-items">
-            <view class="index-item" v-for="(item, key) in nav.goods" :key="key" @click="toGoods(item)">
+            <view class="index-item" v-for="(item, key) in nav.goods" :key="item.id || key" @click="toGoods(item)">
               <view class="index-item-img">
-                <u-image :src="item.thumbnail" mode="aspectFit">
-                  <template #loading><u-loading></u-loading></template>
-                </u-image>
-                <view class="index-item-title">{{ item.goodsName }}</view>
-                <view class="index-item-price flex flex-a-c flex-j-sb">
-                  <div class="point"><span>{{ item.points }}</span>积分</div> 
-                  <span class="tipsMkt">¥{{unitPrice(item.originalPrice) }}</span>
+                <image
+                  class="index-item-image"
+                  :src="item.thumbnail"
+                  mode="aspectFit"
+                  lazy-load
+                ></image>
+              </view>
+              <view class="index-item-info">
+                <view class="index-item-title">{{ item.goodsName || item.promotionName || '' }}</view>
+                <view class="index-item-price">
+                  <view class="point">
+                    <text class="point-num">{{ item.points != null ? item.points : 0 }}</text>
+                    <text class="point-unit">积分</text>
+                  </view>
+                  <text class="tipsMkt">¥{{ unitPrice(item.originalPrice) }}</text>
                 </view>
               </view>
             </view>
@@ -194,10 +202,11 @@ page {
   height: 100%;
 }
 .tipsMkt {
+  flex-shrink: 0;
   color: #c0c4cc;
   font-size: 24rpx !important;
   text-decoration: line-through;
-  margin-right: 20rpx !important;
+  margin-left: 12rpx;
 }
 
 
@@ -265,61 +274,84 @@ page {
 }
 
 .index-items {
-  padding-top: 10rpx;
-  margin-top: 20rpx;
-
-  padding-left: 20rpx;
+  padding: 20rpx 20rpx 0;
   background-color: #f7f7f7;
-  display: -webkit-box;
-  display: -webkit-flex;
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .index-item {
-  width: 346rpx;
-  // height: 2100rpx;
+  width: calc(50% - 9rpx);
   background-color: #fff;
-  margin: 0 18rpx 20rpx 0;
+  margin-bottom: 20rpx;
   border-radius: 16rpx;
   box-sizing: border-box;
   overflow: hidden;
-  height: auto;
-  padding-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
 }
 
 .index-item-img {
-  ::v-deep .u-image {
-    width: 346rpx !important;
-    height: 320rpx !important;
-    border-radius: 10rpx !important;
-  }
+  width: 100%;
+  height: 320rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.index-item-image {
+  width: 100%;
+  height: 320rpx;
+  display: block;
+}
+
+.index-item-info {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  background-color: #fff;
 }
 
 .index-item-title {
   font-size: 26rpx;
-  color: #333333;
-  padding: 0 20rpx;
-  height: 80rpx;
-  box-sizing: border-box;
-  max-height: 3em;
+  color: #333;
+  padding: 16rpx 20rpx 0;
+  line-height: 1.4;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-
-
 .index-item-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 28rpx;
-  overflow: hidden;
-  color: $main-color;
-  padding: 20rpx 0 0 20rpx;
-  >.point{
-    >span{
-      font-size: 42rpx;
-      font-weight: bold;
-      margin-right:10rpx;
-    }
+  color: #ff3c2a;
+  padding: 12rpx 20rpx 20rpx;
+
+  .point {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    overflow: hidden;
+  }
+
+  .point-num {
+    font-size: 42rpx;
+    font-weight: bold;
+    color: #ff3c2a;
+    line-height: 1;
+  }
+
+  .point-unit {
+    margin-left: 6rpx;
+    font-size: 24rpx;
+    color: #ff3c2a;
+    flex-shrink: 0;
   }
 }
 </style>

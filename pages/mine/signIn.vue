@@ -28,7 +28,7 @@
             <view class="just" :class="signArr.indexOf(item) != -1 ? 'active' : ''">
               <view class="top">{{ item }} </view>
               <view class="bottom">
-                <u-icon name="error" v-if="item <= currentDay" color="#999"></u-icon>
+                <u-icon name="error" v-if="item <= currentDay" size="24" color="#999"></u-icon>
               </view>
             </view>
             <view class="back" :class="signArr.indexOf(item) != -1 ? 'active' : ''" :style="
@@ -40,7 +40,7 @@
               ">
               <view class="top">{{ item }}</view>
               <view class="bottom">
-                <u-icon name="checkmark" :color="aiderLightColor"></u-icon>
+                <u-icon name="checkmark" size="24" :color="aiderLightColor"></u-icon>
               </view>
             </view>
           </view>
@@ -382,7 +382,7 @@ page {
 
     .item {
       width: 66rpx;
-      height: 80rpx;
+      height: 96rpx;
       border-radius: 5px;
       overflow: hidden;
 
@@ -403,8 +403,11 @@ page {
         .top {
           position: relative;
           flex: 1;
-          text-align: center;
-          line-height: 40rpx;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          line-height: 1.2;
+          min-height: 0;
 
           &:before {
             content: "";
@@ -413,7 +416,8 @@ page {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            top: 15rpx;
+            top: 50%;
+            margin-top: -28rpx;
           }
         }
       }
@@ -437,9 +441,12 @@ page {
       .bottom {
         color: #999;
         font-size: 20rpx;
-        height: 20rpx;
-        line-height: 20rpx;
-        text-align: center;
+        height: 36rpx;
+        min-height: 36rpx;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
       }
     }
   }

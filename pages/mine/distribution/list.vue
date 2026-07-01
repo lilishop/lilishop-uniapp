@@ -67,44 +67,67 @@
 
     <view class="goods-list">
       <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
-        <u-swipe-action v-for="(item, index) in goodsList" ref="swiperAction" :key="item.id">
-          <u-swipe-action-item :disabled="!params.checked" :show="item.___selected" @open="openAction(item)" :name="index" :options="options"
-                        @click="changeActionTab(item)">
+        <block v-for="(item, index) in goodsList" :key="item.id">
+          <u-swipe-action v-if="params.checked" class="distribution-swipe">
+            <u-swipe-action-item
+              :show="item.___selected"
+              @open="openAction(item)"
+              :name="index"
+              :options="options"
+              @click="changeActionTab(item)"
+            >
+              <view class="goods-item">
+                <view class="goods-item-img" @click="handleNavgationGoods(item)">
+                  <u-image width="176rpx" height="176rpx" :src="item.thumbnail"></u-image>
+                </view>
+                <view class="goods-item-desc">
+                  <view class="-item-title" @click="handleNavgationGoods(item)">
+                    {{ item.goodsName }}
+                  </view>
+                  <view class="-item-price" @click="handleNavgationGoods(item)">
+                    佣金:
+                    <span> ￥{{ unitPrice(item.commission) }}</span>
+                  </view>
+                  <view class="-item-bottom">
+                    <view class="-item-bootom-money" @click="handleNavgationGoods(item)">
+                      <view class="-item-yj">
+                        <span>￥{{ unitPrice(item.price) }}</span>
+                      </view>
+                    </view>
+                    <view>
+                      <view class="click" @click="handleLink(item)">分销商品</view>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </u-swipe-action-item>
+          </u-swipe-action>
 
-          <div class="goods-item">
+          <view v-else class="goods-item">
             <view class="goods-item-img" @click="handleNavgationGoods(item)">
               <u-image width="176rpx" height="176rpx" :src="item.thumbnail"></u-image>
             </view>
             <view class="goods-item-desc">
-              <!-- 商品描述 -->
               <view class="-item-title" @click="handleNavgationGoods(item)">
                 {{ item.goodsName }}
               </view>
-              <!-- 商品金额 -->
               <view class="-item-price" @click="handleNavgationGoods(item)">
                 佣金:
-                <span> ￥{{unitPrice(item.commission) }}</span>
+                <span> ￥{{ unitPrice(item.commission) }}</span>
               </view>
-              <!-- 比率佣金 -->
               <view class="-item-bottom">
                 <view class="-item-bootom-money" @click="handleNavgationGoods(item)">
-                  <!-- <view class="-item-bl">
-                  比率:
-                  <span>{{ "5.00%" }}</span>
-                </view> -->
                   <view class="-item-yj">
-                    <span>￥{{unitPrice(item.price) }}</span>
+                    <span>￥{{ unitPrice(item.price) }}</span>
                   </view>
                 </view>
                 <view>
-                  <view class="click" v-if="!params.checked" @click="handleClickGoods(item)">立即选取</view>
-                  <view class="click" v-if="params.checked" @click="handleLink(item)">分销商品</view>
+                  <view class="click" @click="handleClickGoods(item)">立即选取</view>
                 </view>
               </view>
             </view>
-          </div>
-        </u-swipe-action-item>
-        </u-swipe-action>
+          </view>
+        </block>
       </scroll-view>
 
 
@@ -419,7 +442,39 @@ export default {
     height: 88rpx;
     flex: 1;
     text-align: center;
+    position: relative;
+    color: #666;
   }
+  > .nav-item.checked {
+    color: $main-color;
+    font-weight: bold;
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 80rpx;
+      height: 4rpx;
+      background: $main-color;
+      border-radius: 2rpx;
+    }
+  }
+}
+
+.distribution-swipe,
+:deep(.u-swipe-action),
+:deep(.u-swipe-action-item),
+:deep(.u-swipe-action-item__content) {
+  width: 100%;
+}
+
+:deep(.u-swipe-action-item) {
+  overflow: hidden;
+}
+
+:deep(.u-swipe-action-item__content) {
+  overflow: hidden;
 }
 .click {
   background: $main-color;

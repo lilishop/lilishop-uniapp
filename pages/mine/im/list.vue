@@ -1,6 +1,14 @@
 <template>
   <view class="content">
-    <u-navbar class="my-title" title-size="32" :title="'消息(' + talkList.length + ')'"></u-navbar>
+    <u-navbar
+      class="my-title"
+      title-size="32"
+      :title="'消息(' + talkList.length + ')'"
+      :fixed="true"
+      :placeholder="true"
+      :border="false"
+      :auto-back="true"
+    ></u-navbar>
     <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData(tabIndex)">
       
       <!-- 消息列表 -->

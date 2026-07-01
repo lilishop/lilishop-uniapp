@@ -1,52 +1,136 @@
-
 <template>
-  <view>
-    <view class="-list">
+  <view class="page">
+    <view class="form-card">
       <view class="title">充值金额</view>
-      <view class="content">
-        <view class="price">
-          <span> ￥</span>
-          <u-input v-model="price" placeholder='金额' type="number" />
-					
-        </view>
-
+      <view class="amount-row">
+        <text class="currency">￥</text>
+        <u-input
+          v-model="price"
+          type="digit"
+          border="none"
+          placeholder="请输入充值金额"
+          input-align="left"
+          class="amount-input"
+        />
       </view>
     </view>
 
-    <view class="submit" :class="{'light':flag}" @click="handlerRecharge">充值</view>
+    <view class="submit" :class="{ disabled: flag }" @click="handlerRecharge">充值</view>
   </view>
 </template>
+
 <script>
 import { recharge } from "@/api/members";
 export default {
   data() {
     return {
-      price: 0,
+      price: "",
       flag: true,
     };
   },
   watch: {
     price(val) {
-      val <= 0 ? (this.flag = true) : (this.flag = false);
+      this.flag = !(Number(val) > 0);
     },
   },
-  mounted() {},
   methods: {
-    // 充值
     async handlerRecharge() {
-      if (this.price > 0) {
-       
-        let res = await recharge({ price: this.price });
-        if (res.data.success) {
-          uni.navigateTo({
-            url: `/pages/cart/payment/payOrder?orderType=RECHARGE&recharge_sn=${res.data.result.rechargeSn}`,
-          });
-        }
+      const amount = Number(this.price);
+      if (!(amount > 0)) {
+        uni.showToast({
+          title: "请输入充值金额",
+          icon: "none",
+        });
+        return;
+      }
+
+      const res = await recharge({ price: amount });
+      if (res.data.success) {
+        uni.navigateTo({
+          url: `/pages/cart/payment/payOrder?orderType=RECHARGE&recharge_sn=${res.data.result.rechargeSn}`,
+        });
       }
     },
   },
 };
 </script>
+
 <style lang="scss" scoped>
-@import './style.scss';
+.page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.form-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+}
+
+.title {
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+
+.amount-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16rpx 0 8rpx;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.currency {
+  flex-shrink: 0;
+  margin-right: 16rpx;
+  font-size: 56rpx;
+  font-weight: 600;
+  line-height: 1;
+  color: #333;
+}
+
+.amount-input {
+  flex: 1;
+  min-width: 0;
+}
+
+:deep(.amount-input .u-input) {
+  padding: 0 !important;
+}
+
+:deep(.amount-input .u-input__content) {
+  background: transparent !important;
+}
+
+:deep(.amount-input .u-input__content__field-wrapper__field) {
+  height: 72rpx !important;
+  min-height: 72rpx !important;
+  font-size: 56rpx !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+}
+
+:deep(.amount-input .u-input__content__field-wrapper__field--placeholder) {
+  font-size: 32rpx !important;
+  font-weight: 400 !important;
+  color: #c0c4cc !important;
+}
+
+.submit {
+  margin-top: 80rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: $light-color;
+  color: #fff;
+  border-radius: 44rpx;
+  text-align: center;
+  font-size: 32rpx;
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
 </style>

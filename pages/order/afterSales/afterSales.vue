@@ -27,34 +27,31 @@
         :key="orderIndex"
       >
         <!-- 店铺名称 -->
-        <view class="seller-info u-flex u-row-between" v-if="current == 0">
-          <view class="seller-name">
-            <view class="name">{{ order.storeName }}</view>
-          </view>
-          <view class="order-sn">订单编号:{{ order.sn }}</view>
+        <view class="seller-info" v-if="current == 0">
+          <view class="seller-name wes">{{ order.storeName }}</view>
+          <view class="order-sn wes">订单编号:{{ order.sn }}</view>
         </view>
         <!-- 申请记录 选项卡 -->
-        <view class="seller-info u-flex u-row-between" v-if="current != 0">
-          <view class="order-sn"
-            >售后单号：{{ order.service_sn || order.sn }}</view
-          >
-          <view class="order-sn">{{ order.serviceType_text }}</view>
+        <view class="seller-info" v-if="current != 0">
+          <view class="order-sn wes">售后单号：{{ order.service_sn || order.sn }}</view>
+          <view class="order-sn service-type">{{ order.serviceType_text }}</view>
         </view>
         <view v-for="(sku, goodsIndex) in order.orderItems" :key="goodsIndex">
           <view class="goods-item-view" @click="onDetail(order, sku)">
             <view class="goods-img">
               <u-image
                 border-radius="6"
-                width="100%"
-                height="100%"
-                :src="sku.image"
+                width="131rpx"
+                height="131rpx"
+                mode="aspectFill"
+                :src="getGoodsImage(sku, order, goodsIndex)"
               ></u-image>
             </view>
             <view class="goods-info">
-              <view class="goods-title u-line-2">{{ sku.name }}</view>
+              <view class="goods-title">{{ getGoodsName(sku) }}</view>
               <!-- 如果商品多个则不显示每个商品价格-->
               <view class="goods-price" v-if="order.orderItems.length <= 1">
-                ￥{{unitPrice(order.flowPrice) }}
+                ￥{{ unitPrice(order.flowPrice) }}
               </view>
             </view>
             <view class="goods-num">
@@ -119,7 +116,7 @@
 
             <!-- 申请记录 -->
           </view>
-          <view class="btn-view u-flex u-row-right">
+          <view class="btn-view">
             <!-- 售后申请  -->
 
             <div class="sale" v-if="current === 0 && sku.afterSaleStatus">
@@ -172,7 +169,7 @@
             order.groupAfterSaleStatus != 'ALREADY_APPLIED' &&
             order.orderItems.length >= 1
           "
-          class="btn-view u-flex u-row-between"
+          class="btn-view order-total"
         >
           <!-- 多个商品显示订单总价格 -->
           <view class="cannot_apply">
@@ -252,6 +249,17 @@ export default {
     this.change(this.current);
   },
   methods: {
+    getGoodsName(sku) {
+      return sku.goodsName || sku.name || "";
+    },
+    getGoodsImage(goods, order, index) {
+      let image = goods.image || goods.goodsImage || goods.thumbnail;
+      if (!image && order.groupImages) {
+        const images = String(order.groupImages).split(",");
+        image = images[index] || images[0];
+      }
+      return this.parseGoodsImageUrl(image);
+    },
     /**
      * 点击搜索执行搜索
      */
@@ -471,6 +479,8 @@ page,
 .body-view {
   overflow-y: auto;
   height: calc(100vh - 44px - 80rpx - 104rpx);
+  padding: 0 20rpx;
+  box-sizing: border-box;
 }
 
 .u-tabs-search {
@@ -486,47 +496,70 @@ page,
 
 .seller-view {
   background-color: #fff;
-  margin: 20rpx 0rpx;
-  padding: 0rpx 20rpx;
+  margin: 20rpx 0;
+  padding: 0 20rpx 24rpx;
   border-radius: 20rpx;
 
   .seller-info {
-    height: 70rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 70rpx;
+    padding: 20rpx 0 16rpx;
+    gap: 20rpx;
 
     .seller-name {
+      flex-shrink: 0;
+      max-width: 40%;
       font-size: 28rpx;
-      display: flex;
-      flex-direction: row;
-
-      .name {
-        margin-left: 15rpx;
-        margin-top: -2rpx;
-      }
+      font-weight: 600;
+      color: #333;
     }
 
     .order-sn {
+      flex: 1;
+      min-width: 0;
       font-size: 22rpx;
       color: #909399;
+      text-align: right;
+    }
+
+    .service-type {
+      flex-shrink: 0;
+      text-align: right;
     }
   }
 
   .goods-item-view {
     display: flex;
     flex-direction: row;
-    padding: 10rpx 10rpx;
+    align-items: flex-start;
+    padding: 16rpx 0;
 
     .goods-img {
+      flex-shrink: 0;
       width: 131rpx;
       height: 131rpx;
+      border-radius: 6rpx;
+      overflow: hidden;
     }
 
     .goods-info {
-      padding-left: 30rpx;
       flex: 1;
+      min-width: 0;
+      padding: 0 20rpx;
 
       .goods-title {
         margin-bottom: 10rpx;
         color: #333333;
+        font-size: 26rpx;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        word-break: break-all;
       }
 
       .goods-specs {
@@ -537,23 +570,44 @@ page,
 
       .goods-price {
         font-size: 28rpx;
-        margin-bottom: 10rpx;
         color: #ff5a10;
       }
     }
 
     .goods-num {
-      width: 60rpx;
+      flex-shrink: 0;
+      min-width: 60rpx;
+      text-align: right;
       color: $main-color;
+      font-size: 26rpx;
+      line-height: 1.4;
     }
   }
 
   .btn-view {
-    padding: 16rpx 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 16rpx 0 0;
 
     .after-line {
       display: flex;
-      line-height: 90rpx;
+      flex-direction: row;
+      align-items: center;
+      gap: 15rpx;
+    }
+  }
+
+  .order-total {
+    justify-content: flex-start;
+    padding-top: 8rpx;
+    padding-bottom: 4rpx;
+
+    .cannot_apply {
+      text-align: left;
+      height: auto;
+      line-height: 1.5;
     }
   }
 }

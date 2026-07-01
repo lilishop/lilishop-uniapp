@@ -5,39 +5,63 @@
         <image class="img" src="@/pages/cart/static/pay.png" />
         <p class="ptips">收银台</p>
 
-        <p class="ptips">剩余支付时间：
-          <u-count-down :show-days="false" :show-border="true" font-size="28" color="#008ffa" border-color="#008ffa" ref="uCountDown" :timestamp="autoCancel"></u-count-down>
-        </p>
-        <p class="ptips">
+        <view class="ptips ptips-countdown">
+          剩余支付时间：
+          <u-count-down
+            v-if="autoCancelTime > 0"
+            :time="autoCancelTime"
+            format="HH:mm:ss"
+            @finish="onPayTimeout"
+          >
+            <template #default="{ hours, minutes, seconds }">
+              <view class="countdown-box">
+                <text class="countdown-num">{{ padTime(hours) }}</text>
+                <text class="countdown-colon">:</text>
+                <text class="countdown-num">{{ padTime(minutes) }}</text>
+                <text class="countdown-colon">:</text>
+                <text class="countdown-num">{{ padTime(seconds) }}</text>
+              </view>
+            </template>
+          </u-count-down>
+          <view v-else class="countdown-box">
+            <text class="countdown-num">00</text>
+            <text class="countdown-colon">:</text>
+            <text class="countdown-num">00</text>
+            <text class="countdown-colon">:</text>
+            <text class="countdown-num">00</text>
+          </view>
+        </view>
+        <view class="ptips ptips-price">
           支付金额
-          <span>¥{{unitPrice(cashierParams.price) }}</span>
-        </p>
+          <text class="price-text">¥{{ unitPrice(cashierParams.price) }}</text>
+        </view>
       </div>
     </div>
     <div class="__pay_form__">
     </div>
     <div class="block-4" v-if="cashierParams.price > 0">
-      <div class="payItem">支付方式</div>
-      <div class="payItem" v-for="(item, index) in payList" :key="index">
-        <u-row class="row">
-          <div class="col1" @click="awaitPay(item, index)" size="100" style="text-align:left;">
-            <div v-if="item == 'ALIPAY'">
-              <u-icon class="method_icon" name="zhifubao-circle-fill" color="#008ffa" size="80"></u-icon>
-              <span class="method_name">支付宝</span>
-            </div>
-            <div v-if="item == 'WECHAT'">
-              <u-icon class="method_icon" name="weixin-circle-fill" color="#00c98b" size="80"></u-icon>
-              <span class="method_name">微信</span>
-            </div>
-            <div v-if="item == 'WALLET'">
-              <u-icon class="method_icon" name="red-packet-fill" color="#dd6161" size="80"></u-icon>
-              <span class="method_name">余额支付(当前余额：¥{{unitPrice(walletValue) }})</span>
-            </div>
-          </div>
-          <div class="col3" @click="awaitPay(item)" textAlign="right">
-            <u-icon size="26" color="#b1b1b1" name="arrow-right"></u-icon>
-          </div>
-        </u-row>
+      <div class="payItem payItem-title">支付方式</div>
+      <div
+        class="payItem payItem-method"
+        v-for="(item, index) in payList"
+        :key="index"
+        @click="awaitPay(item, index)"
+      >
+        <view class="method-left">
+          <template v-if="item == 'ALIPAY'">
+            <u-icon class="method_icon" name="zhifubao-circle-fill" color="#008ffa" size="44"></u-icon>
+            <text class="method_name">支付宝</text>
+          </template>
+          <template v-if="item == 'WECHAT'">
+            <u-icon class="method_icon" name="weixin-circle-fill" color="#00c98b" size="44"></u-icon>
+            <text class="method_name">微信</text>
+          </template>
+          <template v-if="item == 'WALLET'">
+            <u-icon class="method_icon" name="red-packet-fill" color="#dd6161" size="44"></u-icon>
+            <text class="method_name">余额支付(当前余额：¥{{ unitPrice(walletValue) }})</text>
+          </template>
+        </view>
+        <u-icon size="28" color="#b1b1b1" name="arrow-right"></u-icon>
       </div>
     </div>
   </div>
@@ -68,8 +92,8 @@
 				paymentClient: "",
 				//余额
 				walletValue: 0.0,
-				// 支付倒计时
-				autoCancel: 0,
+				// 支付倒计时（毫秒）
+				autoCancelTime: 0,
 			
 			};
 		},
@@ -193,8 +217,8 @@
 					
 
 					this.walletValue = res.data.result.walletValue;
-					this.autoCancel =
-						(res.data.result.autoCancel - new Date().getTime()) / 1000;
+					const cancelAt = Number(res.data.result.autoCancel);
+					this.autoCancelTime = cancelAt > 0 ? Math.max(cancelAt - Date.now(), 0) : 0;
 					}
 					else if(res.data.code == 32000){
 						setTimeout(()=>{
@@ -212,6 +236,22 @@
 				this.$u.throttle(()=>{
 					this.pay(payment)
 				}, 2000)
+			},
+
+			padTime(val) {
+				return String(val ?? 0).padStart(2, '0');
+			},
+
+			onPayTimeout() {
+				uni.showToast({
+					title: '支付超时，请重新下单',
+					icon: 'none',
+				});
+				setTimeout(() => {
+					uni.redirectTo({
+						url: '/pages/order/myOrder?status=0',
+					});
+				}, 1500);
 			},
 
 			//订单支付
@@ -433,62 +473,95 @@
 </script>
 <style scoped lang="scss">
 .method_icon {
-  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.method-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .method_name {
   font-size: 28rpx;
-  color: #999;
-  padding-left: 24rpx;
-}
-
-.row {
-  display: flex;
-  width: 100%;
-}
-
-::v-deep .u-row {
-  width: 100% !important;
-  display: flex;
-  justify-content: space-between !important;
-}
-
-.method_name,
-.col1 {
+  color: #333;
+  padding-left: 20rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.col1 {
-  text-align: center;
-  flex: 99;
-}
-
-.col3 {
-  text-align: right;
-  flex: 1;
-}
-
 .payItem {
-  padding: 13px 25rpx;
-  border-top: 1px solid #f9f9f9;
-
-  line-height: 100rpx;
-  font-size: 36rpx;
+  padding: 0 30rpx;
+  border-top: 1px solid #f5f5f5;
   color: #333;
+}
+
+.payItem-title {
+  font-size: 28rpx;
+  color: #999;
+  padding-top: 24rpx;
+  padding-bottom: 16rpx;
+  border-top: none;
+}
+
+.payItem-method {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 100rpx;
+  padding-top: 24rpx;
+  padding-bottom: 24rpx;
 }
 
 .ptips {
   font-size: 32rpx;
   margin: 20rpx 0;
   color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
 
-  > span {
+.ptips-countdown {
+  gap: 8rpx;
+}
+
+.ptips-price {
+  .price-text {
     font-size: 40rpx;
-    color: #df5a52;
+    color: $main-color;
+    font-weight: 600;
     margin-left: 10rpx;
   }
+}
+
+.countdown-box {
+  display: inline-flex;
+  align-items: center;
+}
+
+.countdown-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44rpx;
+  height: 44rpx;
+  padding: 0 8rpx;
+  font-size: 28rpx;
+  color: #008ffa;
+  border: 1rpx solid #008ffa;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+}
+
+.countdown-colon {
+  margin: 0 6rpx;
+  font-size: 28rpx;
+  color: #008ffa;
+  font-weight: 600;
 }
 
 .img {

@@ -4,7 +4,7 @@
 			:fixed="true"
 			:placeholder="true"
 			:border="false"
-			left-icon=""
+			:auto-back="true"
 			title=""
 		>
 			<template #center>
@@ -311,9 +311,11 @@
 	}
 
 	.slot-wrap {
-		width: 100%;
+		flex: 1;
 		display: flex;
 		justify-content: center;
+		padding: 0 20rpx;
+		box-sizing: border-box;
 	}
 
 	.collect-tabs {

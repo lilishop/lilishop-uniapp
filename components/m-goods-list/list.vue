@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<!-- 一行两列商品展示 -->
-		<view class="goods-list" v-if="type == 'twoColumns'">
+		<view class="goods-list" :class="{ 'goods-list--embedded': !tabBarGap }" v-if="type == 'twoColumns'">
 			<view v-for="(item, index) in res" :key="index" class="goods-item">
 				<view class="image-wrapper" @click="navigateToDetailPage(item)">
 					<u-image :src="item.thumbnail" width="100%" height='330rpx' mode="aspectFit">
@@ -124,6 +124,10 @@
 				type: Boolean,
 				default: true
 			},
+			tabBarGap: {
+				type: Boolean,
+				default: true
+			},
 			keyword: {
 				type: null,
 				default: ''
@@ -210,6 +214,10 @@
 			flex-wrap: wrap;
 			margin: 10rpx 20rpx 284rpx;
 			width: 100%;
+
+			&.goods-list--embedded {
+				margin-bottom: 20rpx;
+			}
 	
 			>.goods-item {
 				background-color: #ffffff;

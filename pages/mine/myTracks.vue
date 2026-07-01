@@ -1,6 +1,11 @@
 <template>
 	<view class="myTracks">
-		<u-navbar title="我的足迹">
+		<u-navbar
+			title="我的足迹"
+			:fixed="true"
+			:placeholder="true"
+			:auto-back="true"
+		>
 			<template #right>
         <div class="light-color edit" @click="isEdit = !isEdit">{{ !isEdit ? '编辑' : '完成'}}</div>
       </template>
@@ -12,7 +17,11 @@
 		<u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
 		<view v-else class="tracks-list">
 			<block v-for="(item, index) in trackList" :key="index">
-				<view class="myTracks-title" @click="navigateToStore(item)">{{ item.storeName }}</view>
+				<view
+					class="myTracks-title"
+					v-if="getStoreName(item)"
+					@click="navigateToStore(item)"
+				>{{ getStoreName(item) }}</view>
 				<u-swipe-action class="myTracks-swipe">
 					<u-swipe-action-item
 						:show="item.show"
@@ -60,6 +69,7 @@
 		myTrackList,
 		deleteHistoryListId
 	} from "@/api/members.js";
+	import { getStoreBaseInfo } from "@/api/store.js";
 
 	export default {
 		data() {
@@ -80,6 +90,7 @@
 					}
 				}],
 				trackList: [], //足迹列表
+				storeNameMap: {},
 			};
 		},
 
@@ -100,6 +111,32 @@
 			this.getList();
 		},
 		methods: {
+			getStoreName(item) {
+				return item.storeName || this.storeNameMap[item.storeId] || "";
+			},
+			async enrichStoreNames(records) {
+				const storeIds = [
+					...new Set(
+						records
+							.filter((item) => !item.storeName && item.storeId)
+							.map((item) => item.storeId)
+					),
+				].filter((storeId) => !this.storeNameMap[storeId]);
+
+				await Promise.all(
+					storeIds.map(async (storeId) => {
+						try {
+							const res = await getStoreBaseInfo(storeId);
+							const name = res.data?.result?.storeName;
+							if (name) {
+								this.storeNameMap[storeId] = name;
+							}
+						} catch (e) {
+							// ignore
+						}
+					})
+				);
+			},
 			checkboxChangeDP(val){
 				console.log(val)
 			},
@@ -147,21 +184,23 @@
 				uni.showLoading({
 					title: "加载中",
 				});
-				myTrackList(this.params).then((res) => {
+				myTrackList(this.params).then(async (res) => {
 					uni.stopPullDownRefresh();
 					uni.hideLoading();
 					if (res.statusCode == 200) {
-						res.data.result.records.length &&
-							res.data.result.records.forEach((item) => {
-								item.show = false;
-								item.checked = false
-							});
+						const records = res.data.result.records || [];
+						records.forEach((item) => {
+							item.show = false;
+							item.checked = false;
+						});
 
-						let data = res.data.result.records;
-						if (data.total == 0) {
-							this.whetherEmpty = true;
+						if (!records.length) {
+							if (this.trackList.length === 0) {
+								this.whetherEmpty = true;
+							}
 						} else {
-							this.trackList.push(...data);
+							await this.enrichStoreNames(records);
+							this.trackList.push(...records);
 						}
 					}
 				});

@@ -1,9 +1,19 @@
 <template>
   <div class="box">
-    <u-navbar class="navbar">
-      <view class="slot-wrap">
-        <u-search placeholder="搜索直播间" @custom="searchLive" @clear="clear" @search="searchLive" v-model="keyword"></u-search>
-      </view>
+    <u-navbar
+      class="navbar"
+      :border="false"
+      :fixed="true"
+      :placeholder="true"
+      left-icon="arrow-left"
+      :auto-back="false"
+      @left-click="back"
+    >
+      <template #center>
+        <view class="slot-wrap">
+          <u-search placeholder="搜索直播间" @custom="searchLive" @clear="clear" @search="searchLive" v-model="keyword"></u-search>
+        </view>
+      </template>
     </u-navbar>
     <!-- 轮播图 -->
     <u-swiper @click="clickSwiper" class="swiper" keyName="image" :list="swiperImg">
@@ -120,6 +130,14 @@ export default {
     this.getLives();
   },
   methods: {
+    back() {
+      uni.navigateBack({
+        delta: 1,
+        fail: () => {
+          uni.switchTab({ url: "/pages/tabbar/home/index" });
+        },
+      });
+    },
     /**
      * 点击标签栏切换
      */
