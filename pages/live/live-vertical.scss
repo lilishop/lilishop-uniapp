@@ -1,0 +1,235 @@
+.live-room-page {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.live-detail-page-vertical {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.live-container-vertical {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.live-box-vertical {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  > video,
+  > live-player,
+  > .stream-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.capsule {
+  position: absolute;
+  top: calc(var(--status-bar-height, 44px) + 80rpx);
+  right: 20rpx;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 12rpx 20rpx;
+  border-radius: 30rpx;
+  color: #fff;
+  font-size: 24rpx;
+  z-index: 10;
+}
+
+.bottom-container-vertical {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+
+  &.hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.bottom-container-vertical .message-container {
+  padding: 0 24rpx;
+}
+
+.bottom-container-vertical .message-item {
+  border-bottom: none;
+  padding: 12rpx 0;
+}
+
+.bottom-container-vertical .username {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.bottom-container-vertical .message-text {
+  color: #fff;
+}
+
+.bottom-container-vertical .cart-btn {
+  position: absolute;
+  right: 20rpx;
+  bottom: 280rpx;
+  z-index: 20;
+}
+
+.product-showcase {
+  margin: 0 24rpx 16rpx;
+  padding: 16rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.product-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-name {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 600;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff4b2b, #ff416c);
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 6rpx;
+  margin-right: 8rpx;
+}
+
+.product-sell-point {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+.product-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12rpx;
+}
+
+.product-price {
+  color: #ff4b2b;
+  font-size: 32rpx;
+  font-weight: 700;
+
+  &.sold-out {
+    color: #999;
+  }
+}
+
+.buy-btn {
+  padding: 10rpx 24rpx;
+  border-radius: 28rpx;
+  font-size: 24rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #ff4b2b, #ff416c);
+
+  &.sold-out {
+    background: #ccc;
+  }
+}
+
+.bottom-container-vertical .bottom-actions {
+  background: transparent;
+  border-top: none;
+}
+
+.bottom-container-vertical .input-box {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bottom-container-vertical .input-content {
+  color: #fff;
+}
+
+.bottom-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.bottom-popup-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  max-height: 70vh;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+
+  &.show {
+    transform: translateY(0);
+  }
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.popup-close {
+  font-size: 36rpx;
+  color: #999;
+}
+
+.popup-content {
+  padding: 20rpx;
+  max-height: calc(70vh - 100rpx);
+}

@@ -101,6 +101,13 @@
 					"style": {
 							"navigationBarTitleText": "专题"
 					}
+		},
+		{
+			"path": "pages/live/room",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTextStyle": "white"
+			}
 		}
 
 	],
