@@ -49,7 +49,7 @@
     <view class="product-container" :style="{ height: productRefHeight }" ref="productRef" id="productRef">
       <scroll-view scroll-anchoring enableBackToTop="true" scroll-with-animation scroll-y class="scroll-page"
         :scroll-top="tabScrollTop" @scroll="pageScroll">
-        <view>
+        <view class="scroll-inner">
           <!-- 轮播图 -->
          
           <GoodsSwiper id="main1" :res="imgList" :video="goodsDetail.goodsVideo" />
@@ -186,11 +186,16 @@
           <storeLayout id="main7" :storeDetail="storeDetail" :goodsDetail="goodsDetail" :res="recommendList" />
 
           <!-- 宝贝详情 -->
-          <GoodsIntro id="main9" :res="goodsDetail" :goodsParams="goodsParams" :goodsId="goodsDetail.goodsId"
-            v-if="goodsDetail.id" />
+          <GoodsIntro
+            id="main9"
+            :res="goodsDetail"
+            :goodsParams="goodsParams"
+            :goodsId="goodsDetail.goodsId"
+            v-if="goodsDetail.id && (goodsDetail.mobileIntro || (goodsParams && goodsParams.length))"
+          />
 
           <!-- 宝贝推荐 -->
-          <GoodsRecommend id="main11" :res="likeGoodsList" />
+          <GoodsRecommend id="main11" v-if="likeGoodsList.length" :res="likeGoodsList" />
         </view>
       </scroll-view>
 
@@ -422,7 +427,7 @@ export default {
         pageSize: 10,
       },
 
-      likeGoodsList: "", //相似商品列表
+      likeGoodsList: [], //相似商品列表
       PromotionList: "", //活动,促销，列表
       specList: [],
       selectedSpec: [],

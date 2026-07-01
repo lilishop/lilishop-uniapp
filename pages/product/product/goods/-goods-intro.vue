@@ -1,17 +1,11 @@
 <template>
-  <div>
-    <view class="detail-box">
+  <view v-if="hasDetailContent">
+    <view class="detail-box" v-if="res.mobileIntro">
       <view class="goods-detail">
         <view class="detail_padding">
           <div class="goods-detail-box">
             <div class="goods-detail-item goods-active">商品介绍</div>
           </div>
-          <u-empty
-            class="empty"
-            text="暂无商品介绍"
-            mode="data"
-            v-if="!res.mobileIntro"
-          ></u-empty>
           <u-parse
             class="vhtml"
             :lazy-load="true"
@@ -22,17 +16,14 @@
       </view>
     </view>
 
-    <view class="detail-box">
+    <view class="detail-box" v-if="goodsParams && goodsParams.length">
       <view class="goods-detail">
         <view class="detail_padding">
           <div class="goods-detail-box">
             <div class="goods-detail-item goods-active">商品参数</div>
           </div>
           <!-- <u-divider>商品参数</u-divider> -->
-          <div class="param-list" v-if="goodsParams.length == 0">
-            <u-empty text="暂无商品参数" mode="list"></u-empty>
-          </div>
-          <div class="param-list" v-else>
+          <div class="param-list">
             <div
               class="param-item"
               v-for="(param, index) in goodsParams"
@@ -45,7 +36,7 @@
         </view>
       </view>
     </view>
-  </div>
+  </view>
 </template>
 
 <script>
@@ -60,6 +51,11 @@ export default {
     };
   },
   props: ["res", "goodsId", "goodsParams"],
+  computed: {
+    hasDetailContent() {
+      return !!(this.res?.mobileIntro || (this.goodsParams && this.goodsParams.length));
+    },
+  },
   async mounted() {
     let res = await getGoodsMessage(this.goodsId);
     if (res.data.success) {

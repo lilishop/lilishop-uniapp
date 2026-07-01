@@ -1,24 +1,34 @@
 <template>
 	<view class="wrapper">
-		<u-navbar :border="false"  :title="title">
-			<!-- 中间 -->
-			<view class="slot-wrap container-wrap">
-				<view v-if="search">
-					<u-search @search="searchFun()" @custom="searchFun()" v-model="params.goodsName"></u-search>
+		<u-navbar
+			:border="false"
+			:fixed="true"
+			:placeholder="true"
+			left-icon="arrow-left"
+			:auto-back="false"
+			@left-click="back"
+		>
+			<template #center>
+				<view v-if="search" class="search-wrap">
+					<u-search
+						@search="searchFun()"
+						@custom="searchFun()"
+						v-model="params.goodsName"
+					></u-search>
 				</view>
-			</view>
-			<!-- 右侧 -->
+				<text v-else class="nav-title">{{ title }}</text>
+			</template>
 			<template #right>
-				<view style="margin-right: 24rpx;" @click="searchFlag()">
-					<view v-if="search">取消</view>
-					<u-icon v-if="!search" size="44rpx" name="search"></u-icon>
+				<view class="nav-right" @click="searchFlag()">
+					<text v-if="search">取消</text>
+					<u-icon v-else size="22" name="search"></u-icon>
 				</view>
 			</template>
 		</u-navbar>
 		<!-- 顶部栏 -->
-		<div class='header-wraper'>
-			<image  src="/static/join-buy.png"></image>
-		</div>
+		<view class="header-wraper">
+			<image class="header-banner" mode="aspectFit" src="/static/join-buy.png"></image>
+		</view>
 		<!-- 商品栏 -->
 		<div class="swiper">
 			<goodsTemplate v-if="goodsList.length" :res="goodsList" />
@@ -56,7 +66,9 @@
 		mounted() {},
 		watch: {
 			search(val) {
-				val ? (this.title = "") : (this.title = "拼团活动");
+				if (!val && !this.title) {
+					this.title = "拼团活动";
+				}
 			},
 		},
 		onReachBottom() {
@@ -71,6 +83,24 @@
 		},
 
 		methods: {
+			back() {
+				if (this.search) {
+					this.search = false;
+					this.params.goodsName = "";
+					this.goodsList = [];
+					this.params.pageNumber = 1;
+					this.GET_AssembleGoods();
+					return;
+				}
+				const pages = getCurrentPages();
+				if (pages.length > 1) {
+					uni.navigateBack();
+				} else {
+					uni.switchTab({
+						url: "/pages/tabbar/home/index",
+					});
+				}
+			},
 			loadMore() {
 				this.params.pageNumber++;
 				this.GET_AssembleGoods();
@@ -118,16 +148,37 @@
 </script>
 
 <style lang="scss" scoped>
+	.search-wrap {
+		width: 100%;
+		padding: 0 20rpx;
+		box-sizing: border-box;
+	}
+
+	.nav-title {
+		font-size: 32rpx;
+		color: #303133;
+	}
+
+	.nav-right {
+		margin-right: 24rpx;
+		display: flex;
+		align-items: center;
+		font-size: 28rpx;
+		color: #303133;
+	}
+
 	.header-wraper {
-		background: url('/static/bg.png');
+		background: url('/static/bg.png') no-repeat center center;
+		background-size: cover;
 		height: 200rpx;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		>image{
+
+		.header-banner {
 			width: 188rpx;
 			height: 60rpx;
+			display: block;
 		}
 	}
-	
 </style>

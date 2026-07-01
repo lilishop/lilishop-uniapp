@@ -1,29 +1,39 @@
 <template>
-  <view class="container">
+  <view class="set-up">
     <view class="person" @click="checkUserInfo()">
-      <u-image width=140 height="140" shape="circle" :src="userInfo.face || userImage" mode="">
-      </u-image>
+      <u-image
+        width="140rpx"
+        height="140rpx"
+        shape="circle"
+        :src="userInfo.face || userImage"
+        mode="aspectFill"
+      ></u-image>
       <view class="user-name">
-        {{ userInfo.id ? userInfo.nickName || '' : '暂未登录'  }}
+        {{ userInfo.id ? userInfo.nickName || '' : '暂未登录' }}
       </view>
-      <u-icon color="#ccc" name="arrow-right"></u-icon>
+      <u-icon color="#ccc" name="arrow-right" size="16"></u-icon>
     </view>
-    <!-- #ifdef MP-WEIXIN -->
-    <view style="height: 20rpx; width: 100%"></view>
-    <!-- #endif -->
-    <u-cell-group :border="false">
+
+    <u-cell-group class="cell-group">
       <!-- #ifdef APP-PLUS -->
-      <u-cell title="清除缓存" :value="fileSizeString" @click="clearCache"></u-cell>
+      <u-cell :isLink="false" title="清除缓存" :value="fileSizeString" @click="clearCache"></u-cell>
       <!-- #endif -->
       <!-- #ifndef MP-WEIXIN -->
-      <u-cell title="安全中心" @click="navigateTo('/pages/mine/set/securityCenter/securityCenter')"></u-cell>
+      <u-cell
+        :isLink="false"
+        title="安全中心"
+        @click="navigateTo('/pages/mine/set/securityCenter/securityCenter')"
+      ></u-cell>
       <!-- #endif -->
-	  <u-cell title="用户注销" v-if="userInfo.id" @click="logoff"></u-cell>
-      <u-cell title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell>
-      <!-- #ifndef H5 -->
-      <!-- #endif -->
-      <u-cell :title="`关于${config.name}`" @click="navigateTo('/pages/mine/set/editionIntro')"></u-cell>
+      <u-cell :isLink="false" title="用户注销" v-if="userInfo.id" @click="logoff"></u-cell>
+      <u-cell :isLink="false" title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell>
+      <u-cell
+        :isLink="false"
+        :title="`关于${config.name}`"
+        @click="navigateTo('/pages/mine/set/editionIntro')"
+      ></u-cell>
     </u-cell-group>
+
     <view class="submit" v-if="userInfo.id" @click="quiteLoginOut">退出登录</view>
   </view>
 </template>
@@ -34,7 +44,7 @@ export default {
   data() {
     return {
       config,
-      userImage:config.defaultUserPhoto,
+      userImage: config.defaultUserPhoto,
       isCertificate: false,
       userInfo: {},
       fileSizeString: "0B",
@@ -50,25 +60,8 @@ export default {
         url: url,
       });
     },
-     /**
-	   * 退出登录
-	   */
-	  quiteLoginOut() {
-      this.quiteLoginOut();
-	  },
-  
-	/**
-	 * 用户注销
-	 */
-	logoff(){
-		this.logoff();
-	},
 
-    /**
-     * 读取当前缓存
-     */
     getCacheSize() {
-      //获取缓存数据
       let that = this;
       plus.cache.calculate(function (size) {
         let sizeCache = parseInt(size);
@@ -86,10 +79,6 @@ export default {
       });
     },
 
-    /**
-     * 点击用户详情
-     * 判断当前是否进入用户中心
-     */
     checkUserInfo() {
       if (this.isLogin("auth")) {
         this.navigateTo("/pages/mine/set/personMsg");
@@ -98,11 +87,7 @@ export default {
       }
     },
 
-    /**
-     * 清除当前设备缓存
-     */
     clearCache() {
-      //清理缓存
       let that = this;
       let os = plus.os.name;
       if (os == "Android") {
@@ -111,28 +96,27 @@ export default {
         let files = plus.android.invoke(sdRoot, "listFiles");
         let len = files.length;
         for (let i = 0; i < len; i++) {
-          let filePath = "" + files[i]; // 没有找到合适的方法获取路径，这样写可以转成文件路径
+          let filePath = "" + files[i];
           plus.io.resolveLocalFileSystemURL(
             filePath,
             function (entry) {
               if (entry.isDirectory) {
                 entry.removeRecursively(
-                  function (entry) {
-                    //递归删除其下的所有文件及子目录
+                  function () {
                     uni.showToast({
                       title: "缓存清理完成",
                       duration: 2000,
                       icon: "none",
                     });
-                    that.getCacheSize(); // 重新计算缓存
+                    that.getCacheSize();
                   },
-                  function (e) {}
+                  function () {}
                 );
               } else {
                 entry.remove();
               }
             },
-            function (e) {
+            function () {
               uni.showToast({
                 title: "文件路径读取失败",
                 duration: 2000,
@@ -142,7 +126,6 @@ export default {
           );
         }
       } else {
-        // ios
         plus.cache.clear(function () {
           uni.showToast({
             title: "缓存清理完成",
@@ -163,50 +146,58 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
+page {
+  background: #fff !important;
+}
+
+.set-up {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  padding: 36rpx 30rpx;
+  background: #fff;
+}
+
+.user-name {
+  flex: 1;
+  min-width: 0;
+  margin-left: 30rpx;
+  font-size: 34rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell-group {
+  width: 100%;
+}
+
+:deep(.u-cell) {
+  padding: 0 30rpx;
+}
+
+:deep(.u-cell__title-text) {
+  font-size: 30rpx;
+  color: #333;
+}
+
+:deep(.u-cell__value) {
+  color: #ccc !important;
+}
+
 .submit {
   height: 90rpx;
   line-height: 90rpx;
+  margin-top: 20rpx;
   text-align: center;
-  margin-top: 90rpx;
   background: #fff;
-  width: 100%;
-  margin: 0 auto;
   color: $main-color;
-}
-.person {
-  height: 208rpx;
-  display: flex;
-  padding: 0 20rpx;
-  font-size: $font-base;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20rpx;
-  .user-name {
-    width: 500rpx;
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-    margin-left: 30rpx;
-    line-height: 2em;
-    font-size: 34rpx;
-  }
-}
-.u-cell {
-  height: 110rpx;
-  /* line-height: 110rpx; */
-  padding: 0 20rpx;
-  align-items: center;
-  color: #333333;
-}
-
-::v-deep .u-cell__value {
-  color: #cccccc !important;
-}
-
-::v-deep .u-cell__right-icon-wrap {
-  color: #cccccc !important;
+  font-size: 30rpx;
 }
 </style>

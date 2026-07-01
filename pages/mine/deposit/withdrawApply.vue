@@ -1,6 +1,12 @@
 <template>
   <view class="wap">
-    <u-navbar title="提现记录"></u-navbar>
+    <u-navbar
+      title="提现记录"
+      :fixed="true"
+      :placeholder="true"
+      :border="false"
+      :auto-back="true"
+    ></u-navbar>
     <scroll-view class="scroll-v view-wrapper" enableBackToTop="true" scroll-with-animation scroll-y @scrolltolower="loadMore">
       <view v-if="records.length != 0" class="view-item" v-for="(item, index) in records" :key="index">
         <view class="view-item-detail">

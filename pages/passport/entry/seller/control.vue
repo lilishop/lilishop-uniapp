@@ -1,6 +1,13 @@
 <template>
   <div>
-    <u-navbar :border="false"></u-navbar>
+    <u-navbar
+      :border="false"
+      :fixed="true"
+      :placeholder="true"
+      left-icon="arrow-left"
+      :auto-back="false"
+      @left-click="back"
+    ></u-navbar>
     <step1 v-if="current == 1" :companyData="companyData" @callback="next()" />
     <step2 v-if="current == 2" :companyData="companyData" @callback="next()" />
     <step3
@@ -32,6 +39,18 @@ export default {
     this.init();
   },
   methods: {
+    back() {
+      if (this.current > 1) {
+        this.current--;
+        return;
+      }
+      uni.navigateBack({
+        delta: 1,
+        fail: () => {
+          uni.switchTab({ url: "/pages/tabbar/home/index" });
+        },
+      });
+    },
     async init(next) {
       const res = await getCompanyDetail();
       if (res.data.success) {

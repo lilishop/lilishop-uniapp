@@ -1,8 +1,19 @@
 <template>
   <div>
-    <u-navbar>
-      <u-search placeholder="请输入店铺名称" @search="search" @clear="search" @custom="search" v-model="params.storeName">
-      </u-search>
+    <u-navbar
+      :border="false"
+      :fixed="true"
+      :placeholder="true"
+      left-icon="arrow-left"
+      :auto-back="false"
+      @left-click="back"
+    >
+      <template #center>
+        <view class="search-wrap">
+          <u-search placeholder="请输入店铺名称" @search="search" @clear="search" @custom="search" v-model="params.storeName">
+          </u-search>
+        </view>
+      </template>
     </u-navbar>
     <div class="wrapper" v-if="storeList.length!=0">
       <div class="store-item" @click="handleClickStore(item)" v-for="(item,index) in storeList" :key="index">
@@ -73,6 +84,14 @@ export default {
     this.init();
   },
   methods: {
+    back() {
+      uni.navigateBack({
+        delta: 1,
+        fail: () => {
+          uni.switchTab({ url: "/pages/tabbar/home/index" });
+        },
+      });
+    },
     handleClickStore(val){
       uni.navigateTo({
          url: `/pages/product/shopPage?id=${val.id}`
@@ -153,5 +172,11 @@ export default {
 .goods-price-bigshow {
   font-size: 34rpx;
   font-weight: bold;
+}
+
+.search-wrap {
+  width: 100%;
+  padding: 0 20rpx;
+  box-sizing: border-box;
 }
 </style>

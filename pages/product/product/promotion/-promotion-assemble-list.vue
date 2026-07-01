@@ -11,7 +11,7 @@
           <span class="group-item-name">还差{{ order.toBeGroupedNum }}人成团</span>
         </view>
         <view>
-          <u-button size="mini" :custom-style="customStyle" @click="buy(order)"
+          <u-button size="mini" :custom-style="joinBtnStyle" @click="buy(order)"
             >去参团</u-button
           >
         </view>
@@ -32,7 +32,7 @@ export default {
       configs,
       userImage:configs.defaultUserPhoto,
 
-      customStyle: {
+      joinBtnStyle: {
         background: this.$lightColor,
         color: "#fff",
       },

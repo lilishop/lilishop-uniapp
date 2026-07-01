@@ -20,14 +20,13 @@
       </view>
     </view>
 
-    <view class="store-recommend">
+    <view class="store-recommend" v-if="recommendGoods.length">
       <view class="store-recommend-title">店内其他商品</view>
       <view class="recommend-list">
-        <view class="recommend-item" @click="clickGoods(item)" v-for="(item, index) in res" :key="index">
-          <u-image class="recommend-item-img" :fade="true" duration="450" :lazy-load="true" :src="item.thumbnail" height="218rpx">
-            <template #loading><u-loading></u-loading></template>
-            <template #error><view style="font-size: 24rpx; ">加载失败</view></template>
-          </u-image>
+        <view class="recommend-item" @click="clickGoods(item)" v-for="(item, index) in recommendGoods" :key="item.id || index">
+          <view class="recommend-item-img">
+            <image class="recommend-thumb" :src="item.thumbnail" mode="aspectFill" lazy-load />
+          </view>
           <view class="recommend-item-name">
             {{ item.goodsName }}
           </view>
@@ -46,6 +45,11 @@ export default {
     return {};
   },
   props: ["res", "goodsDetail", "storeDetail"],
+  computed: {
+    recommendGoods() {
+      return (this.res || []).filter((item) => item && item.thumbnail && item.goodsName);
+    },
+  },
   mounted() {},
   methods: {
     // 点击商品
@@ -82,21 +86,26 @@ export default {
   font-size: 32rpx;
 }
 .recommend-item {
-  width: 30%;
-  margin: 10rpx 0rpx;
+  width: calc(33.333% - 12rpx);
+  margin-bottom: 16rpx;
   overflow: hidden;
   border-radius: 12rpx;
-
-  ::v-deep .u-image__image {
-    height: 218rpx;
-    border-radius: 12rpx !important;
-  }
+  flex-shrink: 0;
 }
 
 .recommend-item-img {
-  ::v-deep .u-image__image {
-    width: 100% !important;
-  }
+  width: 100%;
+  height: 218rpx;
+  overflow: hidden;
+  border-radius: 12rpx;
+  line-height: 0;
+}
+
+.recommend-thumb {
+  width: 100%;
+  height: 218rpx;
+  display: block;
+  border-radius: 12rpx;
 }
 
 .recommend-list-view {
@@ -168,7 +177,8 @@ export default {
 .recommend-list {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 12rpx;
 
   ::v-deep .u-row {
     width: 100%;
@@ -200,8 +210,8 @@ export default {
 
 .store-recommend {
   background: #fff;
-
   margin: 20rpx 0 0 0;
+  padding-bottom: 20rpx;
 }
 .goodsNum,
 .collectionNum {

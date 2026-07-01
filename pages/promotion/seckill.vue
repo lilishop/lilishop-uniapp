@@ -1,8 +1,15 @@
 <template>
 	<view class="sale">
-		<u-navbar title='限时抢购'></u-navbar>
+		<u-navbar
+			title="限时抢购"
+			:fixed="true"
+			:placeholder="true"
+			left-icon="arrow-left"
+			:auto-back="false"
+			@left-click="back"
+		></u-navbar>
 		<view class="header-wraper">
-				<image mode="widthFix" src="/static/seckill.png"></image>
+			<image class="header-banner" mode="aspectFit" src="/static/seckill.png"></image>
 		</view>
 		<scroll-view scroll-x>
 			<view class="index-navs">
@@ -86,6 +93,16 @@
 			this._setTimeInterval && clearInterval(this._setTimeInterval);
 		},
 		methods: {
+			back() {
+				uni.navigateBack({
+					delta: 1,
+					fail: () => {
+						uni.switchTab({
+							url: "/pages/tabbar/home/index",
+						});
+					},
+				});
+			},
 			/**
 			 * 获取时间线商品
 			 */
@@ -168,14 +185,17 @@
 	}
 
 	.header-wraper {
-		background: url('/static/bg.png');
+		background: url('/static/bg.png') no-repeat center center;
+		background-size: cover;
 		height: 200rpx;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		>image{
+
+		.header-banner {
 			width: 300rpx;
 			height: 100rpx;
+			display: block;
 		}
 	}
 

@@ -1,6 +1,6 @@
 <template>
   <view>
-    <div v-for="(promotion, promotion_index) in res" :key="promotion_index">
+    <div v-for="(promotion, promotion_index) in promotionList" :key="promotion_index">
       <div
         class="showBox"
         v-if="
@@ -46,7 +46,6 @@
                         goodsFormatPrice(promotion.groupbuy_goods_vo.price)[1]
                       }}</span
                     >
-                    <!-- <span v-if="promotion.point">+{{promotion.point}}积分</span> -->
                   </span>
                   <view class="u-group-flex">
                     <span
@@ -89,17 +88,16 @@
             </view>
             <view class="showBox_R" v-if="promotion && promotion.endTime">
               <u-tag :text="getIsTimer(promotion)" size="mini" type="error" />
-              <u-count-down
-                :hide-zero-day="true"
-                font-size="25"
-                color="#fff"
-                bg-color="#f71471"
-                separator-size="25"
-                separator-color="#f71471"
-                :show-hours="true"
-                :show-minutes="true"
-                :timestamp="getCountDownTime(promotion.endTime)"
-              ></u-count-down>
+              <view class="promotion-countdown" v-if="countdownData[promotion_index]">
+                <text v-if="countdownData[promotion_index].days > 0" class="countdown-day">
+                  {{ countdownData[promotion_index].days }}天
+                </text>
+                <text class="countdown-num">{{ padTime(countdownDisplayHours(promotion_index)) }}</text>
+                <text class="countdown-colon">:</text>
+                <text class="countdown-num">{{ padTime(countdownData[promotion_index].minutes) }}</text>
+                <text class="countdown-colon">:</text>
+                <text class="countdown-num">{{ padTime(countdownData[promotion_index].seconds) }}</text>
+              </view>
             </view>
           </div>
         </view>
@@ -111,50 +109,113 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      countdownData: {},
+      countdownTimer: null,
+    };
   },
   props: {
-    // 活动，促销数据
     res: {
       type: null,
       default: {},
     },
-    // 商品详情
     detail: {
       type: null,
       default: {},
     },
   },
+  computed: {
+    promotionList() {
+      if (!this.res || typeof this.res !== "object") return [];
+      return Object.keys(this.res).map((key) => ({
+        ...(this.res[key] || {}),
+        __key: key.split("-")[0],
+      }));
+    },
+  },
   watch: {
-    res: {
-      handler() {
-        if (this.res && this.res.length != 0) {
-          Object.keys(this.res).forEach((item) => {
-            let key = item.split("-")[0];
-            this.res[item].__key = key;
-            // 针对现实向
-          });
-        }
+    promotionList: {
+      handler(list) {
+        this.refreshCountdown(list);
+        this.startCountdownTimer();
       },
       immediate: true,
     },
   },
-  mounted() {},
+  beforeUnmount() {
+    this.clearCountdownTimer();
+  },
   methods: {
-    getCountDownTime(val) {
-      let date = new Date(val);
-      let timeSimple = new Date(date).getTime() / 1000;
-      return timeSimple - new Date().getTime() / 1000;
+    clearCountdownTimer() {
+      if (this.countdownTimer) {
+        clearInterval(this.countdownTimer);
+        this.countdownTimer = null;
+      }
+    },
+    startCountdownTimer() {
+      this.clearCountdownTimer();
+      this.countdownTimer = setInterval(() => {
+        this.refreshCountdown(this.promotionList);
+      }, 1000);
+    },
+    refreshCountdown(list = this.promotionList) {
+      const next = {};
+      list.forEach((promotion, index) => {
+        next[index] = this.msToTimeData(this.getCountDownMs(promotion));
+      });
+      this.countdownData = next;
+    },
+    padTime(val) {
+      return String(val ?? 0).padStart(2, "0");
+    },
+    countdownDisplayHours(index) {
+      const data = this.countdownData[index];
+      if (!data) return 0;
+      return data.days * 24 + data.hours;
+    },
+    msToTimeData(ms) {
+      const DAY = 86400000;
+      const HOUR = 3600000;
+      const MINUTE = 60000;
+      const SECOND = 1000;
+      const time = Math.max(Number(ms) || 0, 0);
+      return {
+        days: Math.floor(time / DAY),
+        hours: Math.floor((time % DAY) / HOUR),
+        minutes: Math.floor((time % HOUR) / MINUTE),
+        seconds: Math.floor((time % MINUTE) / SECOND),
+      };
+    },
+    parsePromotionTime(val) {
+      if (val == null || val === "") return 0;
+      if (typeof val === "number" && !Number.isNaN(val)) {
+        return val < 1e12 ? val * 1000 : val;
+      }
+      const text = String(val).trim();
+      if (/^\d+$/.test(text)) {
+        const num = Number(text);
+        return num < 1e12 ? num * 1000 : num;
+      }
+      const parsed = Date.parse(text.replace(/-/g, "/"));
+      return Number.isNaN(parsed) ? 0 : parsed;
+    },
+    getCountDownMs(promotion) {
+      if (!promotion || !promotion.endTime) return 0;
+      const now = Date.now();
+      const startMs = this.parsePromotionTime(promotion.startTime || promotion.start_time);
+      const endMs = this.parsePromotionTime(promotion.endTime);
+      if (!endMs) return 0;
+      const target = startMs && now < startMs ? startMs : endMs;
+      const remain = target - now;
+      return remain > 0 ? remain : 0;
     },
     getIsTimer(val) {
-      var timestamp = new Date().getTime();
-
-      if (timestamp < val.start_time) {
-        this.startTimer = true;
+      const now = Date.now();
+      const startMs = this.parsePromotionTime(val.startTime || val.start_time);
+      if (startMs && now < startMs) {
         return "距离活动开始";
-      } else {
-        return "距离活动结束";
       }
+      return "距离活动结束";
     },
   },
 };

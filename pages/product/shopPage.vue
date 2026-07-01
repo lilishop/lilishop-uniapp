@@ -2,46 +2,68 @@
   <view>
     <!-- 楼层装修店铺信息 -->
     <div>
-      <u-navbar :border="false">
-        <u-search
-          v-model="keyword"
-          @search="search"
-          @click="search"
-          placeholder="请输入搜索"
-        ></u-search>
+      <!-- 基础店铺：返回 + 搜索；楼层装修无顶部搜索时：仅返回 -->
+      <u-navbar
+        v-if="!enablePageData || !floorHasTopSearch"
+        class="shop-navbar"
+        :border="false"
+        :fixed="true"
+        :placeholder="true"
+        left-icon=""
+        :auto-back="false"
+      >
+        <template #left>
+          <view class="shop-navbar-inner">
+            <view class="nav-back" @click.stop="back">
+              <u-icon name="arrow-left" size="20"></u-icon>
+            </view>
+            <view v-if="!enablePageData" class="search-wrap" @click.stop>
+              <u-search
+                v-model="keyword"
+                @search="search"
+                @click="search"
+                placeholder="请输入搜索"
+                :show-action="false"
+              ></u-search>
+            </view>
+          </view>
+        </template>
       </u-navbar>
       <div class="wrapper">
         <!-- 店铺信息模块 -->
-        <div class="store flex">
-          <u-image
-            border-radius="10"
-            width="150"
-            height="150"
-            :src="storeInfo.storeLogo || config.logo"
-            mode="aspectFit"
-          >
-          </u-image>
-          <div class="box">
-            <div class="store-name" @click="getStoreLicencePhoto">
-              {{ storeInfo.storeName || "" }}
-              <u-icon style="margin-left: 10rpx" name="arrow-right"></u-icon>
-            </div>
-            <div class="flex store-message">
-              <div>
-                <span>{{ storeInfo.collectionNum || 0 }}</span
-                >关注
-              </div>
-              <div>
-                <span>{{ storeInfo.goodsNum || 0 }}</span
-                >件商品
-              </div>
-            </div>
-          </div>
-          <div class="collection">
-            <div class="collection-btn" @click="whetherCollection">
-              {{ isCollection ? "已关注" : "+ 关注" }}
-            </div>
-          </div>
+        <div class="store">
+          <view class="store-logo">
+            <u-image
+              border-radius="10"
+              width="100"
+              height="100"
+              :src="storeInfo.storeLogo || config.logo"
+              mode="aspectFit"
+            >
+            </u-image>
+          </view>
+          <view class="store-main">
+            <view class="store-top">
+              <view class="store-name" @click="getStoreLicencePhoto">
+                <text class="store-name-text">{{ storeInfo.storeName || "" }}</text>
+              </view>
+              <view class="collection">
+                <view class="collection-btn" @click.stop="whetherCollection">
+                  {{ isCollection ? "已关注" : "+ 关注" }}
+                </view>
+              </view>
+            </view>
+            <view class="store-message">
+              <view class="store-stat">
+                <text class="stat-num">{{ storeInfo.collectionNum || 0 }}</text>
+                <text class="stat-label">关注</text>
+              </view>
+              <view class="store-stat">
+                <text class="stat-num">{{ storeInfo.goodsNum || 0 }}</text>
+                <text class="stat-label">件商品</text>
+              </view>
+            </view>
+          </view>
         </div>
         <!-- 店铺简介 -->
         <div class="store-desc wes-2">
@@ -114,16 +136,26 @@
       <!-- 楼层装修模式 -->
       <div v-if="enablePageData">
         <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
-        <div v-for="(item, index) in pageData.list" :key="index">
+        <div v-for="(item, index) in pageData.list || []" :key="index">
           <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
           <u-navbar
-            class="navbar"
+            class="navbar shop-navbar"
             v-if="item.type == 'search'"
             :fixed="index === 1 ? false : true"
+            :placeholder="index === 1 ? false : true"
+            left-icon=""
+            :auto-back="false"
           >
-            <div class="navbar-right"></div>
-
-            <search style="width: 100%" :res="item.options" :storeId = "storeId"/>         
+            <template #left>
+              <view class="shop-navbar-inner">
+                <view class="nav-back" @click.stop="back">
+                  <u-icon name="arrow-left" size="20"></u-icon>
+                </view>
+                <view class="floor-search-wrap" @click.stop>
+                  <search style="width: 100%" :res="item.options" :storeId="storeId" />
+                </view>
+              </view>
+            </template>
           </u-navbar>
           <carousel v-if="item.type == 'carousel'" :res="item.options" />
           <titleLayout v-if="item.type == 'title'" :res="item.options" />
@@ -199,7 +231,7 @@ export default {
   data() {
     return {
       config,
-      pageData: "", //楼层页面数据
+      pageData: { list: [] }, //楼层页面数据
       enablePageData: false, //是否显示楼层装修内容
       basePageData: false, //基础店铺信息
       scrollTop: 0,
@@ -265,6 +297,14 @@ export default {
     },
   },
 
+  computed: {
+    floorHasTopSearch() {
+      const list = this.pageData && this.pageData.list;
+      if (!list || !list.length) return false;
+      return list.some((item, index) => item.type === "search" && index !== 1);
+    },
+  },
+
   /**
    * 加载
    */
@@ -302,21 +342,50 @@ export default {
       this.talkIm(this.storeInfo.storeId)
     },
     back() {
-      uni.navigateBack();
+      const pages = getCurrentPages();
+      if (pages.length > 1) {
+        uni.navigateBack({ delta: 1 });
+      } else {
+        uni.switchTab({ url: "/pages/tabbar/home/index" });
+      }
     },
     /**
      * 实例化首页数据楼层
      */
     initPageData() {
-      this.pageData = "";
+      this.pageData = { list: [] };
       getFloorStoreData({
         pageType: "STORE",
         num: this.storeId,
-      }).then((res) => {
-        if (res.data.success) {
-          this.pageData = JSON.parse(res.data.result.pageData);
-        }
-      });
+      })
+        .then((res) => {
+          const result = res.data && res.data.result;
+          const pageDataStr = result && result.pageData;
+          if (res.data.success && pageDataStr) {
+            try {
+              const parsed = JSON.parse(pageDataStr);
+              this.pageData =
+                parsed && Array.isArray(parsed.list)
+                  ? parsed
+                  : { list: [] };
+              this.enablePageData = true;
+            } catch (e) {
+              this.fallbackToBasePage();
+            }
+          } else {
+            this.fallbackToBasePage();
+          }
+        })
+        .catch(() => {
+          this.fallbackToBasePage();
+        });
+    },
+    fallbackToBasePage() {
+      this.enablePageData = false;
+      this.basePageData = true;
+      this.pageData = { list: [] };
+      this.getGoodsData();
+      this.getCategoryData();
     },
     getStoreLicencePhoto() {
       uni.navigateTo({
@@ -414,7 +483,6 @@ export default {
         if(res.data.result.pageShow == '1'){
           // 开启了楼层装修店铺
           this.initPageData();
-          this.enablePageData = true;
         }
         else{
           // 商品信息
@@ -514,50 +582,102 @@ export default {
 }
 
 .store {
+  display: flex;
   align-items: center;
 
-  > .box {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-left: 30rpx;
-    font-size: 24rpx;
-    color: #999;
-    flex: 2;
+  .store-logo {
+    flex-shrink: 0;
+    width: 100rpx;
+    height: 100rpx;
+    overflow: hidden;
 
-    > .store-name {
-      font-size: 34rpx;
-      color: #333;
-      letter-spacing: 1rpx;
-      font-weight: bold;
-    }
-
-    > .store-message {
-      margin-top: 25rpx;
-
-      > div {
-        font-size: 26rpx;
-        margin: 0 5rpx;
-
-        > span {
-          font-size: 26rpx;
-          font-weight: bold;
-          color: #333;
-          margin-right: 8rpx;
-        }
-      }
+    :deep(.u-image),
+    :deep(.u-image__image) {
+      width: 100rpx !important;
+      height: 100rpx !important;
     }
   }
+
+  .store-main {
+    flex: 1;
+    min-width: 0;
+    margin-left: 20rpx;
+  }
+
+  .store-top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 56rpx;
+  }
+
+  .store-name {
+    width: 100%;
+    font-size: 34rpx;
+    color: #333;
+    letter-spacing: 1rpx;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .store-name-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    padding: 0 150rpx;
+    box-sizing: border-box;
+  }
+
+  .store-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    margin-top: 12rpx;
+    font-size: 24rpx;
+    color: #999;
+  }
+
+  .store-stat {
+    display: flex;
+    align-items: baseline;
+    white-space: nowrap;
+    margin-right: 24rpx;
+    font-size: 26rpx;
+    color: #999;
+  }
+
+  .stat-num {
+    font-size: 26rpx;
+    font-weight: bold;
+    color: #333;
+    margin-right: 4rpx;
+  }
+
+  .stat-label {
+    font-size: 26rpx;
+    color: #999;
+  }
+}
+
+.collection {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-shrink: 0;
 }
 
 .collection-btn {
   background: $main-color;
-  padding: 6rpx 0;
+  padding: 8rpx 0;
   width: 140rpx;
   font-size: 24rpx;
   color: #fff;
   border-radius: 100px;
   text-align: center;
+  line-height: 1.2;
 }
 
 .store-desc {
@@ -739,5 +859,48 @@ export default {
   border-radius: 10rpx;
   font-size: 24rpx;
   color: #999;
+}
+
+.shop-navbar {
+  :deep(.u-navbar__content__left) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 2;
+    width: auto !important;
+    padding: 0 24rpx 0 8rpx !important;
+    box-sizing: border-box;
+  }
+}
+
+.shop-navbar-inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.search-wrap {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.floor-search-wrap {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 100%;
+  flex-shrink: 0;
 }
 </style>

@@ -1,6 +1,11 @@
 <template>
   <div class="wrapper">
-       <u-navbar :border="false"></u-navbar>
+       <u-navbar
+         :border="false"
+         :fixed="true"
+         :placeholder="true"
+         :auto-back="true"
+       ></u-navbar>
     <div>
       <div class="title">店铺入驻</div>
       <div class="step-list">

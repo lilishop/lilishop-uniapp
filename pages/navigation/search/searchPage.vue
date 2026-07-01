@@ -15,6 +15,7 @@
 					<mSearch
 						ref="mSearch"
 						class="mSearch-input-box"
+						:show-clear="false"
 						@clickLeft="back"
 						:mode="2"
 						:placeholder="defaultKeyword"
@@ -38,25 +39,39 @@
 			</scroll-view>
 			<div class="keyword-box" v-show="!isShowKeywordList">
 				<view class="keyword-block add1">
-					<view class="keyword-list-header"><view class="u-tips">热门搜索</view></view>
-					<view class="keyword keywordBox">
-						<view class="wes" v-for="(keyword, index) in hotKeywordList" @tap="doSearch(keyword)" :key="index">{{ keyword }}</view>
+					<view class="keyword-list-header">
+						<view class="u-tips">热门搜索</view>
+					</view>
+					<view class="tag-list">
+						<view
+							class="tag-item wes"
+							v-for="(keyword, index) in hotKeywordList"
+							:key="index"
+							@tap="doSearch(keyword)"
+						>{{ keyword }}</view>
 					</view>
 				</view>
 				<view class="keyword-block" v-if="oldKeywordList.length > 0">
-					<view class="keyword-list-header"><view class="u-tips">搜索历史</view></view>
-					<div class="oldKeyList">
+					<view class="keyword-list-header">
+						<view class="u-tips">搜索历史</view>
+					</view>
+					<view class="tag-list">
 						<template v-for="(keyword, index) in oldKeywordList" :key="index">
-						<div class="oldKeyItem" v-if="keyword" @click="doSearch(keyword)">
-							<span>{{ keyword }}</span>
-						</div>
+							<view
+								class="tag-item wes"
+								v-if="keyword"
+								@tap="doSearch(keyword)"
+							>{{ keyword }}</view>
 						</template>
-
-						<div @click="showMore" v-if="oldKeywordIndex > loadIndex" class="oldKeyItem">展示更多</div>
-					</div>
+						<view
+							class="tag-item tag-more"
+							v-if="oldKeywordIndex > loadIndex"
+							@tap="showMore"
+						>展示更多</view>
+					</view>
 				</view>
 
-				<div class="clear mp-iphonex-bottom" @tap="oldDelete">清空搜索历史</div>
+				<view class="clear mp-iphonex-bottom" @tap="oldDelete">清空搜索历史</view>
 			</div>
 		</view>
 		<!-- 搜索 -->
@@ -93,7 +108,7 @@
 			</view>
 			<!-- 一行一个商品展示 -->
 			<scroll-view
-				v-if="isSWitch"
+				v-if="!empty && isSWitch"
 				class="goods-scroll"
 				enableBackToTop="true"
 				lower-threshold="250"
@@ -106,7 +121,7 @@
 			</scroll-view>
 			<!-- 一行两个商品展示 -->
 			<scroll-view
-				v-if="!isSWitch && !(goodsList == [] || goodsList == '' || goodsList == null)"
+				v-if="!empty && !isSWitch && goodsList.length"
 				class="goods-scroll"
 				scroll-anchoring
 				enableBackToTop="true"
@@ -118,6 +133,14 @@
 				<goodsList :res="goodsList" :keyword="keyword" />
 				<uni-load-more :status="loadingType"></uni-load-more>
 			</scroll-view>
+
+			<view class="empty" v-if="empty">
+				<image class="empty-img" src="/static/nodata.png" mode="aspectFit"></image>
+				<view class="empty-text">
+					<text>没有找到相关的商品信息</text>
+					<text>请换一个关键词试试吧</text>
+				</view>
+			</view>
 		</view>
 
 		<u-popup border-radius="20" mode="right" width="90%" v-model:show="sortPopup">
@@ -202,13 +225,6 @@
 				</view>
 			</view>
 		</u-popup>
-		<div class="empty" v-if="empty">
-			<view><image style="width: 320rpx; height: 240rpx" src="/static/nodata.png"></image></view>
-			<view>
-				<p>没有找到相关的商品信息</p>
-				<p>请换一个关键词试试吧</p>
-			</view>
-		</div>
 		<u-back-top :scroll-top="scrollTop"></u-back-top>
 	</view>
 </template>
@@ -637,13 +653,14 @@ export default {
 			}
 			//没有更多直接返回 #TODO
 			let goodsList = await getGoodsList(this.params);
-			if (goodsList.data.result.records.length < 10) {
+			const records = goodsList.data.result.records || [];
+			if (records.length < 10) {
 				this.loadingType = 'noMore';
-				this.empty = true;
 			} else {
-				this.empty = false;
+				this.loadingType = 'more';
 			}
-			this.goodsList.push(...goodsList.data.result.records);
+			this.goodsList.push(...records);
+			this.empty = this.goodsList.length === 0;
 			
 			this.initSortGoods();
 			 if (this.$store.state.isShowToast){ uni.hideLoading() };

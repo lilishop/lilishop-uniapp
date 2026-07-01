@@ -18,9 +18,10 @@
 								<view class="name">{{ order.storeName }}</view>
 
 								<view class="name" v-if="renderOrderTag(order.orderPromotionType)">
-									<u-tag 
-									:text="renderOrderTag(order.orderPromotionType)" 
-									:color="renderOrderTagColor(order.orderPromotionType)"
+									<u-tag
+										:text="renderOrderTag(order.orderPromotionType)"
+										:type="renderOrderTagType(order.orderPromotionType)"
+										size="mini"
 									/>
 								</view>
 
@@ -65,10 +66,6 @@
 										取消订单
 									</view>
 									<!-- 等待收货 -->
-									<view ripple shape="circle" class="rebuy-btn" size="mini"
-										v-if="order.allowOperationVO.showLogistics" @click="navigateToLogistics(order)">
-										查看物流
-									</view>
 									<view ripple shape="circle" class="pay-btn" size="mini"
 										v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
 										确认收货
@@ -301,23 +298,18 @@
 						return "";
 				}
 			},
-			renderOrderTagColor(orderPromotionType) {
+			renderOrderTagType(orderPromotionType) {
 				switch (orderPromotionType) {
-					case "NORMAL":
-						return "main";
 					case "PINTUAN":
-						return "red";
-						break;
+						return "error";
 					case "GIFT":
-						return "blue";
-						break;
+						return "primary";
 					case "POINTS":
-						return "black";
-						break;
+						return "info";
 					case "KANJIA":
-						return "pink";
+						return "warning";
 					default:
-						return "";
+						return "info";
 				}
 			},
 			getOrderItemImage(goods, order, index) {
@@ -564,15 +556,6 @@
 				return;
 				uni.navigateTo({
 					url: "/pages/product/goods?id=" + order.id + "&goodsId=" + order.goodsId,
-				});
-			},
-
-			/**
-			 * 查看物流
-			 */
-			navigateToLogistics(order) {
-				uni.navigateTo({
-					url: "/pages/order/deliverDetail?order_sn=" + order.sn,
 				});
 			},
 		},

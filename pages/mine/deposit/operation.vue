@@ -1,27 +1,41 @@
 <template>
-  <div class="wrapper">
-    <u-navbar :auto-back="false" @leftClick="back" title="余额"></u-navbar>
-    <div class="box">
-      <div class="deposit">预存款金额</div>
-      <div class="money">￥{{unitPrice(walletNum) }}</div>
-      <div class="operation-btns">
-        <div class="operation-btn light" @click="navigateTo('/pages/mine/deposit/withdrawal')">提现</div>
-        <div class="operation-btn" @click="navigateTo('/pages/mine/deposit/recharge')">充值</div>
-      </div>
-    </div>
-    <div class="box list" @click="navigateTo('/pages/mine/deposit/index')">
-      <div class="list-left">预存款明细</div>
-      <div class="list-right">
-        <u-icon name="arrow-right"></u-icon>
-      </div>
-    </div>
-    <div class="box list" @click="navigateTo('/pages/mine/deposit/withdrawApply')">
-      <div class="list-left">提现记录</div>
-      <div class="list-right">
-        <u-icon name="arrow-right"></u-icon>
-      </div>
-    </div>
-  </div>
+  <view class="page">
+    <u-navbar
+      title="余额"
+      :auto-back="false"
+      :placeholder="true"
+      :border="false"
+      @leftClick="back"
+    ></u-navbar>
+
+    <view class="page-body">
+      <view class="balance-card">
+        <view class="deposit">预存款金额</view>
+        <view class="money">￥{{ unitPrice(walletNum) }}</view>
+        <view class="operation-btns">
+          <view
+            class="operation-btn light"
+            @click="navigateTo('/pages/mine/deposit/withdrawal')"
+          >提现</view>
+          <view
+            class="operation-btn primary"
+            @click="navigateTo('/pages/mine/deposit/recharge')"
+          >充值</view>
+        </view>
+      </view>
+
+      <view class="menu-list">
+        <view class="list-item" @click="navigateTo('/pages/mine/deposit/index')">
+          <text class="list-label">预存款明细</text>
+          <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
+        </view>
+        <view class="list-item" @click="navigateTo('/pages/mine/deposit/withdrawApply')">
+          <text class="list-label">提现记录</text>
+          <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
+        </view>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script>
@@ -34,7 +48,7 @@ export default {
   },
   async onShow() {
     if (this.isLogin("auth")) {
-      let result = await getUserWallet(); //预存款
+      let result = await getUserWallet();
       this.walletNum = result.data.result.memberWallet;
     } else {
       this.navigateToLogin("redirectTo");
@@ -46,75 +60,92 @@ export default {
         url: "/pages/tabbar/user/my",
       });
     },
-    /**
-     * 跳转
-     */
     navigateTo(url) {
-      uni.navigateTo({
-        url,
-      });
+      uni.navigateTo({ url });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.list {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.page {
+  min-height: 100vh;
+  background: #f5f5f5;
 }
-.list-left {
-  flex: 8;
-}
-.list-right {
-  flex: 2;
-  text-align: right;
-}
-.wrapper {
-  width: 94%;
-  margin: 0 3%;
-}
-.box {
-  margin: 20rpx 0;
-  background: #fff;
-  border-radius: 20rpx;
 
-  padding: 40rpx;
+.page-body {
+  padding: 24rpx;
 }
+
+.balance-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 48rpx 32rpx 40rpx;
+  text-align: center;
+}
+
+.deposit {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.money {
+  margin: 24rpx 0 40rpx;
+  font-size: 64rpx;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 2rpx;
+}
+
 .operation-btns {
   display: flex;
-  justify-content: center;
+  flex-direction: row;
   align-items: center;
+  gap: 24rpx;
 }
-.money {
-  text-align: center;
-  color: #333;
-  font-size: 50rpx;
-  margin: 20rpx 0 40rpx 0;
-  letter-spacing: 2rpx;
-}
-.deposit {
-  margin-top: 50rpx;
-  text-align: center;
-  color: #999;
-  font-size: 28rpx;
 
-  letter-spacing: 2rpx;
-}
 .operation-btn {
-  background: #ee6d41;
-  color: #fff;
-  height: 90rpx;
-  width: 240rpx;
-  margin: 0 20rpx;
-  border-radius: 10rpx;
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 12rpx;
+  font-size: 30rpx;
   text-align: center;
-  line-height: 90rpx;
-  font-size: 32rpx;
 }
+
 .light {
   background: #fdf2ee;
-  color: #ee6d41;
+  color: $light-color;
+  border: 1px solid rgba(238, 109, 65, 0.25);
+}
+
+.primary {
+  background: $light-color;
+  color: #fff;
+}
+
+.menu-list {
+  margin-top: 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.list-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1px solid #f5f5f5;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.list-label {
+  font-size: 30rpx;
+  color: #333;
 }
 </style>

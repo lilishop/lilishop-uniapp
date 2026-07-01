@@ -11,7 +11,7 @@
         <input style="width:100%; " :placeholder="placeholder" placeholder-class="placeholder-color"
           @input="inputChange" confirm-type="search" @confirm="triggerConfirm" class="input"
           :class="{ center: !active && mode === 2 }" :focus="isFocus" v-model="inputVal" @focus="focus" @blur="blur" />
-        <u-icon name="close" v-if="isDelShow" style="padding:0 30rpx;" @click="clear"></u-icon>
+        <u-icon name="close" v-if="showClear && isDelShow" style="padding:0 30rpx;" @click="clear"></u-icon>
       </view>
 
     </view>
@@ -52,6 +52,10 @@ export default {
     // 是否获取焦点
     isFocusVal: {
       value: Boolean,
+      default: true,
+    },
+    showClear: {
+      type: Boolean,
       default: true,
     },
   },

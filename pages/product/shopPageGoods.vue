@@ -1,6 +1,12 @@
 <template>
 	<div>
-		<u-navbar :title="title"></u-navbar>
+		<u-navbar
+			:title="title"
+			:fixed="true"
+			:placeholder="true"
+			:border="false"
+			:auto-back="true"
+		></u-navbar>
 		<!-- 商品 -->
 		<div class="contant">
 			<view  v-if="!goodsList.length" class="empty">暂无商品信息</view>

@@ -34,6 +34,7 @@
 	padding: 4rpx 0 !important;
 	background: #ffe7e6 !important;
 	text-align: center !important;
+	position: relative;
 }
 ::v-deep .u-mode-light-error {
 	border: none;
@@ -77,4 +78,34 @@
 	padding: 2rpx 6rpx;
 	margin-left: 10rpx;
 	line-height: 1;
+}
+
+.promotion-countdown {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 4rpx;
+}
+
+.countdown-day {
+	font-size: 22rpx;
+	color: #f71471;
+	margin-right: 4rpx;
+}
+
+.countdown-num {
+	display: inline-block;
+	min-width: 36rpx;
+	padding: 0 4rpx;
+	font-size: 25rpx;
+	color: #fff;
+	background-color: #f71471;
+	border-radius: 4rpx;
+	text-align: center;
+}
+
+.countdown-colon {
+	font-size: 25rpx;
+	color: #f71471;
+	margin: 0 2rpx;
 }

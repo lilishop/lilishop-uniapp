@@ -37,6 +37,9 @@ export default {
   height: 300rpx;
   background: url("/static/point-bg.png") no-repeat;
   background-size: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .point {
   font-size: 40rpx;
@@ -48,13 +51,17 @@ export default {
   padding: 20rpx 0;
 }
 .point-wrapper {
-  padding-top: 80rpx;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 .whether-point {
   color: #fff;
-  margin-left: 30rpx;
+  margin-top: 20rpx;
   font-size: 36rpx;
   font-weight: bold;
+  text-align: center;
 }
 </style>
