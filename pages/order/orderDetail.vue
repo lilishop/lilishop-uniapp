@@ -3,8 +3,8 @@
     <!-- 订单状态 -->
     <div class="info-view order-view">
       <div class="order-status" v-if="orderStatusMap[order.orderStatus]">
-        {{ orderStatusMap[order.orderStatus].title }}
-        <div>{{ orderStatusMap[order.orderStatus].value }}</div>
+        <view class="order-status-title">{{ orderStatusMap[order.orderStatus].title }}</view>
+        <view class="order-status-desc">{{ orderStatusMap[order.orderStatus].value }}</view>
       </div>
 
     </div>
@@ -573,11 +573,14 @@ export default {
   color: #fff;
   width: 100%;
   text-align: center;
-  font-size: 30rpx;
-  font-weight: 500;
   margin-top: 36rpx;
 
-  >div {
+  .order-status-title {
+    font-size: 44rpx;
+    font-weight: 600;
+  }
+
+  .order-status-desc {
     font-size: 22rpx;
     font-weight: normal;
     margin-top: 8rpx;

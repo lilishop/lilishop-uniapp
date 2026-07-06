@@ -14,21 +14,21 @@
       <u-icon color="#ccc" name="arrow-right" size="16"></u-icon>
     </view>
 
-    <u-cell-group class="cell-group">
+    <u-cell-group class="cell-group" :border="false">
       <!-- #ifdef APP-PLUS -->
-      <u-cell :isLink="false" title="清除缓存" :value="fileSizeString" @click="clearCache"></u-cell>
+      <u-cell is-link title="清除缓存" :value="fileSizeString" @click="clearCache"></u-cell>
       <!-- #endif -->
       <!-- #ifndef MP-WEIXIN -->
       <u-cell
-        :isLink="false"
+        is-link
         title="安全中心"
         @click="navigateTo('/pages/mine/set/securityCenter/securityCenter')"
       ></u-cell>
       <!-- #endif -->
-      <u-cell :isLink="false" title="用户注销" v-if="userInfo.id" @click="logoff"></u-cell>
-      <u-cell :isLink="false" title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell>
+      <u-cell is-link title="用户注销" v-if="userInfo.id" @click="logoff"></u-cell>
+      <u-cell is-link title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell>
       <u-cell
-        :isLink="false"
+        is-link
         :title="`关于${config.name}`"
         @click="navigateTo('/pages/mine/set/editionIntro')"
       ></u-cell>
@@ -148,12 +148,14 @@ export default {
 
 <style lang="scss" scoped>
 page {
-  background: #fff !important;
+  background: #f8f8f8 !important;
 }
 
 .set-up {
+  width: 100%;
   min-height: 100vh;
-  background: #fff;
+  box-sizing: border-box;
+  background: #f8f8f8;
 }
 
 .person {
@@ -161,6 +163,7 @@ page {
   align-items: center;
   padding: 36rpx 30rpx;
   background: #fff;
+  border-bottom: 1rpx solid #ededed;
 }
 
 .user-name {
@@ -176,10 +179,20 @@ page {
 
 .cell-group {
   width: 100%;
+  margin-top: 20rpx;
+  background: #fff;
+}
+
+:deep(.u-cell-group) {
+  width: 100%;
 }
 
 :deep(.u-cell) {
-  padding: 0 30rpx;
+  width: 100%;
+}
+
+:deep(.u-cell__body) {
+  padding: 28rpx 30rpx;
 }
 
 :deep(.u-cell__title-text) {
@@ -189,6 +202,15 @@ page {
 
 :deep(.u-cell__value) {
   color: #ccc !important;
+}
+
+:deep(.u-cell__right-icon-wrap) {
+  color: #ccc !important;
+}
+
+:deep(.u-line) {
+  width: 100% !important;
+  margin: 0 !important;
 }
 
 .submit {

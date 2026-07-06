@@ -213,7 +213,8 @@
 			display: flex;
 			flex-wrap: wrap;
 			margin: 10rpx 20rpx 284rpx;
-			width: 100%;
+			width: calc(100% - 40rpx);
+			box-sizing: border-box;
 
 			&.goods-list--embedded {
 				margin-bottom: 20rpx;

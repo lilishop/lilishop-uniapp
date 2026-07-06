@@ -136,8 +136,9 @@ page {
 .scoll-page,
 .goods-scroll {
   flex: 1;
-  height: 0;
-  overflow: auto;
+  min-height: 0;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .search-navbar-wrap {
@@ -169,6 +170,30 @@ page {
   display: flex;
   flex-direction: column;
 }
+
+/* #ifdef H5 */
+.content--goods {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+}
+
+.goods-content--h5 {
+  flex: none;
+  min-height: auto;
+  overflow: visible;
+}
+
+.goods-list-wrap {
+  padding-bottom: 40rpx;
+}
+
+.sort-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+}
+/* #endif */
 
 .index-nav-arrow:last-child {
   margin-top: -22rpx;

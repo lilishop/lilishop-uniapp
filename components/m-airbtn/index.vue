@@ -15,12 +15,13 @@
 
 <script>
 import config from "@/config/config";
+import logoImg from "@/icon.png";
 export default {
   data() {
     return {
       config, // 设置工具类
       weChat: false,  // 是否微信浏览器，该项为true时不显示 当前整个页面
-      logo: require("@/icon.png"), //显示的圆形logo
+      logo: logoImg, //显示的圆形logo
     };
   },
   mounted() {

@@ -2,6 +2,22 @@
   <view class="index">
     <user-point />
     <view class="index-head">
+      <!-- #ifdef H5 -->
+      <view class="list-scroll-content list-scroll-content-h5">
+        <view class="index-head-navs">
+          <view
+            class="index-head-nav"
+            v-for="(ele, index) in categoryIndexData"
+            :key="index"
+            :class="{ 'index-head-nav-active': tabIndex == index }"
+            @click="setCat(index)"
+          >
+            {{ ele.name }}
+          </view>
+        </view>
+      </view>
+      <!-- #endif -->
+      <!-- #ifndef H5 -->
       <scroll-view scroll-x class="list-scroll-content" :scroll-left="currentLeft" scroll-with-animation>
         <view class="index-head-navs">
           <view class="index-head-nav" v-for="(ele, index) in categoryIndexData" :key="index"
@@ -10,11 +26,48 @@
           </view>
         </view>
       </scroll-view>
+      <!-- #endif -->
     </view>
+
+    <!-- #ifdef H5 -->
+    <view class="tab-content-h5">
+      <view class="index-items">
+        <view
+          class="index-item"
+          v-for="(item, key) in categoryIndexData[tabIndex].goods"
+          :key="item.id || key"
+          @click="toGoods(item)"
+        >
+          <view class="index-item-img">
+            <image
+              class="index-item-image"
+              :src="item.thumbnail"
+              mode="aspectFit"
+              lazy-load
+            ></image>
+          </view>
+          <view class="index-item-info">
+            <view class="index-item-title">{{ item.goodsName || item.promotionName || '' }}</view>
+            <view class="index-item-price">
+              <view class="point">
+                <text class="point-num">{{ item.points != null ? item.points : 0 }}</text>
+                <text class="point-unit">积分</text>
+              </view>
+              <text class="tipsMkt">¥{{ unitPrice(item.originalPrice) }}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <uni-load-more
+        :status="categoryIndexData[tabIndex].loadStatus"
+        @clickLoadMore="loadMore"
+      ></uni-load-more>
+    </view>
+    <!-- #endif -->
+
+    <!-- #ifndef H5 -->
     <swiper :current="tabIndex" class="swiper-box" @change="ontabchange" duration="300">
-
       <swiper-item v-for="(nav, index) in categoryIndexData" :key="index" class="swiper-item">
-
         <scroll-view class="scroll-v" enableBackToTop="true" scroll-with-animation scroll-y @scrolltolower="loadMore">
           <view class="index-items">
             <view class="index-item" v-for="(item, key) in nav.goods" :key="item.id || key" @click="toGoods(item)">
@@ -42,6 +95,7 @@
         </scroll-view>
       </swiper-item>
     </swiper>
+    <!-- #endif -->
   </view>
 </template>
 
@@ -80,11 +134,14 @@ export default {
   },
   onLoad() {},
   async onPullDownRefresh() {
+    // #ifndef H5
     this.categoryIndexData[this.tabIndex].goods = [];
     this.categoryIndexData[this.tabIndex].params.pageNumber = 1;
     this.categoryIndexData[this.tabIndex].loadStatus = "more";
     this.loadGoods();
+    // #endif
   },
+  // #ifndef H5
   onPageScroll(e) {
     if (e.scrollTop < -40 && this.flag) {
       this.flag = false;
@@ -95,6 +152,7 @@ export default {
       this.loadGoods();
     }
   },
+  // #endif
   watch: {
     tabIndex(val) {
       if (
@@ -175,7 +233,9 @@ export default {
         }, 3000);
       }
 
+      // #ifndef H5
       uni.stopPullDownRefresh();
+      // #endif
     },
     setCat(type) {
       this.tabIndex = type;
@@ -189,12 +249,21 @@ export default {
       }
     },
     loadMore() {
-      if (this.categoryIndexData[this.tabIndex].loadStatus == "more") {
-        this.categoryIndexData[this.tabIndex].params.pageNumber++;
-        this.loadGoods();
+      if (this.categoryIndexData[this.tabIndex].loadStatus !== "more") {
+        return;
       }
+      this.categoryIndexData[this.tabIndex].params.pageNumber++;
+      this.loadGoods();
     },
   },
+  // #ifdef H5
+  onReachBottom() {
+    if (this.categoryIndexData[this.tabIndex].loadStatus !== 'more') {
+      return;
+    }
+    this.loadMore();
+  },
+  // #endif
 };
 </script>
 <style lang="scss" scoped>
@@ -212,15 +281,21 @@ page {
 
 .index {
   height: 100vh;
-  // #ifdef H5
-  height: calc(100vh - 44px);
-  // #endif
   width: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+
+  // #ifdef H5
+  height: auto;
+  min-height: 100vh;
+  overflow: visible;
+  // #endif
 }
 
 .index-head {
   background: #fff;
+  flex-shrink: 0;
 }
 
 .list-scroll-content {
@@ -259,14 +334,25 @@ page {
   }
 }
 
-.swiper-box {
-  // #ifdef H5
-  height: calc(100vh - (100rpx + 300rpx + 44px));
-  // #endif
+// #ifdef H5
+.list-scroll-content-h5 {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 
-  // #ifndef H5
-  height: calc(100vh - 400rpx);
-  // #endif
+  .index-head-navs {
+    display: inline-flex;
+    min-width: 100%;
+  }
+}
+
+.tab-content-h5 {
+  padding-bottom: 40rpx;
+}
+// #endif
+
+.swiper-box {
+  flex: 1;
+  min-height: 0;
 
   .scroll-v {
     height: 100%;
@@ -354,4 +440,13 @@ page {
     flex-shrink: 0;
   }
 }
+</style>
+<style lang="scss">
+/* #ifdef H5 */
+page {
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+/* #endif */
 </style>

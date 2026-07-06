@@ -119,24 +119,24 @@
         <u-checkbox class="checkout-all" usedAlone shape="circle" :active-color="lightColor" v-model:checked="checkout"
           :label-size="12" label="全选" @change="checkOut">
         </u-checkbox>
-        <span class="price checkout-total">
-          <div class="prices">
-            <div class="fullPrice">
-              <span class="number" v-if="cartDetail && cartDetail.priceDetailDTO">
-                总计:
-                <span>¥{{ goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</span>.<span>{{ goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</span>
-              </span>
-              <span class="number" v-else>总计:0.00</span>
-            </div>
-            <div
-              v-if="cartDetail.cartList && cartDetail.cartList.length!=0 && cartDetail.priceDetailDTO && cartDetail.priceDetailDTO.discountPrice!=0 "
-              class="discountPrice">
-              <span>优惠减:￥{{(cartDetail.priceDetailDTO.goodsPrice -unitPrice(cartDetail.priceDetailDTO.flowPrice))}}
-              </span>
-              <span class="discount-details" @click="discountDetails">优惠明细</span>
-            </div>
-          </div>
-        </span>
+        <view class="checkout-total">
+          <view class="checkout-total-main">
+            <text class="checkout-total-label">总计:</text>
+            <text class="checkout-total-price" v-if="cartDetail && cartDetail.priceDetailDTO">
+              <text class="checkout-total-currency">¥</text>
+              <text class="checkout-total-int">{{ goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[0] }}</text>
+              <text class="checkout-total-dec">.{{ goodsFormatPrice(cartDetail.priceDetailDTO.flowPrice)[1] }}</text>
+            </text>
+            <text class="checkout-total-price" v-else>¥0.00</text>
+          </view>
+          <view
+            v-if="cartDetail.cartList && cartDetail.cartList.length != 0 && cartDetail.priceDetailDTO && cartDetail.priceDetailDTO.discountPrice != 0"
+            class="checkout-total-discount"
+          >
+            <text>优惠减:￥{{ cartDetail.priceDetailDTO.goodsPrice - unitPrice(cartDetail.priceDetailDTO.flowPrice) }}</text>
+            <text class="discount-details" @click="discountDetails">优惠明细</text>
+          </view>
+        </view>
       </view>
       <!-- 优惠详情 -->
       <u-popup z-index="3" close mode="bottom" height="50%" closeable v-model:show="discountDetailsFlag" border-radius="20">
@@ -851,7 +851,50 @@ page {
   }
 
   .checkout-total {
-    margin-left: 8rpx;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .checkout-total-main {
+    display: flex;
+    align-items: baseline;
+    line-height: 1.2;
+  }
+
+  .checkout-total-label {
+    font-size: 28rpx;
+    color: #333;
+    flex-shrink: 0;
+  }
+
+  .checkout-total-price {
+    margin-left: 4rpx;
+    font-size: 30rpx;
+    font-weight: bold;
+    color: $main-color;
+    line-height: 1.2;
+  }
+
+  .checkout-total-int {
+    font-size: 38rpx;
+    font-weight: bold;
+  }
+
+  .checkout-total-dec {
+    font-size: 24rpx;
+    font-weight: bold;
+  }
+
+  .checkout-total-discount {
+    display: flex;
+    align-items: center;
+    margin-top: 4rpx;
+    font-size: 24rpx;
+    color: #c9c7c7;
+    line-height: 1.2;
   }
 }
 
@@ -889,17 +932,6 @@ page {
   }
 }
 
-.prices {
-  display: flex;
-  flex-direction: column;
-
-  > .discountPrice {
-    align-items: center;
-    display: flex;
-    font-size: 24rpx;
-    color: rgb(201, 199, 199);
-  }
-}
 .discount-details {
   margin-left: 10px;
   color: #666;
