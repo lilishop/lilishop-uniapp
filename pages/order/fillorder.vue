@@ -342,9 +342,8 @@
     <div class="notSupportFreight" v-if="notSupportFreight.length != 0">
       <u-notice-bar
         style="width: 100%"
-        :volume-icon="false"
-        mode="horizontal"
-        :list="notSupportFreightGoodsList"
+        icon=""
+        :text="notSupportFreightNoticeText"
       >
       </u-notice-bar>
     </div>
@@ -443,7 +442,7 @@ export default {
       masterWay: "", //团长信息
       pintuanFlage: true, //是开团还是拼团
       notSupportFreight: [], //不支持运费
-      notSupportFreightGoodsList: ["以下商品超出配送范围："],
+      notSupportFreightNoticeText: "",
       storeAddress: "",
 
       originOrderData:"", // 原始订单数据
@@ -466,29 +465,20 @@ export default {
    * 监听返回
    */
   onBackPress(e) {
-    console.log("onBackPress", e);
     if (e.from == "backbutton") {
-      let routes = getCurrentPages();
-      let curRoute = routes[routes.length - 1].options;
-      routes.forEach((item) => {
-        if (
-          item.route == "pages/tabbar/cart/cartList" ||
-          item.route.indexOf("pages/product/goods") != -1
-        ) {
-          uni.navigateTo({
-            url: item.route,
-          });
-        }
-      });
-      console.log("curRoute.addId",curRoute.addId)
+      const curRoute = getCurrentPages().slice(-1)[0]?.options || {};
       if (curRoute.addId) {
         uni.reLaunch({
+          url: "/pages/tabbar/cart/cartList",
+        });
+      } else if (this.routerVal?.way === "CART") {
+        uni.switchTab({
           url: "/pages/tabbar/cart/cartList",
         });
       } else {
         uni.navigateBack();
       }
-      return true; //阻止默认返回行为
+      return true;
     }
   },
 
@@ -500,17 +490,18 @@ export default {
     uni.showLoading({
       mask: true,
     });
-    await this.getOrderList();
-    await this.getDistribution();
-    if (this.$store.state.isShowToast) {
+    try {
+      await this.getOrderList();
+      await this.getDistribution();
+      if (this.routerVal.way == "PINTUAN") {
+        this.isAssemble = true;
+        this.routerVal.parentOrder = JSON.parse(
+          decodeURIComponent(this.routerVal.parentOrder)
+        );
+        this.pintuanWay();
+      }
+    } finally {
       uni.hideLoading();
-    }
-    if (this.routerVal.way == "PINTUAN") {
-      this.isAssemble = true;
-      this.routerVal.parentOrder = JSON.parse(
-        decodeURIComponent(this.routerVal.parentOrder)
-      );
-      this.pintuanWay();
     }
   },
   mounted() {},
@@ -780,33 +771,31 @@ export default {
     },
 
     // 获取结算参数
-    async getOrderList() {
+    getOrderList() {
       this.notSupportFreight = [];
-      // 获取结算参数
-      API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
+      this.notSupportFreightNoticeText = "";
+      return API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
         // 获取结算参数 进行首次判断
-        this.originOrderData = this.orderMessage ? JSON.parse(JSON.stringify(this.orderMessage)) : ""
-        
+        this.originOrderData = this.orderMessage
+          ? JSON.parse(JSON.stringify(this.orderMessage))
+          : null;
+
         if (
           !res.data.result.checkedSkuList ||
           res.data.result.checkedSkuList.length === 0
         ) {
-
-          if(!this.originOrderData.checkedSkuList.length){
+          if (!this.originOrderData?.checkedSkuList?.length) {
             uni.switchTab({
               url: "/pages/tabbar/cart/cartList",
             });
           }
-         
         }
         if (res.data.result.skuList.length <= 0) {
-
-          if(!this.originOrderData.skuList.length){
+          if (!this.originOrderData?.skuList?.length) {
             uni.navigateTo({
               url: "/pages/order/myOrder?status=0",
             });
           }
-         
         }
 
         let repeatData;
@@ -849,9 +838,9 @@ export default {
           res.data.result.notSupportFreight.length != 0
         ) {
           this.notSupportFreight = res.data.result.notSupportFreight;
-
+          this.notSupportFreightNoticeText = "以下商品超出配送范围：";
           res.data.result.notSupportFreight.forEach((item) => {
-            this.notSupportFreightGoodsList[0] += item.goodsSku.goodsName;
+            this.notSupportFreightNoticeText += item.goodsSku.goodsName;
           });
         }
       });
