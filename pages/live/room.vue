@@ -583,12 +583,13 @@ export default {
     if (this.liveId && !this.pollTimer) {
       this.startPolling();
     }
-    if (this.liveId && this.liveMqttService && !this.liveMqttService.isConnected()) {
+    if (this.liveId && !this.loading && this.roomInfo?.liveStatus !== LIVE_STATUS.ENDED) {
       this.initLiveMqtt();
     }
   },
   onHide() {
     this.stopPolling();
+    this.cleanupLiveMqtt();
   },
   onUnload() {
     this.stopPolling();
