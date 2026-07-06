@@ -1,36 +1,55 @@
 <template>
-  <div class="feedBack">
-    <div class="feedBack-box">
-      <h4>猜你想问</h4>
-      <div class="feedBack-item" :class="{'active':feedBack.type == item.value }" @click="handleClick(index)" v-for="(item,index) in list" :key="index">
-        {{item.text}}
-      </div>
-    </div>
+  <view class="feedBack">
+    <view class="feedBack-box">
+      <view class="box-title">猜你想问</view>
+      <view
+        class="feedBack-item"
+        :class="{ active: feedBack.type == item.value }"
+        @click="handleClick(index)"
+        v-for="(item, index) in list"
+        :key="index"
+      >
+        {{ item.text }}
+      </view>
+    </view>
 
-    <div class="feedBack-box">
-      <h4>问题反馈 <span style="margin-left:10rpx;" v-if="feedBack.type">@{{ list.find(item=>{return item.value == feedBack.type }).text  }}</span></h4>
-      <u-input class="field-input" height="500" border="none" v-model="feedBack.context" type="textarea" placeholder="请输入反馈信息">
-      </u-input>
-    </div>
+    <view class="feedBack-box">
+      <view class="box-title">问题反馈
+        <text class="box-tag" v-if="feedBack.type">@{{ list.find(item => item.value == feedBack.type).text }}</text>
+      </view>
+      <u-textarea
+        class="field-textarea"
+        v-model="feedBack.context"
+        placeholder="请输入反馈信息"
+        border="none"
+        height="240"
+        maxlength="500"
+      ></u-textarea>
+    </view>
 
     <!-- 上传凭证 -->
-    <div class="feedBack-box">
-      <view class="opt-view">
-        <view class="img-title">上传凭证（最多2张）</view>
-        <view class="images-view">
-          <u-upload :file-list="uploadFileList" :auto-upload="false" width="150" @afterRead="onUploadAfterRead" :max-count="2"></u-upload>
-        </view>
+    <view class="feedBack-box">
+      <view class="box-title">上传凭证（最多2张）</view>
+      <view class="images-view">
+        <u-upload :file-list="uploadFileList" :auto-upload="false" width="150" @afterRead="onUploadAfterRead" :max-count="2"></u-upload>
       </view>
-    </div>
+    </view>
 
-    <div class="feedBack-box">
-      <h4>手机号</h4>
-      <u-input border="none" v-model="feedBack.mobile" placeholder="请输入您的手机号">
-      </u-input>
-    </div>
+    <view class="feedBack-box">
+      <view class="box-title">手机号</view>
+      <u-input
+        class="field-input"
+        v-model="feedBack.mobile"
+        type="number"
+        maxlength="11"
+        border="none"
+        placeholder="请输入您的手机号"
+        :custom-style="inputStyle"
+      ></u-input>
+    </view>
 
-    <div class="submit" @click="submit()">提交</div>
-  </div>
+    <view class="submit" @click="submit()">提交</view>
+  </view>
 
 </template>
 
@@ -45,7 +64,15 @@ export default {
       storage,
       config,
       feedBack: {
-        type: "FUNCTION", //默认反馈问题为 '功能相关'
+        type: "FUNCTION",
+        context: "",
+        mobile: "",
+      },
+      inputStyle: {
+        background: "#fafafa",
+        borderRadius: "12rpx",
+        padding: "0 24rpx",
+        height: "80rpx",
       },
       uploadFileList: [],
       list: [
@@ -116,49 +143,86 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+page {
+  background: #f8f8f8;
+}
+
 .submit {
   text-align: center;
   background: $light-color;
-  height: 70rpx;
-  line-height: 70rpx;
+  height: 88rpx;
+  line-height: 88rpx;
   color: #fff;
   width: 92%;
-  margin-bottom: 100rpx;
-  margin: 0 auto;
+  margin: 40rpx auto 60rpx;
   border-radius: 100px;
+  font-size: 30rpx;
 }
-.active{
+
+.active {
   color: $light-color !important;
   font-weight: bold;
 }
+
 .feedBack {
-  padding-bottom: 100rpx;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20rpx 24rpx 40rpx;
+  min-height: 100vh;
+  background: #f8f8f8;
 }
+
 .feedBack-box {
   background: #fff;
   border-radius: 20rpx;
   padding: 32rpx;
-  margin-bottom: 40rpx;
+  margin-bottom: 20rpx;
 }
-::v-deep .u-input__textarea {
-  padding: 12px;
+
+.box-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
 }
-.feedBack-box:nth-of-type(1) {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+
+.box-tag {
+  margin-left: 10rpx;
+  font-size: 26rpx;
+  font-weight: normal;
+  color: $light-color;
 }
+
 .feedBack-item {
   margin: 20rpx 0;
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #666;
 }
-h4 {
-  font-size: 30rpx;
+
+.field-textarea {
+  margin-top: 20rpx;
+
+  :deep(.u-textarea) {
+    background: #fafafa !important;
+    border-radius: 12rpx;
+    padding: 20rpx;
+    box-sizing: border-box;
+  }
+
+  :deep(.u-textarea__field) {
+    width: 100%;
+    font-size: 28rpx;
+    line-height: 1.6;
+    color: #333;
+  }
 }
+
 .field-input {
-  margin: 20rpx 0;
-  padding: 20rpx 0;
-  background: #fafafa;
-  border-radius: 0.6em;
+  margin-top: 20rpx;
+  width: 100%;
+}
+
+.images-view {
+  margin-top: 20rpx;
 }
 </style>

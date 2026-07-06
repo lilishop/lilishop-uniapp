@@ -14,17 +14,17 @@
       </view>
     </view>
 
-    <u-cell-group class="cell-group">
+    <u-cell-group class="cell-group" :border="false">
       <!-- #ifdef APP-PLUS -->
-      <u-cell v-if="IosWhether" isLink title="去评分" @click="checkStar"></u-cell>
-      <u-cell isLink title="功能介绍" @click="navigateTo('/pages/mine/set/versionFunctionList')"></u-cell>
-      <u-cell isLink title="检查更新" @click="checkUpdate"></u-cell>
+      <u-cell v-if="IosWhether" is-link title="去评分" @click="checkStar"></u-cell>
+      <u-cell is-link title="功能介绍" @click="navigateTo('/pages/mine/set/versionFunctionList')"></u-cell>
+      <u-cell is-link title="检查更新" @click="checkUpdate"></u-cell>
       <!-- #endif -->
 
-      <u-cell isLink title="证照信息" @click="navigateTo('/pages/mine/help/tips?type=LICENSE_INFORMATION')"></u-cell>
-      <u-cell isLink title="服务协议" @click="navigateTo('/pages/mine/help/tips?type=USER_AGREEMENT')"></u-cell>
-      <u-cell isLink title="隐私协议" @click="navigateTo('/pages/mine/help/tips?type=PRIVACY_POLICY')"></u-cell>
-      <u-cell isLink title="关于我们" @click="navigateTo('/pages/mine/help/tips?type=ABOUT')"></u-cell>
+      <u-cell is-link title="证照信息" @click="navigateTo('/pages/mine/help/tips?type=LICENSE_INFORMATION')"></u-cell>
+      <u-cell is-link title="服务协议" @click="navigateTo('/pages/mine/help/tips?type=USER_AGREEMENT')"></u-cell>
+      <u-cell is-link title="隐私协议" @click="navigateTo('/pages/mine/help/tips?type=PRIVACY_POLICY')"></u-cell>
+      <u-cell is-link title="关于我们" @click="navigateTo('/pages/mine/help/tips?type=ABOUT')"></u-cell>
     </u-cell-group>
 
     <view class="intro">
@@ -131,21 +131,25 @@ export default {
 
 <style lang="scss" scoped>
 page {
-  background: #fff !important;
+  background: #f8f8f8 !important;
 }
 
 .edition-intro {
+  width: 100%;
   min-height: 100vh;
-  background: #fff;
+  box-sizing: border-box;
+  background: #f8f8f8;
   display: flex;
   flex-direction: column;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
 }
 
 .header-block {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80rpx 0 48rpx;
+  padding: 60rpx 0 40rpx;
+  background: #fff;
 }
 
 .logo {
@@ -169,10 +173,20 @@ page {
 
 .cell-group {
   width: 100%;
+  margin-top: 20rpx;
+  background: #fff;
+}
+
+:deep(.u-cell-group) {
+  width: 100%;
 }
 
 :deep(.u-cell) {
-  padding: 0 30rpx;
+  width: 100%;
+}
+
+:deep(.u-cell__body) {
+  padding: 28rpx 30rpx;
 }
 
 :deep(.u-cell__title-text) {
@@ -184,23 +198,35 @@ page {
   color: #ccc !important;
 }
 
+:deep(.u-line) {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
 .intro {
   margin-top: auto;
   width: 100%;
-  padding: 48rpx 40rpx 60rpx;
+  padding: 48rpx 40rpx calc(80rpx + env(safe-area-inset-bottom));
   text-align: center;
   font-size: 24rpx;
-  line-height: 1.6;
+  line-height: 1.8;
   color: #666;
   letter-spacing: 1rpx;
   box-sizing: border-box;
 }
 
 .intro-line {
-  margin-top: 16rpx;
+  margin-top: 12rpx;
 }
 
 .intro-link {
   color: #003a8c;
 }
+</style>
+<style lang="scss">
+/* #ifdef H5 */
+page {
+  min-height: 100vh;
+}
+/* #endif */
 </style>

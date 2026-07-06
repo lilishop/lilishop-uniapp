@@ -33,34 +33,8 @@ import {
 
 
 		/**
-		 * 监听返回
+		 * 监听返回（页面级 onBackPress 在 App.vue 不生效，保留空实现避免误导）
 		 */
-		onBackPress(e) {
-			console.log("onBackPress-APP", e);
-			if (e.from == "backbutton") {
-				let routes = getCurrentPages();
-				let curRoute = routes[routes.length - 1].options;
-				routes.forEach((item) => {
-					if (
-						item.route == "pages/tabbar/cart/cartList" ||
-						item.route.indexOf("pages/product/goods") != -1
-					) {
-						uni.redirectTo({
-							url: item.route,
-						});
-					}
-				});
-
-				if (curRoute.addId) {
-					uni.reLaunch({
-						url: "/pages/tabbar/cart/cartList",
-					});
-				} else {
-					uni.navigateBack();
-				}
-				return true; //阻止默认返回行为
-			}
-		},
 		onLaunch: function(val) {
 			if(val.query.inviter){
 				storage.setInviter(val.query.inviter)

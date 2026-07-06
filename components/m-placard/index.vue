@@ -18,14 +18,16 @@
 import DrawPoster from "@/js_sdk/u-draw-poster";
 // 生成二维码
 import uQRCode from '@/components/Sansnn-uQRCode/uqrcode.js';
+import logoImg from "@/pages/passport/static/logo-title.png";
+import myFaceImg from "@/pages/passport/static/missing-face.png";
 
 export default {
   data: () => ({
     imgUrl: "", //绘制出来的图片路径
     show: false, //是否展示模态框
     dp: {}, //绘制的dp对象，用于存储绘制等一些方法。
-    logo: require("@/pages/passport/static/logo-title.png"), 	// 本地logo地址
-	myFace: require("@/pages/passport/static/missing-face.png"),	// 本地默认头像
+    logo: logoImg, 	// 本地logo地址
+	myFace: myFaceImg,	// 本地默认头像
 	sharingLink: '',	// 二维码链接
   }),
   props: {

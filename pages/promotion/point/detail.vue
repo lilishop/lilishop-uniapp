@@ -107,6 +107,10 @@ export default {
         this.pointDetail = res.data.result;
       }
     },
+
+    closePopupBuy(val) {
+      this.maskFlag = val;
+    },
   },
 };
 </script>

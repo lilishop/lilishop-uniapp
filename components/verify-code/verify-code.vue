@@ -2,10 +2,11 @@
 	<view class="xt__verify-code">
 		<!-- 输入框 -->
 		<input
+			ref="codeInput"
 			id="xt__input"
 			:value="code"
 			class="xt__input"
-			:focus="isFocus"
+			:focus="focused"
 			:password="isPassword"
 			:type="inputType"
 			:maxlength="size"
@@ -23,7 +24,7 @@
 		></view>
 
 		<!-- 输入框 - 组 -->
-		<view id="xt__input-ground" class="xt__input-ground">
+		<view id="xt__input-ground" class="xt__input-ground" @click="focusInput">
 			<template v-for="(item, index) in size" :key="index">
 				<view
 					:style="{ borderColor: code.length === index && cursorVisible ? boxActiveColor : boxNormalColor }"
@@ -51,7 +52,12 @@
  */
 export default {
 	name: 'xt-verify-code',
+	emits: ['update:modelValue', 'input', 'confirm'],
 	props: {
+		modelValue: {
+			type: String,
+			default: () => ''
+		},
 		value: {
 			type: String,
 			default: () => ''
@@ -89,12 +95,9 @@ export default {
 			default: () => '#000000'
 		}
 	},
-	model: {
-		prop: 'value',
-		event: 'input'
-	},
 	data() {
 		return {
+			focused: false,
 			cursorVisible: false,
 			cursorHeight: 35,
 			code: '', // 输入的验证码
@@ -102,12 +105,31 @@ export default {
 		};
 	},
 	created() {
+		this.code = this.modelValue || this.value || '';
+		this.focused = this.isFocus;
 		this.cursorVisible = this.isFocus;
 	},
 	mounted() {
 		this.init();
+		if (this.isFocus) {
+			this.$nextTick(() => {
+				this.focusInput();
+			});
+		}
 	},
 	methods: {
+		focusInput() {
+			this.focused = false;
+			this.$nextTick(() => {
+				this.focused = true;
+				// #ifdef H5
+				const inputEl = this.$refs.codeInput;
+				if (inputEl && typeof inputEl.focus === 'function') {
+					inputEl.focus();
+				}
+				// #endif
+			});
+		},
 		/**
 		 * @description 初始化
 		 */
@@ -159,7 +181,9 @@ export default {
 		// 输入框输入变化的回调
 		input(e) {
 			const value = e.detail.value;
+			this.code = value;
 			this.cursorVisible = value.length !== this.size;
+			this.$emit('update:modelValue', value);
 			this.$emit('input', value);
 			this.inputSuccess(value);
 		},
@@ -187,8 +211,11 @@ export default {
 		}
 	},
 	watch: {
+		modelValue(val) {
+			this.code = val || '';
+		},
 		value(val) {
-			this.code = val;
+			this.code = val || '';
 		}
 	}
 };
@@ -200,11 +227,13 @@ export default {
 	box-sizing: border-box;
 
 	.xt__input {
-		height: 100%;
-		width: 200%;
 		position: absolute;
-		left: -100%;
-		z-index: 1;
+		top: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
+		opacity: 0;
+		z-index: 2;
 	}
 	.xt__cursor {
 		position: absolute;
@@ -212,6 +241,8 @@ export default {
 		transform: translateY(-50%);
 		display: inline-block;
 		width: 2px;
+		z-index: 1;
+		pointer-events: none;
 		animation-name: cursor;
 		animation-duration: 0.8s;
 		animation-iteration-count: infinite;
@@ -223,11 +254,14 @@ export default {
 		align-items: center;
 		width: 100%;
 		box-sizing: border-box;
+		position: relative;
+		z-index: 1;
 		.xt__box {
 			position: relative;
 			display: inline-block;
 			width: 76rpx;
 			height: 112rpx;
+			pointer-events: none;
 			&-bottom {
 				border-bottom-width: 2px;
 				border-bottom-style: solid;

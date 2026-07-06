@@ -1,6 +1,6 @@
 <template>
 	<div class="wrapper">
-		<div v-if="!wechatLogin">
+		<div v-if="!wechatLogin" class="login-body">
 			<u-navbar :auto-back="showBack" :border="false"></u-navbar>
 			<div>
 				<div class="title">{{ loginTitleWay[current].title }}</div>
@@ -12,16 +12,34 @@
 			<!-- 手机号 -->
 			<div v-show="!enableUserPwdBox">
 				<div v-show="current == 0">
-					<u-input :custom-style="inputStyle" :placeholder-style="placeholderStyle" placeholder="请输入手机号 (11位)"
-						class="mobile" focus v-model="mobile" type="number" maxlength="11" />
+					<u-input
+						border="none"
+						:custom-style="inputStyle"
+						:placeholder-style="placeholderStyle"
+						font-size="40rpx"
+						color="#333"
+						placeholder="请输入手机号 (11位)"
+						class="mobile"
+						focus
+						v-model="mobile"
+						type="number"
+						maxlength="11"
+					/>
 					<div :class="!enableFetchCode ? 'disable' : 'fetch'" @click="fetchCode" class="btn">
 						获取验证码
 					</div>
 				</div>
 				<!-- 输入验证码 -->
-				<div v-show="current == 1" class="box-code">
-					<verifyCode type="bottom" @confirm="submit" boxActiveColor="#D8D8D8" v-model="code" isFocus
-						boxNormalColor="#D8D8D8" cursorColor="#D8D8D8" />
+				<div v-if="current == 1" class="box-code">
+					<verifyCode
+						type="bottom"
+						@confirm="submit"
+						boxActiveColor="#D8D8D8"
+						v-model="code"
+						:is-focus="true"
+						boxNormalColor="#D8D8D8"
+						cursorColor="#D8D8D8"
+					/>
 
 					<div class="fetch-btn">
 						<u-code change-text="验证码已发送（x）" end-text="重新获取验证码" unique-key="page-login"
@@ -35,18 +53,44 @@
 
 			<!-- 帐号密码登录 -->
 			<div v-show="enableUserPwdBox">
-				<u-input :custom-style="inputStyle" :placeholder-style="placeholderStyle" placeholder="请输入用户名"
-					class="mobile" focus v-model="userData.username" />
-				<u-input :custom-style="inputStyle" :placeholder-style="placeholderStyle" placeholder="请输入密码"
-					class="mobile" focus v-model="userData.password" type="password" />
+				<u-input
+					border="none"
+					:custom-style="inputStyle"
+					:placeholder-style="placeholderStyle"
+					font-size="40rpx"
+					color="#333"
+					placeholder="请输入用户名"
+					class="mobile"
+					focus
+					v-model="userData.username"
+				/>
+				<u-input
+					border="none"
+					:custom-style="inputStyle"
+					:placeholder-style="placeholderStyle"
+					font-size="40rpx"
+					color="#333"
+					placeholder="请输入密码"
+					class="mobile"
+					focus
+					v-model="userData.password"
+					type="password"
+				/>
 
 				<div :class="!enableUserBtnColor ? 'disable' : 'fetch'" @click="passwordLogin" class="btn">
 					帐号密码登录
 				</div>
 			</div>
 
-			<div class="flex" v-show="current != 1">
-				<u-checkbox usedAlone :icon-size="24" shape="circle" v-model:checked="enablePrivacy" active-color="#FF5E00"></u-checkbox>
+			<div class="privacy-row" v-show="current != 1">
+				<u-checkbox
+					class="privacy-check"
+					usedAlone
+					shape="circle"
+					v-model:checked="enablePrivacy"
+					:active-color="lightColor"
+					:icon-size="18"
+				></u-checkbox>
 				<div class="tips">
 					未注册的手机号验证后将自动创建用户账号，登录即代表您已同意<span @click="navigateToPrivacy('PRIVACY_POLICY')">《隐私协议》</span>
 					<span @click="navigateToPrivacy('USER_AGREEMENT')">
@@ -151,9 +195,7 @@
 					height: "104rpx",
 					"border-bottom": "1rpx solid #D8D8D8",
 					"letter-spacing": "1rpx",
-					"font-size": "40rpx",
-					"line-height": "40rpx",
-					color: "#333",
+					padding: "0",
 				},
 				placeholderStyle: "font-size: 32rpx;line-height: 32rpx;color: #999999;",
 				loginList: [
@@ -311,35 +353,40 @@
 
 			async flage(val) {
 				if (val) {
-					if (this.$refs.uCode.canGetCode) {
-						if (this.enableUserPwdBox) {
-							this.submitUserLogin();
-							return;
-							// 执行登录
-						} else {
-							// 向后端请求验证码
-							uni.showLoading({});
-							let res = await sendMobile(this.mobile);
-							 if (this.$store.state.isShowToast){ uni.hideLoading() };
-							// 这里此提示会被this.start()方法中的提示覆盖
-							if (res.data.success) {
-								this.current = 1;
-								this.$refs.uCode.start();
-							} else {
-								uni.showToast({
-									title: res.data.message,
-									duration: 2000,
-									icon: "none",
-								});
-								this.flage = false;
-								this.$refs.verification.getCode();
-							}
-						}
+					if (this.enableUserPwdBox) {
+						this.submitUserLogin();
+						return;
+					}
+
+					// 首次发送时 uCode 尚未挂载；重新获取时才检查倒计时
+					const canSendCode = this.current === 0 || this.$refs.uCode?.canGetCode;
+					if (!canSendCode) {
+						this.$u.toast("请倒计时结束后再发送");
+						return;
+					}
+
+					uni.showLoading({});
+					let res = await sendMobile(this.mobile);
+					if (this.$store.state.isShowToast) {
+						uni.hideLoading();
+					}
+					if (res.data.success) {
+						this.code = '';
+						this.current = 1;
+						this.$nextTick(() => {
+							this.$refs.uCode?.start();
+						});
 					} else {
-						!this.enableUserPwdBox ? this.$u.toast("请倒计时结束后再发送") : "";
+						uni.showToast({
+							title: res.data.message,
+							duration: 2000,
+							icon: "none",
+						});
+						this.flage = false;
+						this.$refs.verification?.getCode();
 					}
 				} else {
-					this.$refs.verification.hide();
+					this.$refs.verification?.hide();
 				}
 			},
 		},
@@ -751,8 +798,18 @@
 	}
 </style>
 <style lang="scss" scoped>
+	.login-body {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
 	.wrapper {
 		padding: 0 80rpx;
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+		box-sizing: border-box;
 	}
 
 	.title {
@@ -813,13 +870,29 @@
 	}
 
 	.tips {
-		font-size: 12px;
-		line-height: 20px;
-		margin-top: 32rpx;
-		width: 546rpx;
+		flex: 1;
+		font-size: 24rpx;
+		line-height: 36rpx;
+		margin-top: 0;
+		color: #666;
 
 		>span {
 			color: $light-color;
+		}
+	}
+
+	.privacy-row {
+		display: flex;
+		align-items: flex-start;
+		margin-top: 32rpx;
+	}
+
+	.privacy-check {
+		flex-shrink: 0;
+		margin-top: 4rpx;
+
+		:deep(.u-checkbox) {
+			margin: 0;
 		}
 	}
 
@@ -839,8 +912,8 @@
 	.login-list {
 		display: flex;
 		width: 590rpx;
-		position: absolute;
-		top: 1200rpx;
+		margin-top: auto;
+		margin-bottom: 80rpx;
 		align-items: center;
 		justify-content: center;
 	}
@@ -858,7 +931,8 @@
 
 	.user-password-tips {
 		text-align: center;
-		color: $main-color;
-		margin: 20px 0;
+		color: $light-color;
+		margin: 40rpx 0;
+		font-size: 28rpx;
 	}
 </style>

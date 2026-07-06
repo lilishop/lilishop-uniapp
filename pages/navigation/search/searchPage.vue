@@ -1,5 +1,5 @@
 <template>
-	<view class="content">
+	<view class="content" :class="{ 'content--goods': isShowSeachGoods }">
 		<u-navbar
 			:bg-color="navObj.background"
 			:auto-back="false"
@@ -75,8 +75,8 @@
 			</div>
 		</view>
 		<!-- 搜索 -->
-		<view class="goods-content" v-if="isShowSeachGoods">
-			<view class="navbar">
+		<view class="goods-content" :class="{ 'goods-content--h5': isShowSeachGoods }" v-if="isShowSeachGoods">
+			<view class="navbar sort-navbar">
 				<view class="nav-item" :class="{ current: filterIndex === 0 }" @click="tabClick(0)">综合排序</view>
 				<view class="nav-item" :class="{ current: filterIndex === 3 }" @click="tabClick(3, 'buyCount')">
 					<text>销量</text>
@@ -106,23 +106,36 @@
 				</view>
 				<view class="nav-item" @click="sortGoods">筛选</view>
 			</view>
+			<!-- #ifdef H5 -->
+			<view v-if="!empty && isSWitch" class="goods-list-wrap">
+				<goodsList :res="goodsList" type="oneColumns" :keyword="keyword" :tab-bar-gap="false" />
+				<uni-load-more :status="loadingType" @clickLoadMore="loadmore"></uni-load-more>
+			</view>
+			<view v-if="!empty && !isSWitch && goodsList.length" class="goods-list-wrap">
+				<goodsList :res="goodsList" :keyword="keyword" :tab-bar-gap="false" />
+				<uni-load-more :status="loadingType" @clickLoadMore="loadmore"></uni-load-more>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef H5 -->
 			<!-- 一行一个商品展示 -->
 			<scroll-view
 				v-if="!empty && isSWitch"
 				class="goods-scroll"
+				:style="goodsScrollStyle"
 				enableBackToTop="true"
 				lower-threshold="250"
 				@scrolltolower="loadmore()"
 				scroll-with-animation
 				scroll-y
 			>
-				<goodsList :res="goodsList" type="oneColumns" :keyword="keyword" />
+				<goodsList :res="goodsList" type="oneColumns" :keyword="keyword" :tab-bar-gap="false" />
 				<uni-load-more :status="loadingType" @loadmore="loadmore()"></uni-load-more>
 			</scroll-view>
 			<!-- 一行两个商品展示 -->
 			<scroll-view
 				v-if="!empty && !isSWitch && goodsList.length"
 				class="goods-scroll"
+				:style="goodsScrollStyle"
 				scroll-anchoring
 				enableBackToTop="true"
 				@scrolltolower="loadmore()"
@@ -130,9 +143,10 @@
 				scroll-y
 				lower-threshold="250"
 			>
-				<goodsList :res="goodsList" :keyword="keyword" />
+				<goodsList :res="goodsList" :keyword="keyword" :tab-bar-gap="false" />
 				<uni-load-more :status="loadingType"></uni-load-more>
 			</scroll-view>
+			<!-- #endif -->
 
 			<view class="empty" v-if="empty">
 				<image class="empty-img" src="/static/nodata.png" mode="aspectFit"></image>
@@ -296,6 +310,7 @@ export default {
 			routerVal: '',
 			capsuleInsetRight: 0,
 			searchNavbarWidth: 0,
+			goodsScrollHeight: 0,
 		};
 	},
 
@@ -309,6 +324,14 @@ export default {
 			return {
 				width: '100%',
 			};
+		},
+		goodsScrollStyle() {
+			if (this.goodsScrollHeight > 0) {
+				return {
+					height: `${this.goodsScrollHeight}px`,
+				};
+			}
+			return {};
 		},
 	},
 
@@ -352,6 +375,20 @@ export default {
 	},
 	onReady() {
 		this.setSearchNavbarWidth();
+		this.calcGoodsScrollHeight();
+	},
+	onShow() {
+		this.calcGoodsScrollHeight();
+	},
+	mounted() {
+		// #ifdef H5
+		window.addEventListener('resize', this.calcGoodsScrollHeight);
+		// #endif
+	},
+	beforeUnmount() {
+		// #ifdef H5
+		window.removeEventListener('resize', this.calcGoodsScrollHeight);
+		// #endif
 	},
 	components: {
 		mSearch,
@@ -374,15 +411,49 @@ export default {
 			if (val) {
 				this.selectedWay = { brand: [], categoryId: [], prop: [] };
 			}
+		},
+		isShowSeachGoods(val) {
+			if (val) {
+				this.$nextTick(() => {
+					this.calcGoodsScrollHeight();
+				});
+			}
+		},
+		isSWitch() {
+			this.$nextTick(() => {
+				this.calcGoodsScrollHeight();
+			});
 		}
 	},
 
 	onReachBottom() {
-		this.params.pageNumber++;
-		this.loadData();
+		// #ifdef H5
+		if (!this.isShowSeachGoods || this.loadingType !== 'more') {
+			return;
+		}
+		this.loadmore();
+		// #endif
 	},
 
 	methods: {
+		calcGoodsScrollHeight() {
+			this.$nextTick(() => {
+				const query = uni.createSelectorQuery().in(this);
+				query.select('.goods-content').boundingClientRect();
+				query.select('.goods-content .navbar').boundingClientRect();
+				query.exec((res) => {
+					const contentRect = res[0];
+					const navbarRect = res[1];
+					if (!contentRect) {
+						return;
+					}
+					const sortBarHeight = navbarRect ? navbarRect.height : uni.upx2px(80);
+					const { windowHeight } = uni.getWindowInfo();
+					const height = Math.max(contentRect.height, windowHeight - contentRect.top) - sortBarHeight;
+					this.goodsScrollHeight = Math.max(height, 0);
+				});
+			});
+		},
 		setSearchNavbarWidth() {
 			// #ifdef MP-WEIXIN
 			try {
@@ -529,6 +600,9 @@ export default {
 			});
 		},
 		loadmore() {
+			if (this.loadingType !== 'more') {
+				return;
+			}
 			this.params.pageNumber++;
 			this.loadData();
 		},
@@ -663,6 +737,9 @@ export default {
 			this.empty = this.goodsList.length === 0;
 			
 			this.initSortGoods();
+			this.$nextTick(() => {
+				this.calcGoodsScrollHeight();
+			});
 			 if (this.$store.state.isShowToast){ uni.hideLoading() };
 		},
 
@@ -777,4 +854,13 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import './search.scss';
+</style>
+<style lang="scss">
+/* #ifdef H5 */
+page {
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+/* #endif */
 </style>

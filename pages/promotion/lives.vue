@@ -1,5 +1,5 @@
 <template>
-  <div class="box">
+  <view class="box">
     <u-navbar
       class="navbar"
       :border="false"
@@ -30,46 +30,65 @@
       :list="tabs"
     ></u-tabs>
 
-    <div class="wrapper">
-      <!-- 直播中 全部 直播回放 -->
-      <div class="live-item" :class="{'invalid':item.status == 'END'}" v-for="(item,index) in liveList" :key="index" @click="handleLivePlayer(item)">
-        <div class="live-cover-img">
-          <div class="tips">
-            <div class="live-box">
-              <image class="live-gif" src="./static/live.gif"></image>
-            </div>
-            <span>{{item.status == 'END' ? '已结束' : item.status =='NEW' ? '未开始' : '直播中'}}</span>
-          </div>
-          <div class="bg"></div>
-          <u-image width="326" height="354" :src="item.shareImg" />
-        </div>
-        <div class="live-goods">
-          <div class="live-goods-name">
-            {{item.name}}
-          </div>
-          <div class="live-store">
-            <span class="wes">lilishop</span>
-          </div>
-          <div class="live-goods-list">
-            <div class="live-goods-item">
-              <u-image border-radius="20" :src="item.roomGoodsList ? item.roomGoodsList[0] : ''" height="140"></u-image>
-            </div>
-            <div class="live-goods-item">
-              <u-image border-radius="20" :src="item.roomGoodsList ? item.roomGoodsList[1] : ''" height="140"></u-image>
-            </div>
-          </div>
-        </div>
-      </div>
-      <u-loadmore v-if="liveList.length > 10" bg-color="#f8f8f8" :status="status" />
-    </div>
-  </div>
+    <view class="wrapper">
+      <view
+        class="live-item"
+        :class="{ invalid: item.status == 'END' }"
+        v-for="(item, index) in liveList"
+        :key="item.id || item.roomId || index"
+        @click="handleLivePlayer(item)"
+      >
+        <view class="live-cover-img">
+          <view class="tips">
+            <view class="live-box" v-if="item.status === 'START'">
+              <image class="live-gif" src="/pages/promotion/static/live.gif" mode="aspectFit"></image>
+            </view>
+            <text>{{ item.status == 'END' ? '已结束' : item.status == 'NEW' ? '未开始' : '直播中' }}</text>
+          </view>
+          <view class="bg"></view>
+          <u-image
+            class="cover-image"
+            width="326rpx"
+            height="354rpx"
+            mode="aspectFill"
+            :src="item.shareImg"
+          />
+        </view>
+        <view class="live-goods">
+          <view class="live-goods-name">{{ item.name }}</view>
+          <view class="live-store">
+            <text class="wes">{{ config.name }}</text>
+          </view>
+          <view class="live-goods-list" v-if="item.roomGoodsList && item.roomGoodsList.length">
+            <view
+              class="live-goods-item"
+              v-for="(goodsImg, goodsIndex) in item.roomGoodsList.slice(0, 2)"
+              :key="goodsIndex"
+            >
+              <u-image
+                border-radius="20"
+                :src="goodsImg"
+                width="100%"
+                height="140rpx"
+                mode="aspectFill"
+              ></u-image>
+            </view>
+          </view>
+        </view>
+      </view>
+      <u-loadmore v-if="liveList.length > 0" bg-color="#f8f8f8" :status="status" />
+      <view class="empty-live" v-if="!liveList.length && status === 'noMore'">暂无直播间</view>
+    </view>
+  </view>
 </template>
 
 <script>
 import { getLiveList } from "@/api/promotions.js";
+import config from "@/config/config";
 export default {
   data() {
     return {
+      config,
       status: "loadmore",
       activeColor: this.$lightColor,
       current: 0, // 当前tabs索引
@@ -142,6 +161,7 @@ export default {
      * 点击标签栏切换
      */
     changeTabs() {
+      this.params[this.current].pageNumber = 1;
       this.init();
     },
 
@@ -185,9 +205,9 @@ export default {
       let recommendLives = await getLiveList(this.recommendParams);
       if (recommendLives.data.success) {
         // 推荐直播间
-        if (recommendLives.data.result.records.length ) {
+        if (recommendLives.data.result.records.length) {
           this.status = "loadmore";
-          this.recommendLives = recommendLives.data.result.records;
+          this.recommendLiveList = recommendLives.data.result.records;
         } else {
           this.status = "noMore";
         }
@@ -198,9 +218,9 @@ export default {
          * 2.如果没有直播间设置一个默认图片
          */
 
-        if (!this.recommendLives.length) {
-          if (this.liveList[0].shareImg) {
-            this["swiperImg"] = [
+        if (!this.recommendLiveList.length) {
+          if (this.liveList[0] && this.liveList[0].shareImg) {
+            this.swiperImg = [
               {
                 image: this.liveList[0].shareImg,
                 roomId: this.liveList[0].roomId,
@@ -208,10 +228,8 @@ export default {
             ];
           }
         } else {
-          this.recommendLives.forEach((item) => {
-            this["swiperImg"] = [
-              { image: item.shareImg, roomId: item.roomId },
-            ];
+          this.recommendLiveList.forEach((item) => {
+            this.swiperImg = [{ image: item.shareImg, roomId: item.roomId }];
           });
         }
       }
@@ -239,8 +257,12 @@ export default {
 
       
         this.liveList.forEach((item) => {
-          if (item.roomGoodsList) {
-            item.roomGoodsList = JSON.parse(item.roomGoodsList);
+          if (item.roomGoodsList && typeof item.roomGoodsList === "string") {
+            try {
+              item.roomGoodsList = JSON.parse(item.roomGoodsList);
+            } catch (e) {
+              item.roomGoodsList = [];
+            }
           }
         });
       }
@@ -261,61 +283,97 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+page {
+  background: #f8f8f8;
+}
+
+.box {
+  width: 100%;
+  min-height: 100vh;
+  background: #f8f8f8;
+  box-sizing: border-box;
+}
+
 .slot-wrap {
   display: flex;
   align-items: center;
-  /* 如果您想让slot内容占满整个导航栏的宽度 */
   flex: 1;
-  /* 如果您想让slot内容与导航栏左右有空隙 */
-  /* padding: 0 30rpx; */
+  padding-right: 24rpx;
 }
+
 .invalid {
   filter: grayscale(1);
 }
+
 .wrapper {
-  padding: 0 24rpx;
+  padding: 0 24rpx 40rpx;
+  box-sizing: border-box;
 }
+
 .live-item {
   display: flex;
+  flex-direction: row;
+  align-items: stretch;
   overflow: hidden;
   border-radius: 20rpx;
-  flex-wrap: wrap;
   background: #fff;
-
   margin: 20rpx 0;
 }
+
 .live-cover-img {
   position: relative;
+  flex-shrink: 0;
+  width: 326rpx;
+  height: 354rpx;
+  overflow: hidden;
+  border-radius: 20rpx 0 0 20rpx;
 }
+
+.cover-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .swiper {
-  margin: 20rpx 0;
+  margin: 20rpx 24rpx;
 }
 
 .live-goods {
-  position: relative;
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   padding: 16rpx 24rpx 24rpx;
+  box-sizing: border-box;
 }
+
 .live-goods-name {
-  height: 84rpx;
+  min-height: 84rpx;
   font-weight: bold;
   font-size: 30rpx;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+  color: #333;
 }
+
 .live-store {
   display: flex;
   align-items: center;
-  margin: 20rpx 0;
+  margin: 12rpx 0 20rpx;
   overflow: hidden;
-  width: calc(100% - 50rpx);
+  font-size: 24rpx;
+  color: #999;
 }
+
 .live-gif {
   width: 20rpx;
   height: 20rpx;
 }
+
 .live-box {
   display: flex;
   align-items: center;
@@ -324,66 +382,53 @@ export default {
   width: 40rpx;
   margin-right: 10rpx;
   height: 40rpx;
+  flex-shrink: 0;
   background: linear-gradient(90deg, #ff6b35, #ff9f28, #ffcc03);
 }
+
 .live-goods-list {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  > .live-goods-item {
-    flex: 1;
-  }
-  > .live-goods-item:nth-of-type(1) {
-    padding-right: 38rpx;
-  }
+  gap: 20rpx;
+  margin-top: auto;
 }
 
-.live-icon,
-.zan {
-  position: absolute;
-  width: 80rpx;
-  height: 80rpx;
-  z-index: 9;
+.live-goods-item {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 20rpx;
 }
+
 .tips {
   display: flex;
   position: absolute;
   z-index: 9;
-
   align-items: center;
   top: 20rpx;
-  right: 0;
-  padding: 4rpx 12rpx 4rpx 0;
+  left: 20rpx;
+  padding: 4rpx 12rpx 4rpx 4rpx;
   font-size: 24rpx;
   border-radius: 100px;
   color: #fff;
   background: rgba(0, 0, 0, 0.46);
 }
-.live-icon {
-  right: 0;
-  top: 104rpx;
-}
 
-.zan {
-  bottom: 0;
-  right: 0;
-  width: 100rpx;
-  height: 100rpx;
-}
 .bg {
   position: absolute;
-  bottom: 4rpx;
-  width: 100%;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: 100rpx;
   z-index: 8;
-  background-image: -webkit-gradient(
-    linear,
-    left bottom,
-    left top,
-    from(rgba(0, 0, 0, 0.25)),
-    color-stop(82%, transparent)
-  );
+  pointer-events: none;
   background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.25), transparent 82%);
-  border-bottom-left-radius: 20rpx;
+}
+
+.empty-live {
+  padding: 80rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
 }
 </style>

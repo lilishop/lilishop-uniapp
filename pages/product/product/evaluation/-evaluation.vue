@@ -26,7 +26,7 @@
               text-indent="0"
               :show-height="120"
             >
-              <rich-text @load="parseLoaded(commIndex)" :nodes="commItem.content" class="con"></rich-text>
+              <rich-text :nodes="commItem.content" class="con"></rich-text>
             </u-read-more>
             <scroll-view scroll-x class="scroll-x" v-if="commentImages(commItem).length">
               <view class="img-list">
@@ -70,7 +70,8 @@ export default {
   data() {
     return {
       lightColor: this.$lightColor,
-      commDetail: [],
+      commDetail: {},
+      readMoreInited: {},
       grade: "",
       params: {
         pageNumber: 1,
@@ -106,18 +107,27 @@ export default {
       return typeof images === "string" ? images.split(",").filter(Boolean) : images;
     },
 
-    parseLoaded(index) {
+    initReadMore(index) {
+      if (this.readMoreInited[index]) return;
+      this.readMoreInited[index] = true;
       this.$nextTick(() => {
         const refs = this.$refs.uReadMore;
         const target = Array.isArray(refs) ? refs[index] : refs;
-        target && target.init && target.init();
+        target?.init?.();
       });
     },
 
     getGoodsCommentsMethods() {
       if (!this.goodsDetail.goodsId) return;
       API_Members.getGoodsComments(this.goodsDetail.goodsId, this.params).then((res) => {
-        this.commDetail = res.data.result;
+        this.readMoreInited = {};
+        this.commDetail = res.data.result || {};
+        this.$nextTick(() => {
+          const records = this.commDetail.records || [];
+          records.slice(0, 2).forEach((_, index) => {
+            setTimeout(() => this.initReadMore(index), 50 * (index + 1));
+          });
+        });
       });
     },
 
