@@ -18,6 +18,23 @@ export function getLiveList(params) {
 }
 
 /**
+ * 获取直播间详情
+ * @deprecated 请使用 api/live.js 中的 getLiveRoomById
+ * @param {number} roomId 直播间房间号
+ */
+export function getLiveDetail(roomId) {
+  return http.request({
+    url: `broadcast/studio`,
+    method: Method.GET,
+    params: {
+      pageNumber: 1,
+      pageSize: 1,
+      roomId,
+    },
+  });
+}
+
+/**
  * 获取当前拼团活动的未成团的会员
  */
 export function getPromotionGroupMember(pintuanId) {

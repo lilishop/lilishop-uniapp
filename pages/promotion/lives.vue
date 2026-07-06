@@ -272,27 +272,11 @@ export default {
      * 进入直播间
      */
     handleLivePlayer(val) {
-      // #ifdef MP-WEIXIN
-      let roomId = val.roomId; // 填写具体的房间号，可通过下面【获取直播房间列表】 API 获取
-      let customParams = encodeURIComponent(
-        JSON.stringify({ path: "pages/index/index", pid: 1 })
-      ); // 开发者在直播间页面路径上携带自定义参数，后续可以在分享卡片链接和跳转至商详页时获取，详见【获取自定义参数】、【直播间到商详页面携带参数】章节（上限600个字符，超过部分会被截断）
+      const id = val.id || val.roomId;
+      if (!id) return;
       uni.navigateTo({
-        url:
-          "plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=" +
-          roomId +
-          "&custom_params=" +
-          customParams,
+        url: `/pages/live/room?id=${id}`,
       });
-      // #endif
-
-      // #ifndef MP-WEIXIN
-      uni.showToast({
-        title: "请从微信小程序中预览直播功能",
-        duration: 2000,
-        icon: "none",
-      });
-      // #endif
     },
   },
 };
