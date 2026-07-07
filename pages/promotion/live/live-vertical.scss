@@ -1,6 +1,7 @@
 .live-room-page {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .live-detail-page-vertical {
@@ -51,11 +52,10 @@
 
 .bottom-container-vertical {
   position: absolute;
-  bottom: 0;
+  bottom: calc(104rpx + env(safe-area-inset-bottom));
   left: 0;
   right: 0;
   z-index: 10;
-  padding-bottom: env(safe-area-inset-bottom);
   background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
   transition: transform 0.3s ease, opacity 0.3s ease;
 
@@ -67,7 +67,14 @@
 }
 
 .bottom-container-vertical .message-container {
+  height: 36vh;
+  overflow: hidden;
   padding: 0 24rpx;
+  box-sizing: border-box;
+}
+
+.bottom-container-vertical .message-scroll {
+  height: 100%;
 }
 
 .bottom-container-vertical .message-item {
@@ -88,6 +95,12 @@
   right: 20rpx;
   bottom: 280rpx;
   z-index: 20;
+}
+
+.bottom-container-vertical .cart-btn-inner {
+  box-shadow:
+    0 8rpx 24rpx rgba(0, 0, 0, 0.35),
+    0 0 0 2rpx rgba(255, 255, 255, 0.12);
 }
 
 .product-showcase {
@@ -166,9 +179,22 @@
   }
 }
 
-.bottom-container-vertical .bottom-actions {
-  background: transparent;
+.bottom-container-vertical .bottom-actions,
+.bottom-actions-vertical {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background: rgba(0, 0, 0, 0.45);
   border-top: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+
+  &.hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 .bottom-container-vertical .input-box {

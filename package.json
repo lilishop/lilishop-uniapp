@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@tencentcloud/chat": "^3.5.5",
+    "hls.js": "^1.6.16",
     "mqtt": "^5.15.0",
     "sass": "^1.89.2",
     "uview-plus": "^3.4.72",

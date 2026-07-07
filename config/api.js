@@ -8,9 +8,9 @@ const dev = {
   common: "https://common-api.pickmall.cn",
   buyer: "https://buyer-api.pickmall.cn",
   mqtt: "wss://lilishop-mqtt-pull.dllll.xyz/mqtt",
-  // common: "http://192.168.0.113:8890",
-  // buyer: "http://192.168.0.113:8888",
-  // im: "http://192.168.0.113:8885",
+  common: "http://192.168.31.244:8890",
+  buyer: "http://192.168.31.244:8888",
+  im: "http://192.168.0.113:8885",
 };
 // 生产环境
 const prod = {

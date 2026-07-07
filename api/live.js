@@ -63,13 +63,3 @@ export function receiveLiveCoupon(liveRoomId, couponId) {
   });
 }
 
-/**
- * 获取直播系统配置（LIVE_SETTING，含 imSdkAppid）
- */
-export function getLiveSetting() {
-  return http.request({
-    url: "system/setting/get/LIVE_SETTING",
-    method: Method.GET,
-    loading: false,
-  });
-}

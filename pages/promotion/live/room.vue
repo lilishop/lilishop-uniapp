@@ -33,10 +33,20 @@
           autoplay
           mode="live"
           object-fit="fillCrop"
+          :min-cache="1"
+          :max-cache="3"
           @error="onPlayerError"
         />
         <!-- #endif -->
-        <!-- #ifndef MP-WEIXIN -->
+        <!-- #ifdef H5 -->
+        <div
+          v-if="isLiving && roomInfo.pullStreamUrl"
+          ref="hlsContainer"
+          class="stream-player"
+          style="width: 100%; height: 100%; background: #000"
+        />
+        <!-- #endif -->
+        <!-- #ifdef APP-PLUS -->
         <video
           v-if="isLiving && roomInfo.pullStreamUrl"
           class="stream-player"
@@ -58,7 +68,7 @@
     </view>
 
     <view class="bottom-container-vertical" :class="{ hidden: !isUIVisible }" @click.stop>
-      <view class="message-container" :style="{ height: scrollViewHeight + 'px' }">
+      <view class="message-container">
         <scroll-view class="message-scroll" scroll-y :scroll-into-view="scrollToView" scroll-with-animation>
           <view
             v-for="(item, index) in messageList"
@@ -104,22 +114,22 @@
           </view>
         </view>
       </view>
+    </view>
 
-      <view v-if="showChatBar" class="bottom-actions">
-        <view class="input-box" @tap="onChatInputTap">
-          <input
-            v-model="inputMessage"
-            class="input-content"
-            type="text"
-            :placeholder="chatPlaceholder"
-            :disabled="isLogin('auth') && liveUser?.muteFlag"
-            confirm-type="send"
-            @focus="onChatFocus"
-            @confirm="sendMessage"
-          />
-        </view>
-        <view class="send-btn-small" :class="{ disabled: isLogin('auth') && (!canSend || sending) }" @click="sendMessage">发送</view>
+    <view v-if="showChatBar" class="bottom-actions bottom-actions-vertical" :class="{ hidden: !isUIVisible }">
+      <view class="input-box" @tap="onChatInputTap">
+        <input
+          v-model="inputMessage"
+          class="input-content"
+          type="text"
+          :placeholder="chatPlaceholder"
+          :disabled="isLogin('auth') && liveUser?.muteFlag"
+          confirm-type="send"
+          @focus="onChatFocus"
+          @confirm="sendMessage"
+        />
       </view>
+      <view class="send-btn-small" :class="{ disabled: isLogin('auth') && (!canSend || sending) }" @click="sendMessage">发送</view>
     </view>
 
     <!-- 竖屏底部弹窗 -->
@@ -215,10 +225,20 @@
           autoplay
           mode="live"
           :object-fit="objectFit"
+          :min-cache="1"
+          :max-cache="3"
           @error="onPlayerError"
         />
         <!-- #endif -->
-        <!-- #ifndef MP-WEIXIN -->
+        <!-- #ifdef H5 -->
+        <div
+          v-if="isLiving && roomInfo.pullStreamUrl"
+          ref="hlsContainer"
+          class="stream-player"
+          style="width: 100%; height: 100%; background: #000"
+        />
+        <!-- #endif -->
+        <!-- #ifdef APP-PLUS -->
         <video
           v-if="isLiving && roomInfo.pullStreamUrl"
           class="stream-player"
@@ -234,7 +254,7 @@
       </view>
     </view>
 
-    <view class="bottom-container">
+    <view class="bottom-container" :class="{ 'has-chat-bar': currentTab === 0 && showChatBar }">
       <view class="tab-container">
         <view class="tab-items">
           <view class="tab-item" :class="{ active: currentTab === 0 }" @click="switchTab(0)">
@@ -246,7 +266,7 @@
         </view>
       </view>
 
-      <view class="message-container" :style="{ height: scrollViewHeight + 'px' }">
+      <view class="message-container">
         <scroll-view
           v-if="currentTab === 0"
           class="message-scroll"
@@ -421,10 +441,16 @@
         <view class="coupon-list-inner">
           <view v-for="item in visibleCouponList" :key="item.id || item.couponId" class="coupon-card">
             <view class="coupon-card-left">
-              <text class="coupon-price-value"><text style="font-size:28rpx">¥</text>{{ unitPrice(item.couponPrice) }}</text>
+              <text class="coupon-price-value">
+                <text class="coupon-price-symbol">¥</text>{{ unitPrice(item.couponPrice) }}
+              </text>
             </view>
+            <view class="coupon-divider" />
             <view class="coupon-card-right">
-              <text class="coupon-card-name">{{ item.couponName }}</text>
+              <view class="coupon-info">
+                <text class="coupon-card-name">{{ item.couponName }}</text>
+                <text class="coupon-card-desc">限时专享优惠</text>
+              </view>
               <view
                 class="coupon-claim-btn"
                 :class="{ disabled: isCouponReceived(item.couponId) || claimingCouponId === item.couponId }"
@@ -448,10 +474,14 @@
 
 <script>
 import config from "@/config/config";
-import { getLivePollingData, registerLiveViewUser, receiveLiveCoupon, sendLiveMessage } from "@/api/live.js";
+import { getLiveRoomById, getLivePollingData, registerLiveViewUser, receiveLiveCoupon, sendLiveMessage } from "@/api/live.js";
 import { LiveMqttService } from "./utils/liveMqtt.js";
 import { LiveChatService } from "./utils/liveChat.js";
+import { seedLiveSetting } from "./utils/liveSetting.js";
 import { parseRecommendMessageArray, findRecommendPayload } from "./utils/liveRecommend.js";
+// #ifdef H5
+import Hls from "hls.js";
+// #endif
 
 const POLL_INTERVAL = 5000;
 
@@ -485,7 +515,6 @@ export default {
       liveCoupon: [],
       liveCouponReceives: [],
       currentTab: 0,
-      scrollViewHeight: 400,
       showGoodsModal: false,
       showCouponModal: false,
       isUIVisible: true,
@@ -499,6 +528,8 @@ export default {
       shownRecommendCouponIds: [],
       liveMqttService: null,
       liveChatService: null,
+      hlsHttpFallbackUsed: false,
+      lastHlsPullUrl: "",
     };
   },
   computed: {
@@ -559,10 +590,27 @@ export default {
       return this.visibleCouponList.some((item) => !this.isCouponReceived(item.couponId));
     },
   },
+  created() {
+    // hls.js 播放器实例与视频节点不经过 Vue 响应式代理，避免干扰其内部状态管理
+    this.hlsInstance = null;
+    this.hlsVideoElement = null;
+    this._hlsVideoClickHandler = null;
+  },
+  watch: {
+    "roomInfo.pullStreamUrl"() {
+      this.syncH5Player();
+    },
+    isLiving() {
+      this.syncH5Player();
+    },
+    isVerticalMode() {
+      // 横竖屏模板切换会销毁重建播放器容器 DOM，需重新挂载播放器
+      this.lastHlsPullUrl = "";
+      this.$nextTick(() => this.syncH5Player());
+    },
+  },
   onLoad(options) {
     this.liveId = this.parseLiveId(options);
-    const systemInfo = uni.getSystemInfoSync();
-    this.scrollViewHeight = Math.max(systemInfo.windowHeight - (this.isVerticalMode ? 320 : 480), 240);
 
     if (!this.liveId) {
       uni.showToast({ title: "无效的直播链接", icon: "none" });
@@ -583,18 +631,19 @@ export default {
     if (this.liveId && !this.pollTimer) {
       this.startPolling();
     }
-    if (this.liveId && !this.loading && this.roomInfo?.liveStatus !== LIVE_STATUS.ENDED) {
+    if (this.liveId && this.liveMqttService && !this.liveMqttService.isConnected()) {
       this.initLiveMqtt();
     }
+    this.syncH5Player();
   },
   onHide() {
     this.stopPolling();
-    this.cleanupLiveMqtt();
   },
   onUnload() {
     this.stopPolling();
     this.cleanupLiveMqtt();
     this.cleanupLiveChat();
+    this.destroyH5HlsPlayer();
   },
   // #ifdef MP-WEIXIN
   onShareTimeline() {
@@ -752,22 +801,19 @@ export default {
       // #endif
     },
     async initLiveRoom() {
-      const ok = await this.fetchPollingData(true);
+      const ok = await this.fetchRoomDetail(true);
       if (!ok) return;
+      await this.fetchPollingData(false);
       this.setupShare();
       if (this.roomInfo.title) {
         uni.setNavigationBarTitle({ title: this.roomInfo.title });
       }
-      const systemInfo = uni.getSystemInfoSync();
-      this.scrollViewHeight = Math.max(
-        systemInfo.windowHeight - (this.isVerticalMode ? 320 : 480),
-        240
-      );
       if (this.isLogin("auth")) {
         await this.registerLiveUser();
       }
       this.startPolling();
       this.initLiveMqtt();
+      this.syncH5Player();
     },
     async initLiveChat() {
       if (!this.isLogin("auth")) return;
@@ -886,6 +932,7 @@ export default {
         if (updates.liveStatus === LIVE_STATUS.ENDED) {
           this.stopPolling();
         }
+        this.syncH5Player();
       } catch (error) {
         console.error("处理直播 MQTT 消息失败:", error);
       }
@@ -921,6 +968,7 @@ export default {
       if (this.roomInfo.liveStatus !== LIVE_STATUS.LIVING) {
         this.roomInfo = { ...this.roomInfo, liveStatus: LIVE_STATUS.LIVING };
       }
+      this.syncH5Player();
     },
     startPolling() {
       this.stopPolling();
@@ -958,22 +1006,20 @@ export default {
       if (this.roomInfo.liveStatus === LIVE_STATUS.ENDED) {
         this.stopPolling();
       }
+      this.syncH5Player();
     },
-    async fetchPollingData(isInit = false) {
+    async fetchRoomDetail(isInit = false) {
       if (isInit) this.loading = true;
       try {
-        const res = await getLivePollingData(this.liveId);
-        if (res.data.success && res.data.result) {
-          this.applyPollingData(res.data.result);
-          if (isInit && !res.data.result.liveDetail) {
-            uni.showToast({ title: "直播间不存在", icon: "none" });
-            setTimeout(() => this.goBackOrHome(), 1500);
-            return false;
-          }
+        const res = await getLiveRoomById(this.liveId);
+        if (res.data?.success && res.data?.result) {
+          this.roomInfo = res.data.result;
+          seedLiveSetting(this.liveId, res.data.result);
+          this.syncH5Player();
           return true;
         }
         if (isInit) {
-          uni.showToast({ title: res.data.message || "直播间不存在", icon: "none" });
+          uni.showToast({ title: res.data?.message || "直播间不存在", icon: "none" });
           setTimeout(() => this.goBackOrHome(), 1500);
         }
         return false;
@@ -981,6 +1027,21 @@ export default {
         if (isInit) {
           uni.showToast({ title: "加载失败", icon: "none" });
         }
+        return false;
+      } finally {
+        if (isInit) this.loading = false;
+      }
+    },
+    async fetchPollingData(isInit = false) {
+      if (isInit) this.loading = true;
+      try {
+        const res = await getLivePollingData(this.liveId);
+        if (res.data.success && res.data.result) {
+          this.applyPollingData(res.data.result);
+          return true;
+        }
+        return false;
+      } catch (e) {
         return false;
       } finally {
         if (isInit) this.loading = false;
@@ -1016,6 +1077,164 @@ export default {
     onPlayerError(e) {
       console.error("live player error:", e.detail);
       uni.showToast({ title: "直播加载失败", icon: "none" });
+    },
+    /** 根据当前直播状态与拉流地址，按需（重新）挂载或销毁 H5 播放器 */
+    syncH5Player(retry = 0) {
+      // #ifdef H5
+      const shouldPlay = this.isLiving && !!this.roomInfo.pullStreamUrl;
+      if (!shouldPlay) {
+        this.destroyH5HlsPlayer();
+        this.lastHlsPullUrl = "";
+        return;
+      }
+      if (
+        this.roomInfo.pullStreamUrl === this.lastHlsPullUrl &&
+        this.hlsInstance &&
+        this.hlsVideoElement &&
+        !this.hlsVideoElement.paused
+      ) {
+        return;
+      }
+      if (this.roomInfo.pullStreamUrl === this.lastHlsPullUrl && this.hlsInstance) {
+        this.ensureH5VideoPlaying(this.hlsVideoElement);
+        return;
+      }
+      this.lastHlsPullUrl = this.roomInfo.pullStreamUrl;
+      this.hlsHttpFallbackUsed = false;
+      this.$nextTick(() => {
+        const container = this.$refs.hlsContainer;
+        if (!container) {
+          if (retry < 8) {
+            setTimeout(() => this.syncH5Player(retry + 1), 80);
+          }
+          return;
+        }
+        this.initH5HlsPlayer();
+      });
+      // #endif
+    },
+    /** 尝试自动播放；浏览器策略拦截时先静音播放，点击后再恢复声音 */
+    ensureH5VideoPlaying(video) {
+      // #ifdef H5
+      if (!video) return Promise.resolve();
+      const tryPlay = (muted) => {
+        video.muted = muted;
+        return video.play().catch(() => Promise.reject());
+      };
+      return tryPlay(false)
+        .catch(() => tryPlay(true))
+        .catch(() => {
+          console.warn("[HLS] 自动播放被阻止，请点击画面播放");
+        });
+      // #endif
+    },
+    /** 初始化 H5 HLS 播放器，支持 HTTPS 证书异常时自动降级为 HTTP 重试 */
+    initH5HlsPlayer(useHttpFallback = false) {
+      // #ifdef H5
+      const originalUrl = this.roomInfo.pullStreamUrl;
+      const container = this.$refs.hlsContainer;
+      if (!originalUrl || !container) return;
+
+      const httpUrl =
+        useHttpFallback && originalUrl.startsWith("https://")
+          ? originalUrl.replace("https://", "http://")
+          : originalUrl;
+      const url = httpUrl.replace(".flv", ".m3u8");
+
+      this.destroyH5HlsPlayer();
+
+      const video = document.createElement("video");
+      video.style.cssText = "width:100%;height:100%;object-fit:cover;background:#000;";
+      video.autoplay = true;
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      video.setAttribute("autoplay", "");
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+      video.setAttribute("x5-playsinline", "");
+      video.setAttribute("x5-video-player-type", "h5");
+      video.setAttribute("x5-video-player-fullscreen", "true");
+      video.controls = false;
+      const onVideoClick = () => {
+        if (video.muted) {
+          video.muted = false;
+        }
+        video.play().catch(() => {});
+      };
+      video.addEventListener("click", onVideoClick);
+      container.appendChild(video);
+      this.hlsVideoElement = video;
+      this._hlsVideoClickHandler = onVideoClick;
+
+      const onReadyPlay = () => {
+        this.ensureH5VideoPlaying(video);
+      };
+
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          liveSyncDurationCount: 3,
+          liveMaxLatencyDurationCount: 6,
+          maxBufferLength: 10,
+          maxMaxBufferLength: 30,
+        });
+        this.hlsInstance = hls;
+        hls.on(Hls.Events.MEDIA_ATTACHED, onReadyPlay);
+        hls.on(Hls.Events.MANIFEST_PARSED, onReadyPlay);
+        hls.attachMedia(video);
+        hls.loadSource(url);
+        hls.on(Hls.Events.ERROR, (_event, data) => {
+          if (!data.fatal) return;
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              if (!this.hlsHttpFallbackUsed && originalUrl.startsWith("https://")) {
+                console.warn("[HLS] HTTPS 加载失败，尝试 HTTP 降级...");
+                this.hlsHttpFallbackUsed = true;
+                this.destroyH5HlsPlayer();
+                this.$nextTick(() => this.initH5HlsPlayer(true));
+              } else {
+                console.error("[HLS] 网络错误，尝试重连...");
+                hls.startLoad();
+              }
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error("[HLS] 媒体错误，尝试恢复...");
+              hls.recoverMediaError();
+              break;
+            default:
+              console.error("[HLS] 致命错误:", data);
+              this.destroyH5HlsPlayer();
+              break;
+          }
+        });
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = url;
+        video.addEventListener("loadedmetadata", onReadyPlay);
+        video.addEventListener("canplay", onReadyPlay);
+      } else {
+        console.error("[HLS] 当前浏览器不支持 HLS");
+      }
+      // #endif
+    },
+    /** 销毁 H5 HLS 播放器 */
+    destroyH5HlsPlayer() {
+      // #ifdef H5
+      if (this.hlsInstance) {
+        this.hlsInstance.destroy();
+        this.hlsInstance = null;
+      }
+      if (this.hlsVideoElement) {
+        if (this._hlsVideoClickHandler) {
+          this.hlsVideoElement.removeEventListener("click", this._hlsVideoClickHandler);
+          this._hlsVideoClickHandler = null;
+        }
+        this.hlsVideoElement.remove();
+        this.hlsVideoElement = null;
+      }
+      // #endif
     },
     buildMessagePayload(content) {
       const userInfo = this.isLogin() || {};

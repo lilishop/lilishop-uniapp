@@ -41,7 +41,7 @@ export class LiveChatService {
       return;
     }
 
-    const setting = await fetchLiveSetting();
+    const setting = await fetchLiveSetting(this.liveId);
     if (!setting?.imSdkAppid) {
       console.warn("IM SDKAppID 未配置，跳过 IM 初始化");
       return;

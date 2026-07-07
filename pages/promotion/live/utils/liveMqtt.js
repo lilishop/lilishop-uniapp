@@ -1,12 +1,7 @@
 /**
  * 直播 MQTT 连接管理（由 saas-uni-v3 useMqtt 迁移）
  */
-// #ifndef MP-WEIXIN
 import { createMqttClient } from "../mqtt/mqtt.js";
-// #endif
-// #ifdef MP-WEIXIN
-import { createMqttClient } from "../mqtt/mqtt-weixin.js";
-// #endif
 
 export class LiveMqttService {
   constructor(liveId, userId) {

@@ -101,13 +101,6 @@
 					"style": {
 							"navigationBarTitleText": "专题"
 					}
-		},
-		{
-			"path": "pages/live/room",
-			"style": {
-				"navigationStyle": "custom",
-				"navigationBarTextStyle": "white"
-			}
 		}
 
 	],
@@ -586,7 +579,15 @@
 						}
 					}
 				},
-			
+				
+				{
+					"path": "live/room",
+					"style": {
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "white",
+						"disableScroll": true
+					}
+				},
 				 {
 					"path": "joinGroup",
 					"style": {
