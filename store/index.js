@@ -1,5 +1,9 @@
 import { createStore } from 'vuex'
 import storage from '@/utils/storage'
+import config from '@/config/config'
+import { DEFAULT_THEME, loadCachedTheme } from '@/utils/theme'
+
+const cachedTheme = loadCachedTheme()
 
 const store = createStore({
   state: {
@@ -11,7 +15,13 @@ const store = createStore({
     hasLogin: storage.getHasLogin(),
     userInfo: storage.getUserInfo(),
     uuid: storage.getUuid(),
-    token: ''
+    token: '',
+    theme: cachedTheme || { ...DEFAULT_THEME },
+  },
+  getters: {
+    mainColor: (state) => state.theme.mainColor,
+    lightColor: (state) => state.theme.lightColor,
+    aiderLightColor: (state) => state.theme.aiderLightColor,
   },
   mutations: {
     login(state, userInfo) {
@@ -26,7 +36,14 @@ const store = createStore({
     },
     setRemark(state, remark) {
       state.remark = remark
-    }
+    },
+    SET_THEME(state, theme) {
+      state.theme = {
+        mainColor: theme.mainColor || DEFAULT_THEME.mainColor,
+        lightColor: theme.lightColor || DEFAULT_THEME.lightColor,
+        aiderLightColor: theme.aiderLightColor || DEFAULT_THEME.aiderLightColor,
+      }
+    },
   },
   actions: {}
 })

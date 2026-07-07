@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" :style="themeStyle">
     <u-navbar
       class="cart-navbar"
       :style="cartNavbarStyle"

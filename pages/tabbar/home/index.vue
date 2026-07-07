@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" :style="themeStyle">
     <!-- 楼层装修组件 -->
     <tpl ref="tpl" />
   </div>

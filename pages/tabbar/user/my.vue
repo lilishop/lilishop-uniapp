@@ -1,5 +1,5 @@
 <template>
-  <view class="user">
+  <view class="user" :style="themeStyle">
     <!-- 个人信息 -->
     <view class="status_bar">
       <!-- 这里是状态栏 -->

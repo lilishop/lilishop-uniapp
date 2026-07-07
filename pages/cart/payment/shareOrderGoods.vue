@@ -321,7 +321,7 @@ page {
   background: $main-color;
 }
 .disabled {
-  background: rgba($main-color, $alpha: 0.2);
+  background: var(--theme-primary-20, rgba(255, 60, 42, 0.2));
 }
 .home {
   color: $main-color;

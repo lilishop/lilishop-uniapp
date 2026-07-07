@@ -1,4 +1,4 @@
-import { createSSRApp } from 'vue'
+import { createSSRApp, computed } from 'vue'
 import App from './App'
 import uviewPlus, { setConfig } from 'uview-plus'
 import store from './store'
@@ -6,6 +6,7 @@ import config from '@/config/config'
 import airBtn from '@/components/m-airbtn/index.vue'
 import mpShare from '@/utils/mpShare.js'
 import * as filterUtils from './utils/filters.js'
+import { getThemeStyle } from '@/utils/theme'
 
 export function createApp() {
   const app = createSSRApp(App)
@@ -40,9 +41,11 @@ export function createApp() {
   })
 
   app.config.globalProperties.$store = store
-  app.config.globalProperties.$mainColor = config.mainColor
-  app.config.globalProperties.$lightColor = config.lightColor
-  app.config.globalProperties.$aiderLightColor = config.aiderLightColor
+  app.config.globalProperties.$mainColor = computed(() => store.getters.mainColor)
+  app.config.globalProperties.$lightColor = computed(() => store.getters.lightColor)
+  app.config.globalProperties.$aiderLightColor = computed(
+    () => store.getters.aiderLightColor
+  )
 
   const filterMethods = {}
   Object.keys(filterUtils).forEach((key) => {
@@ -50,7 +53,15 @@ export function createApp() {
       filterMethods[key] = filterUtils[key]
     }
   })
-  app.mixin({ methods: filterMethods })
+
+  app.mixin({
+    methods: filterMethods,
+    computed: {
+      themeStyle() {
+        return getThemeStyle(this.$store.state.theme)
+      },
+    },
+  })
   app.mixin(mpShare)
 
   // #ifdef H5

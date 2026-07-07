@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" :style="themeStyle">
     <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
     <div v-for="(item, index) in pageData.list" :key="index">
       <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
@@ -16,11 +16,6 @@
         <template #left>
           <view class="navbar-search-wrap" :style="searchBarStyle" @click.stop>
             <search :res="item.options" />
-          </view>
-        </template>
-        <template #right>
-          <view class="navbar-message" :style="messageIconStyle" @click="linkMsgDetail">
-            <image class="message-icon" src="/static/img/title.png" mode="aspectFit"></image>
           </view>
         </template>
       </u-navbar>
@@ -41,10 +36,9 @@
       <group v-if="item.type == 'group'" :res="item.options" />
       <notice v-if="item.type == 'notice'" :res="item.options" />
       <promotions v-if="item.type == 'promotionDetail'" :res="item.options" />
-      <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
       <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
       <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
-    
+      <videoLayout v-if="item.type == 'video'" :res="item.options" />
     </div>
     <fetchCoupon ref='coupon' />
     <u-no-network @retry="init" @isConnected="isConnected"></u-no-network>
@@ -68,6 +62,7 @@ import tpl_text_picture from "@/pages/tabbar/home/template/tpl_text_picture"; //
 import tpl_menu from "@/pages/tabbar/home/template/tpl_menu"; //五列菜单模块
 import tpl_search from "@/pages/tabbar/home/template/tpl_search"; //搜索栏
 import tpl_group from "@/pages/tabbar/home/template/tpl_group"; //
+import tpl_video from "@/pages/tabbar/home/template/tpl_video"; //视频模块
 import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类以及分类中的商品
 // 结束引用组件
 import { getFloorData } from "@/api/home"; //获取楼层装修接口
@@ -96,14 +91,6 @@ export default {
     };
   },
   computed: {
-    messageIconStyle() {
-      if (!this.capsuleInsetRight) {
-        return {};
-      }
-      return {
-        marginRight: `${this.capsuleInsetRight}px`,
-      };
-    },
     searchBarStyle() {
       if (this.searchBarWidth) {
         return {
@@ -111,7 +98,7 @@ export default {
         };
       }
       return {
-        width: '560rpx',
+        width: "100%",
       };
     },
   },
@@ -134,6 +121,7 @@ export default {
     group: tpl_group,
     notice: tpl_notice,
     promotions: tpl_promotions,
+    videoLayout: tpl_video,
     fetchCoupon
   },
 
@@ -148,26 +136,23 @@ export default {
   },
   methods: {
     setCapsuleInset() {
-      // #ifdef MP-WEIXIN
       try {
-        const menuButton = uni.getMenuButtonBoundingClientRect();
         const { windowWidth } = uni.getWindowInfo();
-        this.capsuleInsetRight = windowWidth - menuButton.left;
-        const messageWidth = uni.upx2px(20);
         const leftPadding = uni.upx2px(HOME_LAYOUT_PADDING_RPX);
-        const gap = uni.upx2px(0);
+        const rightPadding = uni.upx2px(HOME_LAYOUT_PADDING_RPX);
+        // #ifdef MP-WEIXIN
+        const menuButton = uni.getMenuButtonBoundingClientRect();
+        this.capsuleInsetRight = windowWidth - menuButton.left;
         this.searchBarWidth =
-          windowWidth - this.capsuleInsetRight - messageWidth - leftPadding - gap;
+          windowWidth - this.capsuleInsetRight - leftPadding;
+        // #endif
+        // #ifndef MP-WEIXIN
+        this.searchBarWidth = windowWidth - leftPadding - rightPadding;
+        // #endif
       } catch (e) {
-        this.capsuleInsetRight = 90;
-        this.searchBarWidth = 260;
+        this.capsuleInsetRight = 0;
+        this.searchBarWidth = 0;
       }
-      // #endif
-    },
-    linkMsgDetail() {
-      uni.navigateTo({
-        url: "/pages/tabbar/home/title",
-      });
     },
     fetchCoupon(){
        this.$refs.coupon.firstGetAuto();
@@ -307,26 +292,21 @@ export default {
 .navbar {
   width: 100%;
 
+  :deep(.u-navbar__content) {
+    width: 100%;
+  }
+
   :deep(.u-navbar__content__left) {
+    flex: 1;
     width: auto !important;
+    max-width: 100%;
     padding: 0 0 0 $home-layout-padding !important;
   }
 }
 
 .navbar-search-wrap {
   box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.navbar-message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.message-icon {
-  width: 53rpx;
-  height: 53rpx;
-  display: block;
+  flex: 1;
+  min-width: 0;
 }
 </style>

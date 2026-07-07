@@ -41,9 +41,9 @@
       <group v-if="item.type == 'group'" :res="item.options" />
       <notice v-if="item.type == 'notice'" :res="item.options" />
       <promotions v-if="item.type == 'promotionDetail'" :res="item.options" />
-      <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
       <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
       <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
+      <videoLayout v-if="item.type == 'video'" :res="item.options" />
     </div>
     <u-no-network></u-no-network>
   </div>
@@ -66,6 +66,7 @@ import tpl_text_picture from "@/pages/tabbar/home/template/tpl_text_picture"; //
 import tpl_menu from "@/pages/tabbar/home/template/tpl_menu"; //五列菜单模块
 import tpl_search from "@/pages/tabbar/home/template/tpl_search"; //搜索栏
 import tpl_group from "@/pages/tabbar/home/template/tpl_group"; //
+import tpl_video from "@/pages/tabbar/home/template/tpl_video"; //视频模块
 import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类以及分类中的商品
 // 结束引用组件
 import { toSpecial, getSpecial } from "@/api/home"; //获取楼层装修接口
@@ -102,7 +103,8 @@ export default {
     goods: tpl_goods,
     group: tpl_group,
     notice: tpl_notice,
-    promotions: tpl_promotions
+    promotions: tpl_promotions,
+    videoLayout: tpl_video
   },
 
   mounted() {

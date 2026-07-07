@@ -1,5 +1,5 @@
 <template>
-  <view class="category-wrap">
+  <view class="category-wrap" :style="themeStyle">
     <u-navbar
       class="navbar"
       :auto-back="false"
