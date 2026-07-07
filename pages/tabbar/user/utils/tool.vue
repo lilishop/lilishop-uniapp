@@ -19,10 +19,10 @@
 			  <image class="interact-item-icon" src="/static/mine/feedback.png" mode=""></image>
 			  <view>我的评价</view>
 			</view>
-			<!-- <view class="interact-item" @click="linkMsgDetail()">
+			<view class="interact-item" @click="linkMsgDetail()">
 			  <image class="interact-item-icon" src="/static/mine/mycommit.png" mode=""></image>
 			  <view>我的消息</view>
-			</view> -->
+			</view>
 		
 		
 			<view class="interact-item" @click="navigateTo('/pages/mine/myCollect')">
@@ -181,9 +181,11 @@ export default {
     },
 	
 	linkMsgDetail(){
-		uni.navigateTo({
-				url: `/pages/mine/im/list`,
-		});
+		if (this.tipsToLogin('normal')) {
+			uni.navigateTo({
+				url: '/pages/tabbar/home/title',
+			});
+		}
 	},
 	
     distribution() {

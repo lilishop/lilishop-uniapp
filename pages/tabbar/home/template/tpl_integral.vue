@@ -1,20 +1,30 @@
 <template>
-  <div class="layout">
+  <div class="layout" v-if="goodsList.length">
     <div class="join-list">
-      <div class="join-title">
+      <div class="join-title" @click="goMore">
         <div class="join-title-name">{{ res.list[0].title }}</div>
         <div class="join-title-more">更多</div>
       </div>
       <div class="join-box">
-        <div class="join-item" v-for="item in 4" :key="item">
+        <div
+          class="join-item"
+          @click="goDetail(item)"
+          v-for="(item, index) in goodsList"
+          :key="index"
+        >
           <div class="item-img-box">
-            <img class="item-img" src="https://picsum.photos/id/268/200/200" alt />
+            <u-image
+              class="item-img"
+              width="150rpx"
+              height="150rpx"
+              :src="item.goodsImage || item.thumbnail"
+            />
           </div>
           <div class="item-price">
-            <span class="price-text">20积分</span>
+            <span class="price-text">{{ item.points != null ? item.points : 0 }}积分</span>
           </div>
-          <div class="item-line-through">
-            <span class="price-text">30积分</span>
+          <div class="item-line-through" v-if="item.originalPrice">
+            <span class="price-text">￥{{ item.originalPrice }}</span>
           </div>
         </div>
       </div>
@@ -22,10 +32,33 @@
   </div>
 </template>
 <script>
-// TODO 后续版本开发此功能 尽情期待
+import * as API_Promotions from "@/api/promotions";
 export default {
-  title:"积分商品",
   props: ["res"],
+  title: "积分商品",
+  data() {
+    return {
+      goodsList: [],
+    };
+  },
+  mounted() {
+    API_Promotions.getPointsGoods({
+      pageNumber: 1,
+      pageSize: this.res.list[0].count || 3,
+    }).then((res) => {
+      if (res.data.success && res.data.result && res.data.result.records) {
+        this.goodsList = res.data.result.records.slice(0, this.res.list[0].count || 3);
+      }
+    });
+  },
+  methods: {
+    goMore() {
+      uni.navigateTo({ url: "/pages/promotion/point/pointList" });
+    },
+    goDetail(item) {
+      uni.navigateTo({ url: `/pages/promotion/point/detail?id=${item.id}` });
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -42,6 +75,7 @@ export default {
 }
 .join-item {
   flex: 1;
+  text-align: center;
 }
 .item-img {
   width: 75px;
@@ -59,13 +93,6 @@ export default {
     text-decoration: line-through;
     color: #999;
   }
-}
-.item-position-tips {
-  position: absolute;
-  right: 0;
-  color: #fff;
-  font-size: 12px;
-  bottom: 0;
 }
 .join-title {
   display: flex;
