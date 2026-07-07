@@ -198,7 +198,7 @@ export default {
   .price-text {
     font-size: 28rpx;
     font-weight: 500;
-    color: #e1212b;
+    color: $main-color;
   }
 }
 .join-item {
@@ -248,7 +248,7 @@ export default {
     margin-left: 20rpx;
   }
   .sub {
-    background-color: #e1212b;
+    background-color: $main-color;
     margin-right: 80rpx;
   }
   .sub-seckill {
@@ -256,9 +256,9 @@ export default {
     padding: 0 !important;
   }
   .sub-seckill-block {
-    background: rgba($main-color, 0.3);
+    background: var(--theme-primary-30, rgba(255, 60, 42, 0.3));
     border-radius: 100px !important;
-    color: rgba($main-color, 0.7);
+    color: var(--theme-primary-70, rgba(255, 60, 42, 0.7));
     overflow: hidden;
     padding-right: 8rpx;
   }

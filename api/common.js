@@ -30,3 +30,14 @@ export function getIMDetail() {
  * @type {string}
  */
 export const upload = api.common + "/common/upload/file";
+
+/**
+ * 获取主题色配置
+ */
+export function getThemeSetting() {
+  return http.request({
+    url: `${api.common}/common/common/site/theme`,
+    method: Method.GET,
+    message: false,
+  });
+}

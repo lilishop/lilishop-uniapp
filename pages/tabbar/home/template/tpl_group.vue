@@ -73,7 +73,7 @@ export default {
   .price-text {
     font-size: 15px;
     font-weight: 500;
-    color: #e1212b;
+    color: $main-color;
   }
 }
 .join-item {

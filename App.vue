@@ -8,6 +8,13 @@ import {
 } from "@/js_sdk/h5-copy/h5-copy.js";
 import APPUpdate from "@/plugins/APPUpdate";
 import storage from "@/utils/storage";
+import { getThemeSetting } from "@/api/common.js";
+import {
+	applyTabBarStyle,
+	cacheTheme,
+	loadCachedTheme,
+	normalizeTheme,
+} from "@/utils/theme";
 import {
 	mapMutations
 } from "vuex";
@@ -36,6 +43,7 @@ import {
 		 * 监听返回（页面级 onBackPress 在 App.vue 不生效，保留空实现避免误导）
 		 */
 		onLaunch: function(val) {
+			this.initTheme();
 			if(val.query.inviter){
 				storage.setInviter(val.query.inviter)
 			}
@@ -69,7 +77,29 @@ import {
 			// #endif
 		},
 		methods: {
-			...mapMutations(["login"]),
+			...mapMutations(["login", "SET_THEME"]),
+			initTheme() {
+				const cached = loadCachedTheme();
+				if (cached) {
+					this.SET_THEME(cached);
+					applyTabBarStyle(cached.mainColor);
+				}
+				getThemeSetting()
+					.then((res) => {
+						if (res.data && res.data.success && res.data.result && res.data.result.settingValue) {
+							try {
+								const raw = JSON.parse(res.data.result.settingValue);
+								const theme = normalizeTheme(raw);
+								this.SET_THEME(theme);
+								cacheTheme(theme);
+								applyTabBarStyle(theme.mainColor);
+							} catch (e) {
+								// 主题配置解析失败时使用缓存
+							}
+						}
+					})
+					.catch(() => {});
+			},
 			/**
 			 * 微信小程序版本提交更新版本 解决缓存问题
 			 */

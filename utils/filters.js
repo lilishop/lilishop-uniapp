@@ -3,6 +3,11 @@ import { getUserInfo } from "@/api/members";
 import storage from "@/utils/storage.js";
 import config from "@/config/config";
 import Foundation from "./Foundation.js";
+import store from "@/store";
+
+function getMainColor() {
+  return store.getters.mainColor || config.mainColor;
+}
 
 /**
  * 解析商品图片地址，兼容上传 JSON 与纯 URL，非法时返回占位图
@@ -356,7 +361,7 @@ export function quiteLoginOut () {
   uni.showModal({
     title: "提示",
     content: "是否退出登录？",
-    confirmColor: config.mainColor,
+    confirmColor: getMainColor(),
     async success (res) {
       if (res.confirm) {
         storage.setAccessToken("");
@@ -378,7 +383,7 @@ export function logoff () {
   uni.showModal({
     title: "提示",
     content: "确认注销用户么？注销用户将无法再次登录并失去当前数据。",
-    confirmColor: config.mainColor,
+    confirmColor: getMainColor(),
     async success (res) {
       if (res.confirm) {
         await logoffConfirm();
@@ -415,7 +420,7 @@ export function tipsToLogin (type) {
       content: "当前用户未登录是否登录？",
       confirmText: "确定",
       cancelText: "取消",
-      confirmColor: config.mainColor,
+      confirmColor: getMainColor(),
       success: (res) => {
         if (res.confirm) {
           navigateToLogin();

@@ -5087,7 +5087,7 @@ scroll-view.cu-steps .cu-item {
 }
 
 .bg-user-orang {
-  background-color:rgba($main-color,0.1);
+  background-color: var(--theme-primary-10, rgba(255, 60, 42, 0.1));
   color: black;
 }
 
