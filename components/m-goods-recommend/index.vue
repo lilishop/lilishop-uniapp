@@ -1,73 +1,63 @@
 <template>
-  <div>
-    <div class="goods-recommend">{{title ? `--${title}-- `:''}}</div>
+  <view>
+    <view class="goods-recommend">{{title ? `--${title}-- `:''}}</view>
 		 <goodsTemplate :res='goodsList' />
-  </div>
+  </view>
 </template>
-<script>
-	import goodsTemplate from '@/components/m-goods-list/list'
-import { getGoodsList } from "@/api/goods.js";
-export default {
-  data() {
-    return {
-      goodsList: [],
-      params: {
-        pageNumber: 1,
-      },
-    };
-  },
-  props: {
-    title: {
-      type: String,
-      default: "",
-    },
-    pageSize: {
-      type: null,
-      default: 12,
-    },
-    categoryId: {
-      type: null,
-      default: "",
-    },
-    storeId: {
-      type: null,
-      default: "",
-    },
-  },
-	components:{goodsTemplate},
-  mounted() {
-    this.initGoods();
-  },
-  methods: {
-    /**
-     * 初始化商品
-     */
-    async initGoods() {
-      let submit = JSON.parse(
-        JSON.stringify(
-          Object.assign(this.params, {
-            pageSize: this.pageSize,
-            categoryId: this.categoryId,
-            storeId: this.storeId,
-          })
-        )
-      );
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import goodsTemplate from '@/components/m-goods-list/list.vue'
+import { getGoodsList } from "@/api/goods.js"
 
-      Object.keys(submit).map((key) => {
-        if (!submit[key] || submit[key].length == 0) {
-          delete submit[key];
-        }
-      });
-      let goodsList = await getGoodsList(submit);
-      this.goodsList.push(...goodsList.data.result.records);
-    },
-    handleClick(item) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
-      });
-    },
-  },
-};
+const props = withDefaults(defineProps<{
+	title?: string
+	pageSize?: number | null
+	categoryId?: string | null
+	storeId?: string | null
+}>(), {
+	title: '',
+	pageSize: 12,
+	categoryId: '',
+	storeId: ''
+})
+
+const goodsList = ref<any[]>([])
+const params = ref({
+	pageNumber: 1,
+})
+
+onMounted(() => {
+	initGoods()
+})
+
+/**
+ * 初始化商品
+ */
+const initGoods = async () => {
+	let submit = JSON.parse(
+		JSON.stringify(
+			Object.assign(params.value, {
+				pageSize: props.pageSize,
+				categoryId: props.categoryId,
+				storeId: props.storeId,
+			})
+		)
+	)
+
+	Object.keys(submit).map((key) => {
+		if (!submit[key] || (submit[key] as any).length == 0) {
+			delete submit[key]
+		}
+	})
+	let res = await getGoodsList(submit)
+	goodsList.value.push(...(res.data.result.records as any[]))
+}
+
+const handleClick = (item: any) => {
+	uni.navigateTo({
+		url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
+	})
+}
 </script>
 
 <style scoped lang="scss">

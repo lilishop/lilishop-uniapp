@@ -196,515 +196,356 @@
   </view>
 </template>
 
-<script>
-// rpx和px的比率
-var l
-// 可用窗口高度
-var wh
-// 顶部空盒子的高度
-var mgUpHeight
+<script setup lang="ts">
+import { ref, nextTick, getCurrentInstance } from 'vue'
 import {
-  getTalkMessage,
+  onLoad,
+  onHide,
+  onUnload,
+  onPullDownRefresh,
+  onPageScroll,
+} from '@dcloudio/uni-app'
+import {
+  getTalkMessage as fetchTalkMessageApi,
   getTalkByUser,
-  jumpObtain
-} from "@/api/im.js";
-import SocketService from "@/utils/socket_service.js";
-import storage from "@/utils/storage.js";
-import {
-  beautifyTime
-} from "@/utils/filters.js"
+  jumpObtain,
+} from '@/api/im.js'
+import SocketService from '@/utils/socket_service.js'
+import storage from '@/utils/storage.js'
+import { beautifyTime, unitPrice } from '@/utils/filters.js'
 import config from '@/config/config.js'
-import { textReplaceEmoji, emojistwo } from '@/utils/emojis.js';
-export default {
-  // 页面卸载后清除imGoodId
-  onUnload () {
-    // #ifdef H5
-    uni.setStorageSync("imGoodId", '');
-    // #endif
+import { textReplaceEmoji, emojistwo } from '@/utils/emojis.js'
 
-    if (this.socketOpen == true) {
-      uni.closeSocket();
-    }
-  },
-  onLoad (options) {
-    // 没有goodsid则不显示 发送商品弹窗
-    this.showHideModel = options.goodsid
-    // 发送后刷新页面不显示 发送商品弹窗 local里面imGoodId不为空显示
-    // #ifdef H5
-    this.localImGoodsId = uni.getStorageSync("imGoodId");
-    // #endif
-    this.resolve = options
-    // 请求商品信息
-    if (this.resolve.goodsid) {
-      this.commodityDetails()
-    }
- 
-    var query = uni.getSystemInfoSync()
+// rpx和px的比率
+let l: number
+// 可用窗口高度
+let wh: number
+// 顶部空盒子的高度
+let mgUpHeight: number
 
-    l = query.screenWidth / 750
-    wh = query.windowHeight
-    this.scrollHeight = (query.windowHeight - 44) + "px"
-    this.user = storage.getUserInfo()
-    this.toUser = storage.getTalkToUser()
+const { proxy } = getCurrentInstance()!
 
-    if (options.talkId) {
-      this.params.talkId = options.talkId;
-      this.getTalkMessage()
-    } else {
-      this.getTalk(options.userId)
+const socketOpen = ref(false)
+const showHideModel = ref<string | undefined>(undefined)
+const localImGoodsId = ref('')
+const showHide = ref(true)
+const anData = ref<Record<string, any>>({})
+const animationData = ref<Record<string, any>>({})
+const msgList = ref<any[]>([])
+const oldHeight = ref(0)
+const params = ref({
+  talkId: '',
+  pageSize: 10,
+  pageNumber: 1,
+})
+const msg = ref('')
+const go = ref(0)
+const user = ref<Record<string, any>>({})
+const toUser = ref<Record<string, any>>({})
+const scrollHeight = ref(0)
+const ws = new SocketService()
+const resolve = ref<Record<string, any>>({})
+const goodListData = ref<Record<string, any>>({})
+const reconnectCount = ref(0)
+const inputHeight = ref(0)
+const isShow = ref(false)
 
-    }
-
-    // this.ws.connect();
-    this.socket();
-  },
-
-
-
-
-  // 页面隐藏
-  onHide () {
-    uni.closeSocket();
-  },
-  onUnload () {
-    uni.closeSocket();
-  },
-  onPullDownRefresh () {
-    this.params.pageNumber = this.params.pageNumber + 1
-    this.getTalkMessage()
-    setTimeout(function () {
-      uni.stopPullDownRefresh();
-    }, 1000);
-  },
-
-  data () {
-    return {
-      textReplaceEmoji,
-      emojistwo,
-      socketOpen: false, //是否连接
-      storage,
-      fixed: 'fixed',
-      bottom: '50px',
-      width: '100%',
-      showHideModel: undefined,
-      localImGoodsId: '',
-      showHide: true,
-      msgLoad: false,
-      anData: {},
-      animationData: {},
-      msgList: [],
-      oldHeight: 0,
-      params: { //搜索条件
-        talkId: '',
-        pageSize: 10,
-        pageNumber: 1,
-      },
-      goToIndex: 0, // 前往位置
-      msg: "",
-      go: 0,
-      newMessageNum: 0,
-      user: {},
-      toUser: {},
-      scrollHeight: 0,
-      ws: new SocketService(),
-      resolve: {},
-      goodListData: {},
-      count: 0, //判断socket断开连接请求次数
-      inputHeight:0,
-      isShow:false,
-    
-   
-    }
-  },
-  onPageScroll (e) {
- 
-    // #ifdef APP-PLUS
-    uni.hideKeyboard()
-    this.isShow = false
-    // #endif
-  },
-  methods: {
-    navigateToBottom(){
-      // #ifdef H5
-      this.isShow = true
-      this.$refs.inputRef.focus()
-      // #endif
-
-      // #ifdef APP-PLUS
-      this.$nextTick(() => {
-        uni.pageScrollTo({
-          scrollTop: 5000000,
-          duration: 50,
-          success: () => {
-           setTimeout(() => { 
-            this.isShow = true
-           }, 200);
-          ;
-          },
-          fail: () => { },
-          complete: () => {}
-        });
-      });
-      // #endif
-      
-    },
-
-    eventHandle(){
-     
-      this.inputHeight = 0
-      this.isShow = false
-    },
-    inputBindFocus(e){
-       if (e.detail.height) {
-     
-       
-          // #ifdef APP-PLUS
-          // 判断是否是ios
-          if (uni.getSystemInfoSync().platform == 'ios') {
-            this.inputHeight = e.detail.height - 40 //这个高度就是软键盘的高度
-          }else{
-            this.inputHeight = e.detail.height
-          }
-         //  #endif
-        
-          // #ifndef APP-PLUS
-          this.inputHeight = e.detail.height //这个高度就是软键盘的高度
-          //  #endif
-       }
-    },
-    sendMessage () {
-      if (this.msg == "") {
-        return 0;
-      }
-      if (this.socketOpen == false) {
-        return
-      }
-      let msg = {
-        operation_type: "MESSAGE",
-        to: this.toUser.userId,
-        from: this.user.id,
-        message_type: "MESSAGE",
-        context: this.msg,
-        talk_id: this.params.talkId,
-      }
-      let data = JSON.stringify(msg);
-      uni.sendSocketMessage({
-        data: data,
-      });
-      this.msgList.push({
-        "text": this.msg,
-        "my": true,
-        "messageType": 'MESSAGE'
-      })
-      let type = 'down';
-      this.msgGo(type)
-      this.msg = ""
-    },
-    sendGoodsMessage () {
-      let msg = {
-        operation_type: "MESSAGE",
-        to: this.toUser.userId,
-        from: this.user.id,
-        message_type: "GOODS",
-        context: this.goodListData,
-        talk_id: this.params.talkId,
-      }
-      let data = JSON.stringify(msg);
-      uni.sendSocketMessage({
-        data: data
-      });
-      this.msgList.push({
-        "text": JSON.stringify(this.goodListData),
-        "my": true,
-        "messageType": 'GOODS'
-      })
-      this.showHide = false
-      // #ifdef H5
-      uni.setStorageSync("imGoodId", 1111111);
-      // #endif
-      this.$nextTick(() => {
-        uni.pageScrollTo({
-          scrollTop: 2000000,
-          duration: 300
-        });
-      })
-    },
-    socket () {
-      var _this = this;
-      uni.closeSocket();
-      this.socketOpen = false;
-      try {
-        //WebSocket的地址
-        var url = config.baseWsUrl + '/' + storage.getAccessToken();
-        // 连接
-        uni.connectSocket({
-          url: url,
-        });
-        // 监听WebSocket连接已打开
-        uni.onSocketOpen(function (res) {
-          _this.socketOpen = true;
-        });
-        if (!this.socketOpen) {
-          // 监听连接失败
-
-          uni.onSocketError(function (err) {
-            if (this.count < 3) {
-              if (err && err.code != 1000) {
-                _this.socketOpen = true;
-                setTimeout(() => {
-                  uni.connectSocket({
-                    url: url,
-                  });
-                }, 2000)
-              }
-            } else {
-              uni.closeSocket();
-            }
-            this.count++
-          });
-        }
-        // 监听收到信息
-        uni.onSocketMessage(function (res) {
-          res.data = JSON.parse(res.data)
-          console.log(res.data.result);
-          if (res.data.messageResultType == 'MESSAGE') {
-            _this.msgList.push(res.data.result)
-            console.log(_this.msgList)
-          }
-          console.log(res.data)
-          _this.msgGo()
-        })
-      } catch (e) {
-        uni.closeSocket();
-      }
-      // 监听是否断线，断线进行重新连接
-      uni.onSocketClose((res) => {
-        if (res.code != null && res.code != 1000) {
-          this.socket()
-        }
-      })
-    },
-    beautifyTime,
-    //订单详情
-    linkTosOrders (val) {
-      let order = JSON.parse(val)
-      uni.navigateTo({
-        url: '/pages/order/orderDetail?sn=' + order.sn,
-      });
-
-    },
-    // 跳转商品详情页
-    jumpGoodDesc (item) {
-      let info = JSON.parse(item.text)
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${info.id}&goodsId=${info.goodsId}`,
-      });
-    },
-
-    //取消发送
-    cancelModel () {
-      this.showHide = false
-    },
-    // 请求商品详情
-    commodityDetails () {
-      jumpObtain(this.resolve.skuid, this.resolve.goodsid).then((res) => {
-        this.goodListData = res.data.result.data
-      })
-    },
-    // 切换输入法时移动输入框(按照官方的上推页面的原理应该会自动适应不同的键盘高度-->官方bug)
-    goPag (kh) {
-      this.retractBox(0, 250)
-      if (this.keyHeight != 0) {
-        if (kh - this.keyHeight > 0) {
-          this.retractBox(this.keyHeight - kh, 250)
-        }
-      }
-    },
-    // 移动顶部的空盒子
-    messageBoxMove (x, t) {
-      var animation = uni.createAnimation({
-        duration: t,
-        timingFunction: 'linear',
-      })
-      this.animation = animation
-      animation.height(x).step()
-      this.anData = animation.export()
-    },
-    // 保持消息体可见
-    msgGo (type) {
-      const query = uni.createSelectorQuery()
-      // 延时100ms保证是最新的高度
-      setTimeout(() => {
-        // 获取消息体高度
-        query.select('#msgList').boundingClientRect(data => {
-          // 如果超过scorll高度就滚动scorll
-          if (type == 'up') {
-            this.go = data.height - this.oldHeight
-          } else if (type == 'down') {
-            this.go = data.height - wh + 120
-          }
-          // if (this.oldHeight > 0) {
-          // 	this.go = data.height - this.oldHeight
-          // } else {
-          // 	// if (data.height - (wh - 32) > 0) {
-          // 	this.go = data.height - wh + 120
-          // }
-          // 保证键盘第一次拉起时消息体能保持可见
-          var moveY = wh - data.height
-          // 超出页面则缩回空盒子
-          if (moveY - mgUpHeight < 0) {
-            // 小于0则视为0
-            if (moveY < 0) {
-              this.messageBoxMove(0, 200)
-            } else {
-              // 否则缩回盒子对应的高度
-              this.messageBoxMove(moveY, 200)
-            }
-          }
-          uni.pageScrollTo({
-            scrollTop: this.go,
-            duration: 0
-          })
-          this.oldHeight = data.height
-        }).exec();
-      }, 100)
-    },
-    // 回答问题的业务逻辑
-    answer (id) {
-      // 这里应该传入问题的id,模拟就用index代替了
-
-    },
-    // 不建议输入框聚焦时操作此动画
-    ckAdd () {
-      if (!this.showTow) {
-        this.retractBox(-180, 350)
-      } else {
-        this.retractBox(0, 200)
-      }
-      this.showTow = !this.showTow
-    },
-    hideKey () {
-      uni.hideKeyboard()
-    },
-    // 拉起/收回附加栏
-    retractBox (x, t) {
-      var animation = uni.createAnimation({
-        duration: t,
-        timingFunction: 'ease',
-      })
-      this.animation = animation
-      animation.translateY(x).step()
-      this.animationData = animation.export()
-    },
-    async getTalkMessage () {
-      let type = '';
-      await getTalkMessage(this.params).then(res => {
-        if (res.data.success) {
-          if (this.msgList.length >= 10) {
-            this.msgList.unshift(...res.data.result)
-            type = 'up'
-          } else {
-            this.msgList.unshift(...res.data.result)
-            type = 'down'
-          }
-          this.msgList.forEach(item => {
-            if (item.fromUser === this.user.id) {
-              item.my = true
-            }
-          })
-        }
-      })
-      console.log(this.msgList);
-      this.msgGo(type)
-    },
-    // 上拉加载
-    touchMoreMessage (e) {
-      if (e.target.scrollTop == 0) {
-        this.params.pageNumber = this.params.pageNumber + 1
-        this.getTalkMessage()
-      }
-    },
-    async getTalk (userId) {
-      getTalkByUser(userId).then(res => {
-        if (res.data.success) {
-          this.toUser = res.data.result
-          this.params.talkId = res.data.result.id
-          this.getTalkMessage()
-        }
-      })
-    },
-    // 处理消息时间是否显示
-    compareTime (index, datetime) {
-      if (datetime == undefined) {
-        return false;
-      }
-      if (typeof datetime == "number") {
-        datetime = this.unixToDate(datetime, "yyyy-MM-dd hh:mm");
-      }
-
-      if (this.msgList[index].is_revoke == 1) {
-        return false;
-      }
-      if (datetime) {
-        datetime = datetime.replace(/-/g, "/");
-      }
-
-      let time = Math.floor(Date.parse(datetime) / 1000);
-      let currTime = Math.floor(new Date().getTime() / 1000);
-
-      // 当前时间5分钟内时间不显示
-      if (currTime - time < 300) return false;
-      // 判断是否是最后一条消息,最后一条消息默认显示时间
-      if (index == this.msgList.length - 1) {
-        return true;
-      }
-      let nextDate
-      if (this.msgList[index + 1] && this.msgList[index + 1].createTime) {
-        nextDate = this.msgList[index + 1].createTime.replace(/-/g, "/");
-        if (nextDate - datetime < 300) return false;
-      }
-
-      return !(
-        this.unixToDate(new Date(datetime), "{y}-{m}-{d} {h}:{i}") ==
-        this.unixToDate(new Date(nextDate), "{y}-{m}-{d} {h}:{i}")
-      );
-    },
-
-    /**
-     * 将unix时间戳转换为指定格式
-     * @param unix   时间戳【秒】
-     * @param format 转换格式
-     * @returns {*|string}
-     */
-    unixToDate (unix, format) {
-      if (!unix) return unix;
-      let _format = format || "yyyy-MM-dd hh:mm:ss";
-      const d = new Date(unix);
-      const o = {
-        "M+": d.getMonth() + 1,
-        "d+": d.getDate(),
-        "h+": d.getHours(),
-        "m+": d.getMinutes(),
-        "s+": d.getSeconds(),
-        "q+": Math.floor((d.getMonth() + 3) / 3),
-        S: d.getMilliseconds(),
-      };
-      if (/(y+)/.test(_format))
-        _format = _format.replace(
-          RegExp.$1,
-          (d.getFullYear() + "").substr(4 - RegExp.$1.length)
-        );
-      for (const k in o)
-        if (new RegExp("(" + k + ")").test(_format))
-          _format = _format.replace(
-            RegExp.$1,
-            RegExp.$1.length === 1 ?
-              o[k] :
-              ("00" + o[k]).substr(("" + o[k]).length)
-          );
-      return _format;
-    },
+onLoad((options: Record<string, string | undefined> = {}) => {
+  showHideModel.value = options.goodsid
+  // #ifdef H5
+  localImGoodsId.value = uni.getStorageSync('imGoodId')
+  // #endif
+  resolve.value = options
+  if (resolve.value.goodsid) {
+    commodityDetails()
   }
+
+  const query = uni.getSystemInfoSync()
+  l = query.screenWidth / 750
+  wh = query.windowHeight
+  scrollHeight.value = query.windowHeight - 44 + 'px'
+  user.value = storage.getUserInfo()
+  toUser.value = storage.getTalkToUser()
+
+  if (options.talkId) {
+    params.value.talkId = options.talkId
+    fetchTalkMessages()
+  } else {
+    getTalk(options.userId!)
+  }
+
+  socket()
+})
+
+onHide(() => {
+  uni.closeSocket()
+})
+
+onUnload(() => {
+  // #ifdef H5
+  uni.setStorageSync('imGoodId', '')
+  // #endif
+  uni.closeSocket()
+})
+
+onPullDownRefresh(() => {
+  params.value.pageNumber = params.value.pageNumber + 1
+  fetchTalkMessages()
+  setTimeout(() => {
+    uni.stopPullDownRefresh()
+  }, 1000)
+})
+
+onPageScroll(() => {
+  // #ifdef APP-PLUS
+  uni.hideKeyboard()
+  isShow.value = false
+  // #endif
+})
+
+function navigateToBottom() {
+  // #ifdef H5
+  isShow.value = true
+  ;(proxy as any).$refs.inputRef?.focus()
+  // #endif
+
+  // #ifdef APP-PLUS
+  nextTick(() => {
+    uni.pageScrollTo({
+      scrollTop: 5000000,
+      duration: 50,
+      success: () => {
+        setTimeout(() => {
+          isShow.value = true
+        }, 200)
+      },
+      fail: () => {},
+      complete: () => {},
+    })
+  })
+  // #endif
+}
+
+function eventHandle() {
+  inputHeight.value = 0
+  isShow.value = false
+}
+
+function inputBindFocus(e: any) {
+  if (e.detail.height) {
+    // #ifdef APP-PLUS
+    if (uni.getSystemInfoSync().platform == 'ios') {
+      inputHeight.value = e.detail.height - 40
+    } else {
+      inputHeight.value = e.detail.height
+    }
+    // #endif
+
+    // #ifndef APP-PLUS
+    inputHeight.value = e.detail.height
+    // #endif
+  }
+}
+
+function sendMessage() {
+  if (msg.value == '') {
+    return 0
+  }
+  if (socketOpen.value == false) {
+    return
+  }
+  const payload = {
+    operation_type: 'MESSAGE',
+    to: toUser.value.userId,
+    from: user.value.id,
+    message_type: 'MESSAGE',
+    context: msg.value,
+    talk_id: params.value.talkId,
+  }
+  const data = JSON.stringify(payload)
+  uni.sendSocketMessage({
+    data: data,
+  })
+  msgList.value.push({
+    text: msg.value,
+    my: true,
+    messageType: 'MESSAGE',
+  })
+  const type = 'down'
+  msgGo(type)
+  msg.value = ''
+}
+
+function sendGoodsMessage() {
+  const payload = {
+    operation_type: 'MESSAGE',
+    to: toUser.value.userId,
+    from: user.value.id,
+    message_type: 'GOODS',
+    context: goodListData.value,
+    talk_id: params.value.talkId,
+  }
+  const data = JSON.stringify(payload)
+  uni.sendSocketMessage({
+    data: data,
+  })
+  msgList.value.push({
+    text: JSON.stringify(goodListData.value),
+    my: true,
+    messageType: 'GOODS',
+  })
+  showHide.value = false
+  // #ifdef H5
+  uni.setStorageSync('imGoodId', 1111111)
+  // #endif
+  nextTick(() => {
+    uni.pageScrollTo({
+      scrollTop: 2000000,
+      duration: 300,
+    })
+  })
+}
+
+function socket() {
+  uni.closeSocket()
+  socketOpen.value = false
+  try {
+    const url = config.baseWsUrl + '/' + storage.getAccessToken()
+    uni.connectSocket({
+      url: url,
+    })
+    uni.onSocketOpen(function () {
+      socketOpen.value = true
+    })
+    if (!socketOpen.value) {
+      uni.onSocketError(function (err: any) {
+        if (reconnectCount.value < 3) {
+          if (err && err.code != 1000) {
+            socketOpen.value = true
+            setTimeout(() => {
+              uni.connectSocket({
+                url: url,
+              })
+            }, 2000)
+          }
+        } else {
+          uni.closeSocket()
+        }
+        reconnectCount.value++
+      })
+    }
+    uni.onSocketMessage(function (res) {
+      const data = JSON.parse(res.data as string)
+      console.log(data.result)
+      if (data.messageResultType == 'MESSAGE') {
+        msgList.value.push(data.result)
+        console.log(msgList.value)
+      }
+      console.log(data)
+      msgGo()
+    })
+  } catch (e) {
+    uni.closeSocket()
+  }
+  uni.onSocketClose((res) => {
+    if (res.code != null && res.code != 1000) {
+      socket()
+    }
+  })
+}
+
+function linkTosOrders(val: string) {
+  const order = JSON.parse(val)
+  uni.navigateTo({
+    url: '/pages/order/orderDetail?sn=' + order.sn,
+  })
+}
+
+function jumpGoodDesc(item: any) {
+  const info = JSON.parse(item.text)
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${info.id}&goodsId=${info.goodsId}`,
+  })
+}
+
+function cancelModel() {
+  showHide.value = false
+}
+
+function commodityDetails() {
+  jumpObtain(resolve.value.skuid, resolve.value.goodsid).then((res) => {
+    goodListData.value = res.data.result.data
+  })
+}
+
+function messageBoxMove(x: number, t: number) {
+  const animation = uni.createAnimation({
+    duration: t,
+    timingFunction: 'linear',
+  })
+  animation.height(x).step()
+  anData.value = animation.export()
+}
+
+function msgGo(type?: string) {
+  const query = uni.createSelectorQuery()
+  setTimeout(() => {
+    query
+      .select('#msgList')
+      .boundingClientRect((data: any) => {
+        if (type == 'up') {
+          go.value = data.height - oldHeight.value
+        } else if (type == 'down') {
+          go.value = data.height - wh + 120
+        }
+        const moveY = wh - data.height
+        if (moveY - mgUpHeight < 0) {
+          if (moveY < 0) {
+            messageBoxMove(0, 200)
+          } else {
+            messageBoxMove(moveY, 200)
+          }
+        }
+        uni.pageScrollTo({
+          scrollTop: go.value,
+          duration: 0,
+        })
+        oldHeight.value = data.height
+      })
+      .exec()
+  }, 100)
+}
+
+async function fetchTalkMessages() {
+  let type = ''
+  await fetchTalkMessageApi(params.value).then((res) => {
+    if (res.data.success) {
+      if (msgList.value.length >= 10) {
+        msgList.value.unshift(...res.data.result)
+        type = 'up'
+      } else {
+        msgList.value.unshift(...res.data.result)
+        type = 'down'
+      }
+      msgList.value.forEach((item) => {
+        if (item.fromUser === user.value.id) {
+          item.my = true
+        }
+      })
+    }
+  })
+  console.log(msgList.value)
+  msgGo(type)
+}
+
+function getTalk(userId: string) {
+  getTalkByUser(userId).then((res) => {
+    if (res.data.success) {
+      toUser.value = res.data.result
+      params.value.talkId = res.data.result.id
+      fetchTalkMessages()
+    }
+  })
 }
 </script>
 

@@ -1,33 +1,23 @@
 <template>
-  <div class="layout">
-    <div class="flex-two">
-      <div class="flex-item" @click="modelNavigateTo(res.list[0])">
+  <view class="layout">
+    <view class="flex-two">
+      <view class="flex-item" @click="modelNavigateTo(res.list[0])">
         <u-image height="250rpx" width="100%" mode="scaleToFill" :src="res.list[0].img" alt>
-          <template #loading><u-loading></u-loading></template>
+          <template #loading><u-loading-icon></u-loading-icon></template>
         </u-image>
-      </div>
-      <div class="flex-item" @click="modelNavigateTo(res.list[1])">
+      </view>
+      <view class="flex-item" @click="modelNavigateTo(res.list[1])">
         <u-image height="250rpx" width="100%" mode="scaleToFill" :src="res.list[1].img" alt>
-          <template #loading><u-loading></u-loading></template>
+          <template #loading><u-loading-icon></u-loading-icon></template>
         </u-image>
-      </div>
-    </div>
-  </div>
+      </view>
+    </view>
+  </view>
 </template>
-<script>
+<script setup lang="ts">
 import { modelNavigateTo } from "./tpl";
-export default {
-    title: "两张横图",
-  props: ["res"],
-  mounted() {
-   
-  },
-  data() {
-    return {
-      modelNavigateTo,
-    };
-  },
-};
+
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

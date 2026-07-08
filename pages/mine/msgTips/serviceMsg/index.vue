@@ -30,20 +30,11 @@
   </view>
 </template>
 
-<script>
-import { mapMutations } from "vuex";
-export default {
-  data() {
-    return {};
-  },
-  methods: {
-    ...mapMutations(["logout"]),
-    
-  }
-};
+<script setup lang="ts">
+// 占位页，后续接入客服消息
 </script>
 
-<style scoped lang='scss'>
+<style scoped lang="scss">
 .msgTime {
   font-size: 13px;
 }
@@ -56,11 +47,6 @@ page {
   vertical-align: middle;
   border-radius: 0.4em;
 }
-.qicon {
-  text-align: center;
-  display: block;
-  font-size: 20px;
-}
 .redBox {
   padding: 10rpx 12rpx;
   display: inline-block;
@@ -71,7 +57,6 @@ page {
   height: 1em;
   background: #ed6533;
   border-radius: 50%;
-
   color: #fff;
 }
 .tit_title,
@@ -92,24 +77,13 @@ page {
 }
 .list-cell {
   align-items: baseline;
-  padding: 20rpx  30rpx;
+  padding: 20rpx 30rpx;
   line-height: 60rpx;
   position: relative;
   background: #fff;
   justify-content: center;
-  &.log-out-btn {
-    margin-top: 40rpx;
-    .cell-tit {
-      color: $uni-color-primary;
-      text-align: center;
-      margin-right: 0;
-    }
-  }
   &.cell-hover {
     background: #fafafa;
-  }
-  &.b-b:after {
-    left: 30rpx;
   }
   &.m-t {
     margin-top: 16rpx;
@@ -119,22 +93,12 @@ page {
     margin-top: 10rpx;
     height: 60rpx;
     display: flex;
-    justify-content: center; //这个是X轴居中
-    align-items: center; //这个是 Y轴居中
+    justify-content: center;
+    align-items: center;
     align-self: baseline;
     font-size: $font-lg;
     color: $font-color-light;
     margin-left: 10rpx;
-  }
-  .cell-tit {
-    flex: 1;
-    font-size: $font-base + 2rpx;
-    color: $font-color-dark;
-    margin-right: 10rpx;
-  }
-  .cell-tip {
-    font-size: $font-base;
-    color: $font-color-light;
   }
 }
 </style>

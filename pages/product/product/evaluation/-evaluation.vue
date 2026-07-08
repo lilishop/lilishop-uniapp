@@ -64,88 +64,82 @@
   </view>
 </template>
 
-<script>
-import * as API_Members from "@/api/members.js";
-export default {
-  data() {
-    return {
-      lightColor: this.$lightColor,
-      commDetail: {},
-      readMoreInited: {},
-      grade: "",
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-        grade: "",
-      },
-    };
+<script setup lang="ts">
+import { computed, nextTick, ref, watch } from 'vue'
+import * as API_Members from '@/api/members.js'
+import { noPassByName } from '@/utils/filters.js'
+import { useStore } from '@/store'
+
+const props = defineProps<{
+  goodsDetail?: Record<string, any>
+}>()
+
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
+const commDetail = ref<any>({})
+const readMoreInited = ref<Record<number, boolean>>({})
+const grade = ref('')
+const params = {
+  pageNumber: 1,
+  pageSize: 10,
+  grade: '',
+}
+const uReadMore = ref<any>()
+
+watch(
+  () => props.goodsDetail,
+  (val) => {
+    if (val && val.goodsId) {
+      grade.value = val.grade
+      getGoodsCommentsMethods()
+    }
   },
-  props: {
-    goodsDetail: {
-      default: () => ({}),
-      type: Object,
-    },
-  },
+  { deep: true, immediate: true }
+)
 
-  watch: {
-    goodsDetail: {
-      handler(val) {
-        if (val && val.goodsId) {
-          this.grade = val.grade;
-          this.getGoodsCommentsMethods();
-        }
-      },
-      deep: true,
-      immediate: true,
-    },
-  },
+function commentImages(item: any) {
+  const images = item.images || item.image
+  if (!images) return []
+  return typeof images === 'string' ? images.split(',').filter(Boolean) : images
+}
 
-  methods: {
-    commentImages(item) {
-      const images = item.images || item.image;
-      if (!images) return [];
-      return typeof images === "string" ? images.split(",").filter(Boolean) : images;
-    },
+function initReadMore(index: number) {
+  if (readMoreInited.value[index]) return
+  readMoreInited.value[index] = true
+  nextTick(() => {
+    const refs = uReadMore.value
+    const target = Array.isArray(refs) ? refs[index] : refs
+    target?.init?.()
+  })
+}
 
-    initReadMore(index) {
-      if (this.readMoreInited[index]) return;
-      this.readMoreInited[index] = true;
-      this.$nextTick(() => {
-        const refs = this.$refs.uReadMore;
-        const target = Array.isArray(refs) ? refs[index] : refs;
-        target?.init?.();
-      });
-    },
+function getGoodsCommentsMethods() {
+  if (!props.goodsDetail?.goodsId) return
+  API_Members.getGoodsComments(props.goodsDetail.goodsId, params).then((res) => {
+    readMoreInited.value = {}
+    commDetail.value = res.data.result || {}
+    nextTick(() => {
+      const records = commDetail.value.records || []
+      records.slice(0, 2).forEach((_: any, index: number) => {
+        setTimeout(() => initReadMore(index), 50 * (index + 1))
+      })
+    })
+  })
+}
 
-    getGoodsCommentsMethods() {
-      if (!this.goodsDetail.goodsId) return;
-      API_Members.getGoodsComments(this.goodsDetail.goodsId, this.params).then((res) => {
-        this.readMoreInited = {};
-        this.commDetail = res.data.result || {};
-        this.$nextTick(() => {
-          const records = this.commDetail.records || [];
-          records.slice(0, 2).forEach((_, index) => {
-            setTimeout(() => this.initReadMore(index), 50 * (index + 1));
-          });
-        });
-      });
-    },
+function toComment(id: string | number, gradeVal: string | number) {
+  uni.navigateTo({
+    url: `/pages/product/comment?id=${id}&grade=${gradeVal}`,
+  })
+}
 
-    toComment(id, grade) {
-      uni.navigateTo({
-        url: `/pages/product/comment?id=${id}&grade=${grade}`,
-      });
-    },
-
-    previewImg(urls, index) {
-      uni.previewImage({
-        urls,
-        indicator: "number",
-        current: index,
-      });
-    },
-  },
-};
+function previewImg(urls: string[], index: number) {
+  uni.previewImage({
+    urls,
+    indicator: 'number',
+    current: index,
+  })
+}
 </script>
 
 <style lang="scss" scoped>

@@ -4,7 +4,7 @@
     <u-cell-group>
       <u-cell class="border-top" :isLink="false" title="面容登录">
         <template #right-icon>
-          <u-switch @change="faceSwitchChange" active-color="#1abc9c" size="40" v-model="checked"></u-switch>
+          <u-switch @change="onFaceSwitchChange" active-color="#1abc9c" size="40" v-model="enabled"></u-switch>
         </template>
       </u-cell>
     </u-cell-group>
@@ -12,74 +12,65 @@
   </view>
 </template>
 
-<script>
-import storage from "@/utils/storage.js";
-import { setBiolofy } from "@/api/passport.js";
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import storage from '@/utils/storage.js'
+import { setBiolofy } from '@/api/passport.js'
 
-export default {
-  data() {
-    return {
-      lightColor: this.$lightColor,
-      checked: true,
-    };
-  },
-  methods: {
-    faceSwitchChange(value) {
-      if (value === true) {
-        const res = uni.getSystemInfoSync();
-        plus.device.getInfo({
-          success: function (e) {
-            let params = {
-              mobile_type: res.model,
-              secret_key: e.uuid,
-            };
-            setBiolofy(params).then((res) => {
-              if (res.statusCode === 200) {
-                storage.setFaceLogin(true);
-              }
-            });
-          },
-          fail: function (e) {
-            //plus.nativeUI.toast('获取设备信息错误：' + JSON.stringify(e));
-            console.error("getDeviceInfo failed: " + JSON.stringify(e));
-          },
-        });
-      } else {
-        storage.setFaceLogin(false);
+const enabled = ref(false)
+
+onLoad(() => {
+  // #ifdef APP-PLUS
+  uni.checkIsSupportSoterAuthentication({
+    success(res) {
+      if (!res.supportMode.find((e) => e === 'facial')) {
+        plus.nativeUI.toast('此设备不支持面部识别')
+        uni.navigateBack()
       }
+      uni.checkIsSoterEnrolledInDevice({
+        checkAuthMode: 'facial',
+        success(_res) {
+          if (!_res.isEnrolled) {
+            plus.nativeUI.toast('此设备未录入面部信息')
+            uni.navigateBack()
+          }
+        },
+        fail() {
+          uni.navigateBack()
+        },
+      })
     },
-  },
-  onLoad() {
-    // #ifdef APP-PLUS
-    uni.checkIsSupportSoterAuthentication({
-      success(res) {
-        if (!res.supportMode.find((e) => e === "facial")) {
-          plus.nativeUI.toast("此设备不支持面部识别");
-          uni.navigateBack();
-        }
-        uni.checkIsSoterEnrolledInDevice({
-          checkAuthMode: "facial",
-          success(_res) {
-            if (!_res.isEnrolled) {
-              plus.nativeUI.toast("此设备未录入面部信息");
-              uni.navigateBack();
-            }
-          },
-          fail(_err) {
-            // plus.nativeUI.toast(JSON.stringify(_err));
-            uni.navigateBack();
-          },
-        });
+    fail() {
+      uni.navigateBack()
+    },
+  })
+  enabled.value = storage.getFaceLogin() || false
+  // #endif
+})
+
+function onFaceSwitchChange(value: boolean) {
+  if (value) {
+    const systemInfo = uni.getSystemInfoSync()
+    plus.device.getInfo({
+      success(e) {
+        setBiolofy({
+          mobile_type: systemInfo.model,
+          secret_key: e.uuid,
+        }).then((res) => {
+          if (res.statusCode === 200) {
+            storage.setFaceLogin(true)
+          }
+        })
       },
       fail(err) {
-        // plus.nativeUI.toast(JSON.stringify(err));
-        uni.navigateBack();
+        console.error('getDeviceInfo failed: ' + JSON.stringify(err))
       },
-    });
-    this.checked = storage.getFaceLogin() || false;
-    // #endif
-  },
-};
+    })
+  } else {
+    storage.setFaceLogin(false)
+  }
+}
 </script>
 
 <style lang="scss" scoped>

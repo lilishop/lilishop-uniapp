@@ -10,211 +10,183 @@
 		</view>
 	</view>
 </template>
-<script>
-	/**
-	 * NumberBox 数字输入框
-	 * @description 带加减按钮的数字输入框
-	 * @tutorial https://ext.dcloud.net.cn/plugin?id=31
-	 * @property {Number} value 输入框当前值
-	 * @property {Number} min 最小值
-	 * @property {Number} max 最大值
-	 * @property {Number} step 每次点击改变的间隔大小
-	 * @property {String} background 背景色
-	 * @property {String} color 字体颜色（前景色）
-	 * @property {Boolean} disabled = [true|false] 是否为禁用状态
-	 * @event {Function} change 输入框值改变时触发的事件，参数为输入框当前的 value
-	 * @event {Function} focus 输入框聚焦时触发的事件，参数为 event 对象
-	 * @event {Function} blur 输入框失焦时触发的事件，参数为 event 对象
-	 */
 
-	export default {
-		name: "UniNumberBox",
-		emits: ['change', 'input', 'update:modelValue', 'blur', 'focus'],
-		props: {
-			value: {
-				type: [Number, String],
-				default: 1
-			},
-			modelValue: {
-				type: [Number, String],
-				default: 1
-			},
-			min: {
-				type: Number,
-				default: 0
-			},
-			max: {
-				type: Number,
-				default: 100
-			},
-			step: {
-				type: Number,
-				default: 1
-			},
-			background: {
-				type: String,
-				default: '#f5f5f5'
-			},
-			color: {
-				type: String,
-				default: '#333'
-			},
-			disabled: {
-				type: Boolean,
-				default: false
-			}
-		},
-		data() {
-			return {
-				inputValue: 0
-			};
-		},
-		watch: {
-			value(val) {
-				this.inputValue = +val;
-			},
-			modelValue(val) {
-				this.inputValue = +val;
-			}
-		},
-		created() {
-			if (this.value === 1) {
-				this.inputValue = +this.modelValue;
-			}
-			if (this.modelValue === 1) {
-				this.inputValue = +this.value;
-			}
-		},
-		methods: {
-			_calcValue(type) {
-				if (this.disabled) {
-					return;
-				}
-				const scale = this._getDecimalScale();
-				let value = this.inputValue * scale;
-				let step = this.step * scale;
-				if (type === "minus") {
-					value -= step;
-					if (value < (this.min * scale)) {
-						return;
-					}
-					if (value > (this.max * scale)) {
-						value = this.max * scale
-					}
-				}
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 
-				if (type === "plus") {
-					value += step;
-					if (value > (this.max * scale)) {
-						return;
-					}
-					if (value < (this.min * scale)) {
-						value = this.min * scale
-					}
-				}
+const props = withDefaults(defineProps<{
+	value?: number | string
+	modelValue?: number | string
+	min?: number
+	max?: number
+	step?: number
+	background?: string
+	color?: string
+	disabled?: boolean
+}>(), {
+	value: 1,
+	modelValue: 1,
+	min: 0,
+	max: 100,
+	step: 1,
+	background: '#f5f5f5',
+	color: '#333',
+	disabled: false,
+})
 
-				this.inputValue = (value / scale).toFixed(String(scale).length - 1);
-				this.$emit("change", +this.inputValue);
-				// TODO vue2 兼容
-				this.$emit("input", +this.inputValue);
-				// TODO vue3 兼容
-				this.$emit("update:modelValue", +this.inputValue);
-			},
-			_getDecimalScale() {
+const emit = defineEmits<{
+	change: [value: number]
+	input: [value: number]
+	'update:modelValue': [value: number]
+	blur: [event: Event]
+	focus: [event: Event]
+}>()
 
-				let scale = 1;
-				// 浮点型
-				if (~~this.step !== this.step) {
-					scale = Math.pow(10, String(this.step).split(".")[1].length);
-				}
-				return scale;
-			},
-			_onBlur(event) {
-				this.$emit('blur', event)
-				let value = event.detail.value;
-				if (!value) {
-					// this.inputValue = 0;
-					return;
-				}
-				value = +value;
-				if (value > this.max) {
-					value = this.max;
-				} else if (value < this.min) {
-					value = this.min;
-				}
-				const scale = this._getDecimalScale();
-				this.inputValue = value.toFixed(String(scale).length - 1);
-				this.$emit("change", +this.inputValue);
-				this.$emit("input", +this.inputValue);
-			},
-			_onFocus(event) {
-				this.$emit('focus', event)
-			}
+const inputValue = ref(0)
+
+watch(() => props.value, (val) => {
+	inputValue.value = +val
+})
+
+watch(() => props.modelValue, (val) => {
+	inputValue.value = +val
+})
+
+if (props.value === 1) {
+	inputValue.value = +props.modelValue
+}
+if (props.modelValue === 1) {
+	inputValue.value = +props.value
+}
+
+function _getDecimalScale() {
+	let scale = 1
+	if (~~props.step !== props.step) {
+		scale = Math.pow(10, String(props.step).split('.')[1].length)
+	}
+	return scale
+}
+
+function _emitValue() {
+	const val = +inputValue.value
+	emit('change', val)
+	emit('input', val)
+	emit('update:modelValue', val)
+}
+
+function _calcValue(type: 'minus' | 'plus') {
+	if (props.disabled) {
+		return
+	}
+	const scale = _getDecimalScale()
+	let value = inputValue.value * scale
+	const step = props.step * scale
+	if (type === 'minus') {
+		value -= step
+		if (value < props.min * scale) {
+			return
 		}
-	};
+		if (value > props.max * scale) {
+			value = props.max * scale
+		}
+	}
+
+	if (type === 'plus') {
+		value += step
+		if (value > props.max * scale) {
+			return
+		}
+		if (value < props.min * scale) {
+			value = props.min * scale
+		}
+	}
+
+	inputValue.value = Number((value / scale).toFixed(String(scale).length - 1))
+	_emitValue()
+}
+
+function _onBlur(event: any) {
+	emit('blur', event)
+	let value = event.detail.value
+	if (!value) {
+		return
+	}
+	value = +value
+	if (value > props.max) {
+		value = props.max
+	} else if (value < props.min) {
+		value = props.min
+	}
+	const scale = _getDecimalScale()
+	inputValue.value = Number(value.toFixed(String(scale).length - 1))
+	_emitValue()
+}
+
+function _onFocus(event: Event) {
+	emit('focus', event)
+}
 </script>
+
 <style lang="scss" scoped>
-	$box-height: 48rpx;
-	$bg: #f5f5f5;
-	$br: 4rpx;
-	$color: #333;
+$box-height: 48rpx;
+$bg: #f5f5f5;
+$br: 4rpx;
+$color: #333;
 
-	.uni-numbox {
-		/* #ifndef APP-NVUE */
-		display: flex;
-		/* #endif */
-		flex-direction: row;
-	}
+.uni-numbox {
+	/* #ifndef APP-NVUE */
+	display: flex;
+	/* #endif */
+	flex-direction: row;
+}
 
-	.uni-numbox-btns {
-		/* #ifndef APP-NVUE */
-		display: flex;
-		/* #endif */
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		padding: 0 8px;
-		background-color: $bg;
-		/* #ifdef H5 */
-		cursor: pointer;
-		/* #endif */
-	}
+.uni-numbox-btns {
+	/* #ifndef APP-NVUE */
+	display: flex;
+	/* #endif */
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding: 0 8px;
+	background-color: $bg;
+	/* #ifdef H5 */
+	cursor: pointer;
+	/* #endif */
+}
 
-	.uni-numbox__value {
-		margin: 0 4rpx;
-		background-color: $bg;
-		width: 70rpx;
-		height: $box-height;
-		text-align: center;
-		font-size: 24rpx;
-		border-left-width: 0;
-		border-right-width: 0;
-		color: $color;
-	}
+.uni-numbox__value {
+	margin: 0 4rpx;
+	background-color: $bg;
+	width: 70rpx;
+	height: $box-height;
+	text-align: center;
+	font-size: 24rpx;
+	border-left-width: 0;
+	border-right-width: 0;
+	color: $color;
+}
 
-	.uni-numbox__minus {
-		border-top-left-radius: $br;
-		border-bottom-left-radius: $br;
-	}
+.uni-numbox__minus {
+	border-top-left-radius: $br;
+	border-bottom-left-radius: $br;
+}
 
-	.uni-numbox__plus {
-		border-top-right-radius: $br;
-		border-bottom-right-radius: $br;
-	}
+.uni-numbox__plus {
+	border-top-right-radius: $br;
+	border-bottom-right-radius: $br;
+}
 
-	.uni-numbox--text {
-		// fix nvue
-		line-height: 40rpx;
+.uni-numbox--text {
+	line-height: 40rpx;
+	font-size: 40rpx;
+	font-weight: 300;
+	color: $color;
+}
 
-		font-size: 40rpx;
-		font-weight: 300;
-		color: $color;
-	}
-
-	.uni-numbox .uni-numbox--disabled {
-		color: #c0c0c0 !important;
-		/* #ifdef H5 */
-		cursor: not-allowed;
-		/* #endif */
-	}
+.uni-numbox .uni-numbox--disabled {
+	color: #c0c0c0 !important;
+	/* #ifdef H5 */
+	cursor: not-allowed;
+	/* #endif */
+}
 </style>

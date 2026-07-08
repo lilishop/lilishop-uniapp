@@ -11,7 +11,7 @@
 					<u-empty text="暂无订单" mode="list"
 						v-if="tabItem.loaded === true && tabItem.orderList.length === 0"></u-empty>
 					<!-- 订单列表 -->
-					<view class="seller-view" :key="oderIndex" v-for="(order, oderIndex) in tabItem.orderList">
+					<view class="seller-view" :key="orderIndex" v-for="(order, orderIndex) in tabItem.orderList">
 						<!-- 店铺名称 -->
 						<view class="seller-info u-flex u-row-between">
 							<view class="seller-name wes" @click="navigateToStore(order)">
@@ -108,458 +108,339 @@
 	</view>
 </template>
 
-<script>
-	import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
-	import {
-		getOrderList,
-		cancelOrder,
-		confirmReceipt
-	} from "@/api/order.js";
-	import {
-		getClearReason
-	} from "@/api/after-sale.js";
-	import LiLiWXPay from "@/js_sdk/lili-pay/wx-pay.js";
-	export default {
-		components: {
-			uniLoadMore,
-		},
-		data() {
-			return {
-				lightColor: this.$lightColor,
-				tabCurrentIndex: 0, //导航栏索引
-				navList: [
-					//导航栏list
-					{
-						state: 0,
-						text: "全部",
-						loadStatus: "more",
-						orderList: [],
-						pageNumber: 1,
-					},
-					{
-						state: 1,
-						text: "待付款",
-						loadStatus: "more",
-						orderList: [],
-						pageNumber: 1,
-					},
-					{
-						state: 2,
-						text: "待发货",
-						loadStatus: "more",
-						orderList: [],
-						pageNumber: 1,
-					},
-					{
-						state: 3,
-						text: "待收货",
-						loadStatus: "more",
-						orderList: [],
-						pageNumber: 1,
-					},
-					{
-						state: 4,
-						text: "已完成",
-						loadStatus: "more",
-						orderList: [],
-						pageNumber: 1,
-					},
-					{
-						state: 5,
-						text: "已取消",
-						loadStatus: "more",
-						orderList: [],
-						pageNumber: 1,
-					},
-				],
-				status: "", //接收导航栏状态
-				params: {
-					pageNumber: 1,
-					pageSize: 10,
-					tag: "ALL",
-				},
-				orderStatus: [
-					//订单状态
-					{
-						orderStatus: "ALL", //全部
-					},
-					{
-						orderStatus: "WAIT_PAY", //代付款
-					},
-					{
-						orderStatus: "WAIT_SHIP",
-					},
-					{
-						orderStatus: "WAIT_ROG", //待收货
-					},
-					{
-						orderStatus: "COMPLETE", //已完成
-					},
-					{
-						orderStatus: "CANCELLED", //已取消
-					},
-					{
-						orderStatus: "STAY_PICKED_UP", //待自提
-					},
-				],
-				cancelShow: false, //是否显示取消
-				orderSn: "", //ordersn
-				reason: "", //取消原因
-				cancelList: [], //取消列表
-				rogShow: false, //显示是否收货
-			};
-		},
+<script setup lang="ts">
+import { ref, reactive, computed, watch, getCurrentInstance } from 'vue'
+import { onLoad, onShow, onPullDownRefresh, onBackPress } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue'
+import { getOrderList, cancelOrder, confirmReceipt } from '@/api/order.js'
+import { getClearReason } from '@/api/after-sale.js'
+import LiLiWXPay from '@/js_sdk/lili-pay/wx-pay.js'
+import {
+	unitPrice,
+	parseGoodsImageUrl,
+	tipsToLogin,
+	orderStatusList,
+} from '@/utils/filters.js'
 
-		/**
-		 * 跳转到个人中心
-		 */
-		onBackPress(e) {
-			if (e.from == "backbutton") {
-				uni.switchTab({
-					url: "/pages/tabbar/user/my",
-				});
-				return true; //阻止默认返回行为
-			}
-		},
-		onPullDownRefresh() {
-			if (this.tabCurrentIndex) {
-				this.initData(this.tabCurrentIndex);
-			} else {
-				this.initData(0);
-			}
-			// this.loadData(this.status);
-		},
-		onShow() {
-			if (this.tipsToLogin()) {
-				if (!this.tabCurrentIndex) {
-					this.initData(0);
-				}
-			}
-			// this.loadData(this.status);
-		},
+const store = useStore()
+const { proxy } = getCurrentInstance()!
+const lightColor = computed(() => store.getters.lightColor)
+const mainColor = computed(() => store.getters.mainColor)
 
-		onLoad(options) {
-			/**
-			 * 修复app端点击除全部订单外的按钮进入时不加载数据的问题
-			 * 替换onLoad下代码即可
-			 */
-			let status = Number(options.status);
-			this.status = status;
+interface NavTabItem {
+	state: number
+	text: string
+	loadStatus: string
+	orderList: any[]
+	pageNumber: number
+	loaded?: boolean
+}
 
-			this.tabCurrentIndex = status;
-			// if (status == 0) {
-			//   this.loadData(status);
-			// }
-		},
+const tabCurrentIndex = ref(0)
+const navList = reactive<NavTabItem[]>([
+	{ state: 0, text: '全部', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 1, text: '待付款', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 2, text: '待发货', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 3, text: '待收货', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 4, text: '已完成', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 5, text: '已取消', loadStatus: 'more', orderList: [], pageNumber: 1 },
+])
 
-		watch: {
-			/**监听更改请求数据 */
-			tabCurrentIndex(val) {
-				this.params.tag = this.orderStatus[val].orderStatus;
-				//切换标签页将所有的页数都重置为1
-				this.navList.forEach((res) => {
-					res.pageNumber = 1;
-					res.loadStatus = "more";
-					res.orderList = [];
-				});
-				this.loadData(val);
-			},
-		},
-		methods: {
-			// 售后
-			applyService(order) {
-				uni.navigateTo({
-					url: `/pages/order/afterSales/afterSales?orderSn=${order.sn}`,
-				});
-			},
+const status = ref<number>(0)
+const params = reactive({
+	pageNumber: 1,
+	pageSize: 10,
+	tag: 'ALL',
+})
 
-			// 店铺详情
-			navigateToStore(val) {
-				uni.navigateTo({
-					url: "/pages/product/shopPage?id=" + val.storeId,
-				});
-			},
-			renderOrderTag(orderPromotionType) {
-				switch (orderPromotionType) {
-					case "NORMAL":
-						return "";
-					case "PINTUAN":
-						return "拼团订单";
-						break;
-					case "GIFT":
-						return "赠品订单";
-						break;
-					case "POINTS":
-						return "积分订单";
-						break;
-					case "KANJIA":
-						return "砍价订单";
-					default:
-						return "";
-				}
-			},
-			renderOrderTagType(orderPromotionType) {
-				switch (orderPromotionType) {
-					case "PINTUAN":
-						return "error";
-					case "GIFT":
-						return "primary";
-					case "POINTS":
-						return "info";
-					case "KANJIA":
-						return "warning";
-					default:
-						return "info";
-				}
-			},
-			getOrderItemImage(goods, order, index) {
-				let image = goods.image;
-				if (!image && order.groupImages) {
-					const images = String(order.groupImages).split(",");
-					image = images[index] || images[0];
-				}
-				return this.parseGoodsImageUrl(image);
-			},
-			/**
-			 * 取消订单
-			 */
-			onCancel(sn) {
-				this.orderSn = sn;
-				this.cancelShow = true;
-				uni.showLoading({
-					title: "加载中",
-				});
-				getClearReason().then((res) => {
-					if (res.data.result.length >= 1) {
-						this.cancelList = res.data.result;
-					}
-					if (this.$store.state.isShowToast) {
-						uni.hideLoading()
-					};
-				});
-			},
+const orderStatus = [
+	{ orderStatus: 'ALL' },
+	{ orderStatus: 'WAIT_PAY' },
+	{ orderStatus: 'WAIT_SHIP' },
+	{ orderStatus: 'WAIT_ROG' },
+	{ orderStatus: 'COMPLETE' },
+	{ orderStatus: 'CANCELLED' },
+	{ orderStatus: 'STAY_PICKED_UP' },
+]
 
-			/**
-			 * 初始化数据
-			 */
-			initData(index) {
-				this.navList[index].pageNumber = 1;
-				this.navList[index].loadStatus = "more";
-				this.navList[index].orderList = [];
-				this.loadData(index);
-			},
+const cancelShow = ref(false)
+const orderSn = ref('')
+const reason = ref('')
+const cancelList = ref<any[]>([])
+const rogShow = ref(false)
 
-			/**
-			 * 等待支付
-			 */
-			waitPay(val) {
-				this.$u.debounce(this.pay(val), 3000);
-			},
+function hideLoadingIfNeeded() {
+	if (store.state.isShowToast) uni.hideLoading()
+}
 
-			/**
-			 * 支付
-			 */
-			pay(val) {
-				if (val.sn) {
-					// #ifdef MP-WEIXIN
-					new LiLiWXPay({
-						sn: val.sn,
-						price: val.flowPrice,
-						orderType: "ORDER",
-					}).pay();
-					// #endif
-					// #ifndef MP-WEIXIN
-					uni.navigateTo({
-						url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
-					});
-					// #endif
-				}
-			},
+onBackPress((e) => {
+	if (e.from == 'backbutton') {
+		uni.switchTab({ url: '/pages/tabbar/user/my' })
+		return true
+	}
+	return false
+})
 
-			/**
-			 * 获取订单列表
-			 */
-			loadData(index) {
-				this.params.pageNumber = this.navList[index].pageNumber;
-				// this.params.tag = this.orderStatus[index].orderStatus;
-				getOrderList(this.params).then((res) => {
-					uni.stopPullDownRefresh();
-					if (!res.data.success) {
-						this.navList[index].loadStatus = "noMore";
-						return false;
-					}
-					let orderList = res.data.result.records;
-					if (orderList.length == 0) {
-						this.navList[index].loadStatus = "noMore";
-					} else if (orderList.length < 10) {
-						this.navList[index].loadStatus = "noMore";
-					}
-					if (orderList.length > 0) {
-						this.navList[index].orderList =
-							this.navList[index].orderList.concat(orderList);
-						this.navList[index].pageNumber += 1;
-					}
-				});
-			},
-			//swiper 切换监听
-			changeTab(e) {
-				this.tabCurrentIndex = e.target.current;
-			},
-			//顶部tab点击
-			tabClick(index) {
-				this.tabCurrentIndex = index;
-			},
-			//删除订单
-			deleteOrder(index) {
-				uni.showLoading({
-					title: "请稍后",
-				});
-				setTimeout(() => {
-					this.navList[this.tabCurrentIndex].orderList.splice(index, 1);
-					if (this.$store.state.isShowToast) {
-						uni.hideLoading()
-					};
-				}, 600);
-			},
-			//取消订单
-			cancelOrder(item) {
-				uni.showLoading({
-					title: "请稍后",
-				});
-				setTimeout(() => {
-					let {
-						stateTip,
-						stateTipColor
-					} = this.orderStateExp(9);
-					item = Object.assign(item, {
-						state: 9,
-						stateTip,
-						stateTipColor,
-					});
+onPullDownRefresh(() => {
+	if (tabCurrentIndex.value) {
+		initData(tabCurrentIndex.value)
+	} else {
+		initData(0)
+	}
+})
 
-					//取消订单后删除待付款中该项
-					let list = this.navList[1].orderList;
-					let index = list.findIndex((val) => val.id === item.id);
-					index !== -1 && list.splice(index, 1);
-					if (this.$store.state.isShowToast) {
-						uni.hideLoading()
-					};
-				}, 600);
-			},
+onShow(() => {
+	if (tipsToLogin()) {
+		if (!tabCurrentIndex.value) {
+			initData(0)
+		}
+	}
+})
 
-			//订单状态文字和颜色
-			orderStateExp(state) {
-				let stateTip = "",
-					stateTipColor = this.$lightColor;
-				switch (+state) {
-					case 1:
-						stateTip = "待付款";
-						break;
-					case 2:
-						stateTip = "待发货";
-						break;
-					case 9:
-						stateTip = "订单已关闭";
-						stateTipColor = "#909399";
-						break;
+onLoad((options) => {
+	const statusNum = Number(options?.status)
+	status.value = statusNum
+	tabCurrentIndex.value = statusNum
+})
 
-						//更多自定义
-				}
-				return {
-					stateTip,
-					stateTipColor,
-				};
-			},
+watch(tabCurrentIndex, (val) => {
+	params.tag = orderStatus[val].orderStatus
+	navList.forEach((res) => {
+		res.pageNumber = 1
+		res.loadStatus = 'more'
+		res.orderList = []
+	})
+	loadData(val)
+})
 
-			/**
-			 * 跳转到订单详情
-			 */
-			navigateToOrderDetail(sn) {
-				uni.navigateTo({
-					url: "./orderDetail?sn=" + sn,
-				});
-			},
+function applyService(order: any) {
+	uni.navigateTo({
+		url: `/pages/order/afterSales/afterSales?orderSn=${order.sn}`,
+	})
+}
 
-			/**
-			 * 选择取消原因
-			 */
-			reasonChange(reason) {
-				this.reason = reason;
-			},
+function navigateToStore(val: any) {
+	uni.navigateTo({
+		url: '/pages/product/shopPage?id=' + val.storeId,
+	})
+}
 
-			/**
-			 * 提交取消订单（未付款）
-			 */
-			submitCancel() {
-				cancelOrder(this.orderSn, {
-					reason: this.reason
-				}).then((res) => {
-					if (res.data.success) {
-						uni.showToast({
-							title: "订单已取消",
-							duration: 2000,
-							icon: "none",
-						});
-						this.initData(this.tabCurrentIndex);
+function renderOrderTag(orderPromotionType: string) {
+	switch (orderPromotionType) {
+		case 'NORMAL':
+			return ''
+		case 'PINTUAN':
+			return '拼团订单'
+		case 'GIFT':
+			return '赠品订单'
+		case 'POINTS':
+			return '积分订单'
+		case 'KANJIA':
+			return '砍价订单'
+		default:
+			return ''
+	}
+}
 
-						this.cancelShow = false;
-					} else {
-						uni.showToast({
-							title: res.data.message,
-							duration: 2000,
-							icon: "none",
-						});
-						this.cancelShow = false;
-					}
-				});
-			},
+function renderOrderTagType(orderPromotionType: string) {
+	switch (orderPromotionType) {
+		case 'PINTUAN':
+			return 'error'
+		case 'GIFT':
+			return 'primary'
+		case 'POINTS':
+			return 'info'
+		case 'KANJIA':
+			return 'warning'
+		default:
+			return 'info'
+	}
+}
 
-			/**
-			 * 确认收货显示
-			 */
-			onRog(sn) {
-				this.orderSn = sn;
-				this.rogShow = true;
-			},
+function getOrderItemImage(goods: any, order: any, index: number) {
+	let image = goods.image
+	if (!image && order.groupImages) {
+		const images = String(order.groupImages).split(',')
+		image = images[index] || images[0]
+	}
+	return parseGoodsImageUrl(image)
+}
 
-			/**
-			 * 点击确认收货
-			 */
-			confirmRog() {
-				confirmReceipt(this.orderSn).then((res) => {
-					if (res.data.code == 200) {
-						uni.showToast({
-							title: "已确认收货",
-							duration: 2000,
-							icon: "none",
-						});
-						this.initData(this.tabCurrentIndex);
-						this.rogShow = false;
-					}
-				});
-			},
+function onCancel(sn: string) {
+	orderSn.value = sn
+	cancelShow.value = true
+	uni.showLoading({ title: '加载中' })
+	getClearReason().then((res) => {
+		if (res.data.result.length >= 1) {
+			cancelList.value = res.data.result
+		}
+		hideLoadingIfNeeded()
+	})
+}
 
-			/**
-			 * 评价商品
-			 */
-			onComment(sn) {
-				uni.navigateTo({
-					url: "./evaluate/myEvaluate",
-				});
-			},
+function initData(index: number) {
+	navList[index].pageNumber = 1
+	navList[index].loadStatus = 'more'
+	navList[index].orderList = []
+	loadData(index)
+}
 
-			/**
-			 * 重新购买
-			 */
-			reBuy(order) {
-				console.log(order);
-				return;
-				uni.navigateTo({
-					url: "/pages/product/goods?id=" + order.id + "&goodsId=" + order.goodsId,
-				});
-			},
-		},
-	};
+function waitPay(val: any) {
+	proxy?.$u?.debounce?.(() => pay(val), 3000, true)?.()
+}
+
+function pay(val: any) {
+	if (val.sn) {
+		// #ifdef MP-WEIXIN
+		new LiLiWXPay({
+			sn: val.sn,
+			price: val.flowPrice,
+			orderType: 'ORDER',
+		}).pay()
+		// #endif
+		// #ifndef MP-WEIXIN
+		uni.navigateTo({
+			url: '/pages/cart/payment/payOrder?order_sn=' + val.sn,
+		})
+		// #endif
+	}
+}
+
+function loadData(index: number) {
+	params.pageNumber = navList[index].pageNumber
+	getOrderList(params).then((res) => {
+		uni.stopPullDownRefresh()
+		if (!res.data.success) {
+			navList[index].loadStatus = 'noMore'
+			return false
+		}
+		const records = res.data.result.records
+		if (records.length == 0) {
+			navList[index].loadStatus = 'noMore'
+		} else if (records.length < 10) {
+			navList[index].loadStatus = 'noMore'
+		}
+		if (records.length > 0) {
+			navList[index].orderList = navList[index].orderList.concat(records)
+			navList[index].pageNumber += 1
+		}
+	})
+}
+
+function changeTab(e: any) {
+	tabCurrentIndex.value = e.target.current
+}
+
+function tabClick(index: number) {
+	tabCurrentIndex.value = index
+}
+
+function deleteOrder(index: number) {
+	uni.showLoading({ title: '请稍后' })
+	setTimeout(() => {
+		navList[tabCurrentIndex.value].orderList.splice(index, 1)
+		hideLoadingIfNeeded()
+	}, 600)
+}
+
+function cancelOrderLocal(item: any) {
+	uni.showLoading({ title: '请稍后' })
+	setTimeout(() => {
+		const { stateTip, stateTipColor } = orderStateExp(9)
+		Object.assign(item, {
+			state: 9,
+			stateTip,
+			stateTipColor,
+		})
+		const list = navList[1].orderList
+		const idx = list.findIndex((val) => val.id === item.id)
+		if (idx !== -1) list.splice(idx, 1)
+		hideLoadingIfNeeded()
+	}, 600)
+}
+
+function orderStateExp(state: number) {
+	let stateTip = ''
+	let stateTipColor = lightColor.value
+	switch (+state) {
+		case 1:
+			stateTip = '待付款'
+			break
+		case 2:
+			stateTip = '待发货'
+			break
+		case 9:
+			stateTip = '订单已关闭'
+			stateTipColor = '#909399'
+			break
+	}
+	return { stateTip, stateTipColor }
+}
+
+function navigateToOrderDetail(sn: string) {
+	uni.navigateTo({
+		url: './orderDetail?sn=' + sn,
+	})
+}
+
+function reasonChange(val: string) {
+	reason.value = val
+}
+
+function submitCancel() {
+	cancelOrder(orderSn.value, { reason: reason.value }).then((res) => {
+		if (res.data.success) {
+			uni.showToast({
+				title: '订单已取消',
+				duration: 2000,
+				icon: 'none',
+			})
+			initData(tabCurrentIndex.value)
+			cancelShow.value = false
+		} else {
+			uni.showToast({
+				title: res.data.message,
+				duration: 2000,
+				icon: 'none',
+			})
+			cancelShow.value = false
+		}
+	})
+}
+
+function onRog(sn: string) {
+	orderSn.value = sn
+	rogShow.value = true
+}
+
+function confirmRog() {
+	confirmReceipt(orderSn.value).then((res) => {
+		if (res.data.code == 200) {
+			uni.showToast({
+				title: '已确认收货',
+				duration: 2000,
+				icon: 'none',
+			})
+			initData(tabCurrentIndex.value)
+			rogShow.value = false
+		}
+	})
+}
+
+function onComment(_sn: string) {
+	uni.navigateTo({
+		url: './evaluate/myEvaluate',
+	})
+}
+
+function reBuy(order: any) {
+	const goods = order.orderItems?.[0]
+	if (!goods) return
+	uni.navigateTo({
+		url: '/pages/product/goods?id=' + goods.id + '&goodsId=' + goods.goodsId,
+	})
+}
 </script>
 
 <style lang="scss" scoped>

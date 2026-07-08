@@ -15,58 +15,53 @@
   </div>
 </template>
 
-<script>
-import { getBargainList } from "@/api/promotions";
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow, onReachBottom } from '@dcloudio/uni-app'
+import { getBargainList } from '@/api/promotions'
 import goodsTemplate from '@/components/m-goods-list/promotion'
-export default {
-  components:{goodsTemplate},
-  data() {
-    return {
-      background: {
-        backgroundColor: "transparent",
-      },
-      params: {
-        promotionStatus: "START", //开始/上架
-        pageNumber: 1,
-        pageSize: 20,
-      },
-      bargainList: [], //砍价活动列表
-    };
-  },
-  onShow() {
-    this.params.pageNumber = 1;
-    this.bargainList = [];
-    this.init();
-  },
-  onReachBottom() {
-    this.params.pageNumber++;
-    this.init();
-  },
-  methods: {
-    // 返回上一级
-    back() {
-      uni.switchTab({
-        url: "/pages/tabbar/home/index",
-      });
-    },
-    /**
-     * 初始化砍价列表
-     */
-    async init() {
-      let res = await getBargainList(this.params); //砍价列表
-      if (res.data.success) {
-        this.bargainList.push(...res.data.result.records);
-      }
-    },
 
-    // 跳转到砍价详情
-    navigateToBargainDetail(val) {
-      uni.navigateTo({
-        url: `/pages/promotion/bargain/detail?id=${val.id}`,
-      });
-    },
-  },
-};
+const background = ref({
+  backgroundColor: 'transparent',
+})
+
+const params = ref({
+  promotionStatus: 'START',
+  pageNumber: 1,
+  pageSize: 20,
+})
+
+const bargainList = ref<any[]>([])
+
+onShow(() => {
+  params.value.pageNumber = 1
+  bargainList.value = []
+  init()
+})
+
+onReachBottom(() => {
+  params.value.pageNumber++
+  init()
+})
+
+function back() {
+  uni.switchTab({
+    url: '/pages/tabbar/home/index',
+  })
+}
+
+async function init() {
+  const res = await getBargainList(params.value)
+  if (res.data.success) {
+    bargainList.value.push(...res.data.result.records)
+  }
+}
+
+function navigateToBargainDetail(val: any) {
+  uni.navigateTo({
+    url: `/pages/promotion/bargain/detail?id=${val.id}`,
+  })
+}
 </script>
 <style lang="scss">
 page {

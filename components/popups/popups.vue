@@ -10,198 +10,175 @@
   </view>
 </template>
 
-<script>
-export default {
-  props: {
-    maskBg: {
-      type: String,
-      default: "rgba(0,0,0,0)",
-    },
-    placement: {
-      type: String,
-      default: "default", //default top-start top-end bottom-start bottom-end
-    },
-    direction: {
-      type: String,
-      default: "column", //column row
-    },
-    x: {
-      type: Number,
-      default: 0,
-    },
-    y: {
-      type: Number,
-      default: 0,
-    },
-    value: {
-      type: Boolean,
-      default: false,
-    },
-    popData: {
-      type: Array,
-      default: () => [],
-    },
-    theme: {
-      type: String,
-      default: "light", //light dark
-    },
-    dynamic: {
-      type: Boolean,
-      default: false,
-    },
-    gap: {
-      type: Number,
-      default: 20,
-    },
-    triangle: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  data() {
-    return {
-      popupsTop: "0rpx",
-      popupsLeft: "0rpx",
-      show: false,
-      dynPlace: "",
-    };
-  },
-  mounted() {
-    this.popupsPosition();
-  },
-  methods: {
-    tapMask() {
-      this.$emit("input", !this.value);
-    },
-    tapItem(item) {
-      if (item.disabled) return;
-      this.$emit("tapPopup", item);
-      this.$emit("input", !this.value);
-    },
-    getStatusBar() {
-      const windowInfo = uni.getWindowInfo();
-      // #ifdef H5
-      return Promise.resolve(
-        (windowInfo.statusBarHeight || 0) + (windowInfo.windowTop || 0)
-      );
-      // #endif
-      // #ifndef H5
-      return Promise.resolve(windowInfo.statusBarHeight || 0);
-      // #endif
-    },
-    async popupsPosition() {
-      let statusBar = await this.getStatusBar();
-      let promise = new Promise((resolve, reject) => {
-        let popupsDom = uni.createSelectorQuery().in(this).select(".popups");
-        popupsDom
-          .fields(
-            {
-              size: true,
-            },
-            (data) => {
-              if (!data) {
-                resolve();
-                return;
-              }
-              let width = data.width;
-              let height = data.height;
+<script setup lang="ts">
+import { ref, watch, onMounted, getCurrentInstance } from 'vue'
 
-             
+const props = withDefaults(defineProps<{
+  maskBg?: string
+  placement?: string
+  direction?: string
+  x?: number
+  y?: number
+  modelValue?: boolean
+  popData?: any[]
+  theme?: string
+  dynamic?: boolean
+  gap?: number
+  triangle?: boolean
+}>(), {
+  maskBg: "rgba(0,0,0,0)",
+  placement: "default",
+  direction: "column",
+  x: 0,
+  y: 0,
+  modelValue: false,
+  popData: () => [],
+  theme: "light",
+  dynamic: false,
+  gap: 20,
+  triangle: true,
+})
 
-              let y = this.dynamic
-                ? this.dynamicGetY(this.y, this.gap)
-                : this.transformRpx(this.y);
+const emit = defineEmits(['update:modelValue', 'tapPopup'])
 
-              let x = this.dynamic
-                ? this.dynamicGetX(this.x, this.gap)
-                : this.transformRpx(this.x);
+const instance = getCurrentInstance()
 
-              // #ifdef H5
-              y = this.dynamic
-                ? this.y + statusBar
-                : this.transformRpx(this.y + statusBar);
-              // #endif
+const popupsTop = ref("0rpx")
+const popupsLeft = ref("0rpx")
+const show = ref(false)
+const dynPlace = ref("")
 
-              this.dynPlace =
-                this.placement == "default"
-                  ? this.getPlacement(x, y)
-                  : this.placement;
+onMounted(() => {
+  popupsPosition()
+})
 
-              switch (this.dynPlace) {
-                case "top-start":
-                  this.popupsTop = `${y + 9}rpx`;
-                  this.popupsLeft = `${x - 15}rpx`;
-                  break;
-                case "top-end":
-                  this.popupsTop = `${y + 9}rpx`;
-                  this.popupsLeft = `${x + 15 - width}rpx`;
-                  break;
-                case "bottom-start":
-                  this.popupsTop = `${y - 18 - height}rpx`;
-                  this.popupsLeft = `${x - 15}rpx`;
-                  break;
-                case "bottom-end":
-                  this.popupsTop = `${y - 9 - height}rpx`;
-                  this.popupsLeft = `${x + 15 - width}rpx`;
-                  break;
-              }
-              resolve();
-            }
-          )
-          .exec();
-      });
-      return promise;
-    },
-    getPlacement(x, y) {
-      const { windowWidth: width, windowHeight: height } = uni.getWindowInfo();
-      if (x > width / 2 && y > height / 2) {
-        return "bottom-end";
-      } else if (x < width / 2 && y < height / 2) {
-        return "top-start";
-      } else if (x > width / 2 && y < height / 2) {
-        return "top-end";
-      } else if (x < width / 2 && y > height / 2) {
-        return "bottom-start";
-      } else if (x > width / 2) {
-        return "top-end";
-      } else {
-        return "top-start";
-      }
-    },
-    dynamicGetY(y, gap) {
-      const { windowHeight: height } = uni.getWindowInfo();
-      y = y < gap ? gap : y;
-      y = height - y < gap ? height - gap : y;
+const tapMask = () => {
+  emit("update:modelValue", !props.modelValue)
+}
 
-      return y;
-    },
-    dynamicGetX(x, gap) {
-      const { windowWidth: width } = uni.getWindowInfo();
-      x = x < gap ? gap : x;
-      x = width - x < gap ? width - gap : x;
-      return x;
-    },
-    transformRpx(params) {
-      const { screenWidth } = uni.getWindowInfo();
-      return (params * screenWidth) / 375;
-    },
-  },
-  watch: {
-    value: {
-      immediate: true,
-      handler: async function (newVal, oldVal) {
-        if (newVal) await this.popupsPosition();
-        this.show = newVal;
-      },
-    },
-    placement: {
-      immediate: true,
-      handler(newVal, oldVal) {
-        this.dynPlace = newVal;
-      },
-    },
-  },
-};
+const tapItem = (item: any) => {
+  if (item.disabled) return
+  emit("tapPopup", item)
+  emit("update:modelValue", !props.modelValue)
+}
+
+const getStatusBar = () => {
+  const windowInfo = uni.getWindowInfo()
+  // #ifdef H5
+  return Promise.resolve(
+    (windowInfo.statusBarHeight || 0) + (windowInfo.windowTop || 0)
+  )
+  // #endif
+  // #ifndef H5
+  return Promise.resolve(windowInfo.statusBarHeight || 0)
+  // #endif
+}
+
+const popupsPosition = async () => {
+  let statusBar = await getStatusBar()
+  await new Promise<void>((resolve) => {
+    let popupsDom = uni.createSelectorQuery().in(instance!.proxy).select(".popups")
+    popupsDom
+      .fields(
+        {
+          size: true,
+        },
+        (data: any) => {
+          if (!data) {
+            resolve()
+            return
+          }
+          let width = data.width
+          let height = data.height
+
+          let y = props.dynamic
+            ? dynamicGetY(props.y, props.gap)
+            : transformRpx(props.y)
+
+          let x = props.dynamic
+            ? dynamicGetX(props.x, props.gap)
+            : transformRpx(props.x)
+
+          // #ifdef H5
+          y = props.dynamic
+            ? props.y + statusBar
+            : transformRpx(props.y + statusBar)
+          // #endif
+
+          dynPlace.value =
+            props.placement == "default"
+              ? getPlacement(x, y)
+              : props.placement
+
+          switch (dynPlace.value) {
+            case "top-start":
+              popupsTop.value = `${y + 9}rpx`
+              popupsLeft.value = `${x - 15}rpx`
+              break
+            case "top-end":
+              popupsTop.value = `${y + 9}rpx`
+              popupsLeft.value = `${x + 15 - width}rpx`
+              break
+            case "bottom-start":
+              popupsTop.value = `${y - 18 - height}rpx`
+              popupsLeft.value = `${x - 15}rpx`
+              break
+            case "bottom-end":
+              popupsTop.value = `${y - 9 - height}rpx`
+              popupsLeft.value = `${x + 15 - width}rpx`
+              break
+          }
+          resolve()
+        }
+      )
+      .exec()
+  })
+}
+
+const getPlacement = (x: number, y: number) => {
+  const { windowWidth: width, windowHeight: height } = uni.getWindowInfo()
+  if (x > width / 2 && y > height / 2) {
+    return "bottom-end"
+  } else if (x < width / 2 && y < height / 2) {
+    return "top-start"
+  } else if (x > width / 2 && y < height / 2) {
+    return "top-end"
+  } else if (x < width / 2 && y > height / 2) {
+    return "bottom-start"
+  } else if (x > width / 2) {
+    return "top-end"
+  } else {
+    return "top-start"
+  }
+}
+
+const dynamicGetY = (y: number, gap: number) => {
+  const { windowHeight: height } = uni.getWindowInfo()
+  y = y < gap ? gap : y
+  y = height - y < gap ? height - gap : y
+  return y
+}
+
+const dynamicGetX = (x: number, gap: number) => {
+  const { windowWidth: width } = uni.getWindowInfo()
+  x = x < gap ? gap : x
+  x = width - x < gap ? width - gap : x
+  return x
+}
+
+const transformRpx = (params: number) => {
+  const { screenWidth } = uni.getWindowInfo()
+  return (params * screenWidth) / 375
+}
+
+watch(() => props.modelValue, async (newVal) => {
+  if (newVal) await popupsPosition()
+  show.value = newVal
+}, { immediate: true })
+
+watch(() => props.placement, (newVal) => {
+  dynPlace.value = newVal
+}, { immediate: true })
 </script>
 
 <style lang="scss" scoped>

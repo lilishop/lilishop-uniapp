@@ -50,51 +50,45 @@
 			</view>
 		</view>
 
-		<view v-if="this.res != null && Object.keys(res).length == 0">暂无促销信息</view>
+		<view v-if="res != null && Object.keys(res).length == 0">暂无促销信息</view>
 	</view>
 </template>
 
-<script>
-import promotion from './promotion_type';
-export default {
-	data() {
-		return {
-			promotion,
-			couponList: ''
-		};
-	},
-	props: {
-		// 父组件传递回来的数据
-		res: {
-			type: null,
-			default: {}
-		}
-	},
-	watch: {
-		res: {
-			handler() {
-				if (this.res && this.res.length != 0 && this.res != null) {
-					Object.keys(this.res).forEach(item => {
-						let key = item.split('-')[0];
-						this.res[item].__key = key;
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import promotion from './promotion_type'
 
-						if (item.split('-')[0] == 'COUPON') {
-							this.couponList = 'COUPON';
-						}
-					});
-				}
-			},
-			immediate: true
-		}
-	},
-	mounted() {},
-	methods: {
-		// 此方法条用父级方法
-		shutMask(val) {
-			this.$emit('shutMasks', val);
-		}
-	}
-};
+const props = defineProps<{
+  res?: any
+}>()
+
+const emit = defineEmits<{
+  shutMasks: [val: number]
+}>()
+
+const couponList = ref('')
+
+watch(
+  () => props.res,
+  (res) => {
+    couponList.value = ''
+    if (res && res.length != 0 && res != null) {
+      Object.keys(res).forEach((item) => {
+        const key = item.split('-')[0]
+        res[item].__key = key
+
+        if (item.split('-')[0] == 'COUPON') {
+          couponList.value = 'COUPON'
+        }
+      })
+    }
+  },
+  { immediate: true }
+)
+
+function shutMask(val: number) {
+  emit('shutMasks', val)
+}
 </script>
 
 <style lang="scss" scoped>

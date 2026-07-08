@@ -39,112 +39,100 @@
 	</view>
 </template>
 
-<script>
-	import * as API_Promotions from "@/api/promotions";
-	import * as API_Goods from "@/api/goods";
-	import goodsTemplate from '@/components/m-goods-list/promotion.vue'
-	export default {
-		components: {
-			goodsTemplate
-		},
-		data() {
-			return {
-				is_empty: false,
-				search: false,
-				title: "拼团活动",
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { onLoad, onReachBottom, onNavigationBarButtonTap } from '@dcloudio/uni-app'
+import * as API_Promotions from '@/api/promotions'
+import goodsTemplate from '@/components/m-goods-list/promotion.vue'
 
-				empty: false,
-				params: {
-					pageNumber: 1,
-					pageSize: 10,
-					categoryPath: "",
-					goodsName: "",
-				},
-				goodsList: [],
-			};
-		},
-		mounted() {},
-		watch: {
-			search(val) {
-				if (!val && !this.title) {
-					this.title = "拼团活动";
-				}
-			},
-		},
-		onReachBottom() {
-			this.loadMore();
-		},
-		// 点击搜索按钮
-		onNavigationBarButtonTap(e) {
-			this.popupFlag = !this.popupFlag;
-		},
-		async onLoad() {
-			this.GET_AssembleGoods();
-		},
+const is_empty = ref(false)
+const search = ref(false)
+const title = ref('拼团活动')
+const popupFlag = ref(false)
 
-		methods: {
-			back() {
-				if (this.search) {
-					this.search = false;
-					this.params.goodsName = "";
-					this.goodsList = [];
-					this.params.pageNumber = 1;
-					this.GET_AssembleGoods();
-					return;
-				}
-				const pages = getCurrentPages();
-				if (pages.length > 1) {
-					uni.navigateBack();
-				} else {
-					uni.switchTab({
-						url: "/pages/tabbar/home/index",
-					});
-				}
-			},
-			loadMore() {
-				this.params.pageNumber++;
-				this.GET_AssembleGoods();
-			},
-			searchFlag() {
-				this.search = !this.search;
-			},
+const params = ref({
+  pageNumber: 1,
+  pageSize: 10,
+  categoryPath: '',
+  goodsName: '',
+})
 
-			toHref(goods) {
-				uni.navigateTo({
-					url: `/pages/product/goods?id=${goods.skuId}&goodsId=${goods.goodsId}`,
-				});
-			},
-			searchFun() {
-				this.goodsList = [];
-				this.GET_AssembleGoods();
-			},
-			// 请求拼团数据
-			GET_AssembleGoods() {
+const goodsList = ref<any[]>([])
 
-				const params = JSON.parse(JSON.stringify(this.params));
-				if (params.category_id === 0) delete params.category_id;
+watch(search, (val) => {
+  if (!val && !title.value) {
+    title.value = '拼团活动'
+  }
+})
 
-				API_Promotions.getAssembleList(params)
-					.then((response) => {
-						const data = response.data.result.records;
+onReachBottom(() => {
+  loadMore()
+})
 
-						if (!data || !data.length) {
-							this.is_empty = true;
+onNavigationBarButtonTap(() => {
+  popupFlag.value = !popupFlag.value
+})
 
-						} else {
-							if (data.length <= this.params.pageSize) {
+onLoad(async () => {
+  GET_AssembleGoods()
+})
 
-							} else {
+function back() {
+  if (search.value) {
+    search.value = false
+    params.value.goodsName = ''
+    goodsList.value = []
+    params.value.pageNumber = 1
+    GET_AssembleGoods()
+    return
+  }
+  const pages = getCurrentPages()
+  if (pages.length > 1) {
+    uni.navigateBack()
+  } else {
+    uni.switchTab({
+      url: '/pages/tabbar/home/index',
+    })
+  }
+}
 
-							}
-							this.is_empty = false;
-							this.goodsList.push(...(data || []));
-						}
-					})
-					.catch(() => {});
-			},
-		},
-	};
+function loadMore() {
+  params.value.pageNumber++
+  GET_AssembleGoods()
+}
+
+function searchFlag() {
+  search.value = !search.value
+}
+
+function toHref(goods: any) {
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${goods.skuId}&goodsId=${goods.goodsId}`,
+  })
+}
+
+function searchFun() {
+  goodsList.value = []
+  GET_AssembleGoods()
+}
+
+function GET_AssembleGoods() {
+  const requestParams = JSON.parse(JSON.stringify(params.value))
+  if (requestParams.category_id === 0) delete requestParams.category_id
+
+  API_Promotions.getAssembleList(requestParams)
+    .then((response) => {
+      const data = response.data.result.records
+
+      if (!data || !data.length) {
+        is_empty.value = true
+      } else {
+        is_empty.value = false
+        goodsList.value.push(...(data || []))
+      }
+    })
+    .catch(() => {})
+}
 </script>
 
 <style lang="scss" scoped>

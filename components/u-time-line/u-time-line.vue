@@ -4,10 +4,8 @@
   </view>
 </template>
 
-<script>
-export default {
-  name: 'UTimeLine'
-}
+<script setup lang="ts">
+// UTimeLine 组件
 </script>
 
 <style lang="scss" scoped>

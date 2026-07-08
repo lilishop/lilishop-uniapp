@@ -10,26 +10,22 @@
     </div>
   </div>
 </template>
-<script>
-import { getUserInfo } from "@/api/members";
-export default {
-  data() {
-    return {
-      userInfo: {},
-    };
-  },
-  mounted() {
-    this.init();
-  },
-  methods: {
-    async init() {
-      let res = await getUserInfo();
-      if (res.data.success) {
-        this.userInfo = res.data.result;
-      }
-    },
-  },
-};
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { getUserInfo } from '@/api/members'
+
+const userInfo = ref<any>({})
+
+onMounted(() => {
+  init()
+})
+
+async function init() {
+  const res = await getUserInfo()
+  if (res.data.success) {
+    userInfo.value = res.data.result
+  }
+}
 </script>
 <style lang="scss" scoped>
 .user-point {

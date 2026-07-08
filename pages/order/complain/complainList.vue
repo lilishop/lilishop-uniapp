@@ -10,7 +10,7 @@
       <u-line color="#DCDFE6"></u-line>
       <view class="goods-item-view">
         <view class="goods-img" @click="handleToGoods(item)">
-          <u-image border-radius="6" width="131rpx" height="131rpx" :src="item.goodsImage"></u-image>
+          <u-image radius="6rpx" width="131rpx" height="131rpx" :src="item.goodsImage"></u-image>
         </view>
         <view class="goods-info" @click="handleToGoods(item)">
           <view class="goods-title u-line-2">{{ item.goodsName }}</view>
@@ -28,9 +28,9 @@
         <view class="complain-speak"> {{ item.complainTopic }} </view>
       </view>
       <view class="complain-btn">
-        <u-tag mode="plain" @click="handleClear(item)" class="complain-tag" text="撤销投诉" type="info"
+        <u-tag plain @click="handleClear(item)" class="complain-tag" text="撤销投诉" type="info"
 		 v-if="item.complainStatus === 'APPLYING' || item.complainStatus === 'NEW'" />
-        <u-tag mode="plain" @click="handleInfo(item)" class="complain-tag" text="投诉详情" type="info" />
+        <u-tag plain @click="handleInfo(item)" class="complain-tag" text="投诉详情" type="info" />
       </view>
     </view>
 
@@ -40,114 +40,175 @@
   </view>
 </template>
 
-<script>
-import { getComplain, clearComplain } from "@/api/after-sale";
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad, onReachBottom } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { unitPrice } from '@/utils/filters.js'
+import { getComplain, clearComplain } from '@/api/after-sale'
 
-export default {
-  data() {
-    return {
-      statusData: {
-        NEW: "新投诉",
-        NO_APPLY: "未申请",
-        APPLYING: "申请中",
-        COMPLETE: "已完成",
-        EXPIRED: "已失效",
-        CANCEL: "已取消",
-        WAIT_ARBITRATION:"等待仲裁"
-      },
-      show: false,
-      content: "是否撤销投诉？",
-      params: {
-        pageNumber: 1,
-        pageSize: 20,
-      },
-      complaionDetail: "", //返回的整个response
-      complaionData: [], //投诉列表
-      empty: false,
-      checkComplainData: "", //存储投诉信息
-    };
-  },
-  mounted() {
-    this.init();
-  },
-  /**
-   * 触底加载
-   */
-  onReachBottom() {
-    if (
-      this.complaionDetail &&
-      this.complaionDetail.total < this.params.pageNumber * this.params.pageSize
-    ) {
-      this.params.pageNumber++;
-      this.init();
+const store = useStore()
+
+const statusData: Record<string, string> = {
+  NEW: '新投诉',
+  NO_APPLY: '未申请',
+  APPLYING: '申请中',
+  COMPLETE: '已完成',
+  EXPIRED: '已失效',
+  CANCEL: '已取消',
+  WAIT_ARBITRATION: '等待仲裁',
+}
+
+const show = ref(false)
+const content = ref('是否撤销投诉？')
+const params = ref({ pageNumber: 1, pageSize: 20 })
+const complaionDetail = ref<any>(null)
+const complaionData = ref<any[]>([])
+const empty = ref(false)
+const checkComplainData = ref<any>(null)
+
+onLoad(() => {
+  init()
+})
+
+onReachBottom(() => {
+  if (
+    complaionDetail.value &&
+    complaionDetail.value.total > params.value.pageNumber * params.value.pageSize
+  ) {
+    params.value.pageNumber++
+    init()
+  }
+})
+
+function handleToGoods(val: any) {
+  uni.navigateTo({
+    url: '/pages/product/goods?id=' + val.skuId + '&goodsId=' + val.goodsId,
+  })
+}
+
+function handleClear(val: any) {
+  show.value = true
+  checkComplainData.value = val
+}
+
+function handleClearConfirm() {
+  clearComplain(checkComplainData.value.id).then((res) => {
+    if (res.data.success) {
+      uni.showToast({
+        title: '撤销成功',
+        duration: 2000,
+        icon: 'none',
+      })
+      complaionData.value = []
+      params.value.pageNumber = 1
+      init()
     }
-  },
+  })
+}
 
-  methods: {
-    // 点击跳转到商品
-    handleToGoods(val) {
-      uni.navigateTo({
-        url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
-      });
-    },
+function handleInfo(val: any) {
+  uni.navigateTo({
+    url: './complainInfo?id=' + val.id,
+  })
+}
 
-    /**
-     * 点击撤销投诉
-     */
-    handleClear(val) {
-      this.show = true;
-      this.checkComplainData = val;
-    },
-    /**
-     * 执行撤销
-     */
-    handleClearConfirm() {
-      clearComplain(this.checkComplainData.id).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "撤销成功",
-            duration: 2000,
-            icon: "none",
-          });
-          this.complaionData = [];
-          this.params.pageNumber = 1;
-          this.init();
-        }
-      });
-    },
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
 
-    /**
-     * 查看详情
-     */
-    handleInfo(val) {
-      uni.navigateTo({
-        url: "./complainInfo?id=" + val.id,
-      });
-    },
-
-    /**
-     * 初始化投诉列表
-     */
-    init() {
-      uni.showLoading({
-        title: "加载中",
-      });
-      getComplain(this.params).then((res) => {
-        this.complaionDetail = res.data.result;
-        if (res.data.result.records.length >= 1) {
-          this.complaionData.push(...res.data.result.records);
-        } else {
-          this.empty = true;
-        }
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
-    },
-  },
-};
+function init() {
+  uni.showLoading({
+    title: '加载中',
+  })
+  getComplain(params.value).then((res) => {
+    complaionDetail.value = res.data.result
+    if (res.data.result.records.length >= 1) {
+      complaionData.value.push(...res.data.result.records)
+    } else {
+      empty.value = true
+    }
+    hideLoadingIfNeeded()
+  })
+}
 </script>
 
 <style lang="scss" scoped>
-@import "../goods.scss";
+.seller-view {
+  background-color: #fff;
+  margin: 20rpx 0;
+}
+
+.seller-info {
+  height: 70rpx;
+  padding: 0 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.seller-name {
+  width: auto;
+  min-width: 0;
+  font-size: 33rpx;
+  font-weight: 600;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 90rpx;
+}
+
+.name {
+  margin-left: 15rpx;
+  margin-top: -2rpx;
+  font-size: 28rpx;
+  flex: 1;
+}
+
+.order-sn {
+  color: #ff0000;
+  font-size: 26rpx;
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+.goods-item-view {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10rpx 30rpx;
+}
+
+.goods-img {
+  width: 131rpx;
+  height: 131rpx;
+  flex: 0 0 131rpx;
+}
+
+.goods-info {
+  padding-left: 30rpx;
+  min-width: 0;
+  flex: 1;
+}
+
+.goods-title {
+  margin-bottom: 10rpx;
+  color: $font-color-dark;
+}
+
+.goods-price {
+  font-size: 28rpx;
+  margin-bottom: 10rpx;
+  color: #ff5a10;
+}
+
+.goods-num {
+  text-align: center;
+  flex: 0 0 60rpx;
+  width: 60rpx;
+  color: $main-color;
+}
 
 .complain-item-view {
   border-bottom: 2rpx solid #f5f7fa;
@@ -161,9 +222,6 @@ export default {
 .complain-time {
   font-size: 24rpx;
   color: #999;
-}
-::v-deep .seller-name {
-  width: auto !important;
 }
 .complain-btn {
   padding: 20rpx 0;

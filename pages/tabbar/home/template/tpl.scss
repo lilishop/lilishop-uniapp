@@ -1,6 +1,6 @@
 .image-mode {
    width: 100%;
-   height: 100%;
+   height: auto;
     display: block;
     padding: 2rpx;
 }
@@ -21,10 +21,10 @@ $home-layout-padding: 16rpx;
     width: 100%;
 }
 .view-height-75 {
-    // height: 150rpx;
+    min-height: 150rpx;
 }
 .view-height-150 {
-    // height: 300rpx;
+    min-height: 300rpx;
     flex: 1;
 }
 

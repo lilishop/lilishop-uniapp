@@ -14,7 +14,7 @@
 						:activeStyle="{ color: lightColor }"
 						class="collect-tabs"
 						:list="navList"
-						:scrollable="true"
+						:scrollable="false"
 						v-model:current="tabCurrentIndex"
 					></u-tabs>
 				</view>
@@ -22,278 +22,238 @@
 		</u-navbar>
 		<view class="collect-body">
 			<!-- 显示商品栏 -->
-			<view v-if="tabCurrentIndex == 0" class="tab-content">
-				<scroll-view class="list-scroll-content" scroll-y>
-					<u-empty style="margin-top: 40rpx" text="暂无收藏商品数据" mode="favor" v-if="goodsEmpty"></u-empty>
-					<template v-else>
-						<u-swipe-action
-							v-for="(item, index) in goodList"
-							:key="index"
-							class="collect-swipe"
+			<view v-if="tabCurrentIndex === 0" class="tab-content">
+				<u-empty style="margin-top: 40rpx" text="暂无收藏商品数据" mode="favor" v-if="goodsEmpty"></u-empty>
+				<template v-else>
+					<u-swipe-action
+						v-for="(item, index) in goodsList"
+						:key="item.skuId || item.goodsId || index"
+						class="collect-swipe"
+					>
+						<u-swipe-action-item
+							@open="openSwipeItem(item, 'goods')"
+							:show="item.selected"
+							:options="swipeOptions"
+							@click="removeGoodsCollection(item, index)"
+							:name="index"
 						>
-							<u-swipe-action-item
-								@open="openLeftChange(item, 'goods')"
-								:show="item.selected"
-								:options="LeftOptions"
-								@click="clickGoodsSwiperAction(item, index)"
-								:name="index"
-							>
-								<view class="goods" @click="goGoodsDetail(item)">
-									<u-image width="131rpx" height="131rpx" :src="item.image" mode="aspectFit">
-										<template #loading><u-loading></u-loading></template>
-									</u-image>
-									<view class="goods-intro">
-										<view class="goods-name">{{ item.goodsName }}</view>
-										<view class="goods-sn">{{ item.goods_sn }}</view>
-										<view class="goods-price">￥{{ unitPrice(item.price) }}</view>
-									</view>
+							<view class="goods" @click="goGoodsDetail(item)">
+								<u-image width="131rpx" height="131rpx" :src="item.image" mode="aspectFit">
+									<template #loading><u-loading-icon></u-loading-icon></template>
+								</u-image>
+								<view class="goods-intro">
+									<view class="goods-name">{{ item.goodsName }}</view>
+									<view class="goods-sn">{{ item.goods_sn }}</view>
+									<view class="goods-price">￥{{ unitPrice(item.price) }}</view>
 								</view>
-							</u-swipe-action-item>
-						</u-swipe-action>
-					</template>
-				</scroll-view>
+							</view>
+						</u-swipe-action-item>
+					</u-swipe-action>
+				</template>
 			</view>
 			<!-- 显示收藏的店铺栏 -->
 			<view v-else class="tab-content">
-				<scroll-view class="list-scroll-content" scroll-y>
-					<u-empty style="margin-top: 40rpx" text="暂无收藏店铺数据" mode="favor" v-if="storeEmpty"></u-empty>
-					<template v-else>
-						<u-swipe-action
-							v-for="(item, index) in storeList"
-							:key="index"
-							class="collect-swipe"
+				<u-empty style="margin-top: 40rpx" text="暂无收藏店铺数据" mode="favor" v-if="storeEmpty"></u-empty>
+				<template v-else>
+					<u-swipe-action
+						v-for="(item, index) in storeList"
+						:key="item.id || index"
+						class="collect-swipe"
+					>
+						<u-swipe-action-item
+							@open="openSwipeItem(item, 'store')"
+							:show="item.selected"
+							:options="swipeOptions"
+							@click="removeStoreCollection(item)"
+							:name="index"
 						>
-							<u-swipe-action-item
-								@open="openLeftChange(item, 'store')"
-								:show="item.selected"
-								:options="LeftOptions"
-								@click="clickStoreSwiperAction(item)"
-								:name="index"
-							>
-								<view class="store" @click="goStoreMainPage(item.id)">
-									<view class="intro">
-										<view class="store-logo">
-											<u-image width="102rpx" height="102rpx" :src="item.storeLogo" :alt="item.storeName"
-												mode="aspectFit">
-												<template #loading><u-loading></u-loading></template>
-											</u-image>
-										</view>
-										<view class="store-name">
-											<view>{{ item.storeName }}</view>
-											<u-tag size="mini" type="error" :color="$mainColor" v-if="item.selfOperated"
-												text="自营" mode="plain" shape="circle" />
-										</view>
-										<view class="store-collect">
-											<view>进店逛逛</view>
-										</view>
+							<view class="store" @click="goStoreMainPage(item.id)">
+								<view class="intro">
+									<view class="store-logo">
+										<u-image width="102rpx" height="102rpx" :src="item.storeLogo" :alt="item.storeName"
+											mode="aspectFit">
+											<template #loading><u-loading-icon></u-loading-icon></template>
+										</u-image>
+									</view>
+									<view class="store-name">
+										<view>{{ item.storeName }}</view>
+										<u-tag size="mini" type="error" :color="mainColor" v-if="item.selfOperated"
+											text="自营" mode="plain" shape="circle" />
+									</view>
+									<view class="store-collect">
+										<view>进店逛逛</view>
 									</view>
 								</view>
-							</u-swipe-action-item>
-						</u-swipe-action>
-					</template>
-				</scroll-view>
+							</view>
+						</u-swipe-action-item>
+					</u-swipe-action>
+				</template>
 			</view>
 		</view>
 	</view>
 </template>
 
-<script>
-	import {
-		getGoodsCollection,
-		getStoreCollection,
-		deleteGoodsCollection,
-		deleteStoreCollection,
-	} from "@/api/members.js";
-	export default {
-		data() {
-			return {
-        lightColor:this.$lightColor,
-				// 商品左滑侧边栏
-				LeftOptions: [{
-					text: "取消",
-					style: {
-						backgroundColor: this.$lightColor,
-					},
-				}, ],
-				tabCurrentIndex: 0, //tab的下标默认为0，也就是说会默认请求商品
-				navList: [
-					//tab显示数据
-					{
-						name: "商品(0)",
-					
-						params: {
-							pageNumber: 1,
-							pageSize: 10,
-						},
-					},
-					{
-						name: "店铺(0)",
-					
-						params: {
-							pageNumber: 1,
-							pageSize: 10,
-						},
-					},
-				],
-			
-				goodsEmpty: false, //商品数据是否为空
-				storeEmpty: false, //店铺数据是否为空
-				goodList: [], //商品集合
-				storeList: [], //店铺集合
-			};
-		},
-		onShow() {
-			this.fetchReloadOrNextPage('reload')
-		},
-		onReachBottom() {
-			this.fetchReloadOrNextPage('next')
-		},
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onShow, onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { unitPrice } from '@/utils/filters.js'
+import {
+	getGoodsCollection,
+	getStoreCollection,
+	deleteGoodsCollection,
+	deleteStoreCollection,
+} from '@/api/members.js'
 
-		methods: {
-			// 刷新或者下一页
-			fetchReloadOrNextPage(type) {
-				if(type == 'next'){
-					this.navList[this.tabCurrentIndex].params.pageNumber ++;
-					if (this.tabCurrentIndex == 0) {
-					this.getGoodList();
-					} else {
-						this.getStoreList();
-					}
+const store = useStore()
+
+const lightColor = computed(() => store.getters.lightColor)
+const mainColor = computed(() => store.getters.mainColor)
+
+const swipeOptions = computed(() => [
+	{
+		text: '取消',
+		style: { backgroundColor: lightColor.value },
+	},
+])
+
+const tabCurrentIndex = ref(0)
+const navList = ref([
+	{ name: '商品(0)', params: { pageNumber: 1, pageSize: 10 } },
+	{ name: '店铺(0)', params: { pageNumber: 1, pageSize: 10 } },
+])
+const goodsEmpty = ref(false)
+const storeEmpty = ref(false)
+const goodsList = ref<any[]>([])
+const storeList = ref<any[]>([])
+
+onShow(() => {
+	reloadOrLoadMore('reload')
+})
+
+onReachBottom(() => {
+	reloadOrLoadMore('next')
+})
+
+onPullDownRefresh(() => {
+	if (tabCurrentIndex.value === 0) {
+		navList.value[0].params.pageNumber = 1
+		goodsList.value = []
+		fetchGoodsList()
+	} else {
+		navList.value[1].params.pageNumber = 1
+		storeList.value = []
+		fetchStoreList()
+	}
+})
+
+function hideLoadingIfNeeded() {
+	if (store.state.isShowToast) uni.hideLoading()
+}
+
+function reloadOrLoadMore(type: 'reload' | 'next') {
+	if (type === 'next') {
+		navList.value[tabCurrentIndex.value].params.pageNumber++
+		if (tabCurrentIndex.value === 0) {
+			fetchGoodsList()
+		} else {
+			fetchStoreList()
+		}
+		return
+	}
+	navList.value[0].params.pageNumber = 1
+	navList.value[1].params.pageNumber = 1
+	goodsEmpty.value = false
+	storeEmpty.value = false
+	goodsList.value = []
+	storeList.value = []
+	fetchGoodsList()
+	fetchStoreList()
+}
+
+function openSwipeItem(val: any, type: 'goods' | 'store') {
+	const targetList = type === 'goods' ? goodsList.value : storeList.value
+	targetList.forEach((item) => {
+		item.selected = false
+	})
+	val.selected = true
+}
+
+function removeGoodsCollection(val: any) {
+	deleteGoodsCollection(val.skuId).then((res) => {
+		if (res.statusCode === 200) {
+			goodsList.value = []
+			navList.value[0].params.pageNumber = 1
+			fetchGoodsList()
+		}
+	})
+}
+
+function removeStoreCollection(val: any) {
+	deleteStoreCollection(val.id).then((res) => {
+		if (res.statusCode === 200) {
+			storeList.value = []
+			navList.value[1].params.pageNumber = 1
+			fetchStoreList()
+		}
+	})
+}
+
+function goGoodsDetail(val: any) {
+	uni.navigateTo({
+		url: `/pages/product/goods?id=${val.skuId}&goodsId=${val.goodsId}`,
+	})
+}
+
+function goStoreMainPage(id: string) {
+	uni.navigateTo({
+		url: `/pages/product/shopPage?id=${id}`,
+	})
+}
+
+function fetchGoodsList() {
+	uni.showLoading({ title: '加载中' })
+	getGoodsCollection(navList.value[0].params, 'GOODS')
+		.then((res) => {
+			hideLoadingIfNeeded()
+			uni.stopPullDownRefresh()
+			if (res.data.success) {
+				const data = res.data.result
+				navList.value[0].name = `商品(${data.total})`
+				goodsEmpty.value = data.total === 0
+				if (data.records?.length) {
+					const records = data.records.map((item: any) => ({ ...item, selected: false }))
+					goodsList.value.push(...records)
 				}
-				else{
-					this.navList[0].params.pageNumber = 1;
-					this.navList[1].params.pageNumber = 1;
-					this.goodList = [];
-					this.storeList = [];
-					this.getGoodList();
-					this.getStoreList();
-				}
-			},
-
-			/**
-			 * 打开商品左侧取消收藏
-			 */
-			openLeftChange(val, type) {
-				const way = type === "goods" ? this.goodList : this.storeList;
-				way.forEach((item) => {
-					item.selected = false;
-				});
-				val.selected = true;
-			},
-
-			/**
-			 * 点击商品左侧取消收藏
-			 */
-			clickGoodsSwiperAction(val) {
-				deleteGoodsCollection(val.skuId).then((res) => {
-					if (res.statusCode == 200) {
-						this.storeList = [];
-						this.goodList = [];
-						this.getGoodList();
-					}
-				});
-			},
-
-			/**
-			 * 点击店铺左侧取消收藏
-			 */
-			clickStoreSwiperAction(val) {
-				deleteStoreCollection(val.id).then((res) => {
-					if (res.statusCode == 200) {
-						this.storeList = [];
-						this.getStoreList();
-					}
-				});
-			},
-
-			/**
-			 * 查看商品详情
-			 */
-			goGoodsDetail(val) {
-				//商品详情
-				uni.navigateTo({
-					url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
-				});
-			},
-
-			/**
-			 * 查看店铺详情
-			 */
-			goStoreMainPage(id) {
-				//店铺主页
-				uni.navigateTo({
-					url: "/pages/product/shopPage?id=" + id,
-				});
-			},
-
-			/**
-			 * 获取商品集合
-			 */
-			getGoodList() {
-				uni.showLoading({
-					title: "加载中",
-				});
-				getGoodsCollection(this.navList[0].params, "GOODS").then((res) => {
-					 if (this.$store.state.isShowToast){ uni.hideLoading() };
-					uni.stopPullDownRefresh();
-					if (res.data.success) {
-						let data = res.data.result;
-						data.selected = false;
-						  this.navList[0].name = `商品(${data.total})`;
-          
-						if (data.total == 0) {
-							this.goodsEmpty = true;
-						} else if (data.total < 10) {
-							this.goodsLoad = "noMore";
-							this.goodList.push(...data.records);
-						} else {
-							this.goodList.push(...data.records);
-							if (data.total.length < 10) this.goodsLoad = "noMore";
-						}
-					}
-				});
-			},
-
-			/**
-			 * 获取店铺集合
-			 */
-			getStoreList() {
-				uni.showLoading({
-					title: "加载中",
-				});
-				getStoreCollection(this.navList[1].params, "STORE").then((res) => {
-					 if (this.$store.state.isShowToast){ uni.hideLoading() };
-					uni.stopPullDownRefresh();
-					if (res.data.success) {
-						let data = res.data.result;
-						data.selected = false;
-						 this.navList[1].name = `店铺(${data.total})`;
-						if (data.total == 0) {
-							this.storeEmpty = true;
-						} else if (data.total < 10) {
-						
-							this.storeList.push(...data.records);
-						} 
-					}
-				});
-			},
-		},
-
-		/**
-		 * 下拉刷新时
-		 */
-		onPullDownRefresh() {
-			if (this.tabCurrentIndex == 0) {
-				this.navList[0].params.pageNumber = 1;
-				this.goodList = [];
-				this.getGoodList();
-			} else {
-				this.navList[1].params.pageNumber = 1;
-				this.storeList = [];
-				this.getStoreList();
 			}
-		},
-	};
+		})
+		.catch(() => {
+			hideLoadingIfNeeded()
+			uni.stopPullDownRefresh()
+		})
+}
+
+function fetchStoreList() {
+	uni.showLoading({ title: '加载中' })
+	getStoreCollection(navList.value[1].params, 'STORE')
+		.then((res) => {
+			hideLoadingIfNeeded()
+			uni.stopPullDownRefresh()
+			if (res.data.success) {
+				const data = res.data.result
+				navList.value[1].name = `店铺(${data.total})`
+				storeEmpty.value = data.total === 0
+				if (data.records?.length) {
+					const records = data.records.map((item: any) => ({ ...item, selected: false }))
+					storeList.value.push(...records)
+				}
+			}
+		})
+		.catch(() => {
+			hideLoadingIfNeeded()
+			uni.stopPullDownRefresh()
+		})
+}
 </script>
 
 <style lang="scss">
@@ -324,15 +284,18 @@
 
 	.collect-body {
 		flex: 1;
-		min-height: 0;
+		width: 100%;
 	}
 
 	.tab-content {
-		height: 100%;
+		width: 100%;
 	}
 
-	.list-scroll-content {
-		height: 100%;
+	:deep(.u-tabs),
+	:deep(.u-tabs__wrapper),
+	:deep(.u-tabs__wrapper__scroll-view-wrapper),
+	:deep(.u-tabs__wrapper__scroll-view),
+	:deep(.u-tabs__wrapper__nav) {
 		width: 100%;
 	}
 

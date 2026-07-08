@@ -38,6 +38,12 @@ export function createApp() {
     config: {
       loadFontOnce: true,
     },
+    props: {
+      form: {
+        labelWidth: '180rpx',
+        labelPosition: 'left',
+      },
+    },
   })
 
   app.config.globalProperties.$store = store

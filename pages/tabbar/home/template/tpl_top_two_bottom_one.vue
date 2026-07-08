@@ -9,7 +9,7 @@
           :src="res.list[0].img"
           alt
         >
-          <template #loading><u-loading></u-loading></template>
+          <template #loading><u-loading-icon></u-loading-icon></template>
         </u-image>
       </div>
       <div class="view-height-85" @click="modelNavigateTo(res.list[1])">
@@ -20,7 +20,7 @@
           :src="res.list[1].img"
           alt
         >
-          <template #loading><u-loading></u-loading></template>
+          <template #loading><u-loading-icon></u-loading-icon></template>
         </u-image>
       </div>
     </div>
@@ -31,26 +31,16 @@
         width="100%"
         :src="res.list[2].img"
       >
-        <template #loading><u-loading></u-loading></template>
+        <template #loading><u-loading-icon></u-loading-icon></template>
       </u-image>
     </div>
   </div>
 </template>
 
-<script>
-import {modelNavigateTo} from './tpl'
-export default {
-  title: "上二下一",
-  props: ["res"],
-   data () {
-    return {
-      modelNavigateTo,
-    }
-  },
-  mounted() {
- 
-  },
-};
+<script setup lang="ts">
+import { modelNavigateTo } from "./tpl";
+
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

@@ -17,7 +17,7 @@
               </div>
               <div class="flex price-box">
                 <div class="purchase-price">
-                  当前:<span>￥{{ activityData.surplusPrice == 0 ? this.bargains.purchasePrice :unitPrice(activityData.surplusPrice)}}</span>
+                  当前:<span>￥{{ activityData.surplusPrice == 0 ? bargains.purchasePrice : unitPrice(activityData.surplusPrice)}}</span>
                 </div>
                 <div class="max-price">原价:<span>￥{{unitPrice(bargainDetail.price)}}</span>
 
@@ -47,7 +47,7 @@
             </div>
           </div>
           <!-- 我要开团 -->
-          <div class="start" v-if="activityData.memberId != isLogin().id" @click="startOpenGroup">我要开团
+          <div class="start" v-if="activityData.memberId != loginUser.id" @click="startOpenGroup">我要开团
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@
       <u-modal title="恭喜您砍掉了" v-model:show="Bargaining" mask-close-able :show-confirm-button="false"
         :title-style="{color: lightColor}">
         <view class="slot-content">
-          <u-count-to :start-val="0" ref="uCountTo" font-size="100" :color="lightColor" :end-val="kanjiaPrice"
+          <u-count-to :start-val="0" ref="uCountToRef" font-size="100" :color="lightColor" :end-val="kanjiaPrice"
             :decimals="2" :autoplay="autoplay"></u-count-to><span class="price">元</span>
         </view>
       </u-modal>
@@ -103,233 +103,226 @@
         :goodsName="bargainDetail.goodsName" v-if="shareFlage " />
 
       <!-- 购买 -->
-      <popupGoods ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail"
+      <popupGoods ref="popupGoodsRef" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail"
         :goodsSpec="goodsSpec" v-if="bargainDetail.id " @handleClickSku="getGoodsDetail" />
 
     </div>
   </div>
 </template>
 
-<script>
-import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
+<script setup lang="ts">
+import { ref, computed, watch, nextTick } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+// #ifdef MP-WEIXIN
+import { onShareAppMessage } from '@dcloudio/uni-app'
+// #endif
+import { useStore } from '@/store'
+import popupGoods from '@/components/m-buy/goods'
 import {
   getBargainDetail,
   getBargainActivity,
   openBargain,
   getBargainLog,
   helpBargain,
-} from "@/api/promotions";
-import shares from "@/components/m-share/index";
-import config from "@/config/config";
-export default {
-  components: {
-    shares,
-    popupGoods,
-  },
-  data() {
-    return {
-      style: {
-        img:"display:block"
-      },
-      background: {
-        backgroundColor: "transparent",
-      },
-      maskFlag: false, //商品弹框
-      shareFlage: false,
-      lightColor: this.$lightColor,
-      bargains: {},
-      bargainDetail: {}, //砍价商品详情
-      Bargaining: false, //砍价弹出框
-      helpBargainFlage: false, //帮砍弹出框
-      autoplay: false, //砍价金额滚动
-      kanjiaPrice: 0, //砍价金额
-      totalPercent: 0, //砍价半分比
-      activityData: "", //砍价活动
-      cutPrice: 0, //已砍金额
-      params: {
-        // id: "", //砍价活动ID
-        // kanjiaActivityGoodsId: "", //砍价商品SkuID
-        // kanjiaActivityId: "", //邀请活动ID，有值说明是被邀请人
-        // status: "", //状态
-      },
+} from '@/api/promotions'
+import shares from '@/components/m-share/index'
+import config from '@/config/config'
+import { unitPrice, noPassByName, isLogin } from '@/utils/filters.js'
 
-      logData: [], // 帮砍记录
-      //获取帮砍记录参数
-      logParams: {
-        pageNumber: 1,
-        pageSize: 20,
-        kanJiaActivityId: "",
-      },
+const store = useStore()
 
-      goodsDetail: {}, //商品详情
-      goodsSpec: {}, //商品规格
-      selectedGoods: "", //选择的商品
-    };
-  },
-  onLoad(options) {
-    this.routerVal = options;
-    if (options.activityId) {
-      this.params.kanjiaActivityId = options.activityId;
+const lightColor = computed(() => store.getters.lightColor)
+
+const style = ref({
+  img: 'display:block',
+})
+
+const background = ref({
+  backgroundColor: 'transparent',
+})
+
+const maskFlag = ref(false)
+const shareFlage = ref(false)
+const bargains = ref<any>({})
+const bargainDetail = ref<any>({})
+const Bargaining = ref(false)
+const helpBargainFlage = ref(false)
+const autoplay = ref(false)
+const kanjiaPrice = ref(0)
+const totalPercent = ref(0)
+const activityData = ref<any>({})
+const cutPrice = ref<number | string>(0)
+
+const params = ref<Record<string, any>>({})
+
+const logData = ref<any[]>([])
+
+const logParams = ref({
+  pageNumber: 1,
+  pageSize: 20,
+  kanJiaActivityId: '',
+})
+
+const goodsSpec = ref<any>({})
+const routerVal = ref<Record<string, string>>({})
+
+const loginUser = computed(() => isLogin() || {})
+
+const popupGoodsRef = ref<any>(null)
+const uCountToRef = ref<any>(null)
+
+onLoad((options) => {
+  routerVal.value = options || {}
+  if (options?.activityId) {
+    params.value.kanjiaActivityId = options.activityId
+  }
+})
+
+// #ifdef MP-WEIXIN
+onShareAppMessage(() => {
+  return {
+    path: share(),
+    title: `请快来帮我砍一刀${bargainDetail.value.goodsName}`,
+    imageUrl: bargainDetail.value.thumbnail || config.logo,
+  }
+})
+// #endif
+
+onShow(() => {
+  init()
+})
+
+watch(Bargaining, (val) => {
+  if (val) {
+    nextTick(() => {
+      uCountToRef.value?.start?.()
+    })
+  }
+})
+
+watch(
+  activityData,
+  (val) => {
+    if (val) {
+      totalPercent.value =
+        100 -
+        Math.floor((val.surplusPrice / bargainDetail.value.price) * 100)
+      cutPrice.value = (
+        bargainDetail.value.price - activityData.value.surplusPrice
+      ).toFixed(2)
+
+      logParams.value.kanJiaActivityId = val.id
+
+      if (params.value.kanjiaActivityId && val.help) {
+        helpBargainFlage.value = true
+      }
+
+      getBargainLogList()
     }
   },
+  { immediate: true }
+)
 
-  // #ifdef MP-WEIXIN
-  onShareAppMessage(res) {
-    return {
-      path: this.share(),
-      title: `请快来帮我砍一刀${this.bargainDetail.goodsName}`,
-      imageUrl: this.bargainDetail.thumbnail || config.logo,
-    };
-  },
-  // #endif
+function share() {
+  return (
+    '/pages/promotion/bargain/detail?id=' +
+    routerVal.value.id +
+    '&activityId=' +
+    activityData.value.id
+  )
+}
 
-  onShow() {
-    this.init();
-  },
-  watch: {
-    // 砍价弹窗
-    Bargaining(val) {
-      if (val) {
-        this.$nextTick(() => {
-          this.$refs.uCountTo.start();
-        });
-      }
-    },
-    // 监听砍价活动金额
-    activityData: {
-      handler(val) {
-        if (val) {
-          // 计算砍价百分比
-          this.totalPercent =
-            100 -
-            Math.floor((val.surplusPrice / this.bargainDetail.price) * 100);
-          this.cutPrice = (
-            this.bargainDetail.price - this.activityData.surplusPrice
-          ).toFixed(2);
-          // 获取砍价日志
-          this.logParams.kanJiaActivityId = val.id;
+function back() {
+  if (getCurrentPages().length > 1) {
+    uni.navigateBack()
+  } else {
+    uni.redirectTo({
+      url: `/pages/promotion/bargain/list`,
+    })
+  }
+}
 
-          // 判断是否是帮砍
-          if (this.params.kanjiaActivityId && val.help) {
-            this.helpBargainFlage = true;
-          }
+function startOpenGroup() {
+  uni.redirectTo({
+    url: `/pages/promotion/bargain/list`,
+  })
+}
 
-          this.getBargainLogList();
-        }
-      },
-      immediate: true,
-    },
-  },
-  methods: {
-    share() {
-      return (
-        "/pages/promotion/bargain/detail?id=" +
-        this.routerVal.id +
-        "&activityId=" +
-        this.activityData.id
-      );
-    },
-    // 返回上一级
-    back() {
-      // 进行路由栈判定如果当前路由栈是空的就返回拼团列表页面
-      if (getCurrentPages().length > 1) {
-        uni.navigateBack();
-      } else {
-        uni.redirectTo({
-          url: `/pages/promotion/bargain/list`,
-        });
-      }
-    },
+function closePopupBuy() {
+  maskFlag.value = false
+}
 
-    // 跳转选择商品页面
-    startOpenGroup() {
-      uni.redirectTo({
-        url: `/pages/promotion/bargain/list`,
-      });
-    },
-    closePopupBuy(val) {
-      this.maskFlag = false;
-    },
-    closeShare() {
-      this.shareFlage = false;
-    },
-    // 邀请砍价
-    shareBargain() {
-      this.shareFlage = true;
-    },
+function closeShare() {
+  shareFlage.value = false
+}
 
-    // 获取商品详情
-    getGoodsDetail() {
-      uni.showLoading({
-        title: "加载中",
-        mask: true,
-      });
-      this.$refs.popupGoods.buy({
-        skuId: this.bargainDetail.id,
-        id: this.routerVal.id,
-        num: 1,
-        cartType: "KANJIA",
-      });
-    },
+function shareBargain() {
+  shareFlage.value = true
+}
 
-    // 初始化商品以及砍价活动
-    async init() {
-      // 获取商品
-      let res = await getBargainDetail(this.routerVal.id);
-      if (res.data.success) {
-        this.bargainDetail = res.data.result.goodsSku;
-        this.bargains = res.data.result;
-        // 被邀请活动id
-        if (this.params.kanjiaActivityId) {
-        } else {
-          this.params.kanjiaActivityGoodsId = this.routerVal.id;
-        }
-        // 获取砍价活动
-        this.activity();
-      }
-    },
-    // 获取砍价活动
-    async activity() {
-      let res = await getBargainActivity(this.params);
-      // 判断当前是否是第一次进入，如果是第一次进入默认砍一刀
-      res.data.success
-        ? res.data.result.launch
-          ? (this.activityData = res.data.result)
-          : this.openActivity()
-        : "";
-    },
-    // 分页获取砍价活动-帮砍记录
-    async getBargainLogList() {
-      let res = await getBargainLog(this.logParams);
-      if (res.data.success) {
-        this.logData = res.data.result.records;
-      }
-    },
-    // 帮忙砍一刀
-    async handleClickHelpBargain() {
-      let res = await helpBargain(this.params.kanjiaActivityId);
-      if (res.data.success) {
-        this.helpBargainFlage = false;
-        this.kanjiaPrice = res.data.result.kanjiaPrice;
-        this.Bargaining = true;
-        // 帮砍完成之后查询帮砍记录
-        this.init();
-      } else {
-        this.helpBargainFlage = false;
-      }
-    },
-    // 发起砍价活动
-    async openActivity(data) {
-      let res = await openBargain({ id: this.routerVal.id });
-      if (res.data.success) {
-        this.kanjiaPrice = res.data.result.kanjiaPrice;
-        this.Bargaining = true;
-        // 查询帮砍记录
-        this.init();
-      }
-    },
-  },
-};
+function getGoodsDetail() {
+  uni.showLoading({
+    title: '加载中',
+    mask: true,
+  })
+  popupGoodsRef.value?.buy({
+    skuId: bargainDetail.value.id,
+    id: routerVal.value.id,
+    num: 1,
+    cartType: 'KANJIA',
+  })
+}
+
+async function init() {
+  const res = await getBargainDetail(routerVal.value.id)
+  if (res.data.success) {
+    bargainDetail.value = res.data.result.goodsSku
+    bargains.value = res.data.result
+    if (!params.value.kanjiaActivityId) {
+      params.value.kanjiaActivityGoodsId = routerVal.value.id
+    }
+    activity()
+  }
+}
+
+async function activity() {
+  const res = await getBargainActivity(params.value)
+  if (res.data.success) {
+    if (res.data.result.launch) {
+      activityData.value = res.data.result
+    } else {
+      openActivity()
+    }
+  }
+}
+
+async function getBargainLogList() {
+  const res = await getBargainLog(logParams.value)
+  if (res.data.success) {
+    logData.value = res.data.result.records
+  }
+}
+
+async function handleClickHelpBargain() {
+  const res = await helpBargain(params.value.kanjiaActivityId)
+  if (res.data.success) {
+    helpBargainFlage.value = false
+    kanjiaPrice.value = res.data.result.kanjiaPrice
+    Bargaining.value = true
+    init()
+  } else {
+    helpBargainFlage.value = false
+  }
+}
+
+async function openActivity() {
+  const res = await openBargain({ id: routerVal.value.id })
+  if (res.data.success) {
+    kanjiaPrice.value = res.data.result.kanjiaPrice
+    Bargaining.value = true
+    init()
+  }
+}
 </script>
 <style lang="scss">
 page {

@@ -4,23 +4,23 @@
       <image src="/static/pointTrade/point_bg_1.png" mode=""></image>
       <image class="point-img" src="/static/pointTrade/tradehall.png" />
       <view class="position-point">
-       
+
 
       </view>
     </view>
     <view class="point-summary">
       <view class="point-summary-item">
         <text>累计获得：</text>
-        <text class="pcolor">{{ pointData.totalPoint || 0 }}</text>
+        <text class="pcolor">{{ pointSummary.totalPoint || 0 }}</text>
       </view>
       <view class="point-summary-divider"></view>
       <view class="point-summary-item">
         <text>剩余积分：</text>
-        <text class="pcolor">{{ pointData.point || 0 }}</text>
+        <text class="pcolor">{{ pointSummary.point || 0 }}</text>
       </view>
     </view>
 
-    <div class="point-list">
+    <view class="point-list">
       <view class="point-item" v-for="(item, index) in pointList" :key="index">
         <view class="point-item-left">
           <view class="point-label">{{ item.content }}</view>
@@ -30,80 +30,76 @@
           <text>{{ item.pointType == "INCREASE" ? "+" : "-" }}</text>{{ item.variablePoint }}
         </view>
       </view>
-      <uni-load-more :status="count.loadStatus"></uni-load-more>
-    </div>
+      <uni-load-more :status="loadStatus"></uni-load-more>
+    </view>
   </view>
 </template>
 
-<script>
-import { getPointsData } from "@/api/members.js";
-import { getMemberPointSum } from "@/api/members.js";
-export default {
-  data() {
-    return {
-      count: {
-        loadStatus: "more",
-      },
-      pointList: [], //积分数据集合
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-      },
-      pointData: {}, //累计获取 未输入 集合
-    };
-  },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad, onReachBottom } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { getPointsData, getMemberPointSum } from '@/api/members.js'
 
-  onLoad() {
-    this.initPointData();
-    this.getList();
-  },
+const store = useStore()
 
-  /**
-   * 触底加载
-   */
-  onReachBottom() {
-    this.params.pageNumber++;
-    this.getList();
-  },
-  methods: {
-    /**
-     * 获取积分数据
-     */
-    getList() {
-      let params = this.params;
-      uni.showLoading({
-        title: "加载中",
-      });
-      getPointsData(params).then((res) => {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        if (res.data.success) {
-          let data = res.data.result.records;
-          if (data.length < 10) {
-            this.count["loadStatus"] = "noMore";
-            this.pointList.push(...data);
-          } else {
-            this.pointList.push(...data);
-            if (data.length < 10) this.count["loadStatus"] = "noMore";
-          }
-        }
-      });
-    },
+const loadStatus = ref('more')
+const pointList = ref<any[]>([])
+const params = ref({ pageNumber: 1, pageSize: 10 })
+const pointSummary = ref<Record<string, any>>({})
 
-    /**
-     * 获得累计积分使用
-     */
-    initPointData() {
-      getMemberPointSum().then((res) => {
-        this.pointData = res.data.result;
-      });
-    },
-  },
-};
+onLoad(() => {
+	fetchPointSummary()
+	fetchPointLogList()
+})
+
+onReachBottom(() => {
+	params.value.pageNumber++
+	fetchPointLogList()
+})
+
+function hideLoadingIfNeeded() {
+	if (store.state.isShowToast) uni.hideLoading()
+}
+
+function fetchPointLogList() {
+	uni.showLoading({ title: '加载中' })
+	getPointsData(params.value).then((res) => {
+		hideLoadingIfNeeded()
+		if (res.data.success) {
+			const data = res.data.result.records || []
+			if (data.length < params.value.pageSize) {
+				loadStatus.value = 'noMore'
+			}
+			pointList.value.push(...data)
+		}
+	})
+}
+
+function fetchPointSummary() {
+	getMemberPointSum().then((res) => {
+		pointSummary.value = res.data.result
+	})
+}
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+page,
+.content {
+  min-height: 100vh;
+  background: #f9f9f9;
+}
+
+.content {
+  overflow: hidden;
+}
+
 .point-list {
   margin-top: 20rpx;
+  background: #f9f9f9;
+  min-height: calc(100vh - 390rpx);
+  padding-bottom: 24rpx;
+  box-sizing: border-box;
 }
 .title {
   height: 80rpx;
@@ -181,10 +177,6 @@ export default {
   }
 }
 
-.content {
-  background: #f9f9f9;
-}
-
 .more {
   text-align: right;
   color: $u-tips-color;
@@ -239,11 +231,15 @@ export default {
   .point {
     font-size: 56rpx;
   }
-  
+
 }
 .point-label {
   font-weight: bold;
   margin-bottom: 10rpx;
   color: #666666;
+}
+
+.point-list .uni-load-more {
+  background: #f9f9f9;
 }
 </style>

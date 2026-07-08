@@ -1,7 +1,12 @@
 <template>
   <view class="page-wrap">
     <scroll-view scroll-y class="page-scroll">
-      <u-form :model="form" ref="uForm">
+      <up-form
+        :model="form"
+        ref="uForm"
+        label-position="left"
+        label-width="180rpx"
+      >
         <view class="after-sales-goods-detail-view">
         <view class="header">
           <view>
@@ -58,7 +63,7 @@
               <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
             </view>
           </view>
-          <u-form-item label="申请说明" label-width="150" :border-bottom="false" class="desc-item">
+          <up-form-item label="申请说明" label-width="180rpx" :border-bottom="false" class="desc-item">
             <u-input
               v-model="form.problemDesc"
               type="textarea"
@@ -67,54 +72,54 @@
               height="120"
               placeholder="请描述申请售后的说明"
             />
-          </u-form-item>
+          </up-form-item>
         </view>
 
         <!-- 退款方式 / 银行信息 -->
         <view class="opt-view form-block">
-          <u-form-item label="退款方式" label-width="150" :border-bottom="true">
+          <up-form-item label="退款方式" label-width="180rpx" :border-bottom="true">
             <view class="form-value">{{
               applyInfo.refundWay == 'ORIGINAL' ? '原路退回' : '账号退款'
             }}</view>
-          </u-form-item>
+          </up-form-item>
           <template v-if="
               applyInfo.accountType === 'BANK_TRANSFER' &&
               applyInfo.applyRefundPrice != 0
             ">
-            <u-form-item label="银行开户行" label-width="150" :border-bottom="true">
+            <up-form-item label="银行开户行" label-width="180rpx" :border-bottom="true">
               <u-input
                 v-model="form.bankDepositName"
                 border="none"
                 input-align="right"
                 placeholder="请输入银行开户行"
               />
-            </u-form-item>
-            <u-form-item label="银行开户名" label-width="150" :border-bottom="true">
+            </up-form-item>
+            <up-form-item label="银行开户名" label-width="180rpx" :border-bottom="true">
               <u-input
                 v-model="form.bankAccountName"
                 border="none"
                 input-align="right"
                 placeholder="请输入银行开户名"
               />
-            </u-form-item>
-            <u-form-item label="银行账号" label-width="150" :border-bottom="true" class="bank-account-item">
+            </up-form-item>
+            <up-form-item label="银行账号" label-width="180rpx" :border-bottom="true" class="bank-account-item">
               <u-input
                 v-model="form.bankAccountNumber"
                 border="none"
                 input-align="right"
                 placeholder="请输入银行账号"
               />
-            </u-form-item>
+            </up-form-item>
           </template>
 
-          <u-form-item
+          <up-form-item
             v-if="form.serviceType !== 'RETURN_MONEY'"
             label="返回方式"
-            label-width="150"
+            label-width="180rpx"
             :border-bottom="false"
           >
             <view class="form-value">快递至第三方卖家</view>
-          </u-form-item>
+          </up-form-item>
         </view>
 
         <!-- 上传凭证 -->
@@ -133,7 +138,7 @@
 
         <view class="opt-tip">提交服务单后，售后专员可能与您电话沟通，请保持手机畅通</view>
       </view>
-      </u-form>
+      </up-form>
     </scroll-view>
 
     <view class="submit-view">
@@ -142,7 +147,7 @@
         ripple
         shape="circle"
         v-if="applyInfo.refundWay"
-        :custom-style="{ backgroundColor: $lightColor, width: '100%' }"
+        :custom-style="{ backgroundColor: lightColor, width: '100%' }"
         @click="onSubmit"
       >提交申请</u-button>
     </view>
@@ -158,246 +163,214 @@
   </view>
 </template>
 
-<script>
-import {
-  getAfterSaleReason,
-  applyReturn,
-  getAfterSaleInfo,
-} from "@/api/after-sale";
+<script setup lang="ts">
+import { ref, reactive, computed, getCurrentInstance } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { unitPrice, parseGoodsImageUrl } from '@/utils/filters.js'
+import { getAfterSaleReason, applyReturn, getAfterSaleInfo } from '@/api/after-sale'
+import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
+import storage from '@/utils/storage.js'
 
-import city from "@/components/m-city/m-city";
-import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
-import storage from "@/utils/storage.js";
-export default {
-  component: {
-    city,
-  },
-  data() {
-    return {
-      storage,
-      list: [{ id: "", localName: "请选择", children: [] }],
-      fileList: [],
-      sn: "",
-      sku: {},
-      typeValue: 0,
-      value: "",
-      type: "textarea",
-      border: true,
-      //退款原因 弹出框
-      reasonSelectShow: false,
-      reasonList: [],
-      applyInfo: {},
-      form: {
-        orderItemSn: "", // 订单sn
-        skuId: "",
-        reason: "", //退款原因
-        problemDesc: "", //退款说明
-        images: [], //图片凭证
-        num: 1, //退货数量
-        goodsId: "", //商品id
-        accountType: "",
-        applyRefundPrice: "",
-        refundWay: "",
-        serviceType: "", //申请类型
-      },
-    };
-  },
+const store = useStore()
+const { proxy } = getCurrentInstance()!
+const $u = proxy!.$u
 
-  /**
-   * 判断当前内容并生成数据
-   */
-  onLoad(options) {
-    let navTitle = "申请售后";
-    this.form.serviceType = "RETURN_GOODS";
-    if (options.value == 1) {
-      navTitle = "申请退货";
-      this.form.serviceType = "RETURN_GOODS";
+const lightColor = computed(() => store.getters.lightColor)
+
+const fileList = ref<any[]>([])
+const sn = ref('')
+const sku = ref<any>({})
+const reasonSelectShow = ref(false)
+const reasonList = ref<any[]>([])
+const applyInfo = ref<any>({})
+const uToast = ref<any>(null)
+
+const form = reactive({
+  orderItemSn: '',
+  skuId: '',
+  reason: '',
+  problemDesc: '',
+  images: [] as string[],
+  num: 1,
+  goodsId: '',
+  accountType: '',
+  applyRefundPrice: '',
+  refundWay: '',
+  serviceType: 'RETURN_GOODS',
+  bankDepositName: '',
+  bankAccountName: '',
+  bankAccountNumber: '',
+})
+
+onLoad((options) => {
+  let navTitle = '申请售后'
+  form.serviceType = 'RETURN_GOODS'
+  if (options?.value == '1') {
+    navTitle = '申请退货'
+    form.serviceType = 'RETURN_GOODS'
+  }
+  if (options?.value == '2') {
+    navTitle = '申请换货'
+    form.serviceType = 'EXCHANGE_GOODS'
+  }
+  if (options?.value == '3') {
+    navTitle = '申请退款'
+    form.serviceType = 'RETURN_MONEY'
+  }
+  uni.setNavigationBarTitle({ title: navTitle })
+  sn.value = options?.sn || ''
+  sku.value = storage.getAfterSaleData()
+  form.orderItemSn = options?.sn || ''
+  form.skuId = sku.value.skuId
+  form.num = sku.value.num
+  form.goodsId = sku.value.goodsId
+  fetchReasonActions(form.serviceType)
+  init(options?.sn || '')
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+function getGoodsName(item: any) {
+  return item.goodsName || item.name || ''
+}
+
+function getGoodsImage(item: any) {
+  const image = item.image || item.goodsImage || item.thumbnail
+  return parseGoodsImageUrl(image)
+}
+
+function gotoGoodsDetail(goodsId: string) {
+  if (!goodsId) return
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${form.skuId}&goodsId=${goodsId}`,
+  })
+}
+
+async function fetchReasonActions(serviceType: string) {
+  uni.showLoading({ title: '加载中' })
+  await getAfterSaleReason(serviceType).then((res) => {
+    if (res.data.success) {
+      reasonList.value = res.data.result.map((item: any) => ({
+        value: item.id,
+        label: item.reason,
+      }))
     }
-    if (options.value == 2) {
-      navTitle = "申请换货";
-      this.form.serviceType = "EXCHANGE_GOODS";
-    }
-    if (options.value == 3) {
-      navTitle = "申请退款";
-      this.form.serviceType = "RETURN_MONEY";
-    }
-    this.typeValue = options.value;
-    uni.setNavigationBarTitle({
-      title: navTitle, //此处写页面的title
-    });
-    this.sn = options.sn;
-    this.sku = storage.getAfterSaleData();;
+  })
+  hideLoadingIfNeeded()
+}
 
-    this.form.orderItemSn = options.sn;
-    this.form.skuId = this.sku.skuId;
-    this.form.num = this.sku.num;
-    this.form.goodsId = this.sku.goodsId;
-    this.getReasonActions(this.form.serviceType);
-
-    this.init(options.sn);
-  },
-  methods: {
-    getGoodsName(item) {
-      return item.goodsName || item.name || "";
-    },
-    getGoodsImage(item) {
-      const image = item.image || item.goodsImage || item.thumbnail;
-      return this.parseGoodsImageUrl(image);
-    },
-    gotoGoodsDetail(goodsId) {
-      if (!goodsId) return;
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${this.form.skuId}&goodsId=${goodsId}`,
-      });
-    },
-    /** 获取申请原因下拉框数据 */
-    async getReasonActions(serviceType) {
-      uni.showLoading({
-        title: "加载中",
-      });
-      await getAfterSaleReason(serviceType).then((res) => {
-        if (res.data.success) {
-          let action = [];
-          res.data.result.forEach((item) => {
-            action.push({
-              value: item.id,
-              label: item.reason,
-            });
-          });
-
-          this.reasonList = action;
-        }
-      });
-       if (this.$store.state.isShowToast){ uni.hideLoading() };
-    },
-    //打开地区选择器
-    showCitySelect() {
-      this.$refs.cityPicker.show();
-    },
-
-    // 初始化数据
-    init(sn) {
-      getAfterSaleInfo(sn).then((response) => {
-        if (response.data.code == 400) {
-          uni.showToast({
-            title: response.data.message,
-            duration: 2000,
-            icon: "none",
-          });
-        } else {
-          this.applyInfo = response.data.result;
-
-          this.form.accountType = response.data.result.accountType;
-        }
-      });
-    },
-
-    openReasonPicker() {
-      if (!this.reasonList.length) {
-        uni.showToast({
-          title: "暂无可选原因",
-          icon: "none",
-        });
-        return;
-      }
-      this.reasonSelectShow = true;
-    },
-
-    //退款原因
-    reasonSelectConfirm(val) {
-      const selected = val?.value?.[0] || val?.[0];
-      if (selected) {
-        this.form.reason = selected.label || selected.text || "";
-      }
-    },
-
-    //修改申请数量
-    valChange(e) {
-      this.form.num = e.value;
-    },
-    onUploadAfterRead(event) {
-      handleUploadAfterRead(event, this.fileList, (urls) => {
-        this.form.images = urls;
-      });
-    },
-    showToast(message, type = "error") {
-      const text = message || (type === "success" ? "操作成功" : "操作失败");
-      if (this.$refs.uToast) {
-        this.$refs.uToast.show({ message: text, type });
-        return;
-      }
+function init(orderItemSn: string) {
+  getAfterSaleInfo(orderItemSn).then((response) => {
+    if (response.data.code == 400) {
       uni.showToast({
-        title: text,
-        icon: type === "success" ? "success" : "none",
-      });
-    },
-    //提交申请
-    onSubmit() {
-      //提交申请前检测参数
-      if (!this.handleCheckParams()) {
-        return;
-      }
+        title: response.data.message,
+        duration: 2000,
+        icon: 'none',
+      })
+    } else {
+      applyInfo.value = response.data.result
+      form.accountType = response.data.result.accountType
+    }
+  })
+}
 
-      uni.showLoading({
-        title: "加载中",
-      });
-      this.form.accountType = this.applyInfo.accountType;
-      this.form.refundWay = this.applyInfo.refundWay;
-      this.form.applyRefundPrice = this.applyInfo.applyRefundPrice;
+function openReasonPicker() {
+  if (!reasonList.value.length) {
+    uni.showToast({ title: '暂无可选原因', icon: 'none' })
+    return
+  }
+  reasonSelectShow.value = true
+}
 
-      applyReturn(this.sn, this.form).then((resp) => {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        if (resp.data.success) {
-          this.showToast("提交成功", "success");
-          uni.redirectTo({
-            url: "/pages/order/afterSales/applySuccess",
-          });
-        } else {
-          this.showToast(resp.data.message || "提交失败", "error");
-        }
-      });
-    },
-    //检测提交参数
-    handleCheckParams() {
-      if (this.$u.test.isEmpty(this.form.reason)) {
-        this.showToast("请选择退款原因");
-        return false;
-      }
-      if (this.$u.test.isEmpty(this.form.problemDesc)) {
-        this.showToast("请输入退款说明");
-        return false;
-      }
+function reasonSelectConfirm(val: any) {
+  const selected = val?.value?.[0] || val?.[0]
+  if (selected) {
+    form.reason = selected.label || selected.text || ''
+  }
+}
 
-      if (
-        this.applyInfo.accountType === "BANK_TRANSFER" &&
-        this.applyInfo.applyRefundPrice != 0
-      ) {
-        if (this.$u.test.isEmpty(this.form.bankDepositName)) {
-          this.showToast("请输入银行开户行");
-          return false;
-        }
-        if (this.$u.test.isEmpty(this.form.bankAccountName)) {
-          this.showToast("请输入银行开户名");
-          return false;
-        }
-        if (this.$u.test.isEmpty(this.form.bankAccountNumber)) {
-          this.showToast("请输入银行账号");
-          return false;
-        }
-        if (this.$u.test.chinese(this.form.bankAccountName) === false) {
-          this.showToast("银行开户名需为中文");
-          return false;
-        }
-        if (this.$u.test.chinese(this.form.bankDepositName) === false) {
-          this.showToast("银行开户行需为中文");
-          return false;
-        }
-      }
+function valChange(e: { value: number }) {
+  form.num = e.value
+}
 
-      return true;
-    },
-  },
-};
+function onUploadAfterRead(event: any) {
+  handleUploadAfterRead(event, fileList.value, (urls) => {
+    form.images = urls
+  })
+}
+
+function showToast(message: string, type = 'error') {
+  const text = message || (type === 'success' ? '操作成功' : '操作失败')
+  if (uToast.value) {
+    uToast.value.show({ message: text, type })
+    return
+  }
+  uni.showToast({
+    title: text,
+    icon: type === 'success' ? 'success' : 'none',
+  })
+}
+
+function onSubmit() {
+  if (!validateFormParams()) return
+
+  uni.showLoading({ title: '加载中' })
+  form.accountType = applyInfo.value.accountType
+  form.refundWay = applyInfo.value.refundWay
+  form.applyRefundPrice = applyInfo.value.applyRefundPrice
+
+  applyReturn(sn.value, form).then((resp) => {
+    hideLoadingIfNeeded()
+    if (resp.data.success) {
+      showToast('提交成功', 'success')
+      uni.redirectTo({ url: '/pages/order/afterSales/applySuccess' })
+    } else {
+      showToast(resp.data.message || '提交失败', 'error')
+    }
+  })
+}
+
+function validateFormParams() {
+  if ($u.test.isEmpty(form.reason)) {
+    showToast('请选择退款原因')
+    return false
+  }
+  if ($u.test.isEmpty(form.problemDesc)) {
+    showToast('请输入退款说明')
+    return false
+  }
+
+  if (
+    applyInfo.value.accountType === 'BANK_TRANSFER' &&
+    applyInfo.value.applyRefundPrice != 0
+  ) {
+    if ($u.test.isEmpty(form.bankDepositName)) {
+      showToast('请输入银行开户行')
+      return false
+    }
+    if ($u.test.isEmpty(form.bankAccountName)) {
+      showToast('请输入银行开户名')
+      return false
+    }
+    if ($u.test.isEmpty(form.bankAccountNumber)) {
+      showToast('请输入银行账号')
+      return false
+    }
+    if ($u.test.chinese(form.bankAccountName) === false) {
+      showToast('银行开户名需为中文')
+      return false
+    }
+    if ($u.test.chinese(form.bankDepositName) === false) {
+      showToast('银行开户行需为中文')
+      return false
+    }
+  }
+
+  return true
+}
 </script>
 
 <style lang="scss" scoped>

@@ -5,7 +5,7 @@
 			<view v-for="(item, index) in res" :key="index" class="goods-item">
 				<view class="image-wrapper" @click="navigateToDetailPage(item)">
 					<u-image :src="item.thumbnail" width="100%" height='330rpx' mode="aspectFit">
-						<template #loading><u-loading></u-loading></template>
+						<template #loading><u-loading-icon></u-loading-icon></template>
 					</u-image>
 				</view>
 				<view class="goods-detail">
@@ -51,7 +51,7 @@
 				<div class="flex goods-col">
 					<div class="goods-img" @click="navigateToDetailPage(item)">
 						<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.thumbnail">
-							<template #loading><u-loading></u-loading></template>
+							<template #loading><u-loading-icon></u-loading-icon></template>
 						</u-image>
 					</div>
 					<div class="goods-detail">
@@ -94,114 +94,32 @@
 	</view>
 </template>
 
-<script>
-	import commonTpl from '@/components/m-goods-list/common'
-	export default {
-		data() {
-			return {
-				lightColor: this.$mainColor
-			}
-		},
-		mixins: [commonTpl],
-		
-		props: {
-			// 遍历的数据
-			res: {
-				type: Array,
-				default: () => {
-					return []
-				}
-			},
-			// 一行两列还是一行一列显示
-			type: {
-				type: String,
-				default: 'twoColumns',
-				validator() {
-					return ['twoColumns', 'oneColumns']
-				}
-			},
-			storeName: {
-				type: Boolean,
-				default: true
-			},
-			tabBarGap: {
-				type: Boolean,
-				default: true
-			},
-			keyword: {
-				type: null,
-				default: ''
-			}
+<script setup lang="ts">
+import { watch } from 'vue'
+import { useGoodsListCommon } from './common'
+import { goodsFormatPrice } from '@/utils/filters.js'
 
-		},
-		watch: {
-			keyword(val) {
-				if (val) {
-					this.lightSearchStr(val)
-				}
-			}
-		},
-		methods: {
+const { lightSearchStr, getPromotion, navigateToDetailPage, navigateToStoreDetailPage } = useGoodsListCommon()
 
-			// 高亮显示搜索内容	
-			lightSearchStr(keyword, str) {
-				if (!keyword) {
-					return str
-				} else {
-					let unicodes = '';
-					for (let i of Array.from(keyword)) {
-						unicodes += this.unicode(i) + "|"
-					}
-					const rule = '(' + unicodes + ')'
-					const reg = new RegExp(rule, 'gi');
-					return str ? str.replace(reg, matchValue =>
-						`<span style="color:${this.lightColor}">${matchValue}</span>`
-					) : ''
-				}
-			},
-			//  转换为unicode
-			unicode(str) {
-				var value = '';
-				for (var i = 0; i < str.length; i++) {
-					value += '\\u' + this.left_zero_4(parseInt(str.charCodeAt(i)).toString(16));
-				}
-				return value;
-			},
-			left_zero_4(str) {
-				if (str != null && str != '' && str != 'undefined') {
-					if (str.length == 2) {
-						return '00' + str;
-					}
-				}
-				return str;
-			},
-			// 数据去重一下 只显示一次 减免 劵 什么的
-			getPromotion(item) {
-				if (item ? item.promotionMap : item.promotionMap) {
-					const fieldList = item ? item.promotionMap : item.promotionMap
-					let array = [];
-					Object.keys(fieldList).forEach((child) => {
-						if (!array.includes(child.split("-")[0])) {
-							array.push(child.split("-")[0]);
-						}
-					});
-					return array;
-				}
-			},
-			// 跳转到商品详情
-			navigateToDetailPage(item) {
-				uni.navigateTo({
-					url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
-				});
-			},
-			// 跳转地址
-			navigateToStoreDetailPage(item) {
-				uni.navigateTo({
-					url: `/pages/product/shopPage?id=${item.storeId}`,
-				});
-			},
-		}
+const props = withDefaults(defineProps<{
+	res?: any[]
+	type?: string
+	storeName?: boolean
+	tabBarGap?: boolean
+	keyword?: string | null
+}>(), {
+	res: () => [],
+	type: 'twoColumns',
+	storeName: true,
+	tabBarGap: true,
+	keyword: ''
+})
+
+watch(() => props.keyword, (val) => {
+	if (val) {
+		lightSearchStr(val as string, '')
 	}
+})
 </script>
 
 <style lang='scss' scoped>
@@ -212,6 +130,7 @@
 		.goods-list {
 			display: flex;
 			flex-wrap: wrap;
+			justify-content: space-between;
 			margin: 10rpx 20rpx 284rpx;
 			width: calc(100% - 40rpx);
 			box-sizing: border-box;
@@ -219,21 +138,17 @@
 			&.goods-list--embedded {
 				margin-bottom: 20rpx;
 			}
-	
+
 			>.goods-item {
 				background-color: #ffffff;
 				display: flex;
 				border-radius: 16rpx;
 				flex-direction: column;
-				width: calc(50% - 30rpx);
+				width: calc(50% - 10rpx);
 				margin-bottom: 20rpx;
 				padding-bottom: 20rpx;
-	
-				&:nth-child(2n + 1) {
-					margin-right: 20rpx;
-				}
-	
-	
+
+
 				.image-wrapper {
 					width: 100%;
 					height: 330rpx;
@@ -242,12 +157,12 @@
 					padding: 0;
 				}
 			}
-	
+
 			.count-config,
 			.store-seller-name {
 				font-size: $font-sm;
 			}
-	
+
 			.store-seller-name {
 				color: #666;
 				display: flex;
@@ -322,7 +237,7 @@
 
 		.goods-detail {
 			margin: 0 20rpx;
-	
+
 			>.title {
 				font-size: $font-base;
 				color: $font-color-dark;
@@ -334,7 +249,7 @@
 				-webkit-line-clamp: 2;
 				overflow: hidden;
 			}
-	
+
 			.promotion {
 				margin-top: 4rpx;
 				display: flex;
@@ -344,10 +259,10 @@
 					color: $light-color;
 					margin-right: 10rpx;
 					padding: 0 4rpx;
-					border-radius: 2rpx;
+					border-radius: 2px;
 				}
 			}
-	
+
 			.store-seller-name {
 				color: #666;
 				display: flex;
@@ -409,7 +324,7 @@
 				padding-right: 10rpx;
 				font-size: 24rpx;
 				color: $font-color-light;
-	
+
 				>.price {
 					font-size: 26rpx;
 					line-height: 1;
@@ -421,6 +336,5 @@
 					}
 				}
 			}
-	
 		}
 </style>

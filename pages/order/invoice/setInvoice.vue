@@ -92,340 +92,355 @@
     </div>
   </u-popup>
 </template>
-<script>
-export default {
-  props: ["res"],
-  computed: {
-    isSpecialInvoice() {
-      return this.getActiveTitle(this.invoiceType) === "增值税专用发票";
-    },
-    titleName: {
-      get() {
-        return this.isUnitTitle()
-          ? this.submitData.companyName
-          : this.submitData.personalName;
-      },
-      set(value) {
-        if (this.isUnitTitle()) {
-          this.submitData.companyName = value;
-        } else {
-          this.submitData.personalName = value;
-        }
-        this.syncReceiptTitle();
-      },
-    },
+<script setup lang="ts">
+import { ref, reactive, computed, watch, onMounted, getCurrentInstance } from 'vue'
+
+interface InvoiceOption {
+  title: string
+  active: boolean
+  disabled?: boolean
+}
+
+interface SubmitData {
+  receiptTitle: string
+  receiptType: string
+  personalName: string
+  companyName: string
+  taxpayerId: string
+  receiptContent: string
+  companyAddress: string
+  companyPhone: string
+  bankName: string
+  bankAccount: string
+  receiptPhone: string
+  receiptEmail: string
+}
+
+const props = defineProps<{
+  res?: Record<string, any>
+}>()
+
+const emit = defineEmits<{
+  callbackInvoice: [val: SubmitData | boolean]
+}>()
+
+const { proxy } = getCurrentInstance()!
+
+const shouldClearOnTypeChange = ref(false)
+const taxpayerFlag = ref(false)
+const submitData = reactive<SubmitData>({
+  receiptTitle: '',
+  receiptType: '1',
+  personalName: '',
+  companyName: '',
+  taxpayerId: '',
+  receiptContent: '',
+  companyAddress: '',
+  companyPhone: '',
+  bankName: '',
+  bankAccount: '',
+  receiptPhone: '',
+  receiptEmail: '',
+})
+const show = ref(true)
+const title = ref('')
+const tips =
+  '电子发票即电子增值税发票，是税局认可的有效凭证，其法律效力、基本用途及使用规定同纸质发票。'
+
+const invoiceType = reactive<InvoiceOption[]>([
+  { title: '电子普通发票', active: true },
+  { title: '增值税专用发票', active: false },
+])
+
+const invoiceHeader = reactive<InvoiceOption[]>([
+  { title: '个人', active: false },
+  { title: '单位', active: false },
+])
+
+const goodsType = reactive<InvoiceOption[]>([
+  { title: '商品明细', active: false },
+  { title: '商品类别', active: false },
+])
+
+const isSpecialInvoice = computed(
+  () => getActiveTitle(invoiceType) === '增值税专用发票'
+)
+
+const titleName = computed({
+  get() {
+    return isUnitTitle() ? submitData.companyName : submitData.personalName
   },
-  watch: {
-    invoiceType: {
-      handler(val) {
-        const currentType = this.getActiveTitle(val);
-        const nextReceiptType =
-          currentType === "增值税专用发票" ? "2" : "1";
-        const previousReceiptType = this.submitData.receiptType;
-        this.submitData.receiptType = nextReceiptType;
-
-        if (
-          this.shouldClearOnTypeChange &&
-          previousReceiptType &&
-          previousReceiptType !== nextReceiptType
-        ) {
-          this.clearInvoiceInfo();
-        }
-
-        if (currentType === "增值税专用发票") {
-          this.setActiveByTitle(this.invoiceHeader, "单位");
-          this.setActiveByTitle(this.goodsType, "商品明细");
-          this.title = "单位";
-          this.taxpayerFlag = true;
-          this.submitData.receiptContent = "商品明细";
-          this.syncReceiptTitle();
-        } else {
-          this.setActiveByTitle(this.invoiceHeader, "个人");
-          this.setActiveByTitle(this.goodsType, "商品明细");
-          this.title = "个人";
-          this.taxpayerFlag = false;
-          this.submitData.receiptContent = "商品明细";
-          this.syncReceiptTitle();
-        }
-        this.shouldClearOnTypeChange = false;
-      },
-      deep: true,
-    },
-    invoiceHeader: {
-      handler(val) {
-        if (this.isSpecialInvoice) {
-          this.title = "单位";
-          this.taxpayerFlag = true;
-          return;
-        }
-
-        this.title = this.getActiveTitle(val) || "个人";
-        this.taxpayerFlag = this.title == "单位";
-        if (!this.taxpayerFlag) {
-          this.submitData.taxpayerId = "";
-        }
-        this.syncReceiptTitle();
-      },
-      deep: true,
-    },
-    goodsType: {
-      handler(val) {
-        this.submitData.receiptContent = val.filter((item) => {
-          return item.active == true;
-        })[0].title;
-      },
-      deep: true,
-    },
-  },
-
-  data() {
-    return {
-      shouldClearOnTypeChange: false,
-      taxpayerFlag: false,
-      submitData: {
-        receiptTitle: "", //发票抬头
-        receiptType: "1", // 发票类型
-        personalName: "",
-        companyName: "",
-        taxpayerId: "", //纳税人
-        receiptContent: "",
-        companyAddress: "", //单位地址
-        companyPhone: "", //单位电话
-        bankName: "", //开户银行
-        bankAccount: "", //银行账号
-        receiptPhone: "", //收票人手机
-        receiptEmail: "", //收票人邮箱
-      },
-      show: true,
-      title: "",
-      tips:
-        "电子发票即电子增值税发票，是税局认可的有效凭证，其法律效力、基本用途及使用规定同纸质发票。",
-      //   发票类型
-      invoiceType: [
-        {
-          title: "电子普通发票",
-          active: true,
-        },
-        {
-          title: "增值税专用发票",
-          active: false,
-        },
-      ],
-      //   发票抬头
-      invoiceHeader: [
-        {
-          title: "个人",
-          active: false,
-        },
-        {
-          title: "单位",
-          active: false,
-        },
-      ],
-      //   商品类型
-      goodsType: [
-        {
-          title: "商品明细",
-          active: false,
-        },
-        {
-          title: "商品类别",
-          active: false,
-        },
-      ],
-    };
-  },
-  mounted() {
-    if (this.res) {
-      this.submitData.receiptType = this.normalizeReceiptType(this.res.receiptType);
-      this.submitData.personalName =
-        this.res.personalName ||
-        (!this.res.companyName && !this.res.taxpayerId ? this.res.receiptTitle || "" : "");
-      this.submitData.companyName =
-        this.res.companyName ||
-        (this.res.taxpayerId ? this.res.receiptTitle || "" : "");
-      this.submitData.taxpayerId = this.res.taxpayerId; //纳税人
-      this.submitData.receiptContent = this.res.receiptContent;
-      this.submitData.companyAddress = this.res.companyAddress || "";
-      this.submitData.companyPhone = this.res.companyPhone || "";
-      this.submitData.bankName = this.res.bankName || "";
-      this.submitData.bankAccount = this.res.bankAccount || "";
-      this.submitData.receiptPhone = this.res.receiptPhone || "";
-      this.submitData.receiptEmail = this.res.receiptEmail || "";
-      if (this.submitData.receiptType === "2") {
-        this.setActiveByTitle(this.invoiceType, "增值税专用发票");
-        this.setActiveByTitle(this.invoiceHeader, "单位");
-        this.setActiveByTitle(this.goodsType, "商品明细");
-      } else {
-        this.setActiveByTitle(this.invoiceType, "电子普通发票");
-        this.res.receiptContent == "商品类别"
-          ? this.setActiveByTitle(this.goodsType, "商品类别")
-          : this.setActiveByTitle(this.goodsType, "商品明细");
-        this.res.taxpayerId
-          ? this.setActiveByTitle(this.invoiceHeader, "单位")
-          : this.setActiveByTitle(this.invoiceHeader, "个人");
-      }
-      this.syncReceiptTitle();
+  set(value: string) {
+    if (isUnitTitle()) {
+      submitData.companyName = value
     } else {
-      this.setActiveByTitle(this.invoiceType, "电子普通发票");
-      this.setActiveByTitle(this.invoiceHeader, "个人");
-      this.setActiveByTitle(this.goodsType, "商品明细");
-      this.syncReceiptTitle();
+      submitData.personalName = value
+    }
+    syncReceiptTitle()
+  },
+})
+
+watch(
+  invoiceType,
+  (val) => {
+    const currentType = getActiveTitle(val)
+    const nextReceiptType = currentType === '增值税专用发票' ? '2' : '1'
+    const previousReceiptType = submitData.receiptType
+    submitData.receiptType = nextReceiptType
+
+    if (
+      shouldClearOnTypeChange.value &&
+      previousReceiptType &&
+      previousReceiptType !== nextReceiptType
+    ) {
+      clearInvoiceInfo()
     }
 
+    if (currentType === '增值税专用发票') {
+      setActiveByTitle(invoiceHeader, '单位')
+      setActiveByTitle(goodsType, '商品明细')
+      title.value = '单位'
+      taxpayerFlag.value = true
+      submitData.receiptContent = '商品明细'
+      syncReceiptTitle()
+    } else {
+      setActiveByTitle(invoiceHeader, '个人')
+      setActiveByTitle(goodsType, '商品明细')
+      title.value = '个人'
+      taxpayerFlag.value = false
+      submitData.receiptContent = '商品明细'
+      syncReceiptTitle()
+    }
+    shouldClearOnTypeChange.value = false
   },
-  methods: {
-    normalizeReceiptType(type) {
-      return type === "2" || type === "VATOSPECIAL" ? "2" : "1";
-    },
-    getActiveTitle(list) {
-      const current = list.find((item) => item.active);
-      return current ? current.title : "";
-    },
-    setActiveByTitle(list, title) {
-      list.forEach((item) => {
-        item.active = item.title === title;
-      });
-    },
-    isUnitTitle() {
-      return this.isSpecialInvoice || this.title === "单位";
-    },
-    syncReceiptTitle() {
-      this.submitData.receiptTitle = this.isUnitTitle()
-        ? this.submitData.companyName
-        : this.submitData.personalName;
-    },
-    clearInvoiceInfo() {
-      this.submitData.receiptTitle = "";
-      this.submitData.personalName = "";
-      this.submitData.companyName = "";
-      this.submitData.taxpayerId = "";
-      this.submitData.receiptContent = "";
-      this.submitData.companyAddress = "";
-      this.submitData.companyPhone = "";
-      this.submitData.bankName = "";
-      this.submitData.bankAccount = "";
-      this.submitData.receiptPhone = "";
-      this.submitData.receiptEmail = "";
-    },
-    handleClickHeader(val, index, arr) {
-      if (val.disabled) {
-        return;
-      }
-      const previousTitle = this.getActiveTitle(arr);
-      if (arr === this.invoiceType && previousTitle !== val.title) {
-        this.shouldClearOnTypeChange = true;
-      }
-      arr.forEach((item) => {
-        item.active = false;
-      });
-      val.active = true;
-    },
-    /**
-     * 监听关闭
-     */
-    close(val) {
-      this.$emit("callbackInvoice", val);
-    },
-    submitInvoice() {
-      /**
-       * 验证
-       */
-      const {
-        receiptTitle,
-        taxpayerId,
-        companyAddress,
-        companyPhone,
-        bankName,
-        bankAccount,
-        receiptPhone,
-        receiptEmail,
-      } = this.submitData;
-      this.syncReceiptTitle();
+  { deep: true }
+)
 
-      if (this.$u.test.isEmpty(receiptTitle)) {
-        uni.showToast({
-          title: "请您填写发票抬头!",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (
-        !this.$u.test.isEmpty(receiptTitle) &&
-        this.$u.test.isEmpty(taxpayerId) &&
-        this.invoiceHeader[1].active == true
-      ) {
-        uni.showToast({
-          title: "请您填写纳税人识别号!",
-          duration: 2000,
-          icon: "none",
-        });
+watch(
+  invoiceHeader,
+  (val) => {
+    if (isSpecialInvoice.value) {
+      title.value = '单位'
+      taxpayerFlag.value = true
+      return
+    }
 
-        return false;
-      }
-      if (this.isSpecialInvoice && this.$u.test.isEmpty(companyAddress)) {
-        uni.showToast({
-          title: "请您填写单位地址!",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (this.isSpecialInvoice && this.$u.test.isEmpty(companyPhone)) {
-        uni.showToast({
-          title: "请您填写单位电话!",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (this.isSpecialInvoice && this.$u.test.isEmpty(bankName)) {
-        uni.showToast({
-          title: "请您填写开户银行!",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (this.isSpecialInvoice && this.$u.test.isEmpty(bankAccount)) {
-        uni.showToast({
-          title: "请您填写银行账号!",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (this.$u.test.isEmpty(receiptPhone)) {
-        uni.showToast({
-          title: "请您填写收票人手机!",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (!this.$u.test.mobile(receiptPhone)) {
-        uni.showToast({
-          title: "请输入正确的收票人手机号!",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (!this.$u.test.isEmpty(receiptEmail) && !this.$u.test.email(receiptEmail)) {
-        uni.showToast({
-          title: "请输入正确的收票人邮箱!",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-
-      this.show = false;
-      this.close(this.submitData);
-    },
+    title.value = getActiveTitle(val) || '个人'
+    taxpayerFlag.value = title.value == '单位'
+    if (!taxpayerFlag.value) {
+      submitData.taxpayerId = ''
+    }
+    syncReceiptTitle()
   },
-};
+  { deep: true }
+)
+
+watch(
+  goodsType,
+  (val) => {
+    submitData.receiptContent = val.filter((item) => item.active == true)[0].title
+  },
+  { deep: true }
+)
+
+onMounted(() => {
+  if (props.res) {
+    submitData.receiptType = normalizeReceiptType(props.res.receiptType)
+    submitData.personalName =
+      props.res.personalName ||
+      (!props.res.companyName && !props.res.taxpayerId
+        ? props.res.receiptTitle || ''
+        : '')
+    submitData.companyName =
+      props.res.companyName ||
+      (props.res.taxpayerId ? props.res.receiptTitle || '' : '')
+    submitData.taxpayerId = props.res.taxpayerId
+    submitData.receiptContent = props.res.receiptContent
+    submitData.companyAddress = props.res.companyAddress || ''
+    submitData.companyPhone = props.res.companyPhone || ''
+    submitData.bankName = props.res.bankName || ''
+    submitData.bankAccount = props.res.bankAccount || ''
+    submitData.receiptPhone = props.res.receiptPhone || ''
+    submitData.receiptEmail = props.res.receiptEmail || ''
+    if (submitData.receiptType === '2') {
+      setActiveByTitle(invoiceType, '增值税专用发票')
+      setActiveByTitle(invoiceHeader, '单位')
+      setActiveByTitle(goodsType, '商品明细')
+    } else {
+      setActiveByTitle(invoiceType, '电子普通发票')
+      props.res.receiptContent == '商品类别'
+        ? setActiveByTitle(goodsType, '商品类别')
+        : setActiveByTitle(goodsType, '商品明细')
+      props.res.taxpayerId
+        ? setActiveByTitle(invoiceHeader, '单位')
+        : setActiveByTitle(invoiceHeader, '个人')
+    }
+    syncReceiptTitle()
+  } else {
+    setActiveByTitle(invoiceType, '电子普通发票')
+    setActiveByTitle(invoiceHeader, '个人')
+    setActiveByTitle(goodsType, '商品明细')
+    syncReceiptTitle()
+  }
+})
+
+function normalizeReceiptType(type: string) {
+  return type === '2' || type === 'VATOSPECIAL' ? '2' : '1'
+}
+
+function getActiveTitle(list: InvoiceOption[]) {
+  const current = list.find((item) => item.active)
+  return current ? current.title : ''
+}
+
+function setActiveByTitle(list: InvoiceOption[], activeTitle: string) {
+  list.forEach((item) => {
+    item.active = item.title === activeTitle
+  })
+}
+
+function isUnitTitle() {
+  return isSpecialInvoice.value || title.value === '单位'
+}
+
+function syncReceiptTitle() {
+  submitData.receiptTitle = isUnitTitle()
+    ? submitData.companyName
+    : submitData.personalName
+}
+
+function clearInvoiceInfo() {
+  submitData.receiptTitle = ''
+  submitData.personalName = ''
+  submitData.companyName = ''
+  submitData.taxpayerId = ''
+  submitData.receiptContent = ''
+  submitData.companyAddress = ''
+  submitData.companyPhone = ''
+  submitData.bankName = ''
+  submitData.bankAccount = ''
+  submitData.receiptPhone = ''
+  submitData.receiptEmail = ''
+}
+
+function handleClickHeader(
+  val: InvoiceOption,
+  _index: number,
+  arr: InvoiceOption[]
+) {
+  if (val.disabled) {
+    return
+  }
+  const previousTitle = getActiveTitle(arr)
+  if (arr === invoiceType && previousTitle !== val.title) {
+    shouldClearOnTypeChange.value = true
+  }
+  arr.forEach((item) => {
+    item.active = false
+  })
+  val.active = true
+}
+
+function close(val: SubmitData | boolean) {
+  emit('callbackInvoice', val)
+}
+
+function submitInvoice() {
+  const {
+    receiptTitle,
+    taxpayerId,
+    companyAddress,
+    companyPhone,
+    bankName,
+    bankAccount,
+    receiptPhone,
+    receiptEmail,
+  } = submitData
+  syncReceiptTitle()
+
+  if (proxy.$u.test.isEmpty(receiptTitle)) {
+    uni.showToast({
+      title: '请您填写发票抬头!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+  if (
+    !proxy.$u.test.isEmpty(receiptTitle) &&
+    proxy.$u.test.isEmpty(taxpayerId) &&
+    invoiceHeader[1].active == true
+  ) {
+    uni.showToast({
+      title: '请您填写纳税人识别号!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+  if (isSpecialInvoice.value && proxy.$u.test.isEmpty(companyAddress)) {
+    uni.showToast({
+      title: '请您填写单位地址!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+  if (isSpecialInvoice.value && proxy.$u.test.isEmpty(companyPhone)) {
+    uni.showToast({
+      title: '请您填写单位电话!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+  if (isSpecialInvoice.value && proxy.$u.test.isEmpty(bankName)) {
+    uni.showToast({
+      title: '请您填写开户银行!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+  if (isSpecialInvoice.value && proxy.$u.test.isEmpty(bankAccount)) {
+    uni.showToast({
+      title: '请您填写银行账号!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+  if (proxy.$u.test.isEmpty(receiptPhone)) {
+    uni.showToast({
+      title: '请您填写收票人手机!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+  if (!proxy.$u.test.mobile(receiptPhone)) {
+    uni.showToast({
+      title: '请输入正确的收票人手机号!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+  if (
+    !proxy.$u.test.isEmpty(receiptEmail) &&
+    !proxy.$u.test.email(receiptEmail)
+  ) {
+    uni.showToast({
+      title: '请输入正确的收票人邮箱!',
+      duration: 2000,
+      icon: 'none',
+    })
+    return false
+  }
+
+  show.value = false
+  close(submitData)
+}
 </script>
 <style scoped lang="scss">
 .form-item {

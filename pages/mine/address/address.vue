@@ -42,126 +42,95 @@
   </view>
 </template>
 
-<script>
-import * as API_Trade from "@/api/trade";
-import * as API_Address from "@/api/address.js";
-export default {
-  data() {
-    return {
-      addressList: [], //地址列表
-      showAction: false, //是否显示下栏框
-      removeList: [
-        {
-          text: "确定",
-        },
-      ],
-      tips: {
-        text: "确定要删除该收货人信息吗？",
-      },
-      removeId: "", //删除的地址id
-      routerVal: "",
-      params: {
-        pageNumber: 1,
-        pageSize: 1000,
-      },
-    };
-  },
-  onPullDownRefresh() {
-    //下拉刷新
-    this.addressList = [];
-    this.getAddressList();
-  },
-  onLoad: function (val) {
-    this.routerVal = val;
-  },
-  onShow() {
-    this.addressList = [];
-    this.getAddressList();
-  },
-  onHide() {},
-  methods: {
-    async selectAddressData(val) {
-      await API_Trade.setAddressId(val.id, this.routerVal.way);
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad, onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import * as API_Trade from '@/api/trade'
+import * as API_Address from '@/api/address.js'
 
-      uni.navigateBack({
-        delta: 1,
-      });
-    },
-    //获取地址列表
-    getAddressList() {
-      uni.showLoading();
+const store = useStore()
 
-      API_Address.getAddressList(
-        this.params.pageNumber,
-        this.params.pageSize
-      ).then((res) => {
-        res.data.result.records.forEach((item) => {
-          item.consigneeAddressPath = item.consigneeAddressPath.split(",");
-        });
-        this.addressList = res.data.result.records;
-        console.log(this.addressList);
+const addressList = ref<any[]>([])
+const showAction = ref(false)
+const removeList = [{ text: '确定' }]
+const tips = { text: '确定要删除该收货人信息吗？' }
+const removeId = ref('')
+const routerVal = ref<Record<string, string>>({})
+const params = { pageNumber: 1, pageSize: 1000 }
 
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
-    },
-    //删除地址
-    removeAddress(id) {
-      this.removeId = id;
-      this.showAction = true;
-    },
-    deleteAddressMessage() {
-      API_Address.deleteAddress(this.removeId).then((res) => {
-        if (res.statusCode == 200) {
-          uni.showToast({
-            icon: "none",
-            title: "删除成功",
-          });
-          this.getAddressList();
-        } else {
-          uni.showToast({
-            icon: "none",
-            title: res.data.message,
-            duration: 2000,
-          });
-        }
-      });
-    },
-    //新建。编辑地址
-    addAddress(id) {
-      if (id) {
-        uni.navigateTo({
-          url:
-            "/pages/mine/address/add?id=" +
-            id +
-            "&way=" +
-            this.routerVal.way +
-            "&type=order",
-        });
-      } else {
-        uni.navigateTo({
-          url:
-            "/pages/mine/address/add?way=" + this.routerVal.way + "&type=order",
-        });
-      }
-    },
-    //设为默认地址
-    setDefault(item) {
-      delete item.updateBy;
-      delete item.updateTime;
-      delete item.deleteFlag;
+onPullDownRefresh(() => {
+  addressList.value = []
+  getAddressList()
+})
 
-      item.isDefault ? "" : (item.isDefault = !item.isDefault);
+onLoad((val) => {
+  routerVal.value = val || {}
+})
 
-      API_Address.editAddress(item).then((res) => {
-        uni.showToast({
-          title: "设置默认地址成功",
-          icon: "none",
-        });
-        this.getAddressList();
-      });
-    },
-  },
-};
+onShow(() => {
+  addressList.value = []
+  getAddressList()
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+async function selectAddressData(val: any) {
+  await API_Trade.setAddressId(val.id, routerVal.value.way)
+  uni.navigateBack({ delta: 1 })
+}
+
+function getAddressList() {
+  uni.showLoading()
+  API_Address.getAddressList(params.pageNumber, params.pageSize).then((res) => {
+    res.data.result.records.forEach((item: any) => {
+      item.consigneeAddressPath = item.consigneeAddressPath.split(',')
+    })
+    addressList.value = res.data.result.records
+    hideLoadingIfNeeded()
+  })
+}
+
+function removeAddress(id: string) {
+  removeId.value = id
+  showAction.value = true
+}
+
+function deleteAddressMessage() {
+  API_Address.deleteAddress(removeId.value).then((res) => {
+    if (res.statusCode == 200) {
+      uni.showToast({ icon: 'none', title: '删除成功' })
+      getAddressList()
+    } else {
+      uni.showToast({ icon: 'none', title: res.data.message, duration: 2000 })
+    }
+  })
+}
+
+function addAddress(id: string) {
+  if (id) {
+    uni.navigateTo({
+      url: `/pages/mine/address/add?id=${id}&way=${routerVal.value.way}&type=order`,
+    })
+  } else {
+    uni.navigateTo({
+      url: `/pages/mine/address/add?way=${routerVal.value.way}&type=order`,
+    })
+  }
+}
+
+function setDefault(item: any) {
+  delete item.updateBy
+  delete item.updateTime
+  delete item.deleteFlag
+  if (!item.isDefault) item.isDefault = true
+  API_Address.editAddress(item).then(() => {
+    uni.showToast({ title: '设置默认地址成功', icon: 'none' })
+    getAddressList()
+  })
+}
 </script>
 
 <style lang="scss" scoped>

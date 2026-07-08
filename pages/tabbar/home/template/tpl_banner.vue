@@ -14,35 +14,20 @@
         indicator
         @click="clickSwiper"
       >
-        <template #loading><u-loading></u-loading></template>
+        <template #loading><u-loading-icon></u-loading-icon></template>
       </u-swiper>
     </view>
   </view>
 </template>
 
-<script>
+<script setup lang="ts">
 import { modelNavigateTo } from "./tpl";
-export default {
-  title: "导航栏",
-  props: ["res"],
-  watch: {
-    res: {
-      handler(newValue, oldValue) {
-        this["res"] = newValue;
-      },
-      deep: true,
-    },
-  },
 
-  mounted() {
-   
-  },
-  methods: {
-    clickSwiper(index) {
-      modelNavigateTo(this.res.list[index]);
-    },
-  },
-};
+const props = defineProps<{ res: any }>();
+
+function clickSwiper(index: number) {
+  modelNavigateTo(props.res.list[index]);
+}
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

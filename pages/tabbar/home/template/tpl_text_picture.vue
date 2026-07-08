@@ -32,21 +32,10 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { modelNavigateTo } from "./tpl";
 
-import {modelNavigateTo} from './tpl'
-export default {
-  title: "文字图片模板",
-  props: ["res"],
-   data () {
-    return {
-      modelNavigateTo,
-    }
-  },
-  mounted() {
-
-  }
-};
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

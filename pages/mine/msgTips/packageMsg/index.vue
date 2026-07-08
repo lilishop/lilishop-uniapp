@@ -1,99 +1,113 @@
 <template>
-  <view class="container " style="font-size: 13px;">
-	 <block v-for="(row, index) in messageList" :key="index">
-		<view class="msgItem">
-		  <div class="msgMsg">
-			<div class="bagbar">{{$u.timeFormat(row.send_time, 'yyyy-mm-dd')}}</div>
-		  </div>
-		  <u-card @click="goDetail(row.sn,row.logi_id,row.ship_no)" :title="title" title-color="#666666" title-size="24" sub-title-color="#666666" sub-title-size="24" :border="false" :sub-title=row.status>
-			<template #body>
-			  <view class="msg-body">
-			  <image class="msgImg" :src="row.goods_img" mode=""></image>
-			  <view class="msgView">
-				<view>{{row.goodsName}}</view>
-				<view class="msgNum">订单号:{{row.sn}}</view>
-			  </view>
-			  </view>
-			</template>
-		  </u-card>
-		</view>
-	</block>	
-	<uni-load-more :status="loadStatus"></uni-load-more>
+  <view class="container" style="font-size: 13px">
+    <block v-for="(row, index) in messageList" :key="index">
+      <view class="msgItem">
+        <div class="msgMsg">
+          <div class="bagbar">{{ formatSendTime(row.send_time) }}</div>
+        </div>
+        <u-card
+          @click="navigateToLogisticsDetail(row.sn, row.logi_id, row.ship_no)"
+          :title="pageTitle"
+          title-color="#666666"
+          title-size="24"
+          sub-title-color="#666666"
+          sub-title-size="24"
+          :border="false"
+          :sub-title="row.status"
+        >
+          <template #body>
+            <view class="msg-body">
+              <image class="msgImg" :src="row.goods_img" mode=""></image>
+              <view class="msgView">
+                <view>{{ row.goodsName }}</view>
+                <view class="msgNum">订单号:{{ row.sn }}</view>
+              </view>
+            </view>
+          </template>
+        </u-card>
+      </view>
+    </block>
+    <uni-load-more :status="loadStatus"></uni-load-more>
   </view>
 </template>
 
-<script>
-import * as API_Message from "@/api/message.js";
-export default {
-  data() {
-    return {
-	  messageList: [],
-	  title: "物流更新通知",
-	  subTitle: "运输中",
-	  loadStatus:'more',
-	  params: {
-	    pageNumber: 1,
-	    pageSize: 10,
-	  },
-	  loadStatus:'more'
-    };
-  },
-  onLoad(){
-  	this.GET_LogisticsList(true);
-  },
-  onReachBottom() {
-  	this.params.pageNumber++
-  	this.GET_LogisticsList(false)
-  },
-  methods: {
-    goDetail(sn,logi_id,ship_no){
-		uni.navigateTo({
-			url:'/pages/msgTips/packagemsg/logisticsDetail?order_sn=' + sn +'&logi_id='+logi_id+'&ship_no='+ship_no,
-		})
-	},
-	//获取物流消息
-	GET_LogisticsList(reset){
-		if (reset) {
-			this.params.pageNumber = 1
-		 }
-		uni.showLoading({
-			title:"加载中"
-		})
-		API_Message.getLogisticsMessages(this.params).then(async response => {
-			 if (this.$store.state.isShowToast){ uni.hideLoading() }
-		    const { data } = response
-		    if (!data || !data.length) {
-				this.messageList.push(...data.data)
-		    }
-		 })
-		
-	}
-		
+<script setup lang="ts">
+import { ref, getCurrentInstance } from 'vue'
+import { onLoad, onReachBottom } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import * as API_Message from '@/api/message.js'
+
+const store = useStore()
+const { proxy } = getCurrentInstance()!
+
+const messageList = ref<any[]>([])
+const pageTitle = '物流更新通知'
+const loadStatus = ref('more')
+const queryParams = ref({ pageNumber: 1, pageSize: 10 })
+
+onLoad(() => {
+  fetchLogisticsList(true)
+})
+
+onReachBottom(() => {
+  queryParams.value.pageNumber++
+  fetchLogisticsList(false)
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+function formatSendTime(time: number) {
+  return proxy.$u.timeFormat(time, 'yyyy-mm-dd')
+}
+
+function extractRecords(res: any) {
+  if (Array.isArray(res?.result?.records)) return res.result.records
+  if (Array.isArray(res?.result)) return res.result
+  if (Array.isArray(res?.data)) return res.data
+  return []
+}
+
+function navigateToLogisticsDetail(sn: string, logiId: string, shipNo: string) {
+  uni.navigateTo({
+    url: `/pages/mine/msgTips/packageMsg/logisticsDetail?order_sn=${sn}&logi_id=${logiId}&ship_no=${shipNo}`,
+  })
+}
+
+function fetchLogisticsList(reset: boolean) {
+  if (reset) {
+    queryParams.value.pageNumber = 1
+    messageList.value = []
+    loadStatus.value = 'more'
   }
-};
+  uni.showLoading({ title: '加载中' })
+  API_Message.getLogisticsMessages(queryParams.value).then((response) => {
+    hideLoadingIfNeeded()
+    const records = extractRecords(response.data)
+    if (records.length) {
+      messageList.value.push(...records)
+    } else {
+      loadStatus.value = 'noMore'
+    }
+  })
+}
 </script>
 
-<style scoped lang='scss'>
-.ddnumber {
-  color: $u-tips-color;
-  font-size: 24rpx;
-}
-.msg-body{
-	display: flex;
-	background-color: rgba(102, 110, 232, 0.0470588235294118);
-	
-	
-	.msgImg{
-		width: 160rpx;
-		height: 160rpx;
-	}
-	.msgView{
-		margin-left: 20rpx;
-		.msgNum:last-child{
-			margin-top: 60rpx;
-		}
-	}
-	
+<style scoped lang="scss">
+.msg-body {
+  display: flex;
+  background-color: rgba(102, 110, 232, 0.0470588235294118);
+  .msgImg {
+    width: 160rpx;
+    height: 160rpx;
+  }
+  .msgView {
+    margin-left: 20rpx;
+    .msgNum:last-child {
+      margin-top: 60rpx;
+    }
+  }
 }
 .bagbar {
   display: inline;
@@ -103,13 +117,8 @@ export default {
   padding: 10rpx 20rpx;
   background: $u-info-disabled;
 }
-.storeImg {
-  width: 100%;
-  height: 100rpx;
-  margin-right: 20rpx;
-}
 .container {
-  background: #F9F9F9;
+  background: #f9f9f9;
   min-height: 100vh;
 }
 .msgMsg {
@@ -119,12 +128,8 @@ export default {
 .msgItem {
   padding: 1em 0;
 }
-view{
-	font-size: 13px;
-	color: #666666;
-}
-u-card{
-	font-size: 13px;
-	color: #666666;
+view {
+  font-size: 13px;
+  color: #666666;
 }
 </style>

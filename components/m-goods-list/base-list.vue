@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <view>
     <!-- 一行两列商品展示 -->
     <view class="goods-list" v-if="type == 'twoColumns'">
       <view v-for="(item, index) in res" :key="index" class="goods-item">
@@ -10,7 +10,7 @@
             height="330rpx"
            mode="aspectFit"
           >
-            <template #loading><u-loading></u-loading></template>
+            <template #loading><u-loading-icon></u-loading-icon></template>
           </u-image>
         </view>
         <view class="goods-detail">
@@ -57,7 +57,7 @@
     </view>
 	 <!-- 一行一列商品展示 -->
     <div v-if="type == 'oneColumns'">
-      <div  v-for="(item, index) in res" :key="index" class="goods-row">
+      div  v-for="(item, index) in res" :key="index" class="goods-row">
         <div class="flex goods-col">
           <div class="goods-img" @click="navigateToDetailPage(item)">
             <u-image
@@ -67,7 +67,7 @@
 							mode="aspectFit"
               :src="item.goodsImage || item.thumbnail"
             >
-              <template #loading><u-loading></u-loading></template>
+              <template #loading><u-loading-icon></u-loading-icon></template>
             </u-image>
           </div>
           <div class="goods-detail">
@@ -112,41 +112,26 @@
         </div>
       </div>
     </div>
-  </div>
+  </view>
 </template>
 
-<script>
-import commonTpl from "@/components/m-goods-list/common";
-export default {
-  data() {
-    return {
-      lightColor: this.$mainColor,
-    };
-  },
-  mixins: [commonTpl],
-  props: {
-	// 展示的类型
-	type:{
-		type:String,
-		default:"oneColumns"
-	},
-    // 遍历的数据
-    res: {
-      type: Array,
-      default: () => {
-        return [];
-      },
-    },
-  },
-  methods: {
-    // 跳转到商品详情
-    navigateToDetailPage(item) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
-      });
-    },
-  },
-};
+<script setup lang="ts">
+import { useGoodsListCommon } from './common'
+import { goodsFormatPrice } from '@/utils/filters.js'
+
+const { lightSearchStr, getPromotion, navigateToDetailPage, navigateToStoreDetailPage } = useGoodsListCommon()
+
+const props = withDefaults(defineProps<{
+	type?: string
+	res?: any[]
+	storeName?: boolean
+	keyword?: string | null
+}>(), {
+	type: 'oneColumns',
+	res: () => [],
+	storeName: true,
+	keyword: ''
+})
 </script>
 
 <style lang="scss" scoped>

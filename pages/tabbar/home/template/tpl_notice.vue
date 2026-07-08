@@ -6,19 +6,14 @@
   </div>
 </template>
 
-<script>
-  export default {
-    title: "公告",
-    props: ["res"],
-    data() {
-      return {
-        list: []
-      }
-    },
-    mounted() {
-      this.list = this.res.list[0].title.map(i => i.context);
-    },
-  };
+<script setup lang="ts">
+import { computed } from "vue";
+
+const props = defineProps<{ res: any }>();
+
+const list = computed(() =>
+  props.res.list[0].title.map((i: { context: string }) => i.context)
+);
 </script>
 <style lang="scss" scoped>
   @import "./tpl.scss";

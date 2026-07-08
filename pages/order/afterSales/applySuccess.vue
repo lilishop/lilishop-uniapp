@@ -21,31 +21,18 @@
   </view>
 </template>
 
-<script>
-export default {
-  data() {
-    return {};
-  },
-  methods: {
-    /**
-     * 跳转到售后服务
-     */
-    navigateToAfterSales() {
-      uni.redirectTo({
-        url: "/pages/order/afterSales/afterSales",
-      });
-    },
+<script setup lang="ts">
+function navigateToAfterSales() {
+  uni.redirectTo({
+    url: '/pages/order/afterSales/afterSales',
+  })
+}
 
-    /**
-     * 跳转到首页
-     */
-    navigateToHome() {
-      uni.switchTab({
-        url: "/pages/tabbar/home/index",
-      });
-    },
-  },
-};
+function navigateToHome() {
+  uni.switchTab({
+    url: '/pages/tabbar/home/index',
+  })
+}
 </script>
 
 <style lang="scss" scoped>

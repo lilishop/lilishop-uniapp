@@ -28,118 +28,125 @@
     </view>
   </u-popup>
 </template>
-<script>
-import { h5Copy } from "@/js_sdk/h5-copy/h5-copy.js";
-import configs from "@/config/config";
-import mpShare from "@/utils/mpShare.js";
-import { setClipboard } from "@/utils/filters.js";
 
-export default {
-  mixins: [mpShare],
-  data() {
-    return {
-      configs,
-      show: true,
-      list: [
-        {
-          color: "#04BE02",
-          title: "微信好友",
-          icon: "weixin-fill",
-          type: 0,
-        },
-        {
-          color: "#04BE02",
-          title: "朋友圈",
-          icon: "weixin-circle-fill",
-          type: 1,
-        },
-      ],
-    };
+<script setup lang="ts">
+import { ref } from 'vue'
+import configs from "@/config/config"
+import mpShare from "@/utils/mpShare.js"
+import { setClipboard } from "@/utils/filters.js"
+
+// mixin 处理：mpShare 提供小程序分享能力
+mpShare
+
+const props = defineProps<{
+  thumbnail?: string
+  goodsName?: string
+  type?: string
+  goodsId?: string | number
+  link?: string
+}>()
+
+const emit = defineEmits(['close'])
+
+const show = ref(true)
+const config = configs
+const list = ref([
+  {
+    color: "#04BE02",
+    title: "微信好友",
+    icon: "weixin-fill",
+    type: 0,
   },
-  // 图片缩略图、 商品名称 、 type（goods,shop,pintuan) 拼团商品分享以及店铺分享
-
-  props: ["thumbnail", "goodsName", "type", "goodsId", "link"],
-  methods: {
-    close() {
-      this.$emit("close");
-    },
-    weChatShare(){
-      this.$u.mpShare = {
-        title:  this.shareTitle(), // 默认为小程序名称，可自定义
-        path: '', // 默认为当前页面路径，一般无需修改，QQ小程序不支持
-        // 分享图标，路径可以是本地文件路径、代码包文件路径或者网络图片路径。
-        // 支持PNG及JPG，默认为当前页面的截图
-        imageUrl: this.thumbnail ||''
-      }
-    },
-
-    // h5复制链接
-    // #ifdef H5
-    copyLink() {
-      let content;
-      if (this.link) {
-        content = this.configs.shareLink + this.link;
-      } else {
-        content =
-          this.configs.shareLink +
-          getCurrentPages()[getCurrentPages().length - 1].__page__.fullPath;
-      }
-      setClipboard(content)
-    },
-    // #endif
-
-    shareTitle() {
-      let shareTitle;
-      if (this.type == "goods") {
-        shareTitle = `[好友推荐]${this.goodsName}快来跟我一起看看吧`;
-      } else if (this.type == "shops") {
-        shareTitle = `[好友发现]${this.goodsName}快来跟我一起看看吧`;
-      } else if (this.type == "pintuan") {
-        shareTitle = `[好友邀请]${this.goodsName}快来跟我一起抢购吧!`;
-      } else if (this.type == "kanjia") {
-        shareTitle = `[好友邀请]请快来帮我砍一刀${this.goodsName}`;
-      }
-      return shareTitle;
-    },
-
-    // #ifdef APP-PLUS
-    handleShare(val) {
-      console.log("12312312")
-      if (val.type <= 1) {
-        let scene; //  "WXSenceTimeline 朋友圈   WXSceneSession 微信好友"
-        val.type == 1
-          ? (scene = "WXSenceTimeline")
-          : (scene = "WXSceneSession");
-        uni.share({
-          provider: "weixin",
-          scene: scene,
-          href: configs.shareLink + this.link,
-          imageUrl: this.thumbnail,
-          type: 0,
-          summary: this.goodsName,
-          title: this.shareTitle(),
-          success: function (res) {
-            uni.showToast({
-              title: "分享成功!",
-              duration: 2000,
-              icon: "none",
-            });
-            this.$emit("close");
-          },
-          fail: function (err) {
-            uni.showToast({
-              title: "分享失败!",
-              duration: 2000,
-              icon: "none",
-            });
-            this.$emit("close");
-          },
-        });
-      }
-    },
-    // #endif
+  {
+    color: "#04BE02",
+    title: "朋友圈",
+    icon: "weixin-circle-fill",
+    type: 1,
   },
-};
+])
+
+const close = () => {
+  emit("close")
+}
+
+const weChatShare = () => {
+  // @ts-ignore
+  const proxy = getCurrentInstance()?.proxy
+  if (proxy) {
+    // @ts-ignore
+    proxy.$u.mpShare = {
+      title: shareTitle(),
+      path: '',
+      imageUrl: props.thumbnail || ''
+    }
+  }
+}
+
+// h5复制链接
+// #ifdef H5
+const copyLink = () => {
+  let content: string
+  if (props.link) {
+    content = config.shareLink + props.link
+  } else {
+    content =
+      config.shareLink +
+      getCurrentPages()[getCurrentPages().length - 1].__page__.fullPath
+  }
+  setClipboard(content)
+}
+// #endif
+
+const shareTitle = (): string => {
+  let shareTitle: string = ''
+  if (props.type == "goods") {
+    shareTitle = `[好友推荐]${props.goodsName}快来跟我一起看看吧`
+  } else if (props.type == "shops") {
+    shareTitle = `[好友发现]${props.goodsName}快来跟我一起看看吧`
+  } else if (props.type == "pintuan") {
+    shareTitle = `[好友邀请]${props.goodsName}快来跟我一起抢购吧!`
+  } else if (props.type == "kanjia") {
+    shareTitle = `[好友邀请]请快来帮我砍一刀${props.goodsName}`
+  }
+  return shareTitle
+}
+
+// #ifdef APP-PLUS
+const handleShare = (val: any) => {
+  console.log("12312312")
+  if (val.type <= 1) {
+    let scene: string //  "WXSenceTimeline 朋友圈   WXSceneSession 微信好友"
+    val.type == 1
+      ? (scene = "WXSenceTimeline")
+      : (scene = "WXSceneSession")
+    uni.share({
+      provider: "weixin",
+      scene: scene,
+      href: config.shareLink + props.link,
+      imageUrl: props.thumbnail,
+      type: 0,
+      summary: props.goodsName,
+      title: shareTitle(),
+      success: function () {
+        uni.showToast({
+          title: "分享成功!",
+          duration: 2000,
+          icon: "none",
+        })
+        emit("close")
+      },
+      fail: function () {
+        uni.showToast({
+          title: "分享失败!",
+          duration: 2000,
+          icon: "none",
+        })
+        emit("close")
+      },
+    })
+  }
+}
+// #endif
 </script>
 <style lang="scss" scoped>
 @import "./mp-share.scss";

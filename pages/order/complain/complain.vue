@@ -57,137 +57,112 @@
   </view>
 </template>
 
-<script>
-import storage from "@/utils/storage.js";
-import { getOrderDetail } from "@/api/order.js";
-import { getComplainReason, addComplain } from "@/api/after-sale.js";
-import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
-export default {
-  data() {
-    return {
-      storage,
-      uploadFileList: [],
-      orderStatusMap: {
-        //订单状态列表
-        UNDELIVERED: "待发货",
-        PARTS_DELIVERED: "部分发货",
-        UNPAID: "未付款",
-        PAID: "已付款",
-        DELIVERED: "已发货",
-        CANCELLED: "已取消",
-        COMPLETE: "已完成",
-        TAKE: "已完成",
-      },
-      complainValue: "", //投诉内容
-      complainShow: false, //投诉主题开关
-      complainTopic: "", //投诉抱怨话题
-      complainList: [], // 投诉列表
-      images: [], //投诉内容图片
-      order: "", //订单
-      orderGoodsList: "", //订单商品
-      orderDetail: "", //订单详情
-      sn: "",
-      skuId: "", //商品skuid
-    };
-  },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { getOrderDetail } from '@/api/order.js'
+import { getComplainReason, addComplain } from '@/api/after-sale.js'
+import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
+import { unitPrice } from '@/utils/filters.js'
 
-  onLoad(option) {
-    this.loadData(option.sn);
-    this.sn = option.sn;
-    this.skuId = option.skuId;
-    this.getReasion();
-  },
+const store = useStore()
 
-  methods: {
-    onUploadAfterRead(event) {
-      handleUploadAfterRead(event, this.uploadFileList, (urls) => {
-        this.images = urls;
-      });
-    },
-    /**
-     * 提交
-     */
-    handleSubmit() {
-      if(!this.images.length && !this.complainValue){
-        uni.showToast({
-          title:'请上传图片凭证和投诉内容',
-          icon:'none'
+const orderStatusMap: Record<string, string> = {
+  UNDELIVERED: '待发货',
+  PARTS_DELIVERED: '部分发货',
+  UNPAID: '未付款',
+  PAID: '已付款',
+  DELIVERED: '已发货',
+  CANCELLED: '已取消',
+  COMPLETE: '已完成',
+  TAKE: '已完成',
+}
+
+const uploadFileList = ref<any[]>([])
+const complainValue = ref('')
+const complainShow = ref(false)
+const complainTopic = ref('')
+const complainList = ref<any[]>([])
+const images = ref<string[]>([])
+const order = ref<Record<string, any>>({})
+const orderGoodsList = ref<any[]>([])
+const sn = ref('')
+const skuId = ref('')
+
+onLoad((option) => {
+  loadData(option.sn)
+  sn.value = option.sn
+  skuId.value = option.skuId
+  getReasion()
+})
+
+function onUploadAfterRead(event: any) {
+  handleUploadAfterRead(event, uploadFileList.value, (urls) => {
+    images.value = urls
+  })
+}
+
+function handleSubmit() {
+  if (!images.value.length && !complainValue.value) {
+    uni.showToast({
+      title: '请上传图片凭证和投诉内容',
+      icon: 'none',
+    })
+    return
+  }
+  const goods = orderGoodsList.value.filter((item) => item.skuId == skuId.value)
+  const data = {
+    complainTopic: complainTopic.value,
+    content: complainValue.value,
+    goodsId: goods[0].goodsId,
+    images: images.value,
+    orderSn: sn.value,
+    skuId: skuId.value,
+  }
+  addComplain(data).then((res) => {
+    if (res.data.success) {
+      uni.showToast({
+        title: '提交成功!',
+        duration: 2000,
+        icon: 'none',
+      })
+      setTimeout(() => {
+        uni.redirectTo({
+          url: '/pages/order/complain/complainList',
         })
-        return
+      }, 1000)
+    }
+  })
+}
 
-      }
-      // 循环出商品
-      let goods = this.orderGoodsList.filter((item) => {
-        return item.skuId == this.skuId;
-      });
-      //数据赋值
-      let data = {
-        complainTopic: this.complainTopic, //投诉主题,
-        content: this.complainValue, //投诉内容
-        goodsId: goods[0].goodsId, //商品id
-        images: this.images, //图片
-        orderSn: this.sn, //订单号
-        skuId: this.skuId, //skuid
-      };
-      addComplain(data).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "提交成功!",
-            duration: 2000,
-            icon: "none",
-          });
+function getReasion() {
+  getComplainReason().then((res) => {
+    if (res.data.result.length >= 1) {
+      res.data.result.forEach((item: any) => {
+        complainList.value.push({
+          value: item.reason,
+          label: item.reason,
+        })
+      })
+      complainTopic.value = res.data.result[0].reason
+    }
+  })
+}
 
-          setTimeout(() => {
-            uni.redirectTo({
-              url: "/pages/order/complain/complainList",
-            });
-          }, 1000);
-        }
-      });
-    },
+function loadData(orderSn: string) {
+  uni.showLoading({ title: '加载中' })
+  getOrderDetail(orderSn).then((res) => {
+    const result = res.data.result
+    order.value = result.order
+    orderGoodsList.value = result.orderItems
+    if (store.state.isShowToast) uni.hideLoading()
+  })
+}
 
-    /**
-     * 获取投诉原因
-     */
-    getReasion() {
-      getComplainReason().then((res) => {
-        if (res.data.result.length >= 1) {
-          res.data.result.forEach((item) => {
-            let way = {
-              value: item.reason,
-              label: item.reason,
-            };
-            this.complainList.push(way);
-          });
-          this.complainTopic = res.data.result[0].reason;
-        }
-      });
-    },
-
-    /**
-     * 加载订单详情
-     */
-    loadData(sn) {
-      uni.showLoading({
-        title: "加载中",
-      });
-      getOrderDetail(sn).then((res) => {
-        const order = res.data.result;
-        this.order = order.order;
-        this.orderGoodsList = order.orderItems;
-        this.orderDetail = res.data.result;
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
-    },
-
-    /**
-     * 确认投诉
-     */
-    confirmComplain(e) {
-      this.complainTopic = e[0].label;
-    },
-  },
-};
+function confirmComplain(e: any[]) {
+  complainTopic.value = e[0].label
+}
 </script>
 
 <style lang="scss" scoped>

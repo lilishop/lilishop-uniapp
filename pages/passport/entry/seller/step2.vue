@@ -1,144 +1,135 @@
 <template>
-  <div class="wrapper">
-    <u-form label-width="250" :model="form" ref="uForm">
+  <div class="wrapper" :style="themeStyle">
+    <up-form label-position="top" :model="form" ref="uForm">
       <div class="column">
         <div class="flag-title light-color">基础信息</div>
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="settlementBankAccountName"
           label="银行开户名"
-          ><u-input
+          ><u-input border="none" class="field-input"
             v-model="form.settlementBankAccountName"
-            :custom-style="defaultInputStyle"
-        /></u-form-item>
+            :custom-style="fieldInputStyle"
+        /></up-form-item>
 
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="settlementBankAccountNum"
           label="银行账号"
-          ><u-input
-            :custom-style="defaultInputStyle"
+          ><u-input border="none" class="field-input"
+            :custom-style="fieldInputStyle"
             v-model="form.settlementBankAccountNum"
-        /></u-form-item>
-        <u-form-item
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="settlementBankBranchName"
           label="开户银行支行名称"
-          ><u-input
-            :custom-style="defaultInputStyle"
+          ><u-input border="none" class="field-input"
+            :custom-style="fieldInputStyle"
             v-model="form.settlementBankBranchName"
-        /></u-form-item>
+        /></up-form-item>
 
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="settlementBankJointName"
           label="支行联行号"
-          ><u-input
-            :custom-style="defaultInputStyle"
+          ><u-input border="none" class="field-input"
+            :custom-style="fieldInputStyle"
             v-model="form.settlementBankJointName"
-        /></u-form-item>
+        /></up-form-item>
       </div>
-    </u-form>
-    <div class="submit" @click="validatorStep2Form">提交/下一步</div>
+    </up-form>
+    <view class="submit" @click="validatorStep2Form">提交/下一步</view>
   </div>
 </template>
 
-<script>
-import { applySecond } from "@/api/entry";
+<script setup lang="ts">
+import { ref, reactive, computed, watch } from 'vue'
+import { onReady } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { applySecond } from '@/api/entry'
+import { getThemeStyle } from '@/utils/theme'
+import { fieldInputStyle } from '@/utils/form-style.js'
 
-export default {
-  data() {
-    return {
-      defaultInputStyle: {
-        background: "#f7f7f7",
-        padding: "0 20rpx",
-        "border-radius": "10rpx",
-      },
-      form: {
-        settlementBankAccountName: "",
-        settlementBankAccountNum: "",
-        settlementBankBranchName: "",
-        settlementBankJointName: "",
-      },
+const props = defineProps<{ companyData?: any }>()
+const emit = defineEmits<{ callback: [] }>()
 
-      rules: {
-        // 验证规则
-        settlementBankAccountName: [
-          { required: true, message: "请填写银行开户名称" },
-        ],
-        settlementBankAccountNum: [
-          { required: true, message: "请填写银行账号" },
-        ],
-        settlementBankBranchName: [
-          { required: true, message: "请填写开户银行支行名称" },
-        ],
-        settlementBankJointName: [
-          { required: true, message: "请填写支行联行号" },
-        ],
-      },
-    };
+const store = useStore()
+
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
+
+const uForm = ref<any>(null)
+
+const form = reactive({
+  settlementBankAccountName: '',
+  settlementBankAccountNum: '',
+  settlementBankBranchName: '',
+  settlementBankJointName: '',
+})
+
+const rules = {
+  settlementBankAccountName: [
+    { required: true, message: '请填写银行开户名称' },
+  ],
+  settlementBankAccountNum: [
+    { required: true, message: '请填写银行账号' },
+  ],
+  settlementBankBranchName: [
+    { required: true, message: '请填写开户银行支行名称' },
+  ],
+  settlementBankJointName: [
+    { required: true, message: '请填写支行联行号' },
+  ],
+}
+
+watch(
+  () => props.companyData,
+  (val) => {
+    if (val) {
+      Object.assign(form, val)
+    }
   },
-  mounted() {
-    this.$refs.uForm.setRules(this.rules);
-  },
-  props: ["companyData"],
-  watch: {
-    companyData: {
-      handler(val) {
-        this["form"] = val;
-        console.log(this.form)
-      },
-      deep: true,
-      immediate:true
-    },
-  },
-  methods: {
-    validatorStep2Form() {
-      this.$refs.uForm.validate(async (valid) => {
-        if (valid) {
-          const params = { ...this.form };
-          const res = await applySecond(params);
-          if (res.data.success) {
-            uni.showToast({
-              title: "提交成功!",
-              icon: "none",
-            });
-            this.$emit("callback");
-          }
-        }
-      });
-    },
-  },
-};
+  { deep: true, immediate: true }
+)
+
+onReady(() => {
+  uForm.value?.setRules(rules)
+})
+
+function validatorStep2Form() {
+  uForm.value?.validate(async (valid: boolean) => {
+    if (valid) {
+      const params = { ...form }
+      const res = await applySecond(params)
+      if (res.data.success) {
+        uni.showToast({
+          title: '提交成功!',
+          icon: 'none',
+        })
+        emit('callback')
+      }
+    }
+  })
+}
 </script>
-<style>
-/* page {
-  background: #fff;
-} */
+<style lang="scss">
+page {
+  background: #f8f8f8;
+}
 </style>
 <style lang="scss" scoped>
-@import url("./entry.scss");
+@import "./entry.scss";
+@import "./entry-form.scss";
+
 .wrapper {
-  // padding: 50rpx 32rpx 16rpx 32rpx;
+  @include seller-entry-form;
 }
-.column {
-  padding: 32rpx;
-  margin-bottom: 20rpx;
-  background: #fff;
-}
+
 .submit {
-  color: #fff;
-  margin-top: 120rpx;
-  background: rgba($light-color, 0.8);
-}
-.tips {
-  color: #999;
-  font-size: 24rpx;
-  line-height: 1.2;
-  margin-top: 10rpx;
+  @include seller-entry-submit;
 }
 </style>

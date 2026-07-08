@@ -31,68 +31,68 @@
 	</view>
 </template>
 
-<script>
-	import {
-		getGoodsList
-	} from '@/api/goods.js';
-	export default {
-		data() {
-			return {
-				loadStatus: 'more',
-				params: {
-					pageNumber: 1,
-					pageSize: 10,
-					keyword: ''
-				},
-				goods: {},
-				goodsList: [],
-				nomsg: false,
-			};
-		},
-		methods: {
-			getList() {
-				uni.showLoading({
-					title: "加载中"
-				})
-				this.params.keyword = this.goods.goodsName;
-				getGoodsList(this.params).then(res => {
-					 if (this.$store.state.isShowToast){ uni.hideLoading() }
-					if (res.statusCode == 200) {
-						let data = res.data;
-						if (data.data_total == 0) {
-							// this.nomsg = true;
-							this.loadStatus = 'noMore';
-						} else if (data.data_total < 10) {
-							this.loadStatus = 'noMore'
-							this.goodsList.push(...data.data)
-						} else {
-							this.goodsList.push(...data.data);
-							if (data.data.length < 10) this.loadStatus = 'noMore'
-						}
-					}
-				})
-			},
-			goDetail(item) {
-				uni.navigateTo({
-					url: '/pages/product/goods?id=' + item.id + "&goodsId=" +item.goodsId
-				})
-			},
-			loadData() {
-				if(this.loadStatus!='noMore'){
-					this.params.pageNumber++;
-					this.getList()
-				}
-			},
-		},
-		onLoad(option) {
-			this.goods = JSON.parse(decodeURIComponent(option.goods))
-			
-			this.getList()
-		},
-		onReachBottom() { //触底事件，页面整个滚动使用
-			this.loadData()
-		}
-	}
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import { onLoad, onReachBottom } from '@dcloudio/uni-app'
+import { getGoodsList } from '@/api/goods.js'
+import { useStore } from '@/store'
+import { unitPrice } from '@/utils/filters.js'
+
+const store = useStore()
+
+const loadStatus = ref('more')
+const params = reactive({
+  pageNumber: 1,
+  pageSize: 10,
+  keyword: '',
+})
+const goods = ref<any>({})
+const goodsList = ref<any[]>([])
+const nomsg = ref(false)
+
+function getList() {
+  uni.showLoading({ title: '加载中' })
+  params.keyword = goods.value.goodsName
+  getGoodsList(params).then((res) => {
+    if (store.state.isShowToast) {
+      uni.hideLoading()
+    }
+    if (res.statusCode == 200) {
+      const data = res.data
+      if (data.data_total == 0) {
+        loadStatus.value = 'noMore'
+      } else if (data.data_total < 10) {
+        loadStatus.value = 'noMore'
+        goodsList.value.push(...data.data)
+      } else {
+        goodsList.value.push(...data.data)
+        if (data.data.length < 10) loadStatus.value = 'noMore'
+      }
+    }
+  })
+}
+
+function goDetail(item: any) {
+  uni.navigateTo({
+    url: '/pages/product/goods?id=' + item.id + '&goodsId=' + item.goodsId,
+  })
+}
+
+function loadData() {
+  if (loadStatus.value != 'noMore') {
+    params.pageNumber++
+    getList()
+  }
+}
+
+onLoad((option) => {
+  goods.value = JSON.parse(decodeURIComponent(option.goods))
+  getList()
+})
+
+onReachBottom(() => {
+  loadData()
+})
 </script>
 
 <style lang="scss" scoped>

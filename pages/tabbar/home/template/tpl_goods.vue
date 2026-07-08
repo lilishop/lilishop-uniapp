@@ -1,8 +1,8 @@
 <template>
-  <div class="layout">
+  <view class="layout">
     <u-sticky>
-      <div class="goods-cell-title">
-        <div
+      <view class="goods-cell-title">
+        <view
           class="goods-item-title"
           :class="{ 'selected-title': selected.index == index }"
           @click="handleClickTitle(title, index)"
@@ -10,13 +10,13 @@
           :key="index"
         >
           <h4 class="h4">{{ title.title }}</h4>
-          <div class="title-desc">{{ title.desc }}</div>
-        </div>
-      </div>
+          <view class="title-desc">{{ title.desc }}</view>
+        </view>
+      </view>
     </u-sticky>
-    <div class="goods-list">
+    <view class="goods-list">
       <template v-for="(item, item_index) in res.list[0].listWay" :key="item_index">
-        <div
+        <view
           v-if="
             item.___index != undefined
               ? selected.index == item.___index
@@ -25,144 +25,149 @@
           @click="handleClick(item)"
           class="goods-item"
         >
-          <div class="goods-img">
+          <view class="goods-img">
             <u-image
               :src="item.img"
               height="350rpx"
               mode="aspectFit"
               width="100%"
             >
-              <template #loading><u-loading></u-loading></template>
+              <template #loading><u-loading-icon></u-loading-icon></template>
             </u-image>
-          </div>
-          <div class="goods-desc">
-            <div class="goods-title">
+          </view>
+          <view class="goods-desc">
+            <view class="goods-title">
               {{ item.title }}
-            </div>
-            <div class="goods-bottom">
-              <div class="goods-price">
+            </view>
+            <view class="goods-bottom">
+              <view class="goods-price">
                 ¥<span class="price-int"
                   >{{ goodsFormatPrice(item.price)[0] }} </span
                 >.{{ goodsFormatPrice(item.price)[1] }}
-              </div>
-            </div>
-          </div>
-        </div>
+              </view>
+            </view>
+          </view>
+        </view>
       </template>
 
       <template
-        v-if="res.list[0].titleWay[selected.index].bindCategory && goodsData.length"
+        v-if="currentTitleWay?.bindCategory && goodsData.length"
       >
-        <div
+        <view
           v-for="(item, index) in goodsData"
           :key="index"
           class="goods-item"
           @click="handleClick(item)"
         >
-          <div class="goods-img">
+          <view class="goods-img">
             <u-image
               :src="item.thumbnail"
               height="350rpx"
               mode="aspectFit"
               width="100%"
             >
-              <template #loading><u-loading></u-loading></template>
+              <template #loading><u-loading-icon></u-loading-icon></template>
             </u-image>
-          </div>
-          <div class="goods-desc">
-            <div class="goods-title">
+          </view>
+          <view class="goods-desc">
+            <view class="goods-title">
               {{ item.goodsName }}
-            </div>
-            <div class="goods-bottom">
-              <div class="goods-price">
+            </view>
+            <view class="goods-bottom">
+              <view class="goods-price">
                 ¥<span class="price-int"
                   >{{ goodsFormatPrice(item.price)[0] }} </span
                 >.{{ goodsFormatPrice(item.price)[1] }}
-              </div>
-            </div>
-          </div>
-        </div>
+              </view>
+            </view>
+          </view>
+        </view>
       </template>
-    </div>
-  </div>
+    </view>
+  </view>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, reactive, watch, onMounted, onUnmounted, computed } from "vue";
 import { getGoodsList } from "@/api/goods.js";
-export default {
-  title: "商品分类以及商品",
-  data() {
-    return {
-      selected: {
-        index: 0,
-        val: "",
-      },
-      params: {
-        pageNumber: 1,
-        pageSize: 100,
-        categoryId: "",
-      },
-      goodsData: [], //商品循环内容
-      goodsResult:"", //es总返回内容
-    };
+import { goodsFormatPrice } from "@/utils/filters.js";
+
+const props = defineProps<{ res: any; enableBottomLoad?: boolean }>();
+
+const selected = reactive({
+  index: 0,
+  val: "",
+});
+
+const currentTitleWay = computed(() => {
+  return props.res?.list?.[0]?.titleWay?.[selected.index]
+})
+const params = reactive({
+  pageNumber: 1,
+  pageSize: 100,
+  categoryId: "",
+});
+const goodsData = ref<any[]>([]);
+const goodsResult = ref<any>("");
+
+watch(
+  () => props.res,
+  (val) => {
+    if (!val?.list?.[0]) return
+    const firstListWay = val.list[0].listWay?.[0]
+    selected.val = firstListWay?.type || ''
+    const firstTitleWay = val.list[0].titleWay?.[0]
+    if (firstTitleWay?.bindCategory) {
+      initGoods(firstTitleWay)
+    }
   },
-  props: ["res","enableBottomLoad"],
-  watch: {
-    res: {
-      handler(val) {
-        // 监听父级的值 如果有值将值赋给selected
-        if (val) {
-          // 如果第一个标签页绑定为商品
-          this.selected.val = this.res.list[0].listWay[0] ? this.res.list[0].listWay[0].type: '';
-          // 如果第一个标签为绑定为分类
-          this.res.list[0].titleWay[0].bindCategory ? this.initGoods(this.res.list[0].titleWay[0]) : ''
-        }
-      },
-      immediate: true,
-    },
-  },
-  mounted() {
-    uni.$on('onReachBottom',()=>{
-      if(this.enableBottomLoad && this.goodsResult.totalElements >= this.params.pageNumber * this.params.pageSize){
-        this.params.pageNumber++
-        this.initGoods(this.res.list[0].titleWay[this.selected.index])
-      }
-      
-    })
-  },
-  destroyed(){
-    uni.$off('onReachBottom')
-  },
-  methods: {
-    handleClick(item) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
-      });
-    },
-    closeGoods(val, index) {
-      this.res.list[0].listWay.splice(index, 1);
-    },
-    async initGoods(val) {
-      if(this.enableBottomLoad) this.params.pageSize = 20
-      val ? this.params.categoryId = val.bindCategory.id : '';
-      const res = await getGoodsList(this.params);
-      if (res.data.success) {
-        this.goodsResult = res.data.result
-        const result = res.data.result.records
-        this.goodsData.push(...result);
-        console.log(this.goodsData)
-      }
-    },
-    handleClickTitle(val, index) {
-      this.selected.index = index;
-      this.selected.val = val.title;
-      if (val.bindCategory) {
-        this.params.pageNumber = 1
-        this.goodsData = []
-        this.initGoods(val);
-      }
-    },
-  },
-};
+  { immediate: true }
+)
+
+onMounted(() => {
+  uni.$on("onReachBottom", () => {
+    if (
+      props.enableBottomLoad &&
+      goodsResult.value.totalElements >=
+        params.pageNumber * params.pageSize
+    ) {
+      params.pageNumber++;
+      initGoods(props.res.list[0].titleWay[selected.index]);
+    }
+  });
+});
+
+onUnmounted(() => {
+  uni.$off("onReachBottom");
+});
+
+function handleClick(item: any) {
+  if (!item?.id || !item?.goodsId) return
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
+  })
+}
+
+async function initGoods(val: any) {
+  if (props.enableBottomLoad) params.pageSize = 20;
+  val ? (params.categoryId = val.bindCategory.id) : "";
+  const res = await getGoodsList(params);
+  if (res.data.success) {
+    goodsResult.value = res.data.result;
+    const result = res.data.result.records;
+    goodsData.value.push(...result);
+    console.log(goodsData.value);
+  }
+}
+
+function handleClickTitle(val: any, index: number) {
+  selected.index = index;
+  selected.val = val.title;
+  if (val.bindCategory) {
+    params.pageNumber = 1;
+    goodsData.value = [];
+    initGoods(val);
+  }
+}
 </script>
 <style lang="scss" scoped>
 $w_94: 94%;

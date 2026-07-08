@@ -19,39 +19,33 @@
   </view>
 </template>
 
-<script>
-import { whetherNavigate } from "@/utils/Foundation"; //登录跳转
-import config from "@/config/config";
-import api from "@/config/api.js";
-export default {
-  data() {
-    return {
-      // 授权信息展示，商城名称
-      projectName: config.name,
-    };
-  },
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { whetherNavigate } from '@/utils/Foundation'
+import config from '@/config/config'
+import api from '@/config/api.js'
 
-  //微信小程序进入页面，先获取code，否则几率出现code和后续交互数据不对应情况
-  mounted() {
-    // 小程序默认分享
-    uni.showShareMenu({ withShareTicket: true });
-  },
-  methods: {
-    back() {
-      whetherNavigate();
-    },
-    getUserProfile() {
-      let code = "WECHAT";
-      let buyer = api.buyer;
-      window.open(buyer + `/passport/connect/connect/login/web/` + code, "_self");
-    },
-    backToHome() {
-      uni.switchTab({
-        url: `/pages/tabbar/home/index`,
-      });
-    },
-  },
-};
+const projectName = ref(config.name)
+
+onMounted(() => {
+  uni.showShareMenu({ withShareTicket: true })
+})
+
+function back() {
+  whetherNavigate()
+}
+
+function getUserProfile() {
+  const code = 'WECHAT'
+  const buyer = api.buyer
+  window.open(buyer + `/passport/connect/connect/login/web/` + code, '_self')
+}
+
+function backToHome() {
+  uni.switchTab({
+    url: '/pages/tabbar/home/index',
+  })
+}
 </script>
 
 <style lang="scss" scoped>

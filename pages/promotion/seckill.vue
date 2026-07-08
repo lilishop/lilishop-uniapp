@@ -38,128 +38,115 @@
 	</view>
 </template>
 
-<script>
-	import {
-		getSeckillTimeLine,
-		getSeckillTimeGoods
-	} from "@/api/promotions.js";
-	import Foundation from "@/utils/Foundation.js";
-	import goodsTemplate from '@/components/m-goods-list/promotion.vue'
-	export default {
-		components: {
-			goodsTemplate
-		},
-		data() {
-			return {
-				nav: 0, //默认选择第一个时间
-				timeLine: "", //获取几个点活动
-				resTime: 0, //当前时间
-				time: 0, //距离下一个活动的时间值
-				times: {}, //时间集合
-				onlyOne: "", //是否最后一个商品
-				goodsList: [], //商品集合
-				params: {
-					pageNumber: 1,
-					pageSize: 10,
-				},
-			};
-		},
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow, onUnload } from '@dcloudio/uni-app'
+import { getSeckillTimeLine, getSeckillTimeGoods } from '@/api/promotions.js'
+import Foundation from '@/utils/Foundation.js'
+import goodsTemplate from '@/components/m-goods-list/promotion.vue'
 
-		/**
-		 * 显示时间活动
-		 */
-		async onShow() {
-			await this.getTimeLine();
-			if (!this.timeLine) {
-				await uni.showToast({
-					icon: "none",
-					duration: 2000,
-					title: "今天没有活动，明天再来吧",
-				});
-			}
-			this._setTimeInterval = setInterval(() => {
-				if (this.time <= 0) {
-					clearInterval(this._setTimeInterval);
-					this.getGoodsList();
-					this.getTimeLine();
-				} else {
-					this.times = Foundation.countTimeDown(this.time);
-					this.time--;
-				}
-			}, 1000);
-		},
+const nav = ref(0)
+const timeLine = ref<any[]>([])
+const resTime = ref(0)
+const time = ref(0)
+const times = ref<any>({})
+const onlyOne = ref(false)
+const goodsList = ref<any[]>([])
+const diffTime = ref(0)
 
-		onUnload() {
-			this._setTimeInterval && clearInterval(this._setTimeInterval);
-		},
-		methods: {
-			back() {
-				uni.navigateBack({
-					delta: 1,
-					fail: () => {
-						uni.switchTab({
-							url: "/pages/tabbar/home/index",
-						});
-					},
-				});
-			},
-			/**
-			 * 获取时间线商品
-			 */
-			async getTimeLine() {
-				let res = await getSeckillTimeLine();
-				if (res.data.success && res.data.result.length > 0) {
-					let timeLine = res.data.result.sort(
-						(x, y) => Number(x.timeLine) - Number(y.timeLine)
-					);
-					this.timeLine = timeLine.slice(0, 5);
-					this.resTime = parseInt(new Date().getTime() / 1000);
-					this.onlyOne = res.data.result.length === 1;
-					this.diffTime = parseInt(new Date().getTime() / 1000) - this.resTime;
+const params = ref<{
+  pageNumber: number
+  pageSize: number
+  timeLine?: string | number
+}>({
+  pageNumber: 1,
+  pageSize: 10,
+})
 
-					this.time =
-						this.timeLine[this.nav].distanceStartTime ||
-						(this.timeLine[this.nav + 1] &&
-							this.timeLine[this.nav + 1].distanceStartTime) ||
-						Foundation.theNextDayTime() - this.diffTime;
-					this.times = Foundation.countTimeDown(this.time);
+let setTimeInterval: ReturnType<typeof setInterval> | null = null
 
-					this.getGoodsList();
-				}
-			},
+onShow(async () => {
+  await getTimeLine()
+  if (!timeLine.value.length) {
+    await uni.showToast({
+      icon: 'none',
+      duration: 2000,
+      title: '今天没有活动，明天再来吧',
+    })
+  }
+  setTimeInterval = setInterval(() => {
+    if (time.value <= 0) {
+      if (setTimeInterval) clearInterval(setTimeInterval)
+      getGoodsList()
+      getTimeLine()
+    } else {
+      times.value = Foundation.countTimeDown(time.value)
+      time.value--
+    }
+  }, 1000)
+})
 
-			/**
-			 * 获取商品集合
-			 */
-			async getGoodsList() {
-				this.params.timeLine = this.timeLine[this.nav].timeLine;
-				let res = await getSeckillTimeGoods(this.params.timeLine);
-				if (res.data.success && res.data.result.length != 0) {
-					this.goodsList = res.data.result;
-				} else {
-					this.goodsList = [];
-				}
-			},
+onUnload(() => {
+  if (setTimeInterval) clearInterval(setTimeInterval)
+})
 
+function back() {
+  uni.navigateBack({
+    delta: 1,
+    fail: () => {
+      uni.switchTab({
+        url: '/pages/tabbar/home/index',
+      })
+    },
+  })
+}
 
-			/**
-			 * 单击导航时间
-			 */
-			clickNavigateTime(type) {
-				this.nav = type;
-				this.goodsList = [];
-				this.diffTime = parseInt(new Date().getTime() / 1000) - this.resTime;
-				this.time =
-					this.timeLine[this.nav].distanceStartTime ||
-					(this.timeLine[this.nav + 1] &&
-						this.timeLine[this.nav + 1].distanceStartTime) ||
-					Foundation.theNextDayTime() - this.diffTime;
+async function getTimeLine() {
+  const res = await getSeckillTimeLine()
+  if (res.data.success && res.data.result.length > 0) {
+    const sorted = res.data.result.sort(
+      (x: any, y: any) => Number(x.timeLine) - Number(y.timeLine)
+    )
+    timeLine.value = sorted.slice(0, 5)
+    resTime.value = parseInt(String(new Date().getTime() / 1000))
+    onlyOne.value = res.data.result.length === 1
+    diffTime.value = parseInt(String(new Date().getTime() / 1000)) - resTime.value
 
-				this.times = Foundation.countTimeDown(this.time);
-				this.getGoodsList();
-			},
-		},
-	};
+    time.value =
+      timeLine.value[nav.value].distanceStartTime ||
+      (timeLine.value[nav.value + 1] &&
+        timeLine.value[nav.value + 1].distanceStartTime) ||
+      Foundation.theNextDayTime() - diffTime.value
+    times.value = Foundation.countTimeDown(time.value)
+
+    getGoodsList()
+  }
+}
+
+async function getGoodsList() {
+  if (!timeLine.value.length) return
+  params.value.timeLine = timeLine.value[nav.value].timeLine
+  const res = await getSeckillTimeGoods(params.value.timeLine)
+  if (res.data.success && res.data.result.length != 0) {
+    goodsList.value = res.data.result
+  } else {
+    goodsList.value = []
+  }
+}
+
+function clickNavigateTime(type: number) {
+  nav.value = type
+  goodsList.value = []
+  diffTime.value = parseInt(String(new Date().getTime() / 1000)) - resTime.value
+  time.value =
+    timeLine.value[nav.value].distanceStartTime ||
+    (timeLine.value[nav.value + 1] &&
+      timeLine.value[nav.value + 1].distanceStartTime) ||
+    Foundation.theNextDayTime() - diffTime.value
+
+  times.value = Foundation.countTimeDown(time.value)
+  getGoodsList()
+}
 </script>
 
 <style lang="scss" scoped>

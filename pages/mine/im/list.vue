@@ -9,12 +9,12 @@
       :border="false"
       :auto-back="true"
     ></u-navbar>
-    <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData(tabIndex)">
+    <scroll-view class="list-scroll-content" scroll-y @scrolltolower="fetchTalkList">
       
       <!-- 消息列表 -->
       <div class="iconBox">
         <view class="icon-list">
-          <view class="icon-item" @click="cleanUnread()">
+          <view class="icon-item" @click="clearUnreadMessages()">
             <div class="bag bag1">
               <u-icon name="trash" size="50" color="#fff"></u-icon>
             </div>
@@ -28,7 +28,7 @@
           </view>
         </view>
       </div>
-      <u-search class="nav-search" v-model="userName" clearabled @change="userTalkList()" placeholder="搜索用户"
+      <u-search class="nav-search" v-model="userName" clearabled @change="fetchTalkList()" placeholder="搜索用户"
         :show-action="false"></u-search>
       <view class="talk-view" :key="index" v-for="(item, index) in talkList">
         <view>
@@ -65,85 +65,80 @@
   </view>
 </template>
 
-<script>
-import { getTalkList, clearmeaager } from "@/api/im.js";
-import storage from "@/utils/storage.js";
-import { beautifyTime } from "@/utils/filters.js"
-export default {
-  data () {
-    return {
-      storage,
-      count: {
-        loadStatus: "more",
-      },
-      talkList: [], //聊天列表
-      userName: '',
-      pointData: {}, //累计获取 未输入 集合
-    };
-  },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow, onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { getTalkList, clearmeaager } from '@/api/im.js'
+import storage from '@/utils/storage.js'
+import { beautifyTime } from '@/utils/filters.js'
 
-  onShow () {
-    this.userTalkList();
-  },
-  onPullDownRefresh () {
-    this.userTalkList()
-    console.log('下拉事件');
-    setTimeout(function () {
-      uni.stopPullDownRefresh();
-    }, 1000);
-  },
-  /**
-   * 触底加载
-   */
-  onReachBottom () {
-    this.userTalkList();
-  },
-  methods: {
-    beautifyTime,
-    onclickToTalkInfo (val) {
-      storage.setTalkToUser(val)
-      uni.navigateTo({
-        url:
-          "/pages/mine/im/index?talkId=" + val.id,
-      });
-    },
-    /**
-     * 获取聊天列表
-     */
-    userTalkList () {
-      let params = {
-        userName: this.userName,
-      }
-      uni.showLoading({
-        title: "加载中",
-      });
-      getTalkList(params).then((res) => {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        if (res.data.success) {
-          this.talkList = res.data.result;
-          console.log(this.talkList, 'this.talkListthis.talkList');
-        }
-      });
-    },
-    navigateTo (url) {
-      uni.navigateTo({
-        url,
-      });
-    },
-    cleanUnread () {
-      clearmeaager().then((res) => {
-        console.log(res);
-        if (res.data.code == 200) {
-          this.userTalkList();
-          uni.showToast({
-            icon: "none",
-            title: res.data.message,
-          });
-        }
+const store = useStore()
+
+const talkList = ref<any[]>([])
+const userName = ref('')
+
+onShow(() => {
+  fetchTalkList()
+})
+
+onPullDownRefresh(() => {
+  fetchTalkList()
+  console.log('下拉事件')
+  setTimeout(() => {
+    uni.stopPullDownRefresh()
+  }, 1000)
+})
+
+onReachBottom(() => {
+  fetchTalkList()
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+function onclickToTalkInfo(val: any) {
+  storage.setTalkToUser(val)
+  uni.navigateTo({
+    url: '/pages/mine/im/index?talkId=' + val.id,
+  })
+}
+
+function fetchTalkList() {
+  const params = {
+    userName: userName.value,
+  }
+  uni.showLoading({
+    title: '加载中',
+  })
+  getTalkList(params).then((res) => {
+    hideLoadingIfNeeded()
+    if (res.data.success) {
+      talkList.value = res.data.result
+      console.log(talkList.value, 'this.talkListthis.talkList')
+    }
+  })
+}
+
+function navigateTo(url: string) {
+  uni.navigateTo({
+    url,
+  })
+}
+
+function clearUnreadMessages() {
+  clearmeaager().then((res) => {
+    console.log(res)
+    if (res.data.code == 200) {
+      fetchTalkList()
+      uni.showToast({
+        icon: 'none',
+        title: res.data.message,
       })
-    },
-  },
-};
+    }
+  })
+}
 </script>
   
 <style lang="scss" scoped>

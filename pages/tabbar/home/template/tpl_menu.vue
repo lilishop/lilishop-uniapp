@@ -14,7 +14,7 @@
             class="menu-img"
             :src="item.img"
           >
-            <template #loading><u-loading></u-loading></template>
+            <template #loading><u-loading-icon></u-loading-icon></template>
           </u-image>
         </view>
         <view class="menu-title">{{ item.title }}</view>
@@ -22,17 +22,10 @@
     </view>
   </view>
 </template>
-<script>
+<script setup lang="ts">
 import { modelNavigateTo } from "./tpl";
-export default {
-  title: "五列菜单",
-  props: ["res"],
-  data() {
-    return {
-      modelNavigateTo,
-    };
-  },
-};
+
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

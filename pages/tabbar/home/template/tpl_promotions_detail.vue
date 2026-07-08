@@ -2,7 +2,7 @@
   <div class="layout">
     <div class="join-list">
       <div
-        v-for="(item, index) in res.list"
+        v-for="(item, index) in displayList"
         :key="index"
         class="join-list-item"
         @click="goToDetail(item.type)"
@@ -63,113 +63,132 @@
     </div>
   </div>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import * as API_Promotions from "@/api/promotions";
 import Foundation from "@/utils/Foundation.js";
-export default {
-  props: ["res"],
-  data() {
-    return {
-      timeLine: "", //获取几个点活动
-      resTime: 0, //当前时间
-      time: 0, //距离下一个活动的时间值
-      times: {}, //时间集合
-      onlyOne: "", //是否最后一个商品
-    };
-  },
-  mounted() {
-    let params = {
-      pageNumber: 1,
-      pageSize: 2,
-      status: "START",
-      promotionStatus: "START",
-    };
-    this._setTimeInterval = setInterval(() => {
-      if (this.time <= 0) {
-        clearInterval(this._setTimeInterval);
-      } else {
-        this.times = Foundation.countTimeDown(this.time);
-        this.time--;
-      }
-    }, 1000);
-    this.res.list.forEach((ele) => {
-      switch (ele.type) {
-        case "PINTUAN":
-          API_Promotions.getAssembleList(params).then((response) => {
-            const data = response.data.result.records;
-            if (data) {
-              ele.data = data;
-            }
-          });
-          break;
-        case "SECKILL":
-          API_Promotions.getSeckillTimeLine().then((response) => {
-            if (response.data.success && response.data.result) {
-              ele.data = response.data.result[0].seckillGoodsList.slice(0, 2);
-              let timeLine = response.data.result.sort(
-                (x, y) => Number(x.timeLine) - Number(y.timeLine)
-              );
-              this.timeLine = timeLine.slice(0, 5);
-              this.resTime = parseInt(new Date().getTime() / 1000);
-              this.onlyOne = response.data.result.length === 1;
-              this.diffTime = parseInt(new Date().getTime() / 1000) - this.resTime;
 
-              this.time =
-                this.timeLine[0].distanceStartTime ||
-                (this.timeLine[1] && this.timeLine[1].distanceStartTime) ||
-                Foundation.theNextDayTime() - this.diffTime;
-              this.times = Foundation.countTimeDown(this.time);
-              console.log(this.timeLine);
-            }
-          });
-          break;
-        case "LIVE":
-          API_Promotions.getLiveList(params).then((response) => {
-            if (response.success && response.result.records) {
-              ele.data = response.result.records[0].commodityList.slice(0, 2);
-            }
-          });
-          break;
-        case "KANJIA":
-          API_Promotions.getBargainList(params).then((response) => {
-            if (response.success && response.result) {
-              ele.data = response.result.records(0, 2);
-            }
-          });
-          break;
-        default:
-          break;
-      }
-    });
-  },
-  methods: {
-    //跳转详情
-    goToDetail(type) {
-      switch(type) {
-        case "SECKILL":
-          uni.navigateTo({
-            url: `/pages/promotion/seckill`,
-          });
-          break;
-        case "PINTUAN":
-          uni.navigateTo({
-            url: `/pages/promotion/joinGroup`,
-          });
-          break;
-        case "LIVE":
-          uni.navigateTo({
-            url: `/pages/promotion/lives`,
-          });
-          break;
-        case "KANJIA":
-          uni.navigateTo({
-            url: `/pages/promotion/bargain/list`,
-          });
-          break;
-      };
+const props = defineProps<{ res: any }>();
+
+const displayList = computed(() => {
+  const list = props.res?.list || [];
+  // #ifdef MP-WEIXIN
+  return list.filter((item: any) => item.type !== "LIVE");
+  // #endif
+  // #ifndef MP-WEIXIN
+  return list;
+  // #endif
+});
+const timeLine = ref<any>("");
+const resTime = ref(0);
+const time = ref(0);
+const times = ref<any>({});
+const onlyOne = ref("");
+let setTimeInterval: ReturnType<typeof setInterval> | null = null;
+let diffTime = 0;
+
+onMounted(() => {
+  const params = {
+    pageNumber: 1,
+    pageSize: 2,
+    status: "START",
+    promotionStatus: "START",
+  };
+  setTimeInterval = setInterval(() => {
+    if (time.value <= 0) {
+      if (setTimeInterval) clearInterval(setTimeInterval);
+    } else {
+      times.value = Foundation.countTimeDown(time.value);
+      time.value--;
     }
-  },
-};
+  }, 1000);
+  props.res.list.forEach((ele: any) => {
+    // #ifdef MP-WEIXIN
+    if (ele.type === "LIVE") return;
+    // #endif
+    switch (ele.type) {
+      case "PINTUAN":
+        API_Promotions.getAssembleList(params).then((response) => {
+          const data = response.data.result.records;
+          if (data) {
+            ele.data = data;
+          }
+        });
+        break;
+      case "SECKILL":
+        API_Promotions.getSeckillTimeLine().then((response) => {
+          if (response.data.success && response.data.result) {
+            ele.data = response.data.result[0].seckillGoodsList.slice(0, 2);
+            const timeline = response.data.result.sort(
+              (x: any, y: any) => Number(x.timeLine) - Number(y.timeLine)
+            );
+            timeLine.value = timeline.slice(0, 5);
+            resTime.value = parseInt(String(new Date().getTime() / 1000));
+            onlyOne.value = response.data.result.length === 1;
+            diffTime =
+              parseInt(String(new Date().getTime() / 1000)) - resTime.value;
+
+            time.value =
+              timeLine.value[0].distanceStartTime ||
+              (timeLine.value[1] && timeLine.value[1].distanceStartTime) ||
+              Foundation.theNextDayTime() - diffTime;
+            times.value = Foundation.countTimeDown(time.value);
+            console.log(timeLine.value);
+          }
+        });
+        break;
+      // #ifndef MP-WEIXIN
+      case "LIVE":
+        API_Promotions.getLiveList(params).then((response) => {
+          if (response.success && response.result.records) {
+            ele.data = response.result.records[0].commodityList.slice(0, 2);
+          }
+        });
+        break;
+      // #endif
+      case "KANJIA":
+        API_Promotions.getBargainList(params).then((response) => {
+          if (response.success && response.result) {
+            ele.data = response.result.records(0, 2);
+          }
+        });
+        break;
+      default:
+        break;
+    }
+  });
+});
+
+onUnmounted(() => {
+  if (setTimeInterval) clearInterval(setTimeInterval);
+});
+
+function goToDetail(type: string) {
+  switch (type) {
+    case "SECKILL":
+      uni.navigateTo({
+        url: `/pages/promotion/seckill`,
+      });
+      break;
+    case "PINTUAN":
+      uni.navigateTo({
+        url: `/pages/promotion/joinGroup`,
+      });
+      break;
+    // #ifndef MP-WEIXIN
+    case "LIVE":
+      uni.navigateTo({
+        url: `/pages/promotion/lives`,
+      });
+      break;
+    // #endif
+    case "KANJIA":
+      uni.navigateTo({
+        url: `/pages/promotion/bargain/list`,
+      });
+      break;
+  }
+}
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

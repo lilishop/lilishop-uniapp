@@ -12,76 +12,41 @@
   </u-modal>
 </template>
 
-<script>
-import storage from "@/utils/storage";
-export default {
-  created() {
-    //先进入 created
-    // if (storage.getShow()) {
-    //   //展示的话进入  true
-    //   console.log(this.show); //如果上面没读缓存  此时 this.show 为true
-    //   if (!this.show) {
-    //     //如果等于 false 了 就跳到主页
-    //     this.show = storage.getShow(); //这里就为false
-    //     setTimeout(() => {
-    //       //然后这里就跳转到  首页
-    //       uni.reLaunch({
-    //         //跳转到 首页
-    //         url: "/pages/tabbar/home/index",
-    //       });
-    //     }, 500);
-    //   }
-    // }
-  },
-  data() {
-    return {
-      show: true, //展示
-      btnShow:true,
-      a: "",
-    };
-  },
-  //   onReady() {
-  //     this.show = true;
-  //   },
-  methods: {
-    gotoLink() {
-      uni.navigateTo({
-        //点击跳转到浏览器
-        url:
-          "/pages/tabbar/home/web-view?src=https://pc-b2b2c.pickmall.cn/article/detail?id=1371992704333905920",
-      });
-    },
-    gotoB() {
-      uni.navigateTo({
-        url:
-          "/pages/tabbar/home/web-view?src=https://pc-b2b2c.pickmall.cn/article/detail?id=1371779927900160000",
-      });
-    },
-     //取消
-    cancel(){
-      // #ifdef APP-PLUS
-        //  const threadClass = plus.ios.importClass("NSThread");
-        //  const mainThread = plus.ios.invoke(threadClass, "mainThread");
-        //  plus.ios.invoke(mainThread, "exit")
-       plus.ios.import("UIApplication").sharedApplication().performSelector("exit")
-		 // #endif
-    },
-    confirm() {
-      //点击
-      this.show = false; // 让这个框为false
-      storage.setShow(this.show); //存入缓存
-      if (!this.show) {
-        // 他如果 不展示  就跳转到主页
-        setTimeout(() => {
-          uni.reLaunch({
-            //跳转到 首页
-            url: "/pages/tabbar/home/index",
-          });
-        }, 500);
-      }
-    },
-  },
-};
+<script setup lang="ts">
+import { ref } from 'vue'
+import storage from '@/utils/storage'
+
+const show = ref(true)
+
+function gotoLink() {
+  uni.navigateTo({
+    url: '/pages/tabbar/home/web-view?src=https://pc-b2b2c.pickmall.cn/article/detail?id=1371992704333905920',
+  })
+}
+
+function gotoB() {
+  uni.navigateTo({
+    url: '/pages/tabbar/home/web-view?src=https://pc-b2b2c.pickmall.cn/article/detail?id=1371779927900160000',
+  })
+}
+
+function cancel() {
+  // #ifdef APP-PLUS
+  plus.ios.import('UIApplication').sharedApplication().performSelector('exit')
+  // #endif
+}
+
+function confirm() {
+  show.value = false
+  storage.setShow(show.value)
+  if (!show.value) {
+    setTimeout(() => {
+      uni.reLaunch({
+        url: '/pages/tabbar/home/index',
+      })
+    }, 500)
+  }
+}
 </script>
 
 <style scoped>

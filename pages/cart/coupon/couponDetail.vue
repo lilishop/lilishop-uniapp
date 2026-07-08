@@ -2,52 +2,46 @@
   <view class="content">
     <view class="body">
       <view class="top-view">
-        <view class="title">{{coupon.title}}</view>
-        <view class="price" v-if="coupon.couponType =='PRICE'"><text>￥</text>{{unitPrice(coupon.price)}}</view>
-        <view class="price" v-if="coupon.couponType =='DISCOUNT'">{{coupon.discount}}折</view>
-        <view class="text">满{{coupon.consumeThreshold}}元可用</view>
-        <view class="bg-quan">
-          券
-        </view>
-        <view class="jiao-1" :class="{'used-color':coupon.used_status!=0}">
-          <text class="text-1">{{coupon.used_status == 0?'新到':coupon.used_status_text}}</text>
+        <view class="title">{{ coupon.title }}</view>
+        <view class="price" v-if="coupon.couponType == 'PRICE'"><text>￥</text>{{ unitPrice(coupon.price) }}</view>
+        <view class="price" v-if="coupon.couponType == 'DISCOUNT'">{{ coupon.discount }}折</view>
+        <view class="text">满{{ coupon.consumeThreshold }}元可用</view>
+        <view class="bg-quan">券</view>
+        <view class="jiao-1" :class="{ 'used-color': coupon.used_status != 0 }">
+          <text class="text-1">{{ coupon.used_status == 0 ? '新到' : coupon.used_status_text }}</text>
         </view>
       </view>
       <view class="bottom-view">
         <view class="text">• 使用范围：{{
-                    coupon.scopeType == 'ALL' && coupon.storeId == '0'
-                      ? "全平台"
-                      : coupon.scopeType == "PORTION_GOODS"
-                      ? "部分商品"
-					  : coupon.scopeType == "PORTION_GOODS_CATEGORY"
-					  ? "部分分类商品"
-                      : coupon.storeName == 'platform' ? '全平台' :coupon.storeName+''
-                  }}使用</view>
-        <view class="text">• 有效期至：{{coupon.endTime}}</view>
-
+          coupon.scopeType == 'ALL' && coupon.storeId == '0'
+            ? '全平台'
+            : coupon.scopeType == 'PORTION_GOODS'
+              ? '部分商品'
+              : coupon.scopeType == 'PORTION_GOODS_CATEGORY'
+                ? '部分分类商品'
+                : coupon.storeName == 'platform' ? '全平台' : coupon.storeName + ''
+        }}使用</view>
+        <view class="text">• 有效期至：{{ coupon.endTime }}</view>
       </view>
-
     </view>
   </view>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      coupon: {}, //优惠券数据
-    };
-  },
-  onLoad(option) {
-    this.coupon = JSON.parse(decodeURIComponent(option.item));
-  },
-};
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { unitPrice } from '@/utils/filters.js'
+
+const coupon = ref<Record<string, any>>({})
+
+onLoad((option) => {
+  coupon.value = JSON.parse(decodeURIComponent(option.item))
+})
 </script>
 
 <style lang="scss" scoped>
 page,
 .content {
-  // background: $main-color;
   height: 100%;
 }
 .body {

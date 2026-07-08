@@ -10,31 +10,23 @@
   </view>
 </template>
 
-<script>
-import { getArticleDetail } from "@/api/article.js";
-export default {
-  data() {
-    return {
-      // 用于接收上一级通过路径传输的数据
-      routers: "", 
-      // 请求文章接口后存储文章信息
-      articleData: "",
-    };
-  },
-  onLoad(val) {
-    this.routers = val;
-    getArticleDetail(val.id).then((res) => {
-      if (res.data.result) {
-        // 将请求的文章数据赋值
-        this.articleData = res.data.result.content;
-      }
-      // 修改当前NavigationBar(标题头)为文章头部
-      uni.setNavigationBarTitle({
-        title: val.title,
-      });
-    });
-  },
-};
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { getArticleDetail } from '@/api/article.js'
+
+const articleData = ref('')
+
+onLoad((val) => {
+  getArticleDetail(val.id).then((res) => {
+    if (res.data.result) {
+      articleData.value = res.data.result.content
+    }
+    uni.setNavigationBarTitle({
+      title: val.title,
+    })
+  })
+})
 </script>
 <style lang="scss" scoped>
 page {

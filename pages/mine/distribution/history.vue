@@ -1,30 +1,38 @@
 <template>
   <view class="log-list">
-    <!-- 提现记录 -->
-    <view class="log-way" v-if="cashLogData.length != 0" v-for="(item, index) in cashLogData" :key="index">
+    <view
+      class="log-way"
+      v-if="withdrawLogList.length != 0"
+      v-for="(item, index) in withdrawLogList"
+      :key="'cash-' + index"
+    >
       <view class="log-item">
         <view class="log-item-view">
           <view class="title">{{
-            item.distributionCashStatus == "APPLY"
-              ? "待处理"
-              : item.distributionCashStatus == "VIA_AUDITING"
-                ? "通过"
-                : "拒绝"
+            item.distributionCashStatus == 'APPLY'
+              ? '待处理'
+              : item.distributionCashStatus == 'VIA_AUDITING'
+                ? '通过'
+                : '拒绝'
           }}</view>
-          <view class="price">+{{unitPrice(item.price) }}</view>
+          <view class="price">+{{ unitPrice(item.price) }}</view>
         </view>
         <view class="log-item-view">
           <view>{{ item.createTime }}</view>
-          <view></view>
         </view>
       </view>
     </view>
-    <!-- 分销业绩 -->
-    <view class="log-way" v-if="achievementData.length != 0" v-for="(item, index) in achievementData" :key="index">
+
+    <view
+      class="log-way"
+      v-if="achievementList.length != 0"
+      v-for="(item, index) in achievementList"
+      :key="'ach-' + index"
+    >
       <view class="log-item">
         <view class="log-item-view">
           <view class="title">{{ item.goodsName }}</view>
-          <view class="price">提成金额：+{{unitPrice(item.rebate) }}</view>
+          <view class="price">提成金额：+{{ unitPrice(item.rebate) }}</view>
         </view>
         <view class="log-item-view">
           <view>创建时间：{{ item.createTime }}</view>
@@ -38,101 +46,98 @@
         </view>
       </view>
     </view>
-    <view class="empty" v-if="empty">
-      <u-loadmore :status="status" :icon-type="iconType" bg-color="#f7f7f7" />
+
+    <view class="empty" v-if="isEmpty">
+      <u-loadmore :status="loadStatus" :icon-type="iconType" bg-color="#f7f7f7" />
     </view>
   </view>
 </template>
-<script>
-import { cashLog, distributionOrderList } from "@/api/goods";
-export default {
-  data () {
-    return {
-      cashLogData: [], //提现记录数据集合
-      achievementData: [], //分销业绩数据合集,
-      status: "loadmore",
-      iconType: "flower",
-      empty: false,
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-      },
 
-      type: 0,
-      routers: "",
-      achParams: {
-        pageNumber: 1,
-        pageSize: 10,
-      },
-    };
-  },
-  onLoad (option) {
-    let title;
-    option.type == 0 ? (title = "分销业绩") : (title = "提现记录");
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad, onReachBottom } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { cashLog, distributionOrderList } from '@/api/goods'
+import { unitPrice } from '@/utils/filters.js'
 
-    uni.setNavigationBarTitle({
-      title: title, //这是修改后的导航栏文字
-    });
-    this.routers = option;
-    this.type = option.type;
-    option.type == 0 ? this.achievement() : this.history();
-  },
-  mounted () { },
-  onReachBottom () {
-    this.status = "loading";
-    this.type == 0 ? this.achParams.pageNumber++ : this.params.pageNumber++;
-    this.type == 0 ? this.achievement() : this.history();
-  },
-  methods: {
-    // 业绩
-    achievement () {
-      uni.showLoading({
-        title: "加载中",
-      });
-      distributionOrderList(this.achParams).then((res) => {
-        if (res.data.success && res.data.result.records.length >= 1) {
-          this.achievementData.push(...res.data.result.records);
-        } else {
-          this.status = "nomore";
-          this.empty = true;
-        }
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
-    },
-    // 初始化提现历史
-    history () {
-      uni.showLoading({
-        title: "加载中",
-      });
-      cashLog(this.params).then((res) => {
-        if (res.data.success && res.data.result.records.length >= 1) {
-          this.cashLogData.push(...res.data.result.records);
-        } else {
-          this.status = "nomore";
-          this.empty = true;
-        }
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
-    },
-  },
-};
+const store = useStore()
+
+const withdrawLogList = ref<any[]>([])
+const achievementList = ref<any[]>([])
+const loadStatus = ref('loadmore')
+const iconType = ref('flower')
+const isEmpty = ref(false)
+const listType = ref(0)
+const routeQuery = ref<Record<string, string>>({})
+
+const withdrawParams = ref({ pageNumber: 1, pageSize: 10 })
+const achievementParams = ref({ pageNumber: 1, pageSize: 10 })
+
+onLoad((option) => {
+  const type = Number(option.type ?? 0)
+  listType.value = type
+  routeQuery.value = option || {}
+  uni.setNavigationBarTitle({
+    title: type === 0 ? '分销业绩' : '提现记录',
+  })
+  type === 0 ? fetchAchievementList() : fetchWithdrawLog()
+})
+
+onReachBottom(() => {
+  loadStatus.value = 'loading'
+  if (listType.value === 0) {
+    achievementParams.value.pageNumber++
+    fetchAchievementList()
+  } else {
+    withdrawParams.value.pageNumber++
+    fetchWithdrawLog()
+  }
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+function fetchAchievementList() {
+  uni.showLoading({ title: '加载中' })
+  distributionOrderList(achievementParams.value).then((res) => {
+    if (res.data.success && res.data.result.records.length >= 1) {
+      achievementList.value.push(...res.data.result.records)
+    } else {
+      loadStatus.value = 'nomore'
+      isEmpty.value = true
+    }
+    hideLoadingIfNeeded()
+  })
+}
+
+function fetchWithdrawLog() {
+  uni.showLoading({ title: '加载中' })
+  cashLog(withdrawParams.value).then((res) => {
+    if (res.data.success && res.data.result.records.length >= 1) {
+      withdrawLogList.value.push(...res.data.result.records)
+    } else {
+      loadStatus.value = 'nomore'
+      isEmpty.value = true
+    }
+    hideLoadingIfNeeded()
+  })
+}
 </script>
+
 <style lang="scss" scoped>
 .empty {
   margin: 40rpx 0;
 }
-
 .price {
   color: $main-color;
   font-weight: bold;
 }
-
 .log-list {
   padding: 0 8rpx;
   overflow: hidden;
   margin: 20rpx 0;
 }
-
 .log-way {
   margin: 10rpx 0;
   overflow: hidden;
@@ -140,26 +145,17 @@ export default {
   border-radius: 10rpx;
   padding: 20rpx 0;
 }
-
 .title {
   font-size: 30rpx;
   font-weight: bold;
 }
-
 .log-item-view {
   padding: 8rpx 32rpx;
   display: flex;
   font-size: 13px;
   justify-content: space-between;
 }
-
-.log-item-footer {
-  padding: 8rpx 32rpx;
-  display: flex;
-  font-size: 13px;
-  justify-content: space-between;
-}
-
+.log-item-footer,
 .log-item-footers {
   padding: 8rpx 32rpx;
   display: flex;

@@ -1,9 +1,9 @@
 <template>
   <view>
     <view
-      v-if="!hid"
+      v-if="!state.hid"
       class="flex-row-center"
-      :style="{ top: scHight }"
+      :style="{ top: state.scHight }"
       style="width: 750rpx; position: fixed; z-index: 100; left: 0"
     >
       <view
@@ -14,35 +14,35 @@
           class="flex"
           style="width: 100%"
           animation="false"
-          :style="{ height: originalHeight }"
+          :style="{ height: state.originalHeight }"
         >
           <movable-view
             scale-value="1"
             animation="false"
             damping="5000"
-            :x="moveX"
+            :x="state.moveX"
             :style="{
-              height: sliderHeight,
-              width: sliderWidth,
+              height: state.sliderHeight,
+              width: state.sliderWidth,
               'z-index': 101,
             }"
             direction="horizontal"
           >
             <image
-              :src="imgbk"
+              :src="state.imgbk"
               class="image"
               mode="aspectFit"
               :style="{
-                height: sliderHeight,
-                width: sliderWidth,
-                'margin-top': imgbKH,
+                height: state.sliderHeight,
+                width: state.sliderWidth,
+                'margin-top': state.imgbKH,
               }"
             ></image>
           </movable-view>
           <image
-            :src="img"
+            :src="state.img"
             mode="aspectFit"
-            :style="{ height: originalHeight, width: originalWidth }"
+            :style="{ height: state.originalHeight, width: state.originalWidth }"
             style="border-radius: 10rpx"
           ></image>
         </movable-area>
@@ -61,7 +61,7 @@
             scale-value="1"
             animation="false"
             damping="50"
-            :x="movePv"
+            :x="state.movePv"
             class="flex-row-center"
             style="
               border-radius: 50%;
@@ -78,14 +78,14 @@
             <u-icon
               :color="mainColor"
               size="40"
-              v-if="endLoad"
+              v-if="state.endLoad"
               name="arrow-right"
             ></u-icon>
             <u-icon :color="mainColor" size="40" v-else name="reload"></u-icon>
           </movable-view>
 
-          <text style="padding-left: 140rpx" :style="{ color: col }">{{
-            hasImg
+          <text style="padding-left: 140rpx" :style="{ color: state.col }">{{
+            state.hasImg
           }}</text>
         </movable-area>
         <view class="flex-row-around padding-top" style="width: 100%">
@@ -106,173 +106,178 @@
   </view>
 </template>
 
-<script>
-import api from "@/config/api.js";
-import storage from "@/utils/storage.js";
-import uuid from "@/utils/uuid.modified.js";
-const phone = uni.getSystemInfoSync();
-const l = phone.screenWidth / 750;
-export default {
-  name: "verification",
-  created() {
-    // 可自行调整
-    this.scHight = phone.screenHeight / 2 - 200 + "px";
-    this.getCode();
-  },
-  props: {
-    height: {
-      type: String,
-      default: "80rpx",
+<script setup lang="ts">
+import { reactive, computed } from 'vue'
+import { useStore } from '@/store'
+import api from '@/config/api.js'
+import storage from '@/utils/storage.js'
+import uuid from '@/utils/uuid.modified.js'
+
+const emit = defineEmits(['send'])
+const props = withDefaults(defineProps<{
+  height?: string
+  width?: string
+  left?: string
+  top?: string
+  business?: string
+}>(), {
+  height: '80rpx',
+  width: '350rpx',
+  left: '180rpx',
+  top: '30rpx',
+  business: 'LOGIN'
+})
+
+const store = useStore()
+const phone = uni.getSystemInfoSync()
+const l = phone.screenWidth / 750
+
+const mainColor = computed(() => store.getters.mainColor)
+const state = reactive({
+  flage: false,
+  key: '', // key
+  vsrtx: '点击进行验证', // 按钮提示语
+  vsr: false,
+  hid: true,
+  col: '#838383',
+  movePv: 0,
+  hasImg: '拖动滑块已完成拼图',
+  spcode: '',
+  tl: 0,
+  moveCode: 0,
+  // X轴移动距离
+  moveX: 0,
+  // 模版高度
+  originalHeight: '',
+  // 模版宽度
+  originalWidth: '',
+  // 拼图高度
+  sliderHeight: '',
+  // 平涂宽度
+  sliderWidth: '',
+  scHight: 0,
+  // 原图
+  img: '',
+  // 拼图
+  imgbk: '',
+  endLoad: true,
+  imgbKH: ''
+})
+
+// 可自行调整
+state.scHight = phone.screenHeight / 2 - 200 + 'px'
+getCode()
+
+function show() {
+  state.hid = false
+}
+
+function hide() {
+  if (!state.vsr) {
+    // vsr判断是否验证成功，成功隐藏验证框
+    state.hid = !state.hid
+  }
+}
+
+function error() {
+  state.vsr = false
+  state.hid = false
+  state.moveX = 0
+  state.moveCode = 0
+}
+
+// 获取验证图片
+function getCode() {
+  state.col = '#b3afae'
+  state.hasImg = '图片加载中...'
+  if (!storage.getUuid()) {
+    storage.setUuid(uuid.v1())
+  }
+  uni.request({
+    url: api.common + '/common/slider/' + props.business,
+    header: {
+      uuid: storage.getUuid()
     },
-    width: {
-      type: String,
-      default: "350rpx",
+    success: (res: any) => {
+      state.col = '#838383'
+      state.hasImg = '拖动滑块以完成拼图'
+      const data = res.data.result
+
+      // base64的图片
+      state.img = data.backImage
+      state.imgbk = data.slidingImage
+      // 根据参数动态适应验证图片的高宽
+      state.imgbKH = data.randomY * 1.8 + 'rpx'
+      state.originalHeight = data.originalHeight * 1.8 + 'rpx'
+      state.originalWidth = data.originalWidth * 1.8 + 'rpx'
+      state.sliderHeight = data.sliderHeight * 1.8 + 'rpx'
+      state.sliderWidth = data.sliderWidth * 1.8 + 'rpx'
+      // 适应比率，用来适应滑动距离
+      state.tl = 1 / (1.8 * l)
+      // 无用信息
+      state.spcode = data.capcode
+      // 验证令牌
+      state.key = data.key
+      store.state.verificationKey = data.key
+    }
+  })
+}
+
+function end() {
+  state.endLoad = false
+  // 验证拼图位置是否正确
+  uni.request({
+    method: 'POST',
+    url:
+      api.common +
+      '/common/slider/' +
+      props.business +
+      '?xPos=' +
+      parseInt(String(state.moveCode * state.tl)),
+    header: {
+      uuid: storage.getUuid()
     },
-    left: {
-      type: String,
-      default: "180rpx",
-    },
-    top: {
-      type: String,
-      default: "30rpx",
-    },
-    business: {
-      type: String,
-      default: "LOGIN",
-    },
-  },
-  data() {
-    return {
-      mainColor: this.$mainColor,
-      flage: false,
-      key: "", //key
-      vsrtx: "点击进行验证", //按钮提示语
-      vsr: false, //
-      hid: true,
-      col: "#838383",
-      movePv: 0,
-      hasImg: "拖动滑块已完成拼图",
-      spcode: "",
-      tl: 0,
-      moveCode: 0,
-      //X轴移动距离
-      moveX: 0,
-      //模版高度
-      originalHeight: "",
-      //模版宽度
-      originalWidth: "",
-      //拼图高度
-      sliderHeight: "",
-      //平涂宽度
-      sliderWidth: "",
-      scHight: 0,
-      //原图
-      img: "",
-      //拼图
-      imgbk: "",
-      endLoad: true,
-      imgbKH: "",
-    };
-  },
-  methods: {
-    show() {
-      this.hid = false;
-    },
-    hide() {
-      if (!this.vsr) {
-        // vsr判断是否验证成功，成功隐藏验证框
-        this.hid = !this.hid;
+    success: (res: any) => {
+      state.endLoad = true
+      if (res.data.result == false) {
+        res.data.result = false
+      } else {
+        res.data.result = true
+      }
+
+      if (res.data && res.data.result) {
+        // 验证成功后把key发送出去,后端会把验证信息存在缓存里
+        emit('send', state.key)
+        hide()
+        state.vsr = true
+        state.vsrtx = '已通过验证'
+      } else {
+        getCode() // 让滑块回到起始位置
+        if (state.movePv == 1) {
+          state.movePv = 0
+        } else {
+          state.movePv = 1
+        }
       }
     },
-    error() {
-      this.vsr = false;
-      this.hid = false;
-      this.moveX = 0;
-      this.moveCode = 0;
-    },
-    // 获取验证图片
-    getCode() {
-      this.col = "#b3afae";
-      this.hasImg = "图片加载中...";
-      if (!storage.getUuid()) {
-        storage.setUuid(uuid.v1());
-      }
-      uni.request({
-        url: api.common + "/common/slider/" + this.business,
-        header: {
-          uuid: storage.getUuid(),
-        },
-        success: (res) => {
-          this.col = "#838383";
-          this.hasImg = "拖动滑块以完成拼图";
-          var data = res.data.result;
+    fail: () => {
+      uni.showToast({ title: '连接服务器失败', icon: 'none' })
+    }
+  })
+}
 
-          // base64的图片
-          this.img = data.backImage;
-          this.imgbk = data.slidingImage;
-          // 根据参数动态适应验证图片的高宽
-          this.imgbKH = data.randomY * 1.8 + "rpx";
-          this.originalHeight = data.originalHeight * 1.8 + "rpx";
-          this.originalWidth = data.originalWidth * 1.8 + "rpx";
-          this.sliderHeight = data.sliderHeight * 1.8 + "rpx";
-          this.sliderWidth = data.sliderWidth * 1.8 + "rpx";
-          // 适应比率，用来适应滑动距离
-          this.tl = 1 / (1.8 * l);
-          // 无用信息
-          this.spcode = data.capcode;
-          // 验证令牌
-          this.key = data.key;
-          this.$store.state.verificationKey = data.key;
-        },
-      });
-    },
-    end(e) {
-      this.endLoad = false;
-      // 验证拼图位置是否正确
-      uni.request({
-        method: "POST",
-        url:
-          api.common +
-          "/common/slider/" +
-          this.business +
-          "?xPos=" +
-          parseInt(this.moveCode * this.tl),
-        header: {
-          uuid: storage.getUuid(),
-        },
-        success: (res) => {
-          this.endLoad = true;
-          res.data.result == false
-            ? (res.data.result = false)
-            : (res.data.result = true);
+// 绑定拼图位置
+function moveChange(e: any) {
+  state.moveX = e.detail.x
+  state.moveCode = e.detail.x
+}
 
-          if (res.data && res.data.result) {
-            //验证成功后把key发送出去,后端会把验证信息存在缓存里
-            this.$emit("send", this.key);
-            this.hide();
-            this.vsr = true;
-            this.vsrtx = "已通过验证";
-          } else {
-            this.getCode(); // 让滑块回到起始位置
-            if (this.movePv == 1) {
-              this.movePv = 0;
-            } else {
-              this.movePv = 1;
-            }
-          }
-        },
-        fail: (res) => {
-          this.$msg("连接服务器失败");
-        },
-      });
-    },
-    // 绑定拼图位置
-    moveChange(e) {
-      this.moveX = e.detail.x;
-      this.moveCode = e.detail.x;
-    },
-  },
-};
+defineExpose({
+  show,
+  hide,
+  error,
+  getCode,
+})
 </script>
 
 <style lang="scss" scoped>

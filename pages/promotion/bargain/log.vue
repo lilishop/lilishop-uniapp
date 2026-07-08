@@ -1,80 +1,80 @@
 <template>
-  <div class="box">
-    <div v-if="bargainLog.length != 0">
-      <div v-for="(item,index) in bargainLog" class="flex" :key="index">
-        <div>
-          <u-image border-radius="20" width='230' height="230" :src="item.thumbnail"></u-image>
-        </div>
-        <div class="goods">
-          <div class="wes-2">
+  <view class="box">
+    <view v-if="bargainLog.length != 0">
+      <view v-for="(item,index) in bargainLog" class="flex" :key="index">
+        <view class="goods-img">
+          <u-image radius="20rpx" width="230rpx" height="230rpx" :src="item.thumbnail"></u-image>
+        </view>
+        <view class="goods">
+          <view class="wes-2">
             {{item.goodsName}}
-          </div>
-          <div>
-            还剩<span class="surplusPrice">{{unitPrice(item.surplusPrice)}}元</span>
-          </div>
+          </view>
+          <view class="surplus">
+            还剩<text class="surplusPrice">{{unitPrice(item.surplusPrice)}}元</text>
+          </view>
 
-          <div @click="navigateToBargainDetail(item)" v-if="item.status == 'START'" class="buy">
+          <view @click="navigateToBargainDetail(item)" v-if="item.status == 'START'" class="buy">
             继续免费领
-          </div>
-        </div>
-        <div class="tips-box">
-          <div class="tips" :class="[item.status]">
+          </view>
+        </view>
+        <view class="tips-box">
+          <view class="tips" :class="[item.status]">
             {{statusWay[item.status]}}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view v-else>
       <u-empty style="margin-top:20%;" text="暂无砍价活动"></u-empty>
-    </div>
-  </div>
+    </view>
+  </view>
 </template>
 
-<script>
-import { getMineBargainLog } from "@/api/promotions";
-export default {
-  data() {
-    return {
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-      },
-      bargainLog: [],
-      statusWay: {
-        START: "砍价开始",
-        FAIL: "砍价失败",
-        SUCCESS: "砍价成功",
-        END: "活动结束",
-      },
-    };
-  },
-  onReachBottom() {
-    this.params.pageNumber++;
-    this.init();
-  },
-  onShow() {
-    this.params.pageNumber = 1;
-    this.bargainLog = [];
-    this.init();
-  },
-  methods: {
-    // 初始化砍价记录
-    async init() {
-      let res = await getMineBargainLog(this.params);
-      if (res.data.success) {
-        this.bargainLog.push(...res.data.result.records);
-      }
-    },
-    // 跳转到砍价详情
-    navigateToBargainDetail(val) {
-      uni.navigateTo({
-        url: `/pages/promotion/bargain/detail?id=${val.kanjiaActivityGoodsId}`,
-      });
-    },
-  },
-};
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow, onReachBottom } from '@dcloudio/uni-app'
+import { getMineBargainLog } from '@/api/promotions'
+import { unitPrice } from '@/utils/filters.js'
+
+const params = ref({
+  pageNumber: 1,
+  pageSize: 10,
+})
+
+const bargainLog = ref<any[]>([])
+
+const statusWay: Record<string, string> = {
+  START: '砍价开始',
+  FAIL: '砍价失败',
+  SUCCESS: '砍价成功',
+  END: '活动结束',
+}
+
+onReachBottom(() => {
+  params.value.pageNumber++
+  init()
+})
+
+onShow(() => {
+  params.value.pageNumber = 1
+  bargainLog.value = []
+  init()
+})
+
+async function init() {
+  const res = await getMineBargainLog(params.value)
+  if (res.data.success) {
+    bargainLog.value.push(...res.data.result.records)
+  }
+}
+
+function navigateToBargainDetail(val: any) {
+  uni.navigateTo({
+    url: `/pages/promotion/bargain/detail?id=${val.kanjiaActivityGoodsId}`,
+  })
+}
 </script>
-<style scoped>
+<style>
 page {
   background: #fff;
 }
@@ -84,14 +84,20 @@ page {
   padding: 0 32rpx;
   background: #fff;
 }
+.goods-img {
+  width: 230rpx;
+  height: 230rpx;
+  flex: 0 0 230rpx;
+}
 .buy {
   background: $light-color;
   color: #fff;
-  display: inline;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 10rpx 0;
   border-radius: 100rpx;
   width: 200rpx;
-  text-align: center;
   font-size: 24rpx;
   margin-top: 20rpx;
 }
@@ -113,6 +119,11 @@ page {
   font-weight: bold;
   color: $light-color;
 }
+.surplus {
+  color: #333;
+  font-size: 26rpx;
+  margin-top: 12rpx;
+}
 .goods {
   margin: 0 20rpx;
   display: flex;
@@ -122,7 +133,8 @@ page {
 }
 .flex {
   border-bottom: 1rpx solid #f7f7f7;
-
+  display: flex;
+  align-items: center;
   padding: 20rpx 0;
   margin: 10rpx 0;
 }

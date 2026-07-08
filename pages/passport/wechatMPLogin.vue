@@ -46,197 +46,127 @@
 	</view>
 </template>
 
-<script>
-	import {
-		mpAutoLogin
-	} from "@/api/connect.js";
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useStore } from '@/store'
+import { mpAutoLogin } from '@/api/connect.js'
+import { whetherNavigate } from '@/utils/Foundation'
+import { getUserInfo } from '@/api/members'
+import storage from '@/utils/storage.js'
+import config from '@/config/config'
 
-	import {
-		whetherNavigate
-	} from "@/utils/Foundation"; //登录跳转
-	import {
-		getUserInfo
-	} from "@/api/members";
-	import storage from "@/utils/storage.js";
-	import config from '@/config/config'
-	export default {
-		data() {
-			return {
-				lightColor:this.$lightColor,
-				checked:false,
-        configs:config,
-				// 是否展示手机号码授权弹窗，默认第一步不展示，要先获取用户基础信息
-				phoneAuthPopup: false,
-				// 授权信息展示，商城名称
-				projectName: config.name,
-				//微信返回信息，用于揭秘信息，获取sessionkey
-				code: "",
-				//微信昵称
-				nickName: "",
-        logingFlag: false,
-				//微信头像
-				image: "",
-			};
-		},
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
 
-		//微信小程序进入页面，先获取code，否则几率出现code和后续交互数据不对应情况
-		mounted() {
-			// 小程序默认分享
-			uni.showShareMenu({
-				withShareTicket: true
-			});
+const checked = ref(false)
+const configs = config
+const phoneAuthPopup = ref(false)
+const projectName = ref(config.name)
+const code = ref('')
+const nickName = ref('')
+const logingFlag = ref(false)
+const image = ref('')
 
+onMounted(() => {
+  uni.showShareMenu({ withShareTicket: true })
+  uni.login({
+    success: (res) => {
+      if (res.errMsg === 'login:ok') {
+        code.value = res.code
+      } else {
+        uni.showToast({
+          title: '系统异常，请联系管理员！',
+        })
+      }
+    },
+  })
+})
 
-      //获取code
-      uni.login({
-        success: (res) => {
-          if(res.errMsg === "login:ok") {
-            this.code = res.code
-          } else {
-            uni.showToast({
-              title: "系统异常，请联系管理员！"
-            })
-          }
-        },
-      });
-			
-		},
-		methods: {
-			/**
-			 * TODO 此方法不一定是最优解，如果有更好的办法请在  https://gitee.com/beijing_hongye_huicheng/lilishop/issues 中提出
-			 * 小程序返回bug
-			 * 1.介于微信登录是在login.vue的基础上作为判断跳转来
-			 * 所以在页面栈中会自动记录回退路径，所以导致每次微信小程序点击回退就会自动返回login页面
-			 * 当然login页面的判断就是 没有登录就会跳转到微信小程序页面 导致了无法回退到之前页面
-			 * 2.解决方法： 尝试在回退的时候判断地址，让回退多一级这样就避免了
-			 */
+function back() {
+  whetherNavigate('wx')
+}
 
-			back() {
-				whetherNavigate("wx");
-			},
-			backToHome() {
-				uni.switchTab({
-					url: `/pages/tabbar/home/index`,
-				});
-			},
+function backToHome() {
+  uni.switchTab({
+    url: '/pages/tabbar/home/index',
+  })
+}
 
+function completeLogin(accessToken: string, refreshToken: string) {
+  storage.setAccessToken(accessToken)
+  storage.setRefreshToken(refreshToken)
+  uni.showToast({
+    title: '登录成功!',
+    icon: 'none',
+  })
+  getUserInfo().then((user) => {
+    storage.setUserInfo(user.data.result)
+    storage.setHasLogin(true)
+    uni.navigateBack({ delta: 1 })
+  })
+}
 
+function getUserProfile() {
+  if (!checked.value) {
+    uni.showToast({
+      title: '请勾选协议',
+      icon: 'none',
+    })
+    return
+  }
+  logingFlag.value = true
 
+  if (!code.value) return
 
-			//获取用户信息
-      getUserProfile(e) {
-				if(!this.checked){
-					uni.showToast({
-						title:"请勾选协议",
-						icon:'none'
-					})
-					return
-				}
-        this.logingFlag = true;
+  uni.getUserProfile({
+    desc: '用于完善会员资料',
+    success: (res) => {
+      nickName.value = res.userInfo.nickName
+      image.value = res.userInfo.avatarUrl
 
-        if (this.code) {
-          // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
-          uni.getUserProfile({
-            desc: "用于完善会员资料", // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-            success: (res) => {
-              console.log("success", res)
-              this.nickName = res.userInfo.nickName;
-              this.image = res.userInfo.avatarUrl;
+      if (configs.enableFetchMobileLogin) {
+        phoneAuthPopup.value = true
+        return
+      }
 
-              /**
-               * 根据公有的配置设置登录方式
-               */
-              if(this.configs.enableFetchMobileLogin){
-                this.phoneAuthPopup = true;
-                return false
-              }
-              let iv = res.iv;
-              let encryptedData = res.encryptedData;
+      mpAutoLogin({
+        encryptedData: res.encryptedData,
+        iv: res.iv,
+        code: code.value,
+        image: image.value,
+        nickName: nickName.value,
+      }).then((apiRes) => {
+        completeLogin(apiRes.data.result.accessToken, apiRes.data.result.refreshToken)
+      })
+    },
+    fail: (res) => {
+      console.log('fail', res)
+    },
+  })
 
-              let code = this.code;
-              let image = this.image;
-              let nickName = this.nickName;
-              mpAutoLogin({
-                encryptedData,
-                iv,
-                code,
-                image,
-                nickName,
-              }).then((apiRes) => {
-                storage.setAccessToken(apiRes.data.result.accessToken);
-                storage.setRefreshToken(apiRes.data.result.refreshToken);
-                // 登录成功
-                uni.showToast({
-                  title: "登录成功!",
-                  icon: "none",
-                });
-                //获取用户信息
-                getUserInfo().then((user) => {
-                  storage.setUserInfo(user.data.result);
-                  storage.setHasLogin(true);
+  logingFlag.value = false
+}
 
-                  uni.navigateBack({
-                    delta: 1,
-                  });
-                });
-              });
+function getPhoneNumber(e: any) {
+  const { iv, encryptedData } = e.detail
+  if (!encryptedData) {
+    uni.showToast({
+      title: '请授予手机号码权限，手机号码会和会员系统用户绑定！',
+      icon: 'none',
+    })
+    return
+  }
 
-            },
-            fail: (res) => {
-              console.log("fail", res)
-            },
-          });
-
-          this.logingFlag = false;
-        }
-			},
-
-			//获取手机号授权
-			getPhoneNumber(e) {
-			  let iv = e.detail.iv;
-			  let encryptedData = e.detail.encryptedData;
-			  if (!e.detail.encryptedData) {
-			    uni.showToast({
-			      title: "请授予手机号码权限，手机号码会和会员系统用户绑定！",
-			      icon: "none",
-			    });
-			    return;
-			  }
-
-			  let code = this.code;
-			  let image = this.image;
-			  let nickName = this.nickName;
-			  mpAutoLogin({
-			    encryptedData,
-			    iv,
-			    code,
-			    image,
-			    nickName,
-			  }).then((res) => {
-			    storage.setAccessToken(res.data.result.accessToken);
-			    storage.setRefreshToken(res.data.result.refreshToken);
-			    // 登录成功
-			    uni.showToast({
-			      title: "登录成功!",
-			      icon: "none",
-			    });
-			    //获取用户信息
-			    getUserInfo().then((user) => {
-			      storage.setUserInfo(user.data.result);
-			      storage.setHasLogin(true);
-
-			      uni.navigateBack({
-			        delta: 1,
-			      });
-			    });
-			  });
-			},
-
-
-
-
-		},
-	};
+  mpAutoLogin({
+    encryptedData,
+    iv,
+    code: code.value,
+    image: image.value,
+    nickName: nickName.value,
+  }).then((res) => {
+    completeLogin(res.data.result.accessToken, res.data.result.refreshToken)
+  })
+}
 </script>
 <style lang="scss" scoped>
 	/*微信授权*/

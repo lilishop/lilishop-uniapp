@@ -11,29 +11,21 @@
   </view>
 </template>
 
-<script>
-export default {
-  name: 'UTimeLineItem',
-  props: {
-    nodeTop: {
-      type: [String, Number],
-      default: ''
-    },
-    bgColor: {
-      type: String,
-      default: '#ffffff'
-    }
-  },
-  computed: {
-    nodeStyle() {
-      if (this.nodeTop === '' || this.nodeTop === null || this.nodeTop === undefined) {
-        return {}
-      }
-      const top = typeof this.nodeTop === 'number' ? `${this.nodeTop}rpx` : this.nodeTop
-      return { top }
-    }
+<script setup lang="ts">
+import { computed } from 'vue'
+
+const props = defineProps<{
+  nodeTop?: string | number
+  bgColor?: string
+}>()
+
+const nodeStyle = computed(() => {
+  if (props.nodeTop === '' || props.nodeTop === null || props.nodeTop === undefined) {
+    return {}
   }
-}
+  const top = typeof props.nodeTop === 'number' ? `${props.nodeTop}rpx` : props.nodeTop
+  return { top }
+})
 </script>
 
 <style lang="scss" scoped>

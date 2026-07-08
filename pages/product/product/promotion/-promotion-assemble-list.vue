@@ -23,66 +23,57 @@
   </view>
 </template>
 
-<script>
-import * as API_Promotions from "@/api/promotions";
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import * as API_Promotions from '@/api/promotions'
 import configs from '@/config/config'
-export default {
-  data() {
-    return {
-      configs,
-      userImage:configs.defaultUserPhoto,
+import { noPassByName } from '@/utils/filters.js'
+import { useStore } from '@/store'
 
-      joinBtnStyle: {
-        background: this.$lightColor,
-        color: "#fff",
-      },
-      /** 待成团订单 */
-      assembleOrder: "",
+const props = defineProps<{
+  res?: any
+}>()
 
-      /** 查看更多待成团订单 */
-      assembleOrderAll: "",
-    };
-  },
-  props: ["res"],
+const emit = defineEmits<{
+  'to-assemble-buy-now': [order: any]
+}>()
 
-  watch: {
-    res: {
-      handler() {
-        if (this.res && this.res.length != 0) {
-          Object.keys(this.res).forEach((item) => {
-            let key = item.split("-");
-            if (key && key[0] == "PINTUAN") {
-              this.getAssembleInfo(item);
-            }
-          });
+const store = useStore()
+const userImage = configs.defaultUserPhoto
+const assembleOrder = ref<any[]>([])
+
+const joinBtnStyle = computed(() => ({
+  background: store.getters.lightColor,
+  color: '#fff',
+}))
+
+watch(
+  () => props.res,
+  (res) => {
+    if (res && res.length != 0) {
+      Object.keys(res).forEach((item) => {
+        const key = item.split('-')
+        if (key && key[0] == 'PINTUAN') {
+          getAssembleInfo(item)
         }
-      },
-      immediate: true,
-    },
-
-    // assembleOrder(val) {
-    //   this.$emit("assembleOrder", val);
-    // },
+      })
+    }
   },
-  computed: {},
-  mounted() {},
-  methods: {
-    // 获取此商品所有待成团的订单
-    getAssembleInfo(val) {
-      let id = this.res[val].id;
-      API_Promotions.getPromotionGroupMember(id).then((res) => {
-        if (res.data.success) {
-          console.warn(res.data.result);
-          this.assembleOrder = res.data.result;
-        }
-      });
-    },
+  { immediate: true }
+)
 
-    buy(order) {
-      this.$emit("to-assemble-buy-now", order);
-    },
-  },
-};
+function getAssembleInfo(val: string) {
+  const id = props.res[val].id
+  API_Promotions.getPromotionGroupMember(id).then((res) => {
+    if (res.data.success) {
+      assembleOrder.value = res.data.result
+    }
+  })
+}
+
+function buy(order: any) {
+  emit('to-assemble-buy-now', order)
+}
 </script>
 
 <style lang="scss" scoped>

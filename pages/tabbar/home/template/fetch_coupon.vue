@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <view>
     <u-popup v-model:show="enableShowCoupon" mode="center" width="550rpx" height="400px">
       <view style="height: 130rpx">
         <view
@@ -80,72 +80,70 @@
         </view>
       </scroll-view>
     </u-popup>
-  </div>
+  </view>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { getAutoCoup } from "@/api/login";
 import storage from "@/utils/storage.js";
-export default {
-  data() {
-    return {
-      storage,
-      enableShowCoupon: false,
-      coupList:[]
-    };
-  },
-  mounted() {
-    this.firstGetAuto();
-  },
-  methods: {
-    firstGetAuto() {
-      if(!this.isLogin('auth')) return false
-      let data = new Date();
-      let now = data.getDate();
-      let hours = data.getHours();
-      let flagCoup = storage.getAutoCp();
-      if (
-        storage.getAutoCp() &&
-        storage.getAutoCp() != "" &&
-        storage.getAutoCp() != undefined &&
-        storage.getAutoCp() != null
-      ) {
-        if (Number(now) > Number(flagCoup)) {
-          if (Number(hours) >= 6) {
-            storage.setAutoCp(now);
-            this.getAutoCp();
-          }
-        }
-      } else {
-        this.getAutoCp();
+import { isLogin, unitPrice } from "@/utils/filters.js";
+
+const enableShowCoupon = ref(false);
+const coupList = ref<any[]>([]);
+
+onMounted(() => {
+  firstGetAuto();
+});
+
+function firstGetAuto() {
+  if (!isLogin("auth")) return false;
+  const data = new Date();
+  const now = data.getDate();
+  const hours = data.getHours();
+  const flagCoup = storage.getAutoCp();
+  if (
+    storage.getAutoCp() &&
+    storage.getAutoCp() != "" &&
+    storage.getAutoCp() != undefined &&
+    storage.getAutoCp() != null
+  ) {
+    if (Number(now) > Number(flagCoup)) {
+      if (Number(hours) >= 6) {
+        storage.setAutoCp(now);
+        getAutoCp();
       }
-    },
-    getAutoCp() {
-      let data = new Date();
-      let now = data.getDate();
-      getAutoCoup().then((res) => {
-        console.log(res);
-        if (res.data.success) {
-          this.coupList.push(...res.data.result);
-          if (this.coupList != "") {
-            this.enableShowCoupon = true;
-          } else {
-            this.enableShowCoupon = false;
-          }
-          storage.setAutoCp(now);
-          let objs = {};
-          this.coupList = this.coupList.reduce((cur, next) => {
-            //对象去重
-            if (next.id != undefined) {
-              objs[next.id] ? "" : (objs[next.id] = true && cur.push(next));
-            }
-            return cur;
-          }, []);
+    }
+  } else {
+    getAutoCp();
+  }
+}
+
+function getAutoCp() {
+  const data = new Date();
+  const now = data.getDate();
+  getAutoCoup().then((res) => {
+    console.log(res);
+    if (res.data.success) {
+      coupList.value.push(...res.data.result);
+      if (coupList.value != "") {
+        enableShowCoupon.value = true;
+      } else {
+        enableShowCoupon.value = false;
+      }
+      storage.setAutoCp(now);
+      const objs: Record<string, boolean> = {};
+      coupList.value = coupList.value.reduce((cur, next) => {
+        if (next.id != undefined) {
+          objs[next.id] ? "" : (objs[next.id] = true && cur.push(next));
         }
-      });
-    },
-  },
-};
+        return cur;
+      }, [] as any[]);
+    }
+  });
+}
+
+defineExpose({ firstGetAuto });
 </script>
 
 <style lang="scss" scoped>

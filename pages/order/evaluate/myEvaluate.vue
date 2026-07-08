@@ -8,8 +8,9 @@
           :inactiveStyle="{ color: '#333' }"
           v-model:current="current"
           class="utabs"
-          :lineColor="$lightColor"
-          :activeStyle="{ color: $lightColor }"
+          :lineColor="lightColor"
+          :activeStyle="{ color: lightColor }"
+          :bg-color="'#ffffff'"
         ></u-tabs>
       </view>
       <swiper class="swiper-box" :current="current" @change="changeSwiper" duration="500">
@@ -38,7 +39,7 @@
                 <view class="btn-view u-row-between" v-if="current == 2">
                   <view class="description">
                     <view class="text title">
-                      <u-read-more ref="uReadMore" :color="$lightColor" text-indent="0">
+                      <u-read-more ref="uReadMore" :color="lightColor" text-indent="0">
                         <rich-text :nodes="'评论内容：' + order.content || ''"></rich-text>
                       </u-read-more>
                     </view>
@@ -78,209 +79,144 @@
   </view>
 </template>
 
-<script>
-import { getOrderList } from "@/api/order.js";
-import { getComments } from "@/api/members.js";
+<script setup lang="ts">
+import { ref, reactive, computed, watch } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { getOrderList } from '@/api/order.js'
+import { getComments } from '@/api/members.js'
 
-export default {
-  data() {
-    return {
-      list: [
-        //顶部tab
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
 
+const list = [
+  { name: '全部订单' },
+  { name: '待评价' },
+  { name: '已评价' },
+]
+
+const gradeList: Record<string, string> = {
+  GOOD: '好评',
+  MODERATE: '中评',
+  WORSE: '差评',
+  haveImage: '有图',
+}
+
+const groupCommentStatusWay: Record<string, string> = {
+  NEW: '新订单，不能进行评论',
+  UNFINISHED: '未完成评论',
+  WAIT_CHASE: '待追评的评论信息',
+  FINISHED: '已经完成评论',
+}
+
+const current = ref(0)
+const orderList = ref<any[]>([])
+const params = reactive<Record<string, any>>({
+  pageNumber: 1,
+  pageSize: 10,
+  loadStatus: 'more',
+})
+
+onShow(() => {
+  orderList.value = []
+  params.pageNumber = 1
+  current.value = 0
+  loadData()
+})
+
+watch(current, (val) => {
+  params.pageNumber = 1
+  params.loadStatus = 'more'
+  orderList.value = []
+
+  if (val == 0) {
+    delete params.commentStatus
+    loadData()
+  } else if (val == 1) {
+    params.commentStatus = 'UNFINISHED'
+    orderList.value = []
+    loadData()
+  } else {
+    params.commentStatus = 'FINISHED'
+    orderList.value = []
+    loadComments()
+  }
+})
+
+function preview(urls: string[], index: number) {
+  uni.previewImage({
+    current: index,
+    urls,
+    longPressActions: {
+      itemList: ['保存图片'],
+      success: () => {},
+      fail: () => {},
+    },
+  })
+}
+
+function changeSwiper(e: any) {
+  current.value = e.target.current
+}
+
+function loadData() {
+  uni.showLoading({ title: '加载中' })
+  getOrderList(params).then((res) => {
+    if (store.state.isShowToast) uni.hideLoading()
+    const records = res.data.result.records
+    if (records.length < 10) {
+      params.loadStatus = 'noMore'
+    }
+    if (records.length > 0) {
+      orderList.value = orderList.value.concat(records)
+      params.pageNumber += 1
+    }
+  })
+}
+
+function talkCommont(sku: any) {
+  uni.navigateTo({
+    url: `./releaseEvaluate?sn=${sku.sn}&sku=${encodeURIComponent(JSON.stringify(sku))}`,
+  })
+}
+
+function loadComments() {
+  uni.showLoading({ title: '加载中' })
+  getComments(params).then((res) => {
+    if (store.state.isShowToast) uni.hideLoading()
+    const records = res.data.result.records
+    if (records.length < 10) {
+      params.loadStatus = 'noMore'
+    }
+    records.forEach((item: any) => {
+      item.orderItems = [
         {
-          name: "全部订单",
+          image: item.goodsImage,
+          name: item.goodsName,
+          goodsId: item.goodsId,
+          skuId: item.skuId,
         },
-        {
-          name: "待评价",
-        },
-        {
-          name: "已评价",
-        },
-      ],
-      gradeList: {
-        //评论表
-        GOOD: "好评",
-        MODERATE: "中评",
-        WORSE: "差评",
-        haveImage: "有图",
-      },
-      groupCommentStatusWay: {
-        NEW: "新订单，不能进行评论",
-        UNFINISHED: "未完成评论",
-        WAIT_CHASE: "待追评的评论信息",
-        FINISHED: "已经完成评论",
-      },
-      current: 0, //当前tabIndex
-      orderList: [], //商品集合
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-        loadStatus: "more",
-      },
-    };
-  },
+      ]
+    })
+    orderList.value = orderList.value.concat(records)
+    params.pageNumber += 1
+  })
+}
 
-  onShow() {
-    this.orderList = [];
-    this.params.pageNumber = 1;
-    this.current = 0
-    this.loadData()
-  },
-  watch: {
-    /**
-     * 切换current
-     * 更改页面并重新加载数据
-     */
-    current(val) {
-      this.params.pageNumber = 1;
-      this.params.loadStatus = "more";
-      this.orderList = [];
-      //重新读取数据
+function renderData(index: number) {
+  if (params.loadStatus == 'noMore') return
+  if (index == 0) {
+    loadData()
+  } else {
+    loadComments()
+  }
+}
 
-      if (val == 0) {
-        delete  this.params.commentStatus 
-        this.loadData();
-      } else if (val == 1) {
-        this.params.commentStatus = "UNFINISHED";
-        this.orderList = [];
-        this.loadData();
-      } else {
-        this.params.commentStatus = "FINISHED";
-        this.orderList = [];
-        return this.loadComments();
-      }
-    },
-  },
-
-  methods: {
-    /**
-     * 判断当前店铺是否有可评价的商品
-     */
-    commentStatus(val) {
-      if (this.current == 2) {
-        return true;
-      } else {
-        let show;
-        val.orderItems &&
-          val.orderItems.forEach((item) => {
-            if (item.commentStatus == "UNFINISHED") {
-              show = true;
-            } else {
-              show = false;
-            }
-          });
-
-        return show;
-      }
-    },
-
-    /**
-     * 点击图片放大或保存
-     */
-    preview(urls, index) {
-      uni.previewImage({
-        current: index,
-        urls: urls,
-        longPressActions: {
-          itemList: ["保存图片"],
-          success: function (data) {},
-          fail: function (err) {},
-        },
-      });
-    },
-
-    /**
-     * 点击swiper
-     */
-    changeSwiper(e) {
-      this.current = e.target.current;
-    },
-
-    /**
-     * 获取订单数据
-     */
-    loadData() {
-      uni.showLoading({
-        title: "加载中",
-      });
-      getOrderList(this.params).then((res) => {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        const orderList = res.data.result.records;
-        if (orderList.length < 10) {
-          this.params.loadStatus = "noMore";
-        }
-        if (orderList.length > 0) {
-          this.orderList = this.orderList.concat(orderList);
-          this.params.pageNumber += 1;
-        }
-      });
-    },
-
-    /**
-     * 发表评价
-     */
-    talkCommont(sku) {
-      console.log(sku);
-      uni.navigateTo({
-        url: `./releaseEvaluate?sn=${sku.sn}&sku=${encodeURIComponent(
-          JSON.stringify(sku)
-        )}`,
-      });
-    },
-
-    /**
-     * 加载已评价数据
-     */
-    loadComments() {
-      uni.showLoading({
-        title: "加载中",
-      });
-      getComments(this.params).then((res) => {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        let orderList = res.data.result.records;
-        if (orderList.length < 10) {
-          this.params.loadStatus = "noMore";
-        }
-        orderList.forEach((item) => {
-          item.orderItems = [
-            {
-              image: item.goodsImage,
-              name: item.goodsName,
-              goodsId: item.goodsId,
-              skuId: item.skuId,
-            },
-          ];
-        });
-        this.orderList = this.orderList.concat(orderList);
-        this.params.pageNumber += 1;
-      });
-    },
-
-    /**
-     * 滑到底部加载数据
-     */
-    renderData(index) {
-      if (this.params.loadStatus == "noMore") return;
-      if (index == 0) {
-        this.loadData();
-      } else {
-        this.loadComments();
-      }
-    },
-
-    /**
-     * 评价详情
-     */
-    onDetail(comment) {
-      uni.navigateTo({
-        url:
-          "./evaluateDetail?comment=" +
-          encodeURIComponent(JSON.stringify(comment)),
-      });
-    },
-  },
-};
+function onDetail(comment: any) {
+  uni.navigateTo({
+    url: './evaluateDetail?comment=' + encodeURIComponent(JSON.stringify(comment)),
+  })
+}
 </script>
 <style lang="scss" scoped>
 page {
@@ -310,6 +246,7 @@ page {
 .u-tabs-box {
   position: relative;
   z-index: 10;
+  background: #ffffff;
 }
 .box-content {
   margin: 20rpx 0;

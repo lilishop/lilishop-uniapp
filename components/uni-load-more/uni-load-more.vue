@@ -26,42 +26,28 @@
 	</view>
 </template>
 
-<script>
-export default {
-	name: 'uni-load-more',
-	props: {
-		status: {
-			//上拉的状态：more-loading前；loading-loading中；noMore-没有更多了
-			type: String,
-			default: 'more'
-		},
-		showIcon: {
-			type: Boolean,
-			default: true
-		},
-		showText: {
-			type: Boolean,
-			default: true
-		},
-		color: {
-			type: String,
-			default: '#777777'
-		},
-		contentText: {
-			type: Object,
-			default() {
-				return {
-					contentdown: '上拉显示更多',
-					contentrefresh: '正在加载...',
-					contentnomore: '没有更多数据了'
-				};
-			}
-		}
-	},
-	data() {
-		return {};
+<script setup lang="ts">
+withDefaults(defineProps<{
+	status?: string
+	showIcon?: boolean
+	showText?: boolean
+	color?: string
+	contentText?: {
+		contentdown: string
+		contentrefresh: string
+		contentnomore: string
 	}
-};
+}>(), {
+	status: 'more',
+	showIcon: true,
+	showText: true,
+	color: '#777777',
+	contentText: () => ({
+		contentdown: '上拉显示更多',
+		contentrefresh: '正在加载...',
+		contentnomore: '没有更多数据了',
+	}),
+})
 </script>
 
 <style>

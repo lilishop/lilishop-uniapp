@@ -26,7 +26,11 @@
     </div>
   </div>
 </template>
-<script>
+<script setup lang="ts">
+import { computed } from "vue";
+
+const props = defineProps<{ res: any }>();
+
 const DEFAULT_VIDEO_STYLE = {
   bgType: "color",
   bgColorStart: "#F5F5F5",
@@ -49,13 +53,13 @@ const DEFAULT_VIDEO_STYLE = {
   shadowSpread: 0,
 };
 
-const ASPECT_RATIO_MAP = {
+const ASPECT_RATIO_MAP: Record<string, number> = {
   "16:9": 56.25,
   "4:3": 75,
   "1:1": 100,
 };
 
-function ensureVideoItem(item) {
+function ensureVideoItem(item: any) {
   if (!item.aspectRatio) item.aspectRatio = "16:9";
   if (!item.style) {
     item.style = { ...DEFAULT_VIDEO_STYLE };
@@ -63,16 +67,16 @@ function ensureVideoItem(item) {
   }
   Object.keys(DEFAULT_VIDEO_STYLE).forEach((key) => {
     if (item.style[key] === undefined) {
-      item.style[key] = DEFAULT_VIDEO_STYLE[key];
+      item.style[key] = DEFAULT_VIDEO_STYLE[key as keyof typeof DEFAULT_VIDEO_STYLE];
     }
   });
 }
 
-function getVideoGradient(style) {
+function getVideoGradient(style: any) {
   const start = style.bgColorStart || "#F5F5F5";
   const end = style.bgColorEnd || start;
   const colors = `${start}, ${end}`;
-  const dirMap = {
+  const dirMap: Record<string, string> = {
     horizontal: `linear-gradient(to right, ${colors})`,
     vertical: `linear-gradient(to bottom, ${colors})`,
     skewLeft: `linear-gradient(135deg, ${colors})`,
@@ -81,60 +85,57 @@ function getVideoGradient(style) {
   return dirMap[style.bgGradientDir] || dirMap.horizontal;
 }
 
-export default {
-  props: ["res"],
-  title: "视频",
-  computed: {
-    item() {
-      const data = this.res.list[0] || {};
-      ensureVideoItem(data);
-      return data;
-    },
-    wrapperStyle() {
-      const style = this.item.style;
-      return {
-        margin: `${style.margin || 0}px`,
-        padding: `${style.padding || 0}px`,
-        background: style.bottomBgColor || "#F5F5F5",
-        boxSizing: "border-box",
-      };
-    },
-    boxStyle() {
-      const style = this.item.style;
-      const box = {
-        borderRadius: `${style.bgRadius || 0}px`,
-        overflow: "hidden",
-        position: "relative",
-        width: "100%",
-      };
+const item = computed(() => {
+  const data = props.res.list[0] || {};
+  ensureVideoItem(data);
+  return data;
+});
 
-      if (style.bgType === "image" && style.bgImage) {
-        box.backgroundImage = `url(${style.bgImage})`;
-        box.backgroundSize = "cover";
-        box.backgroundPosition = "center";
-      } else {
-        box.background = getVideoGradient(style);
-      }
+const wrapperStyle = computed(() => {
+  const style = item.value.style;
+  return {
+    margin: `${style.margin || 0}px`,
+    padding: `${style.padding || 0}px`,
+    background: style.bottomBgColor || "#F5F5F5",
+    boxSizing: "border-box",
+  };
+});
 
-      if (style.borderShow) {
-        box.border = `${style.borderWidth || 1}px ${style.borderStyle || "solid"} ${
-          style.borderColor || "#e5e5e5"
-        }`;
-      }
+const boxStyle = computed(() => {
+  const style = item.value.style;
+  const box: Record<string, string> = {
+    borderRadius: `${style.bgRadius || 0}px`,
+    overflow: "hidden",
+    position: "relative",
+    width: "100%",
+  };
 
-      if (style.shadowShow) {
-        box.boxShadow = `${style.shadowX || 0}px ${style.shadowY || 0}px ${
-          style.shadowBlur || 10
-        }px ${style.shadowSpread || 0}px ${style.shadowColor || "rgba(0,0,0,0.1)"}`;
-      }
+  if (style.bgType === "image" && style.bgImage) {
+    box.backgroundImage = `url(${style.bgImage})`;
+    box.backgroundSize = "cover";
+    box.backgroundPosition = "center";
+  } else {
+    box.background = getVideoGradient(style);
+  }
 
-      return box;
-    },
-    aspectPadding() {
-      return ASPECT_RATIO_MAP[this.item.aspectRatio] || ASPECT_RATIO_MAP["16:9"];
-    },
-  },
-};
+  if (style.borderShow) {
+    box.border = `${style.borderWidth || 1}px ${style.borderStyle || "solid"} ${
+      style.borderColor || "#e5e5e5"
+    }`;
+  }
+
+  if (style.shadowShow) {
+    box.boxShadow = `${style.shadowX || 0}px ${style.shadowY || 0}px ${
+      style.shadowBlur || 10
+    }px ${style.shadowSpread || 0}px ${style.shadowColor || "rgba(0,0,0,0.1)"}`;
+  }
+
+  return box;
+});
+
+const aspectPadding = computed(
+  () => ASPECT_RATIO_MAP[item.value.aspectRatio] || ASPECT_RATIO_MAP["16:9"]
+);
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

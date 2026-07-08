@@ -1,3 +1,4 @@
+// #ifndef MP-WEIXIN
 import api from "@/config/api.js";
 import mqtt from "mqtt";
 
@@ -291,3 +292,28 @@ export function createMqttClient(options = {}) {
 }
 
 export { MqttClient };
+// #endif
+
+// #ifdef MP-WEIXIN
+class MqttClient {
+  connect() {
+    return Promise.resolve(this);
+  }
+  disconnect() {}
+  isConnected() {
+    return false;
+  }
+  subscribe() {
+    return this;
+  }
+  on() {
+    return this;
+  }
+}
+
+export function createMqttClient() {
+  return new MqttClient();
+}
+
+export { MqttClient };
+// #endif

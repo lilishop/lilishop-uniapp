@@ -144,6 +144,8 @@ $font-weight: 400;
 	justify-content: center;
 	flex-direction: column;
 }
+@import "styles/uview-form-fix.scss";
+
 .flex-a-c{
 	align-items: center;
 }

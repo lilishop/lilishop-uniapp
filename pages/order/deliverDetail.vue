@@ -45,34 +45,24 @@
 	</div>
 </template>
 
-<script>
-import { getPackage } from "@/api/trade.js";
-export default {
-    data() {
-        return {
-            order: {},
-            logisticsList: [],
-        }
-    },
-    components: {
-    },
-    computed: {
-    },
-	onLoad(option) {
-	  let sn = option.order_sn;
-	  this.tracesList(sn);
-	},
-    mounted() {
-    },
-    methods: {
-        tracesList(sn) {
-            getPackage(sn).then((res) => {
-                if(res.data.success){
-                    this.logisticsList = res.data.result;
-                }
-            });
-        },
-    },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { getPackage } from '@/api/trade.js'
+
+const logisticsList = ref<any[]>([])
+
+onLoad((option) => {
+  const sn = option.order_sn
+  if (sn) fetchLogistics(sn)
+})
+
+function fetchLogistics(sn: string) {
+  getPackage(sn).then((res) => {
+    if (res.data.success) {
+      logisticsList.value = res.data.result
+    }
+  })
 }
 </script>
 <style >

@@ -36,82 +36,62 @@
             </div>
           </div>
         </div>
-        <!-- 
-          #TODO 后续将和后端补充从此处
-          <div class="flex store-goods">
-            <div class="store-goods-item" v-for="i in 3" :key="i">
-              <div>
-                <u-image src="https://picsum.photos/id/341/200/200" border-radius="20" width="215rpx" height="215rpx">
-                </u-image>
-              </div>
-              <div class="price">
-                <span>
-                  ￥
-                  <span class=" goods-price-bigshow">{{ formatPrice(16)[0] }}</span>
-                  .{{ formatPrice(16)[1] }}
-                </span>
-
-              </div>
-              <div class="wes">test</div>
-            </div>
-           </div> 
-        -->
       </div>
     </div>
     <u-empty style="margin-top:20%;" text="暂无店铺信息" v-else></u-empty>
   </div>
 </template>
 
-<script>
-import { getStoreList } from "@/api/store";
-export default {
-  data() {
-    return {
-      keyword: "",
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-        storeName: "",
-      },
-      storeList: [], // 店铺列表
-    };
-  },
-  onReachBottom() {
-    this.params.pageNumber++;
-    this.init();
-  },
-  mounted() {
-    this.init();
-  },
-  methods: {
-    back() {
-      uni.navigateBack({
-        delta: 1,
-        fail: () => {
-          uni.switchTab({ url: "/pages/tabbar/home/index" });
-        },
-      });
+<script setup lang="ts">
+import { onMounted, reactive, ref } from 'vue'
+import { onReachBottom } from '@dcloudio/uni-app'
+import { getStoreList } from '@/api/store'
+import { unitPrice } from '@/utils/filters.js'
+
+const params = reactive({
+  pageNumber: 1,
+  pageSize: 10,
+  storeName: '',
+})
+const storeList = ref<any[]>([])
+
+function back() {
+  uni.navigateBack({
+    delta: 1,
+    fail: () => {
+      uni.switchTab({ url: '/pages/tabbar/home/index' })
     },
-    handleClickStore(val){
-      uni.navigateTo({
-         url: `/pages/product/shopPage?id=${val.id}`
-      });
-    },
-    search() {
-      this.storeList = [];
-      this.init();
-    },
-   
-    async init() {
-      let res = await getStoreList(this.params);
-      if (res.data.success) {
-        let data = res.data.result;
-        
-        this.storeList.push(...data.records);
-      }
-    },
-  },
-};
+  })
+}
+
+function handleClickStore(val: any) {
+  uni.navigateTo({
+    url: `/pages/product/shopPage?id=${val.id}`,
+  })
+}
+
+function search() {
+  storeList.value = []
+  params.pageNumber = 1
+  init()
+}
+
+async function init() {
+  const res = await getStoreList(params)
+  if (res.data.success) {
+    const data = res.data.result
+    storeList.value.push(...data.records)
+  }
+}
+
+onReachBottom(() => {
+  params.pageNumber++
+  init()
+})
+
+onMounted(() => {
+  init()
+})
 </script>
 
 <style lang="scss" scoped>

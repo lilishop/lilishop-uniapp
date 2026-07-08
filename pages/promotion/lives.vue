@@ -82,204 +82,169 @@
   </view>
 </template>
 
-<script>
-import { getLiveList } from "@/api/promotions.js";
-import config from "@/config/config";
-export default {
-  data() {
-    return {
-      config,
-      status: "loadmore",
-      activeColor: this.$lightColor,
-      current: 0, // 当前tabs索引
-      keyword: "", //搜索直播间
-      // 标签栏
-      tabs: [
-        {
-          name: "直播中",
-        },
-        {
-          name: "全部",
-        },
-      ],
-      // 导航栏的配置
-      background: {
-        background: "#ff9f28",
-      },
-      // 直播间params
-      params: [
-        {
-          pageNumber: 1,
-          pageSize: 10,
-          status: "START",
-        },
-        {
-          pageNumber: 1,
-          pageSize: 4,
-        },
-      ],
-      // 推荐直播间Params
-      recommendParams: {
-        pageNumber: 1,
-        pageSize: 3,
-        recommend: 0,
-      },
-      // 直播间列表
-      liveList: [],
-      // 推荐直播间列表
-      recommendLiveList: [],
+<script setup lang="ts">
+import { getLiveList } from '@/api/promotions.js'
+import config from '@/config/config'
+import { useStore } from '@/store'
+import { onReachBottom, onShow } from '@dcloudio/uni-app'
+import { computed, ref } from 'vue'
 
-      //轮播图滚动的图片
-      swiperImg: [
-        {
-          image:
-            "https://lilishop-oss.oss-cn-beijing.aliyuncs.com/48d789cb9c864b7b87c1c0f70996c3e8.jpeg",
-        },
-      ],
-    };
+const store = useStore()
+
+const activeColor = computed(() => store.getters.lightColor)
+
+const status = ref('loadmore')
+const current = ref(0)
+const keyword = ref('')
+
+const tabs = ref([
+  { name: '直播中' },
+  { name: '全部' },
+])
+
+const background = ref({
+  background: '#ff9f28',
+})
+
+const params = ref([
+  {
+    pageNumber: 1,
+    pageSize: 10,
+    status: 'START',
   },
-  onShow() {
-    this.params[this.current].pageNumber = 1;
-    this.liveList = [];
-    this.getLives();
-    this.getRecommendLives();
+  {
+    pageNumber: 1,
+    pageSize: 4,
   },
-  onReachBottom() {
-    this.params[this.current].pageNumber++;
-    this.getLives();
+])
+
+const recommendParams = ref({
+  pageNumber: 1,
+  pageSize: 3,
+  recommend: 0,
+})
+
+const liveList = ref<any[]>([])
+const recommendLiveList = ref<any[]>([])
+
+const swiperImg = ref<any[]>([
+  {
+    image:
+      'https://lilishop-oss.oss-cn-beijing.aliyuncs.com/48d789cb9c864b7b87c1c0f70996c3e8.jpeg',
   },
-  methods: {
-    back() {
-      uni.navigateBack({
-        delta: 1,
-        fail: () => {
-          uni.switchTab({ url: "/pages/tabbar/home/index" });
-        },
-      });
-    },
-    /**
-     * 点击标签栏切换
-     */
-    changeTabs() {
-      this.params[this.current].pageNumber = 1;
-      this.init();
-    },
+])
 
-    /**
-     * 初始化直播间
-     */
-    init() {
-      this.liveList = [];
-      this.status = "loadmore";
-      this.getLives();
-    },
+onShow(() => {
+  params.value[current.value].pageNumber = 1
+  liveList.value = []
+  getLives()
+  getRecommendLives()
+})
 
-    /**
-     * 清除搜索内容
-     */
-    clear() {
-      delete this.params[this.current].name;
-      this.init();
-    },
-    /**
-     * 点击顶部推荐直播间
-     */
-    clickSwiper(val) {
-      console.log(this.swiperImg[val]);
-      this.handleLivePlayer(this.swiperImg[val]);
-    },
+onReachBottom(() => {
+  params.value[current.value].pageNumber++
+  getLives()
+})
 
-    /**
-     * 搜索直播间
-     */
-    searchLive(val) {
-      this.params[this.current].pageNumber = 1;
-      this.params[this.current].name = val;
-      this.init();
+function back() {
+  uni.navigateBack({
+    delta: 1,
+    fail: () => {
+      uni.switchTab({ url: '/pages/tabbar/home/index' })
     },
-    /**
-     * 获取推荐直播间
-     */
-    async getRecommendLives() {
-      this.status = "loading";
-      let recommendLives = await getLiveList(this.recommendParams);
-      if (recommendLives.data.success) {
-        // 推荐直播间
-        if (recommendLives.data.result.records.length) {
-          this.status = "loadmore";
-          this.recommendLiveList = recommendLives.data.result.records;
-        } else {
-          this.status = "noMore";
-        }
+  })
+}
 
-        /**
-         * 如果推荐直播间没有的情况下
-         * 1.获取直播间第一个图片
-         * 2.如果没有直播间设置一个默认图片
-         */
+function changeTabs() {
+  params.value[current.value].pageNumber = 1
+  init()
+}
 
-        if (!this.recommendLiveList.length) {
-          if (this.liveList[0] && this.liveList[0].shareImg) {
-            this.swiperImg = [
-              {
-                image: this.liveList[0].shareImg,
-                roomId: this.liveList[0].roomId,
-              },
-            ];
-          }
-        } else {
-          this.recommendLiveList.forEach((item) => {
-            this.swiperImg = [{ image: item.shareImg, roomId: item.roomId }];
-          });
+function init() {
+  liveList.value = []
+  status.value = 'loadmore'
+  getLives()
+}
+
+function clear() {
+  delete params.value[current.value].name
+  init()
+}
+
+function clickSwiper(val: number) {
+  console.log(swiperImg.value[val])
+  handleLivePlayer(swiperImg.value[val])
+}
+
+function searchLive(val: string) {
+  params.value[current.value].pageNumber = 1
+  params.value[current.value].name = val
+  init()
+}
+
+async function getRecommendLives() {
+  status.value = 'loading'
+  const recommendLives = await getLiveList(recommendParams.value)
+  if (recommendLives.data.success) {
+    if (recommendLives.data.result.records.length) {
+      status.value = 'loadmore'
+      recommendLiveList.value = recommendLives.data.result.records
+    } else {
+      status.value = 'noMore'
+    }
+
+    if (!recommendLiveList.value.length) {
+      if (liveList.value[0] && liveList.value[0].shareImg) {
+        swiperImg.value = [
+          {
+            image: liveList.value[0].shareImg,
+            roomId: liveList.value[0].roomId,
+          },
+        ]
+      }
+    } else {
+      recommendLiveList.value.forEach((item) => {
+        swiperImg.value = [{ image: item.shareImg, roomId: item.roomId }]
+      })
+    }
+  }
+}
+
+async function getLives() {
+  status.value = 'loading'
+  const res = await getLiveList(params.value[current.value])
+  if (res.data.success) {
+    if (res.data.result.records.length) {
+      status.value = 'loadmore'
+      liveList.value.push(...res.data.result.records)
+    } else {
+      status.value = 'noMore'
+    }
+    res.data.result.total >
+    params.value[current.value].pageNumber *
+      params.value[current.value].pageSize
+      ? (status.value = 'loadmore')
+      : (status.value = 'noMore')
+
+    liveList.value.forEach((item) => {
+      if (item.roomGoodsList && typeof item.roomGoodsList === 'string') {
+        try {
+          item.roomGoodsList = JSON.parse(item.roomGoodsList)
+        } catch (e) {
+          item.roomGoodsList = []
         }
       }
-    },
+    })
+  }
+}
 
-    /**
-     * 获取直播间
-     */
-    async getLives() {
-      this.status = "loading";
-      let res = await getLiveList(this.params[this.current]);
-      // 直播间
-      if (res.data.success) {
-        if (res.data.result.records.length ) {
-          this.status = "loadmore";
-          this.liveList.push(...res.data.result.records);
-        } else {
-          this.status = "noMore";
-        }
-        res.data.result.total >
-        this.params[this.current].pageNumber *
-          this.params[this.current].pageSize
-          ? (this.status = "loadmore")
-          : (this.status = "noMore");
-
-      
-        this.liveList.forEach((item) => {
-          if (item.roomGoodsList && typeof item.roomGoodsList === "string") {
-            try {
-              item.roomGoodsList = JSON.parse(item.roomGoodsList);
-            } catch (e) {
-              item.roomGoodsList = [];
-            }
-          }
-        });
-      }
-    },
-
-    /**
-     * 进入直播间
-     */
-    handleLivePlayer(val) {
-      const id = val.id || val.roomId;
-      if (!id) return;
-      uni.navigateTo({
-        url: `/pages/live/room?id=${id}`,
-      });
-    },
-  },
-};
+function handleLivePlayer(val: any) {
+  const id = val.id || val.roomId
+  if (!id) return
+  uni.navigateTo({
+    url: `/pages/promotion/live/room?id=${id}`,
+  })
+}
 </script>
 
 <style lang="scss" scoped>

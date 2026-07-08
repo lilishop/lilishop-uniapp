@@ -6,49 +6,85 @@
     <!-- 仅h5有效 打开App -->
 
     <!-- 分享 -->
-    <shares v-if="enableShare && goodsDetail.id" :skuId="this.routerVal.id" :goodsId="this.routerVal.goodsId" :link="
+    <shares v-if="enableShare && goodsDetail.id" :skuId="routerVal.id" :goodsId="routerVal.goodsId" :link="
       '/pages/product/goods?id=' +
-      this.routerVal.id +
+      routerVal.id +
       '&goodsId=' +
-      this.routerVal.goodsId
+      routerVal.goodsId
     " :thumbnail="goodsDetail.thumbnail" :goodsName="goodsDetail.goodsName" type="goods"
       @close="enableShare = false" />
     <popups v-model="popupsSwitch" @tapPopup="handleNavbarList" :popData="navbarListData" :x="navbarListX"
       :y="navbarListY" placement="top-start" />
     <view class="index">
       <!-- topBar -->
-      <u-navbar :bg-color="navbar.background" :auto-back="false" @leftClick="back" :class="headerFlag ? 'header' : 'header bg-none scroll-hide'">
-        <div class="headerRow">
-          <div class="backs">
-            <u-icon @click="back()" name="arrow-left" class="icon-back"></u-icon>
-
-            <u-icon name="list" @click="popupsSwitch = !popupsSwitch" class="icon-list"></u-icon>
-          </div>
-          <div class="headerList" :class="headerFlag ? 'tab-bar' : 'tab-bar scroll-hide'">
-            <div class="headerRow">
-              <div class="nav-item" v-for="header in headerList" :key="header.id"
-                :class="{ cur: scrollId === header.id }" @click="headerTab(header.id)">
+      <u-navbar
+        :fixed="true"
+        :placeholder="false"
+        :safe-area-inset-top="true"
+        :border="false"
+        :bg-color="navbar.background"
+        :auto-back="false"
+        :class="headerFlag ? 'header' : 'header bg-none scroll-hide'"
+      >
+        <template #left>
+          <view class="backs" @tap.stop>
+            <view class="nav-action" @tap.stop="back()">
+              <u-icon name="arrow-left" class="icon-back"></u-icon>
+            </view>
+            <view class="nav-action" @tap.stop="popupsSwitch = !popupsSwitch">
+              <u-icon name="list" class="icon-list"></u-icon>
+            </view>
+          </view>
+        </template>
+        <template #center>
+          <view class="headerList" :class="headerFlag ? 'tab-bar' : 'tab-bar scroll-hide'">
+            <view class="headerRow headerRow--tabs">
+              <view
+                class="nav-item"
+                v-for="header in headerList"
+                :key="header.id"
+                :class="{ cur: scrollId === header.id }"
+                @tap.stop="headerTab(header.id)"
+              >
                 {{ header.text }}
-              </div>
-            </div>
-          </div>
-        </div>
+              </view>
+            </view>
+          </view>
+        </template>
       </u-navbar>
 
-      <u-navbar :border="false" v-show="!headerFlag" class="header-only-back" :bg-color="navbarOnlyBack.background"
-        :auto-back="false" @leftClick="back">
-        <div>
-          <div class="bg-back">
-            <u-icon size="40" @click="back()" name="arrow-left" class="icon-back"></u-icon>
-            <u-icon size="40" @click="popupsSwitch = !popupsSwitch" name="list" class="icon-list"></u-icon>
-          </div>
-        </div>
+      <u-navbar
+        :border="false"
+        v-show="!headerFlag"
+        :fixed="true"
+        :placeholder="false"
+        :safe-area-inset-top="true"
+        class="header-only-back"
+        :bg-color="navbarOnlyBack.background"
+        :auto-back="false"
+      >
+        <template #left>
+          <view class="bg-back" @tap.stop>
+            <view class="nav-action" @tap.stop="back()">
+              <u-icon size="20" name="arrow-left" class="icon-back"></u-icon>
+            </view>
+            <view class="nav-action" @tap.stop="popupsSwitch = !popupsSwitch">
+              <u-icon size="20" name="list" class="icon-list"></u-icon>
+            </view>
+          </view>
+        </template>
       </u-navbar>
     </view>
 
-    <view class="product-container" :style="{ height: productRefHeight }" ref="productRef" id="productRef">
-      <scroll-view scroll-anchoring enableBackToTop="true" scroll-with-animation scroll-y class="scroll-page"
-        :scroll-top="tabScrollTop" @scroll="pageScroll">
+    <view class="product-container" id="productRef">
+      <scroll-view
+        enableBackToTop="true"
+        scroll-with-animation
+        scroll-y
+        class="scroll-page"
+        :scroll-top="tabScrollTop"
+        @scroll="pageScroll"
+      >
         <view class="scroll-inner">
           <!-- 轮播图 -->
          
@@ -231,760 +267,546 @@
         <!-- 拼团结算 -->
         <view class="detail-btn" v-else-if="isGroup">
           <view class="to-store-car pt-buy to-store-btn" @click="shutMask(4, 'buy')">
-            <view>￥{{unitPrice(goodsDetail.price) }}</view>
+            <view>￥{{unitPrice(goodsDetail.price)}}</view>
             <view>单独购买</view>
           </view>
           <view class="to-buy pt-buy to-store-btn" @click="toAssembleBuyNow">
-            <view>￥{{unitPrice(goodsDetail.promotionPrice) }}</view>
+            <view>￥{{unitPrice(goodsDetail.promotionPrice)}}</view>
             <view>拼团价格</view>
           </view>
         </view>
       </view>
-      <!-- 规格-模态层弹窗 -->
-      <view class="spec">
-        <!-- 促销弹窗 -->
-        <u-popup v-model:show="promotionShow" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius"
-          @close="promotionShow = false" :mask-close-able="setup.close" closeable>
-          <view class="header-title">优惠</view>
-          <view class="cuxiao">
-            <scroll-view class="scroll_mask" :scroll-y="true">
-              <view class="con-cuxiao">
-                <view class="cuxiao-title">促销活动</view>
-                <PromotionDetailsLayout :res="PromotionList" />
-              </view>
-              <view class="con-cuxiao coupons">
-                <view class="cuxiao-title">可领优惠券</view>
-                <PromotionCoupon @getCoupon="getCoupon" :res="PromotionList" />
-              </view>
-            </scroll-view>
-          </view>
-        </u-popup>
+    </view>
+    <!-- 规格-模态层弹窗 -->
+    <view class="spec">
+      <!-- 促销弹窗 -->
+      <u-popup v-model:show="promotionShow" :height="setup.height" :mode="setup.mode" :border-radius="setup.radius"
+        @close="promotionShow = false" :mask-close-able="setup.close" closeable>
+        <view class="header-title">优惠</view>
+        <view class="cuxiao">
+          <scroll-view class="scroll_mask" :scroll-y="true">
+            <view class="con-cuxiao">
+              <view class="cuxiao-title">促销活动</view>
+              <PromotionDetailsLayout :res="PromotionList" />
+            </view>
+            <view class="con-cuxiao coupons">
+              <view class="cuxiao-title">可领优惠券</view>
+              <PromotionCoupon @getCoupon="getCoupon" :res="PromotionList" />
+            </view>
+          </scroll-view>
+        </view>
+      </u-popup>
 
-        <!-- 配送地址弹窗 -->
-        <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id"
-          :goodsId="goodsDetail.id" :addressFlag="addressFlag" />
+      <!-- 配送地址弹窗 -->
+      <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id"
+        :goodsId="goodsDetail.id" :addressFlag="addressFlag" />
 
-        <!-- 商品规格  商品详情，以及默认参与活动的id-->
-        <popupGoods :addr="delivery" ref="popupGoods" @changed="changedGoods" @closeBuy="closePopupBuy"
-          @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :isGroup="isGroup" :id="productId"
-          v-if="goodsDetail.id" :pointDetail="pointDetail" :wholesaleList="wholesaleList" @handleClickSku="selectSku"
-          :buyMask="buyMask" />
+      <!-- 商品规格  商品详情，以及默认参与活动的id-->
+      <popupGoods :addr="delivery" ref="popupGoodsRef" @changed="changedGoods" @closeBuy="closePopupBuy"
+        @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :isGroup="isGroup" :id="productId"
+        v-if="goodsDetail.id" :pointDetail="pointDetail" :wholesaleList="wholesaleList" @handleClickSku="selectSku"
+        :buyMask="buyMask" />
 
-
-        <!-- 下架框 -->
-        <takeDownFormSaleGoods ref="takeDownSale" v-if="takeDownFromSale" />
-      </view>
+      <!-- 下架框 -->
+      <takeDownFormSaleGoods ref="takeDownSaleRef" v-if="takeDownFromSale" />
     </view>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 /************接口API***************/
-import { getGoods, getGoodsList, getMpScene, getGoodsDistribution } from "@/api/goods.js";
-import * as API_trade from "@/api/trade.js";
-import * as API_Members from "@/api/members.js";
-import * as API_store from "@/api/store.js";
-import { getIMDetail } from "@/api/common";
-import { modelNavigateTo } from "@/pages/tabbar/home/template/tpl.js";
+import { ref, reactive, computed, watch, nextTick, getCurrentInstance } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import { getGoods, getGoodsList, getMpScene, getGoodsDistribution } from '@/api/goods.js'
+import * as API_trade from '@/api/trade.js'
+import * as API_Members from '@/api/members.js'
+import * as API_store from '@/api/store.js'
+import { getIMDetail } from '@/api/common'
+import { modelNavigateTo } from '@/pages/tabbar/home/template/tpl.js'
 /************请求存储***************/
-import storage from "@/utils/storage.js";
+import storage from '@/utils/storage.js'
+/************工具函数***************/
+import { useStore } from '@/store'
+import { unitPrice, goodsFormatPrice, isLogin, parseGoodsImageUrl, clearStrComma, talkIm } from '@/utils/filters.js'
 
 /************组件***************/
-import PromotionLayout from "./product/promotion/-promotion"; //促销组件
-import PromotionDetailsLayout from "./product/promotion/-promotion-details"; //促销活动详情
-import PromotionAssembleLayout from "./product/promotion/-promotion-assemble-promotions"; //促销活动条
-import PromotionAssembleListLayout from "./product/promotion/-promotion-assemble-list"; //拼团用户列表
-import PromotionCoupon from "./product/promotion/-promotion-coupon"; //优惠券组件
-import GoodsIntro from "./product/goods/-goods-intro"; //商品介绍组件
-import GoodsRecommend from "./product/goods/-goods-recommend"; //宝贝推荐
-import storeLayout from "./product/shop/-shop"; //店铺组件
-import Evaluation from "./product/evaluation/-evaluation"; //评价组件
-import GoodsSwiper from "./product/goods/-goods-swiper"; //轮播图组件
-import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
-import popupAddress from "./product/popup/address"; //地址选择模块
-import shares from "@/components/m-share/index"; //分享
-import popups from "@/components/popups/popups"; //气泡框
-import takeDownFormSaleGoods from "@/components/m-take-down-sale-goods/index"; //下架框
-import setup from "./product/popup/popup";
+import PromotionLayout from './product/promotion/-promotion'
+import PromotionDetailsLayout from './product/promotion/-promotion-details'
+import PromotionAssembleLayout from './product/promotion/-promotion-assemble-promotions'
+import PromotionAssembleListLayout from './product/promotion/-promotion-assemble-list'
+import PromotionCoupon from './product/promotion/-promotion-coupon'
+import GoodsIntro from './product/goods/-goods-intro'
+import GoodsRecommend from './product/goods/-goods-recommend'
+import storeLayout from './product/shop/-shop'
+import Evaluation from './product/evaluation/-evaluation'
+import GoodsSwiper from './product/goods/-goods-swiper'
+import popupGoods from '@/components/m-buy/goods'
+import popupAddress from './product/popup/address'
+import shares from '@/components/m-share/index'
+import popups from '@/components/popups/popups'
+import takeDownFormSaleGoods from '@/components/m-take-down-sale-goods/index'
+import setup from './product/popup/popup'
 
-export default {
-  components: {
-    popups,
-    shares,
-    PromotionLayout,
-    PromotionDetailsLayout,
-    PromotionAssembleLayout,
-    PromotionAssembleListLayout,
-    PromotionCoupon,
-    GoodsIntro,
-    GoodsRecommend,
-    storeLayout,
-    Evaluation,
-    GoodsSwiper,
-    popupGoods,
-    popupAddress,
-    takeDownFormSaleGoods
-  },
-  data () {
-    return {
-      setup,
-      promotionShow: false, //弹窗开关
-      // #ifdef H5
-      navbarListX: 110, //导航栏列表栏x轴
-      navbarListY: 80, //导航栏列表栏y轴
-      // #endif
-      // #ifdef MP-WEIXIN
-      navbarListX: 100, //导航栏列表栏x轴
-      navbarListY: 140, //导航栏列表栏y轴
-      // #endif
-      // #ifdef APP-PLUS
-      navbarListX: 120, //导航栏列表栏x轴
-      navbarListY: 170, //导航栏列表栏y轴
-      // #endif
-      navbarListData: [
-        //导航栏列表栏数据
-        {
-          title: "首页",
-          icon: "home-fill",
-          ___type: "other",
-        },
-        {
-          title: "购物车",
-          icon: "bag-fill",
-          ___type: "other",
-        },
-        {
-          title: "搜索",
-          icon: "search",
-          ___type: "category",
-        },
-        {
-          title: "个人中心",
-          icon: "account-fill",
-          ___type: "other",
-        },
-      ],
-      popupsSwitch: false, //导航栏列表栏开关
-      enableShare: false,
-      selectedGoods: "", //选择的商品规格昵称
-      isGroup: false, // 是否是拼团活动
-      isSeckill: false, // 是否秒杀活动
-      pointDetail: "", // 是否是积分商品
-      assemble: "", //拼团的sku
-      navbarOnlyBack: {
-        background: "transparent",
-      },
-      navbar: {
-        background: "#fff",
-      },
+const store = useStore()
+const instance = getCurrentInstance()
+const popupGoodsRef = ref()
+const takeDownSaleRef = ref()
 
-      productRefHeight: "",
-      header: {
-        top: 0,
-        height: 50,
-      },
-      goodsParams: [], // 商品参数
-      headerFlag: false, //顶部导航显示与否
-      headerList: [
-        //顶部导航文字按照规则来 详情全局搜索
-        {
-          text: "商品",
-          id: "1",
-        },
-        {
-          text: "评价",
-          id: "2",
-        },
-        {
-          text: "详情",
-          id: "3",
-        },
-        {
-          text: "推荐",
-          id: "4",
-        },
-      ],
-      tabScrollTop: null,
-      scrollArr: [],
-      scrollId: "1",
-      scrollFlag: true,
-      current: "1", //当前显示的轮播图页
-      goodsDetail: {}, //商品数据
-      goodsSpec: "", //规格数据
-      imgList: [], //轮播图数据
-      favorite: false, //收藏与否flag
-      recommendList: [], //推荐列表
-      // maskFlag: false, //模态显示与否
-      goodsInfo: false, //商品介绍弹窗
-      addressFlag: false, //配送地址弹窗
-      buyMask: false, //添加购物车直接购买，查看已选 弹窗
-      num: 1, //添加到购物车的数量
-      skuId: "", //
-      storeDetail: "", //店铺基本信息,
-      // 店铺信息
-      storeParams: {
-        pageNumber: 1,
-        pageSize: 10,
-      },
+// 响应式数据
+const promotionShow = ref(false)
+let navbarListX: any
+let navbarListY: any
+// #ifdef H5
+navbarListX = ref(110)
+navbarListY = ref(80)
+// #endif
+// #ifdef MP-WEIXIN || APP-PLUS
+// #ifndef H5
+navbarListX = ref(120)
+navbarListY = ref(170)
+// #endif
+// #endif
+const navbarListData = [
+  { title: "首页", icon: "home-fill", ___type: "other" },
+  { title: "购物车", icon: "bag-fill", ___type: "other" },
+  { title: "搜索", icon: "search", ___type: "category" },
+  { title: "个人中心", icon: "account-fill", ___type: "other" },
+]
+const popupsSwitch = ref(false)
+const enableShare = ref(false)
+const selectedGoods = ref<any>("")
+const isGroup = ref(false)
+const isSeckill = ref(false)
+const pointDetail = ref<any>("")
+const assemble = ref<any>("")
+const navbarOnlyBack = reactive({ background: "transparent" })
+const navbar = reactive({ background: "#fff" })
+const header = reactive({ top: 0, height: 50 })
+const goodsParams = ref<any[]>([])
+const headerFlag = ref(false)
+const headerList = [
+  { text: "商品", id: "1" },
+  { text: "评价", id: "2" },
+  { text: "详情", id: "3" },
+  { text: "推荐", id: "4" },
+]
+const tabScrollTop = ref<any>(null)
+const scrollArr = ref<number[]>([])
+const scrollId = ref("1")
+const scrollFlag = ref(true)
+const current = ref("1")
+const goodsDetail = ref<any>({})
+const goodsSpec = ref<any>("")
+const imgList = ref<any[]>([])
+const favorite = ref(false)
+const recommendList = ref<any[]>([])
+const addressFlag = ref(false)
+const buyMask = ref(false)
+const num = ref(1)
+const skuId = ref<any>("")
+const storeDetail = ref<any>("")
+const storeParams = reactive({
+  pageNumber: 1,
+  pageSize: 10,
+})
+const likeGoodsList = ref<any[]>([])
+const PromotionList = ref<any>("")
+const specList = ref<any[]>([])
+const selectedSpec = ref<any[]>([])
+const nums = ref(0)
+const delivery = ref<any>("")
+const exchange = ref<any>({})
+const productId = ref(0)
+const startTimer = ref(false)
+const routerVal = ref<any>("")
+const IMLink = ref("")
+const wholesaleList = ref<any[]>([])
+const takeDownFromSale = ref(false)
 
-      likeGoodsList: [], //相似商品列表
-      PromotionList: "", //活动,促销，列表
-      specList: [],
-      selectedSpec: [],
-      nums: 0,
-      delivery: "",
+// computed
+const IM = computed(() => {
+  return IMLink.value + storeDetail.value.merchantEuid
+})
 
-      exchange: {},
-      productId: 0,
-
-      startTimer: false, //未开启 是false
-
-      routerVal: "",
-      IMLink: "", // IM地址
-      wholesaleList: [],
-      takeDownFromSale: false, // 下架销售状态
-    };
-  },
-
-  computed: {
-    // udesk IM 
-    IM () {
-      return this.IMLink + this.storeDetail.merchantEuid;
-    },
-  },
-
-  watch: {
-    isGroup (val) {
-      if (val) {
-        let timer = setInterval(() => {
-          this.$refs.popupGoods.buyType = "PINTUAN";
-          clearInterval(timer);
-        }, 100);
-      } else {
-        this.$refs.popupGoods.buyType = "";
+// watch
+watch(isGroup, (val) => {
+  if (val) {
+    let timer = setInterval(() => {
+      if (popupGoodsRef.value) {
+        (popupGoodsRef.value as any).buyType = "PINTUAN"
       }
-    },
-  },
-  mounted () {
-    this.calcProductHeight();
-  },
-  async onLoad (options) {
-    this.routerVal = options;
-    // #ifdef MP-WEIXIN
-    // 小程序默认分享
-    uni.showShareMenu({
-      withShareTicket: true,
-      menus: ["shareAppMessage", "shareTimeline"],
-    });
-    // #endif
-  },
-  async onShow () {
-    this.goodsDetail = {};
-    //如果有参数ids说明事分销短连接，需要获取参数
-    if (this.routerVal.scene) {
-      getMpScene(this.routerVal.scene).then((res) => {
-        if (res.data.success) {
-          let data = res.data.result.split(","); // skuId,goodsId,distributionId
-          this.init(data[0], data[1], data[2]);
-        }
-      });
-    } else {
-      this.init(this.routerVal.id, this.routerVal.goodsId, this.routerVal.distributionId);
+      clearInterval(timer)
+    }, 100)
+  } else {
+    if (popupGoodsRef.value) {
+      (popupGoodsRef.value as any).buyType = ""
     }
-  },
+  }
+})
 
-  methods: {
-    calcProductHeight () {
-      this.$nextTick(() => {
-        const { windowHeight } = uni.getWindowInfo();
-        uni.createSelectorQuery()
-          .in(this)
-          .select('#pageBottom')
-          .boundingClientRect((data) => {
-            const bottomHeight = data && data.height ? data.height : 0;
-            this.productRefHeight = `${windowHeight - bottomHeight}px`;
-          })
-          .exec();
-      });
-    },
-    // 重新打开下架
-    reStartTakeDownSale(){
-      this.$refs.takeDownSale.show = true
-    },
-    share () {
-      return `/pages/product/goods?id=${this.routerVal.id}&goodsId=${this.routerVal.goodsId}`;
-    },
-    /**
-     * 导航栏列表栏
-     */
-    handleNavbarList (val) {
-      modelNavigateTo({ url: val });
-    },
+// 生命周期
+onLoad((options: any) => {
+  routerVal.value = options
+  // #ifdef MP-WEIXIN
+  uni.showShareMenu({
+    withShareTicket: true,
+    menus: ["shareAppMessage", "shareTimeline"],
+  })
+  // #endif
+})
 
-    /**
-     * 循环出当前促销是否为空
-     */
-    emptyPromotion () {
-      if (
-        this.PromotionList == "" ||
-        this.PromotionList == null ||
-        this.PromotionList == []
-      ) {
-        return true;
-      }
-    },
-    selectSku (idObj) {
-      this.init(idObj.skuId, idObj.goodsId);
-    },
-    /**
-     * 初始化信息
-     */
-    async init (id, goodsId, distributionId = "") {
-      this.isGroup = false; //初始化拼团
-      this.productId = id; // skuId
-      // 这里请求获取到页面数据  解析数据
+onShow(async () => {
+  goodsDetail.value = {}
+  if (routerVal.value.scene) {
+    const res = await getMpScene(routerVal.value.scene)
+    if (res.data.success) {
+      let data = res.data.result.split(",")
+      init(data[0], data[1], data[2])
+    }
+  } else {
+    init(routerVal.value.id, routerVal.value.goodsId, routerVal.value.distributionId)
+  }
+})
 
-      let response = await getGoods(id || 'undefined', goodsId);
-      
-      // 判断当前接口返回内容 
-      if (!response.data.success) {
-        // 商品已下架
-        if(response.data.code == 11001){
-          this.takeDownFromSale = true
-        }
-        // setTimeout(() => {
-        //   uni.navigateBack();
-        // }, 500);
-      }
-      // 这里是绑定分销员
-      if ((distributionId || this.$store.state.distributionId) && this.isLogin("auth")) {
-        let disResult = await getGoodsDistribution(distributionId);
-        if (!disResult.data.success || disResult.statusCode == 403) {
-          this.$store.state.distributionId = distributionId;
-        }
-      }
-      /**商品信息以及规格信息存储 */
-      this.goodsDetail = response.data.result.data;
-      // 清洗缩略图，避免损坏地址（如 1?x-oss-process=style/400X400）触发渲染层 500
-      if (this.goodsDetail) {
-        this.goodsDetail.thumbnail = this.parseGoodsImageUrl(this.goodsDetail.thumbnail);
-      }
-      this.wholesaleList = response.data.result.wholesaleList;
-      this.goodsSpec = response.data.result.specs;
-      this.PromotionList = response.data.result.promotionMap;
-      this.goodsParams = response.data.result.goodsParamsDTOList || [];
+// 方法
+function reStartTakeDownSale() {
+  if (takeDownSaleRef.value) {
+    (takeDownSaleRef.value as any).show = true
+  }
+}
 
-      // 判断是否拼团活动或者积分商品 如果有则显示拼团活动信息
-      this.PromotionList &&
-        Object.keys(this.PromotionList).forEach((item) => {
-          // 拼团商品
-          if (item.indexOf("PINTUAN") == 0) {
-            this.isGroup = true;
+function share() {
+  return `/pages/product/goods?id=${routerVal.value.id}&goodsId=${routerVal.value.goodsId}`
+}
+
+function handleNavbarList(val: any) {
+  modelNavigateTo({ url: val })
+}
+
+function emptyPromotion(): boolean {
+  if (PromotionList.value == "" || PromotionList.value == null || PromotionList.value == []) {
+    return true
+  }
+  return false
+}
+
+function selectSku(idObj: any) {
+  init(idObj.skuId, idObj.goodsId)
+}
+
+async function init(id: any, goodsId: any, distributionId = "") {
+  isGroup.value = false
+  productId.value = id
+
+  let response = await getGoods(id || 'undefined', goodsId)
+
+  if (!response?.data?.success) {
+    if (response?.data?.code == 11001) {
+      takeDownFromSale.value = true
+    }
+    uni.showToast({
+      title: response?.data?.message || '商品加载失败',
+      icon: 'none'
+    })
+    return
+  }
+
+  if ((distributionId || store.state.distributionId) && isLogin("auth")) {
+    let disResult = await getGoodsDistribution(distributionId)
+    if (!disResult?.data?.success || disResult.statusCode == 403) {
+      store.state.distributionId = distributionId
+    }
+  }
+
+  const resultData = response.data.result?.data
+  if (!resultData) {
+    uni.showToast({
+      title: '商品数据异常',
+      icon: 'none'
+    })
+    return
+  }
+
+  goodsDetail.value = resultData
+  if (goodsDetail.value) {
+    goodsDetail.value.thumbnail = parseGoodsImageUrl(goodsDetail.value.thumbnail)
+  }
+  wholesaleList.value = response.data.result.wholesaleList || []
+  goodsSpec.value = response.data.result.specs || ""
+  PromotionList.value = response.data.result.promotionMap || ""
+  goodsParams.value = response.data.result.goodsParamsDTOList || []
+
+  PromotionList.value &&
+    Object.keys(PromotionList.value).forEach((item: string) => {
+      if (item.indexOf("PINTUAN") == 0) {
+        isGroup.value = true
+      }
+      if (item.indexOf("SECKILL") == 0) {
+        isSeckill.value = true
+      }
+    })
+
+  const gallery = (goodsDetail.value.goodsGalleryList || [])
+    .map((i: any) => parseGoodsImageUrl(i, ""))
+    .filter(Boolean)
+  imgList.value = [...new Set(gallery)]
+
+  getStoreBaseInfoFun(goodsDetail.value.storeId)
+  cartCount()
+  getStoreRecommend()
+  getOtherLikeGoods()
+
+  if (isLogin("auth")) {
+    getGoodsCollectionFun(goodsDetail.value.id)
+  }
+}
+
+async function getIMDetailMethods() {
+  let res = await getIMDetail()
+  if (res.data.success) {
+    IMLink.value = res.data.result
+  }
+}
+
+function linkMsgDetail() {
+  talkIm(goodsDetail.value.storeId, routerVal.value.goodsId, routerVal.value.id)
+}
+
+function changedGoods(val: any) {
+  selectedGoods.value = val
+}
+
+function deliveryFun(val: any) {
+  delivery.value = val
+}
+
+function closePopupAddress(val: any) {
+  addressFlag.value = val
+}
+
+function closePopupBuy(val: any) {
+  buyMask.value = val
+}
+
+function toAssembleBuyNow(order: any) {
+  shutMask(4, "PINTUAN", order)
+}
+
+function reluchToCart() {
+  let obj = {
+    from: "product",
+    id: productId.value,
+  }
+  storage.setCartBackbtn(obj)
+  uni.switchTab({
+    url: "/pages/tabbar/cart/cartList",
+  })
+}
+
+function cartCount() {
+  if (storage.getHasLogin()) {
+    API_trade.getCartNum().then((res: any) => {
+      nums.value = res.data.result
+    })
+  }
+}
+
+function back() {
+  if (getCurrentPages().length == 1) {
+    uni.switchTab({
+      url: "/pages/tabbar/home/index",
+    })
+  } else {
+    uni.navigateBack()
+  }
+}
+
+function getStoreBaseInfoFun(id: any) {
+  API_store.getStoreBaseInfo(id).then((res: any) => {
+    if (res.data.success) {
+      storeDetail.value = res.data.result
+      if (storeDetail.value) {
+        storeDetail.value.storeLogo = parseGoodsImageUrl(storeDetail.value.storeLogo)
+      }
+    }
+  })
+}
+
+function deleteGoodsCollectionFun(id: any) {
+  API_Members.deleteGoodsCollection(id).then((res: any) => {
+    if (res.statusCode == 200) {
+      uni.showToast({
+        title: "商品已取消收藏!",
+        icon: "none",
+      })
+      favorite.value = !favorite.value
+    }
+  })
+}
+
+function getGoodsCollectionFun(goodsId: any) {
+  if (storage.getHasLogin()) {
+    API_Members.getGoodsIsCollect("GOODS", goodsId).then((res: any) => {
+      favorite.value = res.data.result
+    })
+  }
+}
+
+function getStoreRecommend() {
+  getGoodsList({
+    pageNumber: 1,
+    pageSize: 6,
+    storeId: goodsDetail.value.storeId,
+    recommend: true,
+  }).then((res: any) => {
+    recommendList.value = (res.data.result.records || []).map((item: any) => ({
+      ...item,
+      thumbnail: parseGoodsImageUrl(item.thumbnail),
+    }))
+  })
+}
+
+function getOtherLikeGoods() {
+  getGoodsList({
+    pageNumber: 1,
+    pageSize: 10,
+    currentGoodsId: goodsDetail.value.id,
+    keyword: goodsDetail.value.name
+  }).then((res: any) => {
+    likeGoodsList.value = (res.data.result.records || []).map((item: any) => ({
+      ...item,
+      thumbnail: parseGoodsImageUrl(item.thumbnail),
+    }))
+  })
+}
+
+function receiveCouponsFun(id: any) {
+  API_Members.receiveCoupons(id).then((res: any) => {
+    uni.showToast({
+      title: res.data.message,
+      icon: "none",
+    })
+  })
+}
+
+function navigateToStore(store_id: any) {
+  uni.navigateTo({
+    url: `/pages/product/shopPage?id=` + store_id,
+  })
+}
+
+function getCoupon(item: any) {
+  receiveCouponsFun(item.id)
+}
+
+function shutMask(flag: any, buyFlag?: any, type?: any) {
+  promotionShow.value = false
+  buyMask.value = false
+  addressFlag.value = false
+  if (flag) {
+    switch (flag) {
+      case 1:
+        promotionShow.value = true
+        break
+      case 3:
+        addressFlag.value = true
+        break
+      case 4:
+        buyMask.value = true
+        if (buyFlag == "PINTUAN") {
+          if (type.orderSn && popupGoodsRef.value) {
+            (popupGoodsRef.value as any).parentOrder = type
           }
-
-          // 秒杀
-          if (item.indexOf("SECKILL") == 0) {
-            this.isSeckill = true
-          }
-        });
-      // 轮播图：兼容上传 JSON 与纯 URL，解析后去重
-      const gallery = (this.goodsDetail.goodsGalleryList || [])
-        .map((i) => this.parseGoodsImageUrl(i, ""))
-        .filter(Boolean);
-      this.imgList = [...new Set(gallery)];
-
-
-      // 获取店铺基本信息
-      this.getStoreBaseInfoFun(this.goodsDetail.storeId);
-
-      // 获取购物车
-      this.cartCount();
-
-      // 获取店铺推荐商品
-      this.getStoreRecommend();
-
-      // 获取商品列表
-      this.getOtherLikeGoods();
-      // 获取商品是否已被收藏 如果未登录不获取
-
-      if (this.isLogin("auth")) {
-        this.getGoodsCollectionFun(this.goodsDetail.id);
-      }
-      // 获取IM 需要的话使用
-      // this.getIMDetailMethods();
-    },
-
-    async getIMDetailMethods () {
-      let res = await getIMDetail();
-      if (res.data.success) {
-        this.IMLink = res.data.result;
-      }
-    },
-
-    linkMsgDetail () {
-      // lili 基础客服
-      this.talkIm(this.goodsDetail.storeId, this.routerVal.goodsId, this.routerVal.id)
-      // uni.navigateTo({
-      //   url: `/pages/mine/im/index?userId=${this.goodsDetail.storeId}&goodsid=${this.routerVal.goodsId}&skuid=${this.routerVal.id}`
-      // });
-
-      // udesk 代码  
-      // if (this.storeDetail.merchantEuid) {
-      //   uni.navigateTo({
-      //     url: `/pages/tabbar/home/web-view?src=${this.IM}`,
-      //   });
-      // }
-
-
-      // 客服 云智服代码 
-      // // #ifdef MP-WEIXIN
-      // const params = {
-      //   storeName: this.storeDetail.storeName,
-      //   goodsName: this.goodsDetail.goodsName,
-      //   goodsId: this.goodsDetail.goodsId,
-      //   goodsImg: this.goodsDetail.thumbnail,
-      //   price: this.goodsDetail.promotionPrice || this.goodsDetail.price,
-      //   // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
-      //   uuid: storage.getUuid(),
-      //   token: storage.getAccessToken(),
-      //   sign: this.storeDetail.yzfSign,
-      //   mpSign: this.storeDetail.yzfMpSign,
-      // };
-      // uni.navigateTo({
-      //   url:
-      //     "/pages/product/customerservice/index?params=" +
-      //     encodeURIComponent(JSON.stringify(params)),
-      // });
-      // // #endif
-      // // #ifndef MP-WEIXIN
-      // const sign = this.storeDetail.yzfSign;
-      // uni.navigateTo({
-      //   url:
-      //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-      //     sign,
-      // });
-      // // #endif
-
-    },
-    /**选择商品 */
-    changedGoods (val) {
-      this.selectedGoods = val;
-    },
-
-    /**  点击子级地址回调参数*/
-    deliveryFun (val) {
-      this.delivery = val;
-    },
-    /**
-     * 地址子级关闭回调
-     */
-    closePopupAddress (val) {
-      this.addressFlag = val;
-      // this.maskFlag = false;
-    },
-    /**
-     * 商品规格子级关闭回调
-     */
-    closePopupBuy (val) {
-      this.buyMask = val;
-      // this.maskFlag = false;
-    },
-
-    /** 参与拼团  创建拼团 */
-    toAssembleBuyNow (order) {
-      this.shutMask(4, "PINTUAN", order);
-    },
-    /**
-     * 查看购物车
-     */
-    reluchToCart () {
-      let obj = {
-        from: "product",
-        id: this.productId,
-      };
-      storage.setCartBackbtn(obj);
-      uni.switchTab({
-        url: "/pages/tabbar/cart/cartList",
-      });
-    },
-
-    /**
-     * 查询购物车总数量
-     */
-    cartCount () {
-      if (storage.getHasLogin()) {
-        API_trade.getCartNum().then((res) => {
-          this.nums = res.data.result;
-        });
-      }
-    },
-
-    /**
-     * 返回
-     */
-    back () {
-      if (getCurrentPages().length == 1) {
-        uni.switchTab({
-          url: "/pages/tabbar/home/index",
-        });
-      } else {
-        uni.navigateBack();
-      }
-    },
-
-    /**
-     * 获取店铺信息
-     */
-    getStoreBaseInfoFun (id) {
-      API_store.getStoreBaseInfo(id).then((res) => {
-        if (res.data.success) {
-          this.storeDetail = res.data.result;
-          if (this.storeDetail) {
-            this.storeDetail.storeLogo = this.parseGoodsImageUrl(this.storeDetail.storeLogo);
+          if (popupGoodsRef.value) {
+            (popupGoodsRef.value as any).buyType = "PINTUAN"
           }
         }
-      });
-    },
-
-    /**
-     * 删除收藏店铺
-     */
-    deleteGoodsCollectionFun (id) {
-      API_Members.deleteGoodsCollection(id).then((res) => {
-        if (res.statusCode == 200) {
-          uni.showToast({
-            title: "商品已取消收藏!",
-            icon: "none",
-          });
-          this.favorite = !this.favorite;
+        if (buyFlag == "buy") {
+          if (popupGoodsRef.value) {
+            (popupGoodsRef.value as any).buyType = ""
+          }
         }
-      });
-    },
+        break
+    }
+  }
+}
 
-    /**
-     * 获取商品是否已被收藏
-     */
-    getGoodsCollectionFun (goodsId) {
-      if (storage.getHasLogin()) {
-        API_Members.getGoodsIsCollect("GOODS", goodsId).then((res) => {
-          this.favorite = res.data.result;
-        });
-      }
-    },
+function clickFavorite(id: any) {
+  if (favorite.value) {
+    deleteGoodsCollectionFun(id)
+    return false
+  }
+  API_Members.collectionGoods("GOODS", id).then((res: any) => {
+    if (res.data.success) {
+      uni.showToast({
+        title: "收藏成功!",
+        icon: "none",
+      })
+    }
+  })
+  favorite.value = !favorite.value
+}
 
-    /**
-     * 获取店铺推荐商品列表
-     */
-    getStoreRecommend () {
-      getGoodsList({
-        pageNumber: 1,
-        pageSize: 6,
-        storeId: this.goodsDetail.storeId,
-        recommend: true,
-      }).then((res) => {
-        this.recommendList = (res.data.result.records || []).map((item) => ({
-          ...item,
-          thumbnail: this.parseGoodsImageUrl(item.thumbnail),
-        }));
-      });
-    },
+function pageScroll(e: any) {
+  if (scrollFlag.value) {
+    calcSize()
+  }
+  if (e.detail.scrollTop > 200) {
+    headerFlag.value = true
+  } else {
+    headerFlag.value = false
+  }
+  if (e.detail.scrollTop < scrollArr.value[0] - 10) {
+    scrollId.value = "1"
+  }
+  if (e.detail.scrollTop > scrollArr.value[1] - 10) {
+    scrollId.value = "2"
+  }
+  if (e.detail.scrollTop > scrollArr.value[2] - 10) {
+    scrollId.value = "3"
+  }
+  if (e.detail.scrollTop > scrollArr.value[3] - 10) {
+    scrollId.value = "4"
+  }
+}
 
-    /**
-     * 获取相似商品列表
-     *
-     */
-    getOtherLikeGoods () {
-      getGoodsList({
-        pageNumber: 1,
-        pageSize: 10,
-        currentGoodsId: this.goodsDetail.id,
-        keyword: this.goodsDetail.name
-      }).then((res) => {
-        this.likeGoodsList = (res.data.result.records || []).map((item) => ({
-          ...item,
-          thumbnail: this.parseGoodsImageUrl(item.thumbnail),
-        }));
-      });
-    },
-
-    /**
-     * 领取优惠券
-     */
-    receiveCouponsFun (id) {
-      API_Members.receiveCoupons(id).then((res) => {
-        uni.showToast({
-          title: res.data.message,
-          icon: "none",
-        });
-      });
-    },
-
-    /**
-     * 跳转到店铺页面
-     */
-    navigateToStore (store_id) {
-      uni.navigateTo({
-        url: `/pages/product/shopPage?id=` + store_id,
-      });
-    },
-
-    /**
-     * 获取优惠券按钮
-     */
-    getCoupon (item) {
-      this.receiveCouponsFun(item.id);
-    },
-
-    /**
-     * 规格弹窗开关
-     */
-    shutMask (flag, buyFlag, type) {
-      this.promotionShow = false;
-      this.buyMask = false;
-      this.addressFlag = false;
-      if (flag) {
-        switch (flag) {
-          case 1: //优惠券弹窗
-            this.promotionShow = true;
-
-            break;
-          case 3:
-            this.addressFlag = true;
-            break;
-          case 4: //添加购物车直接购买，查看已选 弹窗
-            // 判断是否是一个规格
-
-            this.buyMask = true;
-            if (buyFlag == "PINTUAN") {
-              if (type.orderSn) {
-                this.$refs.popupGoods.parentOrder = type;
-              }
-              this.$refs.popupGoods.buyType = "PINTUAN";
-            }
-            if (buyFlag == "buy") {
-              this.$refs.popupGoods.buyType = "";
-            }
-
-            break;
+function calcSize() {
+  scrollArr.value = []
+  let h = 0
+  const arr = [
+    "main1", "main2", "main3", "main4", "main5",
+    "main6", "main7", "main8", "main9", "main10", "main11",
+  ]
+  arr.forEach((item: string) => {
+    uni.createSelectorQuery()
+      .in(instance?.proxy)
+      .select("#" + item)
+      .fields({ size: true }, (data: any) => {
+        if (item === "main1" || item === "main5" || item === "main9" || item === "main11") {
+          scrollArr.value.push(h)
         }
-      }
-    },
-
-    /**
-     * 收藏
-     */
-    clickFavorite (id) {
-      if (this.favorite) {
-        // 取消收藏
-        this.deleteGoodsCollectionFun(id);
-        return false;
-      }
-      API_Members.collectionGoods("GOODS", id).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "收藏成功!",
-            icon: "none",
-          });
+        if (data && data.height) {
+          h += data.height
         }
-      });
-      this.favorite = !this.favorite;
-    },
+      })
+      .exec()
+  })
+  scrollFlag.value = false
+}
 
-    /**
-     * 顶部header显示或隐藏
-     */
-    pageScroll (e) {
-      if (this.scrollFlag) {
-        this.calcSize();
-      }
-      if (e.detail.scrollTop > 200) {
-        //当距离大于200时显示回到顶部按钮
-        this.headerFlag = true;
-      } else {
-        //当距离小于200时隐藏回到顶部按钮
-        this.headerFlag = false;
-      }
-      if (e.detail.scrollTop < this.scrollArr[0] - 10) {
-        this.scrollId = "1";
-      }
-      if (e.detail.scrollTop > this.scrollArr[1] - 10) {
-        this.scrollId = "2";
-      }
-      if (e.detail.scrollTop > this.scrollArr[2] - 10) {
-        this.scrollId = "3";
-      }
-      if (e.detail.scrollTop > this.scrollArr[3] - 10) {
-        this.scrollId = "4";
-      }
-    },
+function headerTab(id: string) {
+  if (scrollFlag.value) {
+    calcSize()
+  }
+  scrollId.value = id
+  nextTick(() => {
+    tabScrollTop.value = scrollArr.value[parseInt(id) - 1]
+  })
+}
 
-    /**
-     * 计算每个要跳转到的模块高度信息
-     */
-    calcSize () {
-      let h = 0;
-      let that = this;
-      let arr = [
-        "main1",
-        "main2",
-        "main3",
-        "main4",
-        "main5",
-        "main6",
-        "main7",
-        "main8",
-        "main9",
-        "main10",
-        "main11",
-      ];
-      arr.forEach((item) => {
-        let view = uni.createSelectorQuery().select("#" + item);
-        view
-          .fields(
-            {
-              size: true,
-            },
-            (data) => {
-              if (
-                item === "main1" ||
-                item === "main5" ||
-                item === "main9" ||
-                item === "main11"
-              ) {
-                that.scrollArr.push(h);
-              }
-              if (data && data.height) {
-                h += data.height;
-              }
-            }
-          )
-          .exec();
-      });
-      this.scrollFlag = false;
-    },
-
-    /**
-     * 点击顶部跳转到对应位置
-     */
-    headerTab (id) {
-      if (this.scrollFlag) {
-        this.calcSize();
-      }
-      this.scrollId = id;
-
-      this.$nextTick(() => {
-        this.tabScrollTop = this.scrollArr[id - 1];
-      });
-    },
-
-    /**
-     * 点击分享
-     */
-    async shareChange () {
-      this.enableShare = true;
-    },
-  },
-};
+async function shareChange() {
+  enableShare.value = true
+}
 </script>
 
 <style lang="scss" scoped>

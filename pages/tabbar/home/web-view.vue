@@ -4,43 +4,38 @@
   </view>
 </template>
 
-<script>
-import configs from "@/config/config";
-import storage from "@/utils/storage";
-export default {
-  data() {
-    return {
-      configs,
-      storage,
-      webviewStyles: {
-        progress: {
-          color: this.$lightColor,
-        },
-      },
-      src: "",
-    };
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import configs from '@/config/config'
+import storage from '@/utils/storage'
+import { useStore } from '@/store'
+
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
+const mainColor = computed(() => store.getters.mainColor)
+const aiderLightColor = computed(() => store.getters.aiderLightColor)
+
+const webviewStyles = computed(() => ({
+  progress: {
+    color: lightColor.value,
   },
-  onLoad(params) {
-    // params.IM ? (this.src = `${configs.imWebSrc}?token=${storage.getAccessToken()}&id=${params.IM}`): (this.src = decodeURIComponent(params.src));
-	if(params.IM)
-	{
-		if(params.IM==0)
-		{
-			this.src = `${configs.imWebSrc}?token=${storage.getAccessToken()}`;
-		}
-		else
-		{
-			this.src = `${configs.imWebSrc}?token=${storage.getAccessToken()}&id=${params.IM}`;
-		}
-	}
-	else
-	{
-		this.src = decodeURIComponent(params.src);
-		console.log(this.src);
-	}
-    
-  },
-};
+}))
+
+const src = ref('')
+
+onLoad((params) => {
+  if (params.IM) {
+    if (params.IM == 0) {
+      src.value = `${configs.imWebSrc}?token=${storage.getAccessToken()}`
+    } else {
+      src.value = `${configs.imWebSrc}?token=${storage.getAccessToken()}&id=${params.IM}`
+    }
+  } else {
+    src.value = decodeURIComponent(params.src)
+    console.log(src.value)
+  }
+})
 </script>
 
 <style lang="scss" scoped>

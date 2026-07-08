@@ -1,16 +1,16 @@
 <template>
-  <div class="wrapper">
-    <u-form label-width="200" :model="form" ref="uForm">
+  <div class="wrapper" :style="themeStyle">
+    <up-form label-position="top" :model="form" ref="uForm">
       <div class="column">
         <div class="flag-title light-color">基础信息</div>
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="storeName"
           label="店铺名称"
-          ><u-input v-model="form.storeName" :custom-style="defaultInputStyle"
-        /></u-form-item>
-        <u-form-item
+          ><u-input border="none" class="field-input" v-model="form.storeName" :custom-style="fieldInputStyle"
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="storeLogo"
@@ -25,39 +25,45 @@
               :max-count="1"
             ></u-upload>
           </div>
-        </u-form-item>
-        <u-form-item
+        </up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="goodsManagementCategory"
           label="店铺经营类目"
-          >
-          <div @click="showCategory()"   style="margin-right: 30rpx;">选择</div>
-         
-          <u-input
-            :custom-style="defaultInputStyle"
-            v-model="goodsManagementCategory"
-            disabled
-            @click="showCategory()"
-        /></u-form-item>
+        >
+          <view class="field-row">
+            <u-input
+              border="none"
+              class="field-input"
+              :custom-style="fieldInputStyle"
+              v-model="goodsManagementCategory"
+              disabled
+              @click="showCategory()"
+            />
+            <view class="picker-action" @click="showCategory()">选择</view>
+          </view>
+        </up-form-item>
 
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="storeAddressPath"
           label="店铺所在地"
         >
-          <div @click="showPicker()"   style="margin-right: 30rpx;">选择</div>
-          <u-input
-            :custom-style="defaultInputStyle"
-            v-model="form.storeAddressPath"
-          
-            disabled
-            
-          />
-        </u-form-item>
+          <view class="field-row">
+            <u-input
+              border="none"
+              class="field-input"
+              :custom-style="fieldInputStyle"
+              v-model="form.storeAddressPath"
+              disabled
+            />
+            <view class="picker-action" @click="showPicker()">选择</view>
+          </view>
+        </up-form-item>
        
-        <!-- <u-form-item
+        <!-- <up-form-item
           required
           :border-bottom="false"
           prop="storeAddressPath"
@@ -65,30 +71,35 @@
         >
           <div class="get-center" @click="clickUniMap()">开始定位</div>
           <div class="tips-success" v-if="form.storeCenter">已成功定位</div>
-        </u-form-item> -->
+        </up-form-item> -->
 
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="storeAddressDetail"
           label="店铺详细地址"
-          ><u-input
-            :custom-style="defaultInputStyle"
+          ><u-input border="none" class="field-input"
+            :custom-style="fieldInputStyle"
             v-model="form.storeAddressDetail"
-        /></u-form-item>
-        <u-form-item
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="storeDesc"
           label="店铺简介"
-          ><u-input
-            type="textarea"
-            :custom-style="defaultInputStyle"
+        >
+          <u-textarea
+            class="field-textarea"
+            border="none"
+            height="240"
+            maxlength="500"
             v-model="form.storeDesc"
-        /></u-form-item>
+            placeholder="请输入店铺简介"
+          />
+        </up-form-item>
       </div>
-    </u-form>
-    <div class="submit" @click="validatorStep1Form">提交平台审核</div>
+    </up-form>
+    <view class="submit" @click="validatorStep3Form">提交平台审核</view>
     <m-city
       :provinceData="list"
       headTitle="区域选择"
@@ -108,261 +119,256 @@
   </div>
 </template>
 
-<script>
-import { applyThird } from "@/api/entry";
-import { getCategoryList } from "@/api/goods";
-import city from "@/components/m-city/m-city.vue";
-import storage from "@/utils/storage.js";
-import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
-import uniMap from "@/components/uniMap";
-import permision from "@/js_sdk/wa-permission/permission.js";
-export default {
-  components: { "m-city": city, uniMap },
-  data() {
-    return {
-      storage,
-      mapFlag: false,
-      defaultInputStyle: {
-        background: "#f7f7f7",
-        padding: "0 20rpx",
-        "border-radius": "10rpx",
-      },
-      goodsManagementCategory: "",
-      storeLogoFileList: [],
-      categoryList: [],
-      form: {
-        storeName: "",
-        storeLogo: "",
-        goodsManagementCategory: "",
-        storeAddressPath: "",
-        storeAddressDetail: "",
-        storeDesc: "",
-      },
-      list: [
-        {
-          id: "",
-          localName: "请选择",
-          children: [],
-        },
-      ],
-      rules: {
-        // 验证规则
-        goodsManagementCategory: [
-          { required: true, message: "请选择店铺经营类目" },
-        ],
-        storeName: [{ required: true, message: "请填写店铺名称" }],
-        storeLogo: [{ required: true, message: "请上传店铺logo" }],
-        storeDesc: [{ required: true, message: "请填写店铺简介" }],
-        storeCenter: [{ required: true, message: "请选择店铺位置" }],
-        storeAddressIdPath: [{ required: true, message: "请选择店铺位置" }],
-        storeAddressDetail: [{ required: true, message: "请输入店铺详细地址" }],
-      },
-      enableCategory: false,
-    };
+<script setup lang="ts">
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { onReady } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { applyThird } from '@/api/entry'
+import { getCategoryList } from '@/api/goods'
+import MCity from '@/components/m-city/m-city.vue'
+import uniMap from '@/components/uniMap'
+import permision from '@/js_sdk/wa-permission/permission.js'
+import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
+import { getThemeStyle } from '@/utils/theme'
+import { fieldInputStyle } from '@/utils/form-style.js'
+
+const props = defineProps<{ companyData?: any }>()
+const emit = defineEmits<{ callback: [] }>()
+
+const store = useStore()
+
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
+
+const uForm = ref<any>(null)
+const cityPicker = ref<any>(null)
+
+const mapFlag = ref(false)
+const enableCategory = ref(false)
+const goodsManagementCategory = ref('')
+const storeLogoFileList = ref<any[]>([])
+const categoryList = ref<any[]>([])
+
+const form = reactive<Record<string, any>>({
+  storeName: '',
+  storeLogo: '',
+  goodsManagementCategory: '',
+  storeAddressPath: '',
+  storeAddressDetail: '',
+  storeDesc: '',
+})
+
+const list = ref([
+  {
+    id: '',
+    localName: '请选择',
+    children: [],
   },
-  mounted() {
-    this.$refs.uForm.setRules(this.rules);
-    this.fetchCategoryList();
+])
+
+const rules = {
+  goodsManagementCategory: [
+    { required: true, message: '请选择店铺经营类目' },
+  ],
+  storeName: [{ required: true, message: '请填写店铺名称' }],
+  storeLogo: [{ required: true, message: '请上传店铺logo' }],
+  storeDesc: [{ required: true, message: '请填写店铺简介' }],
+  storeCenter: [{ required: true, message: '请选择店铺位置' }],
+  storeAddressIdPath: [{ required: true, message: '请选择店铺位置' }],
+  storeAddressDetail: [{ required: true, message: '请输入店铺详细地址' }],
+}
+
+watch(
+  () => props.companyData,
+  (val) => {
+    if (val) {
+      Object.assign(form, val)
+      const judgeDeepPhoto = ['storeLogo']
+
+      judgeDeepPhoto.forEach((key) => {
+        if (form[key]) {
+          storeLogoFileList.value = []
+          form[key].split(',').forEach((item: string) => {
+            storeLogoFileList.value.push({ url: item })
+          })
+        }
+      })
+    }
   },
-  props: ["companyData"],
-  watch: {
-    companyData: {
-      handler(val) {
-        this["form"] = val;
-        // 给图片赋值
-        const judgeDeepPhoto = ["storeLogo"];
+  { deep: true, immediate: true }
+)
 
-        judgeDeepPhoto.forEach((key) => {
-          if (this.form[key]) {
-            this.form[key].split(",").forEach((item) => {
-              this[`${key}FileList`].push({ url: item });
-            });
-          }
-        });
-      },
-      deep: true,
-      immediate: true,
-    },
-  },
+onReady(() => {
+  uForm.value?.setRules(rules)
+})
 
-  methods: {
-    callBackAddress(val) {
-      console.log(val);
-      this.form.storeAddressDetail = val.address;
-      this.form.storeCenter = `${val.longitude},${val.latitude}`;
-    },
-    // 关闭地图
-    closeMap() {
-      this.mapFlag = false;
-    },
-    // 打开地图并访问权限
-    clickUniMap() {
-      console.log("click");
-      // #ifdef APP-PLUS
-      if (plus.os.name == "iOS") {
-        // ios系统
-        permision.judgeIosPermission("location")
-          ? (this.mapFlag = true)
-          : this.refuseMap();
-      } else {
-        // 安卓
-        this.requestAndroidPermission(
-          "android.permission.ACCESS_FINE_LOCATION"
-        );
-      }
-      // #endif
+onMounted(() => {
+  fetchCategoryList()
+})
 
-      // #ifndef APP-PLUS
-      this.mapFlag = true;
-      // #endif
-    },
+function callBackAddress(val: any) {
+  form.storeAddressDetail = val.address
+  form.storeCenter = `${val.longitude},${val.latitude}`
+}
 
-    // 如果拒绝权限 提示区设置
-    refuseMap() {
-      uni.showModal({
-        title: "温馨提示",
-        content: "您已拒绝定位,请开启",
-        confirmText: "去设置",
-        success(res) {
-          if (res.confirm) {
-            //打开授权设置
-            // #ifndef MP-WEIXIN
-            uni.getSystemInfo({
-              success(res) {
-                if (res.platform == "ios") {
-                  //IOS
-                  plus.runtime.openURL("app-settings://");
-                } else if (res.platform == "android") {
-                  //安卓
-                  let main = plus.android.runtimeMainActivity();
-                  let Intent = plus.android.importClass(
-                    "android.content.Intent"
-                  );
-                  let mIntent = new Intent("android.settings.ACTION_SETTINGS");
-                  main.startActivity(mIntent);
-                }
-              },
-            });
-            // #endif
-          }
-        },
-      });
-    },
-    // 获取安卓是否拥有地址权限
-    async requestAndroidPermission(permisionID) {
-      var result = await permision.requestAndroidPermission(permisionID);
+function closeMap() {
+  mapFlag.value = false
+}
 
-      if (result == 1) {
-        this.mapFlag = true;
-      } else {
-        this.refuseMap();
+function clickUniMap() {
+  // #ifdef APP-PLUS
+  if (plus.os.name == 'iOS') {
+    permision.judgeIosPermission('location')
+      ? (mapFlag.value = true)
+      : refuseMap()
+  } else {
+    requestAndroidPermission('android.permission.ACCESS_FINE_LOCATION')
+  }
+  // #endif
+
+  // #ifndef APP-PLUS
+  mapFlag.value = true
+  // #endif
+}
+
+function refuseMap() {
+  uni.showModal({
+    title: '温馨提示',
+    content: '您已拒绝定位,请开启',
+    confirmText: '去设置',
+    success(res) {
+      if (res.confirm) {
+        // #ifndef MP-WEIXIN
+        uni.getSystemInfo({
+          success(sysRes) {
+            if (sysRes.platform == 'ios') {
+              plus.runtime.openURL('app-settings://')
+            } else if (sysRes.platform == 'android') {
+              const main = plus.android.runtimeMainActivity()
+              const Intent = plus.android.importClass('android.content.Intent')
+              const mIntent = new Intent('android.settings.ACTION_SETTINGS')
+              main.startActivity(mIntent)
+            }
+          },
+        })
+        // #endif
       }
     },
+  })
+}
 
-    confirmCategory(val) {
-      this.form.goodsManagementCategory = val[0].value;
-      this.goodsManagementCategory = val[0].label;
-    },
-    async fetchCategoryList() {
-      const res = await getCategoryList(0);
+async function requestAndroidPermission(permisionID: string) {
+  const result = await permision.requestAndroidPermission(permisionID)
+
+  if (result == 1) {
+    mapFlag.value = true
+  } else {
+    refuseMap()
+  }
+}
+
+function confirmCategory(val: any[]) {
+  form.goodsManagementCategory = val[0].value
+  goodsManagementCategory.value = val[0].label
+}
+
+async function fetchCategoryList() {
+  const res = await getCategoryList(0)
+  if (res.data.success) {
+    if (res.data.result.length) {
+      categoryList.value = res.data.result.map((item: any) => {
+        return { label: item.name, value: item.id }
+      })
+
+      if (form.goodsManagementCategory) {
+        goodsManagementCategory.value = categoryList.value.find(
+          (item) => form.goodsManagementCategory == item.value
+        )?.label || ''
+      }
+    }
+  }
+}
+
+function onUploadAfterRead(
+  event: any,
+  key: string,
+  fileListKey: 'storeLogoFileList'
+) {
+  handleUploadAfterRead(event, storeLogoFileList.value, (urls) => {
+    form[key] = urls
+  })
+}
+
+function getPickerParentValue(e: any[]) {
+  form.storeAddressIdPath = []
+  let name = ''
+  e.forEach((item, index) => {
+    if (item.id) {
+      form.storeAddressIdPath.push(item.id)
+      if (index == e.length - 1) {
+        name += item.localName
+      } else {
+        name += item.localName + ','
+      }
+      form.storeAddressPath = name
+    }
+  })
+
+  form.storeCenter = e[e.length - 1].center
+}
+
+function showPicker() {
+  cityPicker.value?.show()
+}
+
+function showCategory() {
+  enableCategory.value = true
+}
+
+function validatorStep3Form() {
+  uForm.value?.validate(async (valid: boolean) => {
+    if (valid) {
+      const params = { ...form }
+      params.storeLogo = params.storeLogo.toString()
+      params.storeAddressIdPath = params.storeAddressIdPath.toString()
+      const res = await applyThird(params)
       if (res.data.success) {
-        if (res.data.result.length) {
-          this.categoryList = res.data.result.map((item) => {
-            return { label: item.name, value: item.id };
-          });
-
-          if (this.form.goodsManagementCategory) {
-            this.goodsManagementCategory = this.categoryList.find(
-              (item) => this.form.goodsManagementCategory == item.value
-            ).label;
-          }
-        }
+        uni.showToast({
+          title: '提交成功!',
+          icon: 'none',
+        })
+        emit('callback')
       }
-    },
-    onUploadAfterRead(event, key, fileListKey) {
-      handleUploadAfterRead(event, this[fileListKey], (urls) => {
-        this.form[key] = urls;
-      });
-    },
-    getPickerParentValue(e) {
-      this.form.storeAddressIdPath = [];
-      console.log(e)
-      let name = "";
-      e.forEach((item, index) => {
-        if (item.id) {
-          // 遍历数据
-          this.form.storeAddressIdPath.push(item.id);
-          if (index == e.length - 1) {
-            name += item.localName;
-          } else {
-            name += item.localName + ",";
-          }
-          this.form['storeAddressPath'] = name
-        }
-      });
-
-      this.form.storeCenter = e[e.length-1].center
-    },
-    // 显示三级地址联动
-    showPicker() {
-      this.$refs.cityPicker.show();
-    },
-    showCategory() {
-      this.enableCategory = true;
-    },
-    validatorStep1Form() {
-      this.$refs.uForm.validate(async (valid) => {
-        console.log(valid);
-        if (valid) {
-          const params = { ...this.form };
-          params.storeLogo = params.storeLogo.toString();
-          params.storeAddressIdPath = params.storeAddressIdPath.toString();
-          const res = await applyThird(params);
-          if (res.data.success) {
-            uni.showToast({
-              title: "提交成功!",
-              icon: "none",
-            });
-            this.$emit("callback");
-          }
-        }
-      });
-    },
-  },
-};
+    }
+  })
+}
 </script>
-<style>
-/* page {
-  background: #fff;
-} */
+<style lang="scss">
+page {
+  background: #f8f8f8;
+}
 </style>
 <style lang="scss" scoped>
-@import url("./entry.scss");
+@import "./entry.scss";
+@import "./entry-form.scss";
+
+.wrapper {
+  @include seller-entry-form;
+}
+
 .get-center {
   padding: 12rpx 30rpx;
-  background: $light-color;
+  background: var(--theme-light, #ff6b35);
   border-radius: 10rpx;
   font-size: 24rpx;
   color: #fff;
   font-weight: bold;
-  display: inline;
+  display: inline-block;
 }
-.column {
-  padding: 32rpx;
-  margin-bottom: 20rpx;
-  background: #fff;
-}
+
 .submit {
-  color: #fff;
-  margin-top: 120rpx;
-  background: rgba($light-color, 0.8);
+  @include seller-entry-submit;
 }
-.tips {
-  color: #999;
-  font-size: 24rpx;
-  line-height: 1.2;
-  margin-top: 10rpx;
-}
+
 .tips-success {
   color: $weChat-color;
   font-size: 24rpx;

@@ -2,26 +2,15 @@
 <template>
   <div class="layout">
     <u-image @click="modelNavigateTo(item)" height="240rpx" width="240rpx" class="image-mode" :src="item.img" v-for="(item, index) in res.list" :key="index">
-      <template #loading><u-loading></u-loading></template>
+      <template #loading><u-loading-icon></u-loading-icon></template>
     </u-image>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { modelNavigateTo } from "./tpl";
 
-export default {
-  title: "三列单行图片模块",
-  props: ["res"],
-  mounted() {
-   
-  },
-  data() {
-    return {
-      modelNavigateTo,
-    };
-  },
-};
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

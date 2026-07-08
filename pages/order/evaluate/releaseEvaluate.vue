@@ -86,80 +86,69 @@
   </view>
 </template>
 
-<script>
-import storage from "@/utils/storage.js";
-import { commentsMemberOrder } from "@/api/members.js";
-import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { commentsMemberOrder } from '@/api/members.js'
+import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
 
-export default {
-  data() {
-    return {
-      storage,
-      type: "textarea", //输入框状态为 textarea
-      border: false, //没有border
-      maxlength: 500, //评价最大字数为500字
-      placeholder:
-        "宝贝满足您的期待吗？说说它的优点和美中不足的地方吧。您的评价会帮助更多的人",
-      sku: {}, //订单信息
-      form: {
-        content: "", //评价详情
-        goodsId: "", //商品id
-        grade: "GOOD", //默认为好评
-        orderItemSn: "", //商品的sn
-        skuId: "", //商品skuId
-        descriptionScore: 5, //默认描述得分为5分
-        serviceScore: 5, //默认服务得分为5分
-        deliveryScore: 5, //默认物流得分为5分
-      },
-      uploadFileList: [],
-    };
-  },
-  onLoad(options) {
-    // 获取上一级传过来的数据进行解析
-    this.form.orderItemSn = options.sn;
-    this.sku = JSON.parse(decodeURIComponent(options.sku));
-    this.form.goodsId = this.sku.goodsId;
-    this.form.skuId = this.sku.skuId;
-  },
-  methods: {
-    /**
-     * 点击评价
-     */
-    onGrade(grade) {
-      this.form.grade = grade;
-    },
+const store = useStore()
 
-    /**
-     * 提交评价
-     */
-    onSubmit() {
-      uni.showLoading({
-        title: "加载中",
-      });
-      commentsMemberOrder(this.form).then((res) => {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        if (res.data.success) {
-          uni.showToast({
-            title: "发布评价成功",
-            duration: 2000,
-            icon: "none",
-            success: () => {
-              setTimeout(() => {
-                uni.navigateBack();
-              }, 500);
-            },
-          });
-        }
-      });
-    },
+const type = 'textarea'
+const border = false
+const maxlength = 500
+const placeholder =
+  '宝贝满足您的期待吗？说说它的优点和美中不足的地方吧。您的评价会帮助更多的人'
 
-    onUploadAfterRead(event) {
-      handleUploadAfterRead(event, this.uploadFileList, (urls) => {
-        this.form.images = urls;
-      });
-    },
-  },
-};
+const sku = ref<Record<string, any>>({})
+const form = reactive<Record<string, any>>({
+  content: '',
+  goodsId: '',
+  grade: 'GOOD',
+  orderItemSn: '',
+  skuId: '',
+  descriptionScore: 5,
+  serviceScore: 5,
+  deliveryScore: 5,
+})
+const uploadFileList = ref<any[]>([])
+
+onLoad((options) => {
+  form.orderItemSn = options.sn
+  sku.value = JSON.parse(decodeURIComponent(options.sku))
+  form.goodsId = sku.value.goodsId
+  form.skuId = sku.value.skuId
+})
+
+function onGrade(grade: string) {
+  form.grade = grade
+}
+
+function onSubmit() {
+  uni.showLoading({ title: '加载中' })
+  commentsMemberOrder(form).then((res) => {
+    if (store.state.isShowToast) uni.hideLoading()
+    if (res.data.success) {
+      uni.showToast({
+        title: '发布评价成功',
+        duration: 2000,
+        icon: 'none',
+        success: () => {
+          setTimeout(() => {
+            uni.navigateBack()
+          }, 500)
+        },
+      })
+    }
+  })
+}
+
+function onUploadAfterRead(event: any) {
+  handleUploadAfterRead(event, uploadFileList.value, (urls) => {
+    form.images = urls
+  })
+}
 </script>
 
 <style lang="scss" scoped>

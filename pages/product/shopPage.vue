@@ -20,8 +20,8 @@
             <view v-if="!enablePageData" class="search-wrap" @click.stop>
               <u-search
                 v-model="keyword"
-                @search="search"
-                @click="search"
+                @search="goToSearch"
+                @click="goToSearch"
                 placeholder="请输入搜索"
                 :show-action="false"
               ></u-search>
@@ -134,9 +134,13 @@
       </div>
 
       <!-- 楼层装修模式 -->
-      <div v-if="enablePageData">
+      <view v-if="enablePageData" class="floor-page">
         <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
-        <div v-for="(item, index) in pageData.list || []" :key="index">
+        <view
+          v-for="(item, index) in pageData.list || []"
+          :key="`${item.type}-${index}`"
+          class="floor-block"
+        >
           <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
           <u-navbar
             class="navbar shop-navbar"
@@ -183,396 +187,352 @@
           <menuLayout v-if="item.type == 'menu'" :res="item.options" />
           <flexOne v-if="item.type == 'flexOne'" :res="item.options" />
 
-          <goods v-if="item.type == 'goods'" :res="item.options" />
+          <GoodsFloor v-if="item.type == 'goods'" :res="item.options" />
 
           <group v-if="item.type == 'group'" :res="item.options" />
           <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
           <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
           <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
-        </div>
-      </div>
+        </view>
+      </view>
       <u-no-network></u-no-network>
     </div>
   </view>
 </template>
 
-<script>
-// 引用组件
-import tpl_banner from "@/pages/tabbar/home/template/tpl_banner"; //导航栏模块
-import tpl_title from "@/pages/tabbar/home/template/tpl_title"; //标题栏模块
-import tpl_left_one_right_two from "@/pages/tabbar/home/template/tpl_left_one_right_two"; //左一右二模块
-import tpl_left_two_right_one from "@/pages/tabbar/home/template/tpl_left_two_right_one"; //左二右一模块
-import tpl_top_one_bottom_two from "@/pages/tabbar/home/template/tpl_top_one_bottom_two"; //上一下二模块
-import tpl_top_two_bottom_one from "@/pages/tabbar/home/template/tpl_top_two_bottom_one"; //上二下一模块
-import tpl_flex_one from "@/pages/tabbar/home/template/tpl_flex_one"; //单行图片模块
-import tpl_flex_two from "@/pages/tabbar/home/template/tpl_flex_two"; //两张横图模块
-import tpl_flex_three from "@/pages/tabbar/home/template/tpl_flex_three"; //三列单行图片模块
-import tpl_flex_five from "@/pages/tabbar/home/template/tpl_flex_five"; //五列单行图片模块
-import tpl_flex_four from "@/pages/tabbar/home/template/tpl_flex_four"; //四列单行图片模块
-import tpl_text_picture from "@/pages/tabbar/home/template/tpl_text_picture"; //文字图片模板
-import tpl_menu from "@/pages/tabbar/home/template/tpl_menu"; //五列菜单模块
-import tpl_search from "@/pages/tabbar/home/template/tpl_search"; //搜索栏
-import tpl_group from "@/pages/tabbar/home/template/tpl_group"; //
-import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类以及分类中的商品
-import goodsTemplate from '@/components/m-goods-list/list'
-import { getStoreBaseInfo, getStoreCategory } from "@/api/store.js";
+<script setup lang="ts">
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import {
+  onLoad,
+  onPageScroll,
+  onPullDownRefresh,
+  onReachBottom,
+} from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import carousel from '@/pages/tabbar/home/template/tpl_banner.vue'
+import titleLayout from '@/pages/tabbar/home/template/tpl_title.vue'
+import leftOneRightTwo from '@/pages/tabbar/home/template/tpl_left_one_right_two.vue'
+import leftTwoRightOne from '@/pages/tabbar/home/template/tpl_left_two_right_one.vue'
+import topOneBottomTwo from '@/pages/tabbar/home/template/tpl_top_one_bottom_two.vue'
+import topTwoBottomOne from '@/pages/tabbar/home/template/tpl_top_two_bottom_one.vue'
+import flexOne from '@/pages/tabbar/home/template/tpl_flex_one.vue'
+import flexTwo from '@/pages/tabbar/home/template/tpl_flex_two.vue'
+import flexThree from '@/pages/tabbar/home/template/tpl_flex_three.vue'
+import flexFive from '@/pages/tabbar/home/template/tpl_flex_five.vue'
+import flexFour from '@/pages/tabbar/home/template/tpl_flex_four.vue'
+import textPicture from '@/pages/tabbar/home/template/tpl_text_picture.vue'
+import menuLayout from '@/pages/tabbar/home/template/tpl_menu.vue'
+import search from '@/pages/tabbar/home/template/tpl_search.vue'
+import group from '@/pages/tabbar/home/template/tpl_group.vue'
+import GoodsFloor from '@/pages/tabbar/home/template/tpl_goods.vue'
+import goodsTemplate from '@/components/m-goods-list/list.vue'
+import { getStoreBaseInfo, getStoreCategory } from '@/api/store.js'
 import {
   receiveCoupons,
   deleteStoreCollection,
   collectionStore,
   getStoreIsCollect,
-} from "@/api/members.js";
-import config from "@/config/config";
+} from '@/api/members.js'
+import config from '@/config/config'
+import { getGoodsList } from '@/api/goods.js'
+import { getAllCoupons } from '@/api/promotions.js'
+import { getFloorStoreData } from '@/api/home'
+import {
+  isLogin,
+  navigateToLogin,
+  talkIm,
+  unitPrice,
+} from '@/utils/filters.js'
+import storage from '@/utils/storage.js'
 
-import { getGoodsList } from "@/api/goods.js";
-import { getAllCoupons } from "@/api/promotions.js";
-import { getFloorStoreData } from "@/api/home"; //获取楼层装修接口
-export default {
-  data() {
-    return {
-      config,
-      pageData: { list: [] }, //楼层页面数据
-      enablePageData: false, //是否显示楼层装修内容
-      basePageData: false, //基础店铺信息
-      scrollTop: 0,
-      mainColor: this.$mainColor, //主色调
-      current: 0, //初始tabs的索引
-      tabs: [
-        {
-          name: "全部商品",
-        },
-        {
-          name: "分类查看",
-        },
-      ], // 标签
-      storeId: "",
-      keyword: "",
-      storeInfo: {}, //店铺详情
-      isCollection: false, //是否关注
-      goodsList: [], //推荐货物
-      couponList: [], //优惠券列表
-      categoryList: [],
-      couponParams: {
-        pageNumber: 1,
-        pageSize: 50,
-        storeId: "",
-      },
-      goodsParams: {
-        pageNumber: 1,
-        pageSize: 10,
-        storeId: "",
-      },
-    };
-  },
-  components: {
-    carousel: tpl_banner,
-    titleLayout: tpl_title,
-    leftOneRightTwo: tpl_left_one_right_two,
-    leftTwoRightOne: tpl_left_two_right_one,
-    topOneBottomTwo: tpl_top_one_bottom_two,
-    topTwoBottomOne: tpl_top_two_bottom_one,
-    flexThree: tpl_flex_three,
-    flexFive: tpl_flex_five,
-    flexFour: tpl_flex_four,
-    flexTwo: tpl_flex_two,
-    textPicture: tpl_text_picture,
-    menuLayout: tpl_menu,
-    search: tpl_search,
-    flexOne: tpl_flex_one,
-    goods: tpl_goods,
-    group: tpl_group,
-    goodsTemplate
-    // spike: tpl_spike,
-    // joinGroup: tpl_join_group,
-    // integral: tpl_integral,
-  },
-  watch: {
-    current(val) {
-      val == 0
-        ? () => {
-            this.goodsList = [];
-            this.getGoodsData();
-          }
-        : this.getCategoryData();
-    },
-  },
+const store = useStore()
+const mainColor = computed(() => store.getters.mainColor)
 
-  computed: {
-    floorHasTopSearch() {
-      const list = this.pageData && this.pageData.list;
-      if (!list || !list.length) return false;
-      return list.some((item, index) => item.type === "search" && index !== 1);
-    },
-  },
+const pageData = ref<{ list: any[] }>({ list: [] })
+const enablePageData = ref(false)
+const basePageData = ref(false)
+const scrollTop = ref(0)
+const current = ref(0)
+const tabs = [
+  { name: '全部商品' },
+  { name: '分类查看' },
+]
+const storeId = ref('')
+const keyword = ref('')
+const storeInfo = ref<any>({})
+const isCollection = ref(false)
+const goodsList = ref<any[]>([])
+const couponList = ref<any[]>([])
+const categoryList = ref<any[]>([])
+const couponParams = reactive({
+  pageNumber: 1,
+  pageSize: 50,
+  storeId: '',
+})
+const goodsParams = reactive({
+  pageNumber: 1,
+  pageSize: 10,
+  storeId: '',
+})
 
-  /**
-   * 加载
-   */
-  async onLoad(options) {
-    this.storeId = options.id;
-    console.log(this.storeId,'this.storeId')
+const floorHasTopSearch = computed(() => {
+  const list = pageData.value && pageData.value.list
+  if (!list || !list.length) return false
+  return list.some((item, index) => item.type === 'search' && index !== 1)
+})
 
-    this.goodsParams.storeId = options.id;
-    this.couponParams.storeId = options.id;
-  },
-  onPageScroll(e) {
-    this.scrollTop = e.scrollTop;
-  },
-  onPullDownRefresh() {
-    this.init();
-  },
-  mounted() {
-    // #ifdef MP-WEIXIN
-    // 小程序默认分享
-    uni.showShareMenu({
-      withShareTicket: true,
-    });
-    // #endif
-    this.init();
-  },
+watch(current, (val) => {
+  if (val == 0) {
+    goodsList.value = []
+    getGoodsData()
+  } else {
+    getCategoryData()
+  }
+})
 
-  // 下拉加载
-  onReachBottom() {
-    this.goodsParams.pageNumber++;
-    this.getGoodsData();
-  },
+function talk() {
+  talkIm(storeInfo.value.storeId)
+}
 
-  methods: {
-    talk(){
-      this.talkIm(this.storeInfo.storeId)
-    },
-    back() {
-      const pages = getCurrentPages();
-      if (pages.length > 1) {
-        uni.navigateBack({ delta: 1 });
-      } else {
-        uni.switchTab({ url: "/pages/tabbar/home/index" });
+function back() {
+  const pages = getCurrentPages()
+  if (pages.length > 1) {
+    uni.navigateBack({ delta: 1 })
+  } else {
+    uni.switchTab({ url: '/pages/tabbar/home/index' })
+  }
+}
+
+function isPageDataSuccess(payload: any) {
+  return payload?.success === true || payload?.code === 200
+}
+
+function shouldUseFloorPage(pageShow: unknown) {
+  return pageShow === '1' || pageShow === 1 || pageShow === true
+}
+
+function initPageData() {
+  getFloorStoreData({
+    pageType: 'STORE',
+    num: storeId.value,
+  })
+    .then((res) => {
+      const payload = res?.data ?? res
+      const result = payload?.result
+      const pageDataStr = result?.pageData
+      if (!isPageDataSuccess(payload) || !pageDataStr) {
+        fallbackToBasePage()
+        return
       }
-    },
-    /**
-     * 实例化首页数据楼层
-     */
-    initPageData() {
-      this.pageData = { list: [] };
-      getFloorStoreData({
-        pageType: "STORE",
-        num: this.storeId,
-      })
-        .then((res) => {
-          const result = res.data && res.data.result;
-          const pageDataStr = result && result.pageData;
-          if (res.data.success && pageDataStr) {
-            try {
-              const parsed = JSON.parse(pageDataStr);
-              this.pageData =
-                parsed && Array.isArray(parsed.list)
-                  ? parsed
-                  : { list: [] };
-              this.enablePageData = true;
-            } catch (e) {
-              this.fallbackToBasePage();
-            }
-          } else {
-            this.fallbackToBasePage();
-          }
-        })
-        .catch(() => {
-          this.fallbackToBasePage();
-        });
-    },
-    fallbackToBasePage() {
-      this.enablePageData = false;
-      this.basePageData = true;
-      this.pageData = { list: [] };
-      this.getGoodsData();
-      this.getCategoryData();
-    },
-    getStoreLicencePhoto() {
-      uni.navigateTo({
-        url: `/pages/product/licencePhoto?id=${this.storeId}`,
-      });
-    },
-    /**
-     * 初始化信息
-     */
-    init() {
-      this.goodsList = [];
-      this.categoryList = [];
-      this.couponList = [];
-      this.goodsParams.pageNumber = 1;
-      if (this.isLogin("auth")) {
-        this.enableGoodsIsCollect();
-      }
-      // 店铺信息
-      this.getStoreData();
-    },
-    /**
-     * 联系客服
-     */
-    linkKefuDetail() {
-      // 客服
-      // #ifdef MP-WEIXIN
-
-      const params = {
-        // originalPrice: this.goodsDetail.original || this.goodsDetail.price,
-        uuid: storage.getUuid(),
-        token: storage.getAccessToken(),
-        sign: this.storeInfo.yzfSign,
-        mpSign: this.storeInfo.yzfMpSign,
-      };
-      uni.navigateTo({
-        url:
-          "/pages/mine/im/index"
-      });
-      // uni.navigateTo({
-      //   url:
-      //     "/pages/product/customerservice/index?params=" +
-      //     encodeURIComponent(JSON.stringify(params)),
-      // });
-      // // #endif
-      // // #ifndef MP-WEIXIN
-      // const sign = this.storeInfo.yzfSign;
-      // uni.navigateTo({
-      //   url:
-      //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
-      //     sign,
-      // });
-      // #endif
-    },
-
-    /** 获取店铺分类 */
-    async getCategoryData() {
-      let res = await getStoreCategory(this.storeId);
-      if (res.data.success) {
-        this.categoryList = res.data.result;
-      }
-    },
-    /**是否收藏店铺 */
-    async enableGoodsIsCollect() {
-      let res = await getStoreIsCollect("STORE", this.storeId);
-      if (res.data.success) {
-        this.isCollection = res.data.result;
-      }
-    },
-
-    /**商品分类中商品集合 */
-    getCategoryGoodsList(val) {
-      uni.navigateTo({
-        url: `/pages/product/shopPageGoods?title=${val.labelName}&id=${val.id}&storeId=${this.storeId}`,
-      });
-    },
-
-    /**
-     * 搜索
-     */
-    search() {
-      uni.navigateTo({
-        url: `/pages/navigation/search/searchPage?storeId=${this.storeId}&keyword=${this.keyword}`,
-      });
-    },
-
-    /**
-     * 店铺信息
-     */
-    async getStoreData() {
-      let res = await getStoreBaseInfo(this.storeId);
-      if (res.data.success) {
-        this.storeInfo = res.data.result;
-        // 优惠券信息
-        this.getCouponsData();
-        if(res.data.result.pageShow == '1'){
-          // 开启了楼层装修店铺
-          this.initPageData();
+      try {
+        const parsed = JSON.parse(pageDataStr)
+        pageData.value =
+          parsed && Array.isArray(parsed.list) ? parsed : { list: [] }
+        enablePageData.value = pageData.value.list.length > 0
+        if (!enablePageData.value) {
+          fallbackToBasePage()
         }
-        else{
-          // 商品信息
-          this.getGoodsData();
-          // 店铺分类
-          this.getCategoryData();
-          
-          this.basePageData = true;
-        }
-      } else {
-        uni.reLaunch({
-          url: "/",
-        });
+      } catch (e) {
+        fallbackToBasePage()
       }
-    },
+    })
+    .catch(() => {
+      fallbackToBasePage()
+    })
+}
 
-    /** 加载商品 */
-    async getGoodsData() {
-      let res = await getGoodsList(this.goodsParams);
+function fallbackToBasePage() {
+  enablePageData.value = false
+  basePageData.value = true
+  pageData.value = { list: [] }
+  getGoodsData()
+  getCategoryData()
+}
+
+function getStoreLicencePhoto() {
+  uni.navigateTo({
+    url: `/pages/product/licencePhoto?id=${storeId.value}`,
+  })
+}
+
+function init() {
+  goodsList.value = []
+  categoryList.value = []
+  couponList.value = []
+  goodsParams.pageNumber = 1
+  if (isLogin('auth')) {
+    enableGoodsIsCollect()
+  }
+  getStoreData()
+}
+
+function linkKefuDetail() {
+  // 客服
+  // #ifdef MP-WEIXIN
+
+  const params = {
+    // originalPrice: goodsDetail.original || goodsDetail.price,
+    uuid: storage.getUuid(),
+    token: storage.getAccessToken(),
+    sign: storeInfo.value.yzfSign,
+    mpSign: storeInfo.value.yzfMpSign,
+  }
+  uni.navigateTo({
+    url: '/pages/mine/im/index',
+  })
+  // uni.navigateTo({
+  //   url:
+  //     "/pages/product/customerservice/index?params=" +
+  //     encodeURIComponent(JSON.stringify(params)),
+  // });
+  // // #endif
+  // // #ifndef MP-WEIXIN
+  // const sign = storeInfo.yzfSign;
+  // uni.navigateTo({
+  //   url:
+  //     "/pages/tabbar/home/web-view?src=https://yzf.qq.com/xv/web/static/chat/index.html?sign=" +
+  //     sign,
+  // });
+  // #endif
+}
+
+async function getCategoryData() {
+  const res = await getStoreCategory(storeId.value)
+  if (res.data.success) {
+    categoryList.value = res.data.result
+  }
+}
+
+async function enableGoodsIsCollect() {
+  const res = await getStoreIsCollect('STORE', storeId.value)
+  if (res.data.success) {
+    isCollection.value = res.data.result
+  }
+}
+
+function getCategoryGoodsList(val: any) {
+  uni.navigateTo({
+    url: `/pages/product/shopPageGoods?title=${val.labelName}&id=${val.id}&storeId=${storeId.value}`,
+  })
+}
+
+function goToSearch() {
+  uni.navigateTo({
+    url: `/pages/navigation/search/searchPage?storeId=${storeId.value}&keyword=${keyword.value}`,
+  })
+}
+
+async function getStoreData() {
+  const res = await getStoreBaseInfo(storeId.value)
+  if (res.data.success) {
+    storeInfo.value = res.data.result
+    getCouponsData()
+    if (shouldUseFloorPage(res.data.result.pageShow)) {
+      initPageData()
+    } else {
+      getGoodsData()
+      getCategoryData()
+      basePageData.value = true
+    }
+  } else {
+    uni.reLaunch({
+      url: '/',
+    })
+  }
+}
+
+async function getGoodsData() {
+  const res = await getGoodsList(goodsParams)
+  if (res.data.success) {
+    goodsList.value.push(...res.data.result.records)
+  }
+}
+
+async function getCouponsData() {
+  couponParams.storeId = storeId.value
+  const res = await getAllCoupons(couponParams)
+  if (res.data.success) {
+    couponList.value.push(...res.data.result.records)
+  }
+}
+
+function whetherCollection() {
+  if (isCollection.value) {
+    deleteStoreCollection(storeId.value).then((res) => {
       if (res.data.success) {
-        this.goodsList.push(...res.data.result.records);
-      }
-    },
-
-    /** 加载优惠券 */
-    async getCouponsData() {
-      this.couponParams.storeId = this.storeId;
-      let res = await getAllCoupons(this.couponParams);
-      if (res.data.success) {
-        this.couponList.push(...res.data.result.records);
-      }
-    },
-
-  
-
-    /**
-     *  是否收藏
-     */
-    whetherCollection() {
-      if (this.isCollection) {
-        deleteStoreCollection(this.storeId).then((res) => {
-          if (res.data.success) {
-            this.isCollection = false;
-            uni.showToast({
-              icon: "none",
-              duration: 3000,
-              title: "取消关注成功！",
-            });
-          }
-        });
-      } else {
-        collectionStore(this.storeId).then((res) => {
-          if (res.data.success) {
-            this.isCollection = true;
-            uni.showToast({
-              icon: "none",
-              duration: 3000,
-              title: "关注成功！",
-            });
-          }
-        });
-      }
-    },
-
-    /**
-     * 领取
-     */
-    getCoupon(item) {
-      if (!this.isLogin("auth")) {
+        isCollection.value = false
         uni.showToast({
-          icon: "none",
+          icon: 'none',
           duration: 3000,
-          title: "请先登录！",
-        });
-
-        this.navigateToLogin("redirectTo");
-        return false;
+          title: '取消关注成功！',
+        })
       }
-      receiveCoupons(item.id).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            icon: "none",
-            duration: 3000,
-            title: "领取成功！",
-          });
-        }
-      });
-    },
-  },
-};
+    })
+  } else {
+    collectionStore(storeId.value).then((res) => {
+      if (res.data.success) {
+        isCollection.value = true
+        uni.showToast({
+          icon: 'none',
+          duration: 3000,
+          title: '关注成功！',
+        })
+      }
+    })
+  }
+}
+
+function getCoupon(item: any) {
+  if (!isLogin('auth')) {
+    uni.showToast({
+      icon: 'none',
+      duration: 3000,
+      title: '请先登录！',
+    })
+
+    navigateToLogin('redirectTo')
+    return false
+  }
+  receiveCoupons(item.id).then((res) => {
+    if (res.data.success) {
+      uni.showToast({
+        icon: 'none',
+        duration: 3000,
+        title: '领取成功！',
+      })
+    }
+  })
+}
+
+onLoad((options: any) => {
+  storeId.value = options.id
+  console.log(storeId.value, 'this.storeId')
+
+  goodsParams.storeId = options.id
+  couponParams.storeId = options.id
+})
+
+onPageScroll((e) => {
+  scrollTop.value = e.scrollTop
+})
+
+onPullDownRefresh(() => {
+  init()
+})
+
+onReachBottom(() => {
+  goodsParams.pageNumber++
+  getGoodsData()
+})
+
+onMounted(() => {
+  // #ifdef MP-WEIXIN
+  uni.showShareMenu({
+    withShareTicket: true,
+  })
+  // #endif
+  init()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -902,5 +862,15 @@ export default {
   width: 64rpx;
   height: 100%;
   flex-shrink: 0;
+}
+
+.floor-page {
+  width: 100%;
+  background: #f9f9f9;
+}
+
+.floor-block {
+  width: 100%;
+  display: block;
 }
 </style>

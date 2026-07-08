@@ -6,8 +6,8 @@
         :scrollable="false"
         v-model:current="current"
         @change="change"
-        :lineColor="$lightColor"
-        :activeStyle="{ color: $lightColor }"
+        :lineColor="lightColor"
+        :activeStyle="{ color: lightColor }"
       ></u-tabs>
     </view>
     <div class="u-tabs-search">
@@ -194,279 +194,199 @@
   </view>
 </template>
 
-<script>
-import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
-import { getAfterSaleList, cancelAfterSale } from "@/api/after-sale.js";
-import { getOrderList } from "@/api/order.js";
-import storage from "@/utils/storage";
+<script setup lang="ts">
+import { ref, reactive, computed } from 'vue'
+import { onLoad, onPullDownRefresh } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { unitPrice, serviceStatusList, parseGoodsImageUrl } from '@/utils/filters.js'
+import { getAfterSaleList, cancelAfterSale } from '@/api/after-sale.js'
+import { getOrderList } from '@/api/order.js'
+import storage from '@/utils/storage'
 
-export default {
-  components: {
-    uniLoadMore,
-  },
-  data() {
-    return {
-      list: [
-        //tab表头
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
+
+const list = [
+  { name: '售后申请' },
+  { name: '申请中' },
+  { name: '申请记录' },
+]
+
+const current = ref(0)
+const tipsShow = ref(false)
+const cancelShow = ref(false)
+const selectedOrder = ref<any>(null)
+const orderList = ref<any[]>([])
+const params = reactive<Record<string, any>>({
+  pageNumber: 1,
+  pageSize: 10,
+  sort: 'createTime',
+  flowPrice: 0,
+  order: 'desc',
+})
+const logParams = reactive<Record<string, any>>({
+  pageNumber: 1,
+  pageSize: 10,
+})
+const status = ref('loadmore')
+const keywords = ref('')
+
+onLoad((options) => {
+  orderList.value = []
+  params.pageNumber = 1
+  if (options?.orderSn) params.keywords = options.orderSn
+  searchOrderList(current.value)
+})
+
+onPullDownRefresh(() => {
+  change(current.value)
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+function getGoodsName(sku: any) {
+  return sku.goodsName || sku.name || ''
+}
+
+function getGoodsImage(goods: any, order: any, index: number) {
+  let image = goods.image || goods.goodsImage || goods.thumbnail
+  if (!image && order.groupImages) {
+    const images = String(order.groupImages).split(',')
+    image = images[index] || images[0]
+  }
+  return parseGoodsImageUrl(image)
+}
+
+function submitSearchOrderList(tabIndex: number) {
+  params.pageNumber = 1
+  logParams.pageNumber = 1
+  orderList.value = []
+  searchOrderList(tabIndex)
+}
+
+function clear(tabIndex: number) {
+  params.pageNumber = 1
+  logParams.pageNumber = 1
+  params.keywords = ''
+  orderList.value = []
+  searchOrderList(tabIndex)
+}
+
+function change(e: number | { index: number }) {
+  const index = typeof e === 'object' && e != null ? e.index : e
+  current.value = index
+  Object.assign(params, { pageNumber: 1, pageSize: 10 })
+  orderList.value = []
+  searchOrderList(index)
+  uni.stopPullDownRefresh()
+}
+
+function searchOrderList(index: number) {
+  if (index == 0) {
+    if (keywords.value) params.keywords = keywords.value
+    fetchOrderList()
+  } else {
+    Object.assign(logParams, {
+      pageNumber: 1,
+      pageSize: 10,
+      sort: 'createTime',
+      order: 'desc',
+    })
+    if (index === 1) {
+      logParams.serviceStatus = 'APPLY'
+    }
+    if (keywords.value) logParams.keywords = keywords.value
+    orderList.value = []
+    fetchAfterSaleLogList()
+  }
+}
+
+function fetchOrderList() {
+  uni.showLoading({ title: '加载中', mask: true })
+  getOrderList(params).then((res) => {
+    hideLoadingIfNeeded()
+    const records = res.data.result.records
+    if (records.length > 0) {
+      orderList.value = orderList.value.concat(records)
+      params.pageNumber += 1
+    }
+    status.value = records.length < 10 ? 'nomore' : 'loading'
+  })
+}
+
+function close(order: any, _sku: any) {
+  selectedOrder.value = order
+  cancelShow.value = true
+}
+
+async function closeService() {
+  uni.showLoading({ title: '加载中' })
+  const res = await cancelAfterSale(selectedOrder.value.sn)
+  if (res.data.success) {
+    uni.showToast({ title: '取消成功!', duration: 2000, icon: 'none' })
+  }
+  orderList.value = []
+  searchOrderList(current.value)
+  hideLoadingIfNeeded()
+}
+
+function afterDetails(order: any, _sku?: any) {
+  uni.navigateTo({ url: './applyDetail?sn=' + order.sn })
+}
+
+function fetchAfterSaleLogList() {
+  getAfterSaleList(logParams).then((res) => {
+    const afterSaleLogList = res.data.result.records
+    afterSaleLogList.forEach((item: any) => {
+      item.orderItems = [
         {
-          name: "售后申请",
+          image: item.goodsImage,
+          skuId: item.skuId,
+          name: item.goodsName,
+          num: item.num,
+          price: item.flowPrice,
         },
-        {
-          name: "申请中",
-        },
-        {
-          name: "申请记录",
-        },
-      ],
-      current: 0, //当前表头索引
-      tipsShow: false, //提示开关
-      cancelShow: false, //取消显示开关
-      selectedOrder: "", //选中的order
-      orderList: [], //订单集合
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-        sort: "createTime",
-        flowPrice: 0,
-        order: "desc",
-      },
+      ]
+    })
+    orderList.value = orderList.value.concat(afterSaleLogList)
+    status.value = afterSaleLogList.length < 10 ? 'nomore' : 'loading'
+  })
+}
 
-      logParams: {
-        pageNumber: 1,
-        pageSize: 10,
-      },
-      status: "loadmore",
-      keywords: "", // 搜索订单sn
-    };
-  },
-  onLoad(options) {
-    this.orderList = [];
-    this.params.pageNumber = 1;
-    if (options.orderSn) this.params.keywords = options.orderSn;
-    this.searchOrderList(this.current);
-  },
-  onPullDownRefresh() {
-    this.change(this.current);
-  },
-  methods: {
-    getGoodsName(sku) {
-      return sku.goodsName || sku.name || "";
-    },
-    getGoodsImage(goods, order, index) {
-      let image = goods.image || goods.goodsImage || goods.thumbnail;
-      if (!image && order.groupImages) {
-        const images = String(order.groupImages).split(",");
-        image = images[index] || images[0];
-      }
-      return this.parseGoodsImageUrl(image);
-    },
-    /**
-     * 点击搜索执行搜索
-     */
-    submitSearchOrderList(current) {
-      this.params.pageNumber = 1;
-      this.logParams.pageNumber = 1;
-      this.orderList = [];
-      this.searchOrderList(current);
-    },
-    // 清空
-    clear(current){
-      this.params.pageNumber = 1;
-      this.logParams.pageNumber = 1;
-      this.params.keywords = ''
-      this.orderList = [];
-      this.searchOrderList(current);
-    },
-    /**
-     * 切换tab页时，初始化数据
-     */
-    change(e) {
-      const index = typeof e === 'object' && e != null ? e.index : e;
-      this.current = index;
-      this.params = {
-        pageNumber: 1,
-        pageSize: 10,
-      };
-      this.orderList = [];
-      //如果是2 则读取售后申请记录列表
-      this.searchOrderList(index);
-      uni.stopPullDownRefresh();
-    },
+function applyService(sn: string, order: any, sku: any) {
+  storage.setAfterSaleData({ ...order, ...sku })
+  uni.navigateTo({ url: `/pages/order/afterSales/afterSalesSelect?sn=${sn}` })
+}
 
-    /**
-     * 搜索初始化
-     * 根据当前tab传值的索引进行更改
-     */
-    searchOrderList(index) {
-      if (index == 0) {
-        this.keywords ? (this.params.keywords = this.keywords) : "";
-        this.getOrderList();
-      } else {
-        this.logParams = {
-          pageNumber: 1,
-          pageSize: 10,
-          sort: "createTime",
-          order: "desc",
-        };
-        if (index === 1) {
-          this.logParams.serviceStatus = "APPLY";
-        }
-        this.keywords ? (this.logParams.keywords = this.keywords) : "";
-        this.orderList = [];
-        this.getAfterSaleLogList();
-      }
-    },
+function onExpress(order: any, sku: any) {
+  sku.storeName = order.storeName
+  storage.setAfterSaleData({ ...order, ...sku })
+  uni.navigateTo({ url: `./afterSalesDetailExpress?serviceSn=${order.sn}` })
+}
 
-    /**
-     * 获取订单列表
-     */
-    getOrderList() {
-      uni.showLoading({
-        title: "加载中",
-        mask: true,
-      });
-      getOrderList(this.params).then((res) => {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        const orderList = res.data.result.records;
-        if (orderList.length > 0) {
-          this.orderList = this.orderList.concat(orderList);
-          this.params.pageNumber += 1;
-        }
-        if (orderList.length < 10) {
-          this.status = "nomore";
-        } else {
-          this.status = "loading";
-        }
-      });
-    },
+function onDetail(goods: any, sku: any) {
+  if (current.value == 0) {
+    uni.navigateTo({
+      url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId || sku.goodsId}`,
+    })
+  } else {
+    uni.navigateTo({
+      url: `/pages/product/goods?id=${goods.skuId}&goodsId=${goods.goodsId || goods.goodsId}`,
+    })
+  }
+}
 
-    close(order, sku) {
-      console.log(order, sku);
-      this.selectedOrder = order;
-      this.cancelShow = true;
-    },
-
-    async closeService() {
-      uni.showLoading({
-        title: "加载中",
-      });
-      console.log(this.selectedOrder);
-      let res = await cancelAfterSale(this.selectedOrder.sn);
-      if (res.data.success) {
-        uni.showToast({
-          title: "取消成功!",
-          duration: 2000,
-          icon: "none",
-        });
-      }
-      this.orderList = [];
-      this.searchOrderList(this.current);
-
-       if (this.$store.state.isShowToast){ uni.hideLoading() };
-    },
-
-    /**
-     * 售后详情
-     */
-    afterDetails(order) {
-      uni.navigateTo({
-        url: "./applyDetail?sn=" + order.sn,
-      });
-    },
-
-    /**
-     * 申请记录列表
-     */
-    getAfterSaleLogList() {
-      getAfterSaleList(this.logParams).then((res) => {
-        let afterSaleLogList = res.data.result.records;
-
-        afterSaleLogList.forEach((item) => {
-          item.orderItems = [
-            {
-              image: item.goodsImage,
-              skuId: item.skuId,
-              name: item.goodsName,
-              num: item.num,
-              price: item.flowPrice,
-            },
-          ];
-        });
-
-        this.orderList = this.orderList.concat(afterSaleLogList);
-
-        if (afterSaleLogList.length < 10) {
-          this.status = "nomore";
-        } else {
-          this.status = "loading";
-        }
-      });
-    },
-
-    /**
-     * 申请售后
-     */
-    applyService(sn, order, sku) {
-      let data = {
-        ...order,
-        ...sku,
-      };
-      storage.setAfterSaleData(data);
-      uni.navigateTo({
-        url: `/pages/order/afterSales/afterSalesSelect?sn=${sn}`,
-      });
-    },
-
-    /**
-     * 提交物流信息
-     */
-    onExpress(order, sku) {
-      sku.storeName = order.storeName;
-      let data = {
-        ...order,
-        ...sku,
-      };
-
-      storage.setAfterSaleData(data);
-      uni.navigateTo({
-        url: `./afterSalesDetailExpress?serviceSn=${order.sn}`,
-      });
-    },
-
-    /**
-     * 查看详情
-     */
-    onDetail(goods, sku) {
-      // 售后申请
-      if (this.current == 0) {
-        uni.navigateTo({
-          url: `/pages/product/goods?id=${sku.skuId}&goodsId=${
-            sku.goodsId || sku.goodsId
-          }`,
-        });
-      } else {
-        uni.navigateTo({
-          url: `/pages/product/goods?id=${goods.skuId}&goodsId=${
-            goods.goodsId || goods.goodsId
-          }`,
-        });
-      }
-    },
-
-    /**
-     * 底部加载数据
-     */
-    renderDate() {
-      if (this.current === 0) {
-        this.params.pageNumber += 1;
-        this.getOrderList();
-      } else {
-        this.logParams.pageNumber += 1;
-        this.getAfterSaleLogList();
-      }
-    },
-  },
-};
+function renderDate() {
+  if (current.value === 0) {
+    params.pageNumber += 1
+    fetchOrderList()
+  } else {
+    logParams.pageNumber += 1
+    fetchAfterSaleLogList()
+  }
+}
 </script>
 
 <style lang="scss">

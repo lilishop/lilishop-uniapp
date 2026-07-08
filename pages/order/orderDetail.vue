@@ -51,7 +51,7 @@
             <view class="title">自提点地址:</view>
             <view class="value address-line-height">{{ order.storeAddressPath }}</view>
           </view>
-          <view class="order-info-view" @click="callPhone" >
+          <view class="order-info-view" @click="handleCallPhone" >
             <view class="title">联系方式:</view>
             <view class="value">{{ order.storeAddressMobile }}<u-icon name='phone-fill' ></u-icon></view>
           </view>
@@ -245,287 +245,258 @@
   </view>
 </template>
 
-<script>
-import { getExpress, getPackage } from "@/api/trade.js";
-import { cancelOrder, confirmReceipt, getOrderDetail } from "@/api/order.js";
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { getExpress, getPackage } from '@/api/trade.js'
+import { cancelOrder, confirmReceipt, getOrderDetail } from '@/api/order.js'
+import shares from '@/components/m-share/index'
+import { getClearReason } from '@/api/after-sale.js'
+import {
+	unitPrice,
+	secrecyMobile,
+	setClipboard,
+	talkIm,
+	callPhone,
+} from '@/utils/filters.js'
 
-import shares from "@/components/m-share/index"; //分享
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
+const mainColor = computed(() => store.getters.mainColor)
 
-import { getClearReason } from "@/api/after-sale.js";
+const orderStatusMap: Record<string, { title: string; value?: string }> = {
+	UNPAID: { title: '未付款', value: '商品暂未付款' },
+	PAID: { title: '已付款', value: '买家已付款' },
+	UNDELIVERED: { title: '待发货', value: '商品等待发货中' },
+	PARTS_DELIVERED: { title: '部分发货', value: '商品已部分发货。' },
+	DELIVERED: { title: '已发货', value: '商品已发货,请您耐心等待' },
+	CANCELLED: { title: '已取消', value: '订单已取消' },
+	COMPLETED: { title: '已完成', value: '订单已完成,祝您生活愉快' },
+	STAY_PICKED_UP: { title: '待自提', value: '商品正在等待提取' },
+	TAKE: { title: '待核验' },
+}
 
-export default {
-  components: {
-    shares,
-  },
-  data() {
-    return {
-      lightColor: this.$lightColor,
-      logisticsList: "", //物流信息
-      shareFlag: false, //拼团分享开关
-      orderStatusMap: {
-        UNPAID: {
-          title: "未付款",
-          value: "商品暂未付款",
-        },
-        PAID: {
-          title: "已付款",
-          value: "买家已付款",
-        },
-        UNDELIVERED: {
-          title: "待发货",
-          value: "商品等待发货中",
-        },
-        PARTS_DELIVERED: {
-          title: "部分发货",
-          value: "商品已部分发货。",
-        },
-        DELIVERED: {
-          title: "已发货",
-          value: "商品已发货,请您耐心等待",
-        },
-        CANCELLED: {
-          title: "已取消",
-          value: "订单已取消",
-        },
-        COMPLETED: {
-          title: "已完成",
-          value: "订单已完成,祝您生活愉快",
-        },
-        STAY_PICKED_UP: {
-          title: "待自提",
-          value: "商品正在等待提取",
-        },
-        TAKE: {
-          title: "待核验",
-        },
-      },
-      order: {},
-      cancelShow: false, //取消订单
-      orderSn: "",
-      orderGoodsList: "", //订单中商品集合
-      orderDetail: "", //订单详情信息
-      sn: "",
-      cancelList: "",
-      rogShow: false,
-      reason: "",
-	  orderPackage:"",
-    };
-  },
-  onLoad(options) {
-    this.loadData(options.sn);
-    this.sn = options.sn;
-  },
-  methods: {
-	//获取包裹
-	async getOrderPackage() {
-		getPackage(this.order.sn).then(res => {
-			if (res.data.success) {
-				this.orderPackage = res.data.result
-			}
-		})
-	},
-	handleClickDeliver(){
-		uni.navigateTo({
-			url: `/pages/order/deliverDetail?order_sn=${this.order.sn}`,
-		});
-	},
-	// 退款状态枚举
-	refundPriceList(status) {
-		switch (status) {
-		case 'ALL_REFUND':
-		  return "全部退款";
-		case 'PART_REFUND':
-		  return "部分退款";
-		case 'NO_REFUND':
-		  return "未退款";
-		case 'REFUNDING':
-		  return "退款中";
-		default:
-			return "";
+const logisticsList = ref<any>('')
+const shareFlag = ref(false)
+const order = ref<Record<string, any>>({})
+const cancelShow = ref(false)
+const orderSn = ref('')
+const orderGoodsList = ref<any[]>([])
+const orderDetail = ref<Record<string, any>>({})
+const sn = ref('')
+const cancelList = ref<any[]>([])
+const rogShow = ref(false)
+const reason = ref('')
+const orderPackage = ref<any>('')
+
+function hideLoadingIfNeeded() {
+	if (store.state.isShowToast) uni.hideLoading()
+}
+
+onLoad((options) => {
+	const orderSnParam = options?.sn || ''
+	sn.value = orderSnParam
+	loadData(orderSnParam)
+})
+
+function getOrderPackage() {
+	getPackage(order.value.sn).then((res) => {
+		if (res.data.success) {
+			orderPackage.value = res.data.result
 		}
-	},
-    callPhone(){
-      this.callPhone(this.order.storeAddressMobile )
-    },
-    //联系客服
-    contact(storeId){
-      this.talkIm(storeId)
-    },
-    goToShopPage(val) {
-      uni.navigateTo({
-        url: "/pages/product/shopPage?id=" + val.storeId,
-      });
-    },
-    // 获取物流信息
-    loadLogistics(sn) {
-      getExpress(sn).then((res) => {
-        this.logisticsList = res.data.result;
-      });
-    },
+	})
+}
 
-    // 分享当前拼团信息
-    inviteGroup() {
-      this.shareFlag = true;
-    },
-    // #TODO 这块需要写一下 目前没有拼团的详细信息
-    ByUserMessage(order) {
-      uni.navigateTo({
-        url:
-          "/pages/cart/payment/shareOrderGoods?sn=" +
-          order.sn +
-          "&sku=" +
-          this.orderGoodsList[0].skuId +
-          "&goodsId=" +
-          this.orderGoodsList[0].goodsId,
-      });
-    },
-    async loadData(sn) {
-      uni.showLoading({
-        title: "加载中",
-      });
-      getOrderDetail(sn).then((res) => {
-        const order = res.data.result;
-        this.order = order.order;
-        this.orderGoodsList = order.orderItems;
-        this.orderDetail = res.data.result;
-        if (this.order.deliveryMethod === 'LOGISTICS') {
-          this.loadLogistics(sn);
-		  this.getOrderPackage();
-        }
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
+function handleClickDeliver() {
+	uni.navigateTo({
+		url: `/pages/order/deliverDetail?order_sn=${order.value.sn}`,
+	})
+}
 
-    },
-    onReceipt(val) {
-      uni.navigateTo({
-        url: "/pages/order/invoice/invoiceDetail?id=" + val.id,
-      });
-    },
-    gotoGoodsDetail(sku) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId}`,
-      });
-    },
-    onCopy(sn) {
-      setClipboard(sn)
-    },
+function refundPriceList(status: string) {
+	switch (status) {
+		case 'ALL_REFUND':
+			return '全部退款'
+		case 'PART_REFUND':
+			return '部分退款'
+		case 'NO_REFUND':
+			return '未退款'
+		case 'REFUNDING':
+			return '退款中'
+		default:
+			return ''
+	}
+}
 
-    //售后按钮
-    onAfterSales(sn, sku) {
-      uni.navigateTo({
-        url: `./afterSales/afterSalesSelect?sn=${sn}&sku=${encodeURIComponent(
-          JSON.stringify(sku)
-        )}`,
-      });
-    },
-    // 去支付
-    toPay(val) {
-      val.sn
-        ? uni.navigateTo({
-          url: "/pages/cart/payment/payOrder?order_sn=" + val.sn,
-        })
-        : false;
-    }, //删除订单
-    deleteOrder(index) {
-      uni.showLoading({
-        title: "请稍后",
-      });
-      setTimeout(() => {
-        this.navList[this.tabCurrentIndex].orderList.splice(index, 1);
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      }, 600);
-    },
-    //取消订单
-    onCancel(sn) {
-      this.orderSn = sn;
+function handleCallPhone() {
+	if (order.value.storeAddressMobile) {
+		callPhone(order.value.storeAddressMobile)
+	}
+}
 
-      uni.showLoading({
-        title: "加载中",
-      });
-      getClearReason().then((res) => {
-        if (res.data.result.length >= 1) {
-          this.cancelList = res.data.result;
-        }
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
+function contact(storeId: string) {
+	talkIm(storeId)
+}
 
-      this.cancelShow = true;
-    },
+function goToShopPage(val: any) {
+	uni.navigateTo({
+		url: '/pages/product/shopPage?id=' + val.storeId,
+	})
+}
 
-    //提交取消订单（未付款）
-    submitCancel() {
-      cancelOrder(this.orderSn, { reason: this.reason }).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "已取消",
-            duration: 2000,
-            icon: "none",
-          });
-          this.cancelShow = false;
-          setTimeout(() => {
-            uni.reLaunch({
-              url: "/pages/order/myOrder?status=0",
-            });
-          }, 500);
-        } else {
-          uni.showToast({
-            title: res.data.message,
-            duration: 2000,
-            icon: "none",
-          });
-          this.cancelShow = false;
-        }
-      });
-    },
+function loadLogistics(orderSnParam: string) {
+	getExpress(orderSnParam).then((res) => {
+		logisticsList.value = res.data.result
+	})
+}
 
-    //确认收货
-    onRog(sn) {
-      this.orderSn = sn;
-      this.rogShow = true;
-    },
-    confirmRog() {
-      confirmReceipt(this.orderSn).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "已确认收货",
-            duration: 2000,
-            icon: "none",
-          });
-          this.rogShow = false;
-          this.loadData(this.sn);
-        }
-      });
-    },
-    //评价商品
-    onComment(sn) {
-      uni.navigateTo({
-        url: "./evaluate/myEvaluate",
-      });
-    }, //查看物流
-    onLogistics(order) {
-      uni.navigateTo({
-        url:
-          "/pages/mine/msgTips/packageMsg/logisticsDetail?logi_id=" +
-          order.logi_id +
-          "&ship_no=" +
-          order.ship_no +
-          "&order_sn=" +
-          order.sn,
-      });
-    },
+function inviteGroup() {
+	shareFlag.value = true
+}
 
-    //选择取消原因
-    reasonChange(reason) {
-      this.reason = reason;
-    },
-    reBuy(order) {
-      uni.navigateTo({
-        url:
-          "/pages/product/goods?id=" + order.id + "&goodsId=" + order.goodsId,
-      });
-    },
-  },
-};
+function ByUserMessage(orderItem: any) {
+	uni.navigateTo({
+		url:
+			'/pages/cart/payment/shareOrderGoods?sn=' +
+			orderItem.sn +
+			'&sku=' +
+			orderGoodsList.value[0].skuId +
+			'&goodsId=' +
+			orderGoodsList.value[0].goodsId,
+	})
+}
+
+function loadData(orderSnParam: string) {
+	uni.showLoading({ title: '加载中' })
+	getOrderDetail(orderSnParam).then((res) => {
+		const result = res.data.result
+		order.value = result.order
+		orderGoodsList.value = result.orderItems
+		orderDetail.value = result
+		if (order.value.deliveryMethod === 'LOGISTICS') {
+			loadLogistics(orderSnParam)
+			getOrderPackage()
+		}
+		hideLoadingIfNeeded()
+	})
+}
+
+function onReceipt(val: any) {
+	uni.navigateTo({
+		url: '/pages/order/invoice/invoiceDetail?id=' + val.id,
+	})
+}
+
+function gotoGoodsDetail(sku: any) {
+	uni.navigateTo({
+		url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId}`,
+	})
+}
+
+function onCopy(orderSnText: string) {
+	setClipboard(orderSnText)
+}
+
+function onAfterSales(orderSnText: string, sku: any) {
+	uni.navigateTo({
+		url: `./afterSales/afterSalesSelect?sn=${orderSnText}&sku=${encodeURIComponent(
+			JSON.stringify(sku)
+		)}`,
+	})
+}
+
+function toPay(val: any) {
+	if (val.sn) {
+		uni.navigateTo({
+			url: '/pages/cart/payment/payOrder?order_sn=' + val.sn,
+		})
+	}
+}
+
+function onCancel(orderSnText: string) {
+	orderSn.value = orderSnText
+	uni.showLoading({ title: '加载中' })
+	getClearReason().then((res) => {
+		if (res.data.result.length >= 1) {
+			cancelList.value = res.data.result
+		}
+		hideLoadingIfNeeded()
+	})
+	cancelShow.value = true
+}
+
+function submitCancel() {
+	cancelOrder(orderSn.value, { reason: reason.value }).then((res) => {
+		if (res.data.success) {
+			uni.showToast({
+				title: '已取消',
+				duration: 2000,
+				icon: 'none',
+			})
+			cancelShow.value = false
+			setTimeout(() => {
+				uni.reLaunch({
+					url: '/pages/order/myOrder?status=0',
+				})
+			}, 500)
+		} else {
+			uni.showToast({
+				title: res.data.message,
+				duration: 2000,
+				icon: 'none',
+			})
+			cancelShow.value = false
+		}
+	})
+}
+
+function onRog(orderSnText: string) {
+	orderSn.value = orderSnText
+	rogShow.value = true
+}
+
+function confirmRog() {
+	confirmReceipt(orderSn.value).then((res) => {
+		if (res.data.success) {
+			uni.showToast({
+				title: '已确认收货',
+				duration: 2000,
+				icon: 'none',
+			})
+			rogShow.value = false
+			loadData(sn.value)
+		}
+	})
+}
+
+function onComment(_orderSnText: string) {
+	uni.navigateTo({
+		url: './evaluate/myEvaluate',
+	})
+}
+
+function onLogistics(orderItem: any) {
+	uni.navigateTo({
+		url:
+			'/pages/mine/msgTips/packageMsg/logisticsDetail?logi_id=' +
+			orderItem.logi_id +
+			'&ship_no=' +
+			orderItem.ship_no +
+			'&order_sn=' +
+			orderItem.sn,
+	})
+}
+
+function reasonChange(val: string) {
+	reason.value = val
+}
+
+function reBuy(orderItem: any) {
+	uni.navigateTo({
+		url: '/pages/product/goods?id=' + orderItem.id + '&goodsId=' + orderItem.goodsId,
+	})
+}
 </script>
 
 <style lang="scss">

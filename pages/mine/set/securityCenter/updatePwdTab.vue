@@ -7,22 +7,10 @@
   </view>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      mobile: "", //存储手机号
-    };
-  },
-
-  methods: {
-    navigateTo(url) {
-      uni.navigateTo({
-        url: url,
-      });
-    },
-  },
-};
+<script setup lang="ts">
+function navigateTo(url: string) {
+  uni.navigateTo({ url })
+}
 </script>
 
 <style lang="scss" scoped>

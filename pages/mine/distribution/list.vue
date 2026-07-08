@@ -58,44 +58,44 @@
 
     <!-- 导航栏 -->
     <view class="nav">
-      <view class="nav-item" @click="handleMyGoods(true)" :class="{ checked: params.checked }">已选择</view>
-      <view class="nav-item" @click="handleMyGoods(false)" :class="{ checked: !params.checked }">未选择</view>
+      <view class="nav-item" @click="toggleGoodsTab(true)" :class="{ checked: queryParams.checked }">已选择</view>
+      <view class="nav-item" @click="toggleGoodsTab(false)" :class="{ checked: !queryParams.checked }">未选择</view>
 
       <!-- <view class="nav-item" @click="popup = !popup">筛选</view> -->
     </view>
     <!-- 商品列表 -->
 
     <view class="goods-list">
-      <scroll-view class="body-view" scroll-y @scrolltolower="renderDate">
+      <scroll-view class="body-view" scroll-y @scrolltolower="loadMore">
         <block v-for="(item, index) in goodsList" :key="item.id">
-          <u-swipe-action v-if="params.checked" class="distribution-swipe">
+          <u-swipe-action v-if="queryParams.checked" class="distribution-swipe">
             <u-swipe-action-item
               :show="item.___selected"
-              @open="openAction(item)"
+              @open="openSwipeAction(item)"
               :name="index"
-              :options="options"
-              @click="changeActionTab(item)"
+              :options="swipeOptions"
+              @click="confirmUnbindPrompt(item)"
             >
               <view class="goods-item">
-                <view class="goods-item-img" @click="handleNavgationGoods(item)">
+                <view class="goods-item-img" @click="navigateToGoods(item)">
                   <u-image width="176rpx" height="176rpx" :src="item.thumbnail"></u-image>
                 </view>
                 <view class="goods-item-desc">
-                  <view class="-item-title" @click="handleNavgationGoods(item)">
+                  <view class="-item-title" @click="navigateToGoods(item)">
                     {{ item.goodsName }}
                   </view>
-                  <view class="-item-price" @click="handleNavgationGoods(item)">
+                  <view class="-item-price" @click="navigateToGoods(item)">
                     佣金:
                     <span> ￥{{ unitPrice(item.commission) }}</span>
                   </view>
                   <view class="-item-bottom">
-                    <view class="-item-bootom-money" @click="handleNavgationGoods(item)">
+                    <view class="-item-bootom-money" @click="navigateToGoods(item)">
                       <view class="-item-yj">
                         <span>￥{{ unitPrice(item.price) }}</span>
                       </view>
                     </view>
                     <view>
-                      <view class="click" @click="handleLink(item)">分销商品</view>
+                      <view class="click" @click="shareDistributionGoods(item)">分销商品</view>
                     </view>
                   </view>
                 </view>
@@ -104,25 +104,25 @@
           </u-swipe-action>
 
           <view v-else class="goods-item">
-            <view class="goods-item-img" @click="handleNavgationGoods(item)">
+            <view class="goods-item-img" @click="navigateToGoods(item)">
               <u-image width="176rpx" height="176rpx" :src="item.thumbnail"></u-image>
             </view>
             <view class="goods-item-desc">
-              <view class="-item-title" @click="handleNavgationGoods(item)">
+              <view class="-item-title" @click="navigateToGoods(item)">
                 {{ item.goodsName }}
               </view>
-              <view class="-item-price" @click="handleNavgationGoods(item)">
+              <view class="-item-price" @click="navigateToGoods(item)">
                 佣金:
                 <span> ￥{{ unitPrice(item.commission) }}</span>
               </view>
               <view class="-item-bottom">
-                <view class="-item-bootom-money" @click="handleNavgationGoods(item)">
+                <view class="-item-bootom-money" @click="navigateToGoods(item)">
                   <view class="-item-yj">
                     <span>￥{{ unitPrice(item.price) }}</span>
                   </view>
                 </view>
                 <view>
-                  <view class="click" @click="handleClickGoods(item)">立即选取</view>
+                  <view class="click" @click="selectGoods(item)">立即选取</view>
                 </view>
               </view>
             </view>
@@ -136,210 +136,164 @@
       </view>
     </view>
     <canvas class="canvas-hide" canvas-id="qrcode" />
-    <drawCanvas ref="drawCanvas" v-if="showFlag" :res="res" />
-    <u-modal v-model:show="deleteShow" :confirm-style="{'color':lightColor}" @confirm="delectConfirm" show-cancel-button :content="deleteContent" :async-close="true"></u-modal>
+    <drawCanvas ref="drawCanvasRef" v-if="showPoster" :res="posterData" />
+    <u-modal
+      v-model:show="showUnbindModal"
+      :confirm-style="{ color: lightColor }"
+      @confirm="confirmUnbind"
+      show-cancel-button
+      :content="unbindModalContent"
+      :async-close="true"
+    ></u-modal>
 
   </view>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
 import {
   distributionGoods,
   checkedDistributionGoods,
   getMpCode,
-} from "@/api/goods";
+} from '@/api/goods'
+import drawCanvas from '@/components/m-canvas'
+import { unitPrice } from '@/utils/filters.js'
 
-import drawCanvas from "@/components/m-canvas";
-export default {
-  data() {
-    return {
-      lightColor: this.$lightColor,
-      deleteContent: "解绑该商品？", //删除显示的信息
-      // 商品栏右侧滑动按钮
-      options: [
-        {
-          text: "解绑",
-          style: {
-            backgroundColor: this.$lightColor, //高亮颜色
-          },
-        },
-      ],
-      showFlag: false, //分销分享开关
-      empty: false,
-      popup: false, //弹出层开关
-      active_color: this.$mainColor,
-      current: 0,
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-        checked: true,
-      },
-      goodsList: [],
-
-      // 分销分享 实例
-      res: {
-        container: {
-          width: 600,
-          height: 960,
-          background: "#fff",
-          title: "分享背景",
-        },
-        // 分销分享
-        bottom: {
-          img: "",
-          code: "",
-          price: 0,
-        },
-      },
-
-      routers: "",
-      deleteShow: false, //删除模态框
-      goodsVal: false, //分销商铺信息
-    };
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
+const swipeOptions = computed(() => [
+  {
+    text: '解绑',
+    style: { backgroundColor: lightColor.value },
   },
-  components: {
-    drawCanvas,
+])
+
+const unbindModalContent = '解绑该商品？'
+const showPoster = ref(false)
+const showUnbindModal = ref(false)
+const routeQuery = ref<Record<string, string>>({})
+const selectedGoods = ref<any>(null)
+const drawCanvasRef = ref<any>(null)
+
+const queryParams = ref({
+  pageNumber: 1,
+  pageSize: 10,
+  checked: true,
+})
+const goodsList = ref<any[]>([])
+
+const posterData = ref({
+  container: {
+    width: 600,
+    height: 960,
+    background: '#fff',
+    title: '分享背景',
   },
-  onLoad(options) {
-    this.routers = options;
+  bottom: {
+    img: '',
+    code: '',
+    price: 0,
+    desc: '',
   },
-  watch: {},
-  onShow() {
-    this.goodsList = [];
-    this.init();
-  },
-  methods: {
-    /**
-     * 滑动删除
-     */
-    changeActionTab(val) {
-      this.deleteShow = true;
-      this.goodsVal = val;
-    },
+})
 
-    /**
-     * 点击解绑商品
-     */
-    delectConfirm() {
-      checkedDistributionGoods({ id: this.goodsVal.id, checked: false }).then(
-        (res) => {
-          if (res.data.success) {
-            uni.showToast({
-              title: "此商品解绑成功",
-              duration: 2000,
-            });
-            this.deleteShow = false;
-            this.goodsList = [];
-            this.init();
-          }
-        }
-      );
-    },
+onLoad((options) => {
+  routeQuery.value = options || {}
+})
 
-    /**
-     * 左滑打开删除
-     */
-    openAction(val) {
-      this.goodsList.forEach((item) => {
-        item["___selected"] = false;
-      });
-      val["___selected"] = true;
-    },
+onShow(() => {
+  goodsList.value = []
+  queryParams.value.pageNumber = 1
+  fetchGoodsList()
+})
 
-    /**
-     * 查看图片
-     */
-    handleNavgationGoods(val) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${val.skuId}&goodsId=${val.goodsId}`,
-      });
-    },
+function confirmUnbindPrompt(item: any) {
+  showUnbindModal.value = true
+  selectedGoods.value = item
+}
 
-    async handleLink(goods) {
-      uni.showToast({
-        title: "请请按住保存图片",
-        duration: 2000,
-        icon: "none",
-      });
-      let page = `pages/product/goods`;
-      let scene = `${goods.skuId},${goods.goodsId},${this.routers.id}`;
-      let result = await getMpCode({ page, scene });
-      if (result.data.success) {
-        let callback = result.data.result;
-        this.res.container.title = `${goods.goodsName}`;
-        this.res.bottom.code = `data:image/png;base64,${callback}`;
-        this.res.bottom.price = this.unitPrice(
-          goods.price,
-          "￥"
-        );
-        this.res.bottom.desc = `${goods.goodsName}`;
-        this.res.bottom.img = `${goods.thumbnail}`;
+function confirmUnbind() {
+  checkedDistributionGoods({ id: selectedGoods.value.id, checked: false }).then((res) => {
+    if (res.data.success) {
+      uni.showToast({ title: '此商品解绑成功', duration: 2000 })
+      showUnbindModal.value = false
+      goodsList.value = []
+      queryParams.value.pageNumber = 1
+      fetchGoodsList()
+    }
+  })
+}
 
-        if (this.showFlag) {
-          this.$refs.drawCanvas.init();
-        }
-        this.showFlag = true;
-      } else {
-        uni.showToast({
-          title: `制作二维码失败！请稍后重试`,
-          duration: 2000,
-          icon: "none",
-        });
-      }
-    },
+function openSwipeAction(item: any) {
+  goodsList.value.forEach((row) => {
+    row.___selected = false
+  })
+  item.___selected = true
+}
 
-    change(index) {
-      this.current = index;
-    },
-    // 点击我的选品库
-    handleMyGoods(flag) {
-      this.goodsList = [];
-      this.params.checked = flag;
-      this.init();
-    },
+function navigateToGoods(item: any) {
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${item.skuId}&goodsId=${item.goodsId}`,
+  })
+}
 
-    // 选择商品
-    handleClickGoods(val) {
-      checkedDistributionGoods({ id: val.id, checked: true }).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "已添加到我的选品库",
-            duration: 2000,
-            icon: "none",
-          });
+async function shareDistributionGoods(goods: any) {
+  uni.showToast({ title: '请请按住保存图片', duration: 2000, icon: 'none' })
+  const page = 'pages/product/goods'
+  const scene = `${goods.skuId},${goods.goodsId},${routeQuery.value.id}`
+  const result = await getMpCode({ page, scene })
+  if (result.data.success) {
+    const callback = result.data.result
+    posterData.value.container.title = `${goods.goodsName}`
+    posterData.value.bottom.code = `data:image/png;base64,${callback}`
+    posterData.value.bottom.price = unitPrice(goods.price, '￥')
+    posterData.value.bottom.desc = `${goods.goodsName}`
+    posterData.value.bottom.img = `${goods.thumbnail}`
+    if (showPoster.value) {
+      drawCanvasRef.value?.init()
+    }
+    showPoster.value = true
+  } else {
+    uni.showToast({ title: '制作二维码失败！请稍后重试', duration: 2000, icon: 'none' })
+  }
+}
 
-          setTimeout(() => {
-            this.goodsList = [];
-            this.init();
-          }, 500);
-        }
-      });
-    },
+function toggleGoodsTab(isSelected: boolean) {
+  goodsList.value = []
+  queryParams.value.checked = isSelected
+  queryParams.value.pageNumber = 1
+  fetchGoodsList()
+}
 
-    init() {
-      distributionGoods(this.params).then((res) => {
-        if (res.data.success && res.data.result.records.length >= 1) {
-          res.data.result.records.forEach((item) => {
-            item["___selected"] = false;
-          });
-          this.goodsList.push(...res.data.result.records);
-        }
-        if (this.goodsList.length === 0) {
-          this.empty = true;
-        }
-      });
-    },
+function selectGoods(item: any) {
+  checkedDistributionGoods({ id: item.id, checked: true }).then((res) => {
+    if (res.data.success) {
+      uni.showToast({ title: '已添加到我的选品库', duration: 2000, icon: 'none' })
+      setTimeout(() => {
+        goodsList.value = []
+        queryParams.value.pageNumber = 1
+        fetchGoodsList()
+      }, 500)
+    }
+  })
+}
 
-    /**
-     * 底部加载数据
-     */
-    renderDate() {
+function fetchGoodsList() {
+  distributionGoods(queryParams.value).then((res) => {
+    if (res.data.success && res.data.result.records.length >= 1) {
+      res.data.result.records.forEach((item: any) => {
+        item.___selected = false
+      })
+      goodsList.value.push(...res.data.result.records)
+    }
+  })
+}
 
-      this.params.pageNumber += 1;
-      this.init();
-    },
-
-  },
-};
+function loadMore() {
+  queryParams.value.pageNumber += 1
+  fetchGoodsList()
+}
 </script>
 <style lang="scss" scoped>
 

@@ -16,54 +16,47 @@
 
 </template>
 
-<script>
-	import {
-		getGoodsList
-	} from "@/api/goods.js";
-	import goodsTemplate from '@/components/m-goods-list/list'
-	export default {
-		data() {
-			return {
-				title: "",
-				routerVal: "",
-				goodsList: [],
-				params: {
-					pageNumber: 1,
-					pageSize: 10,
-					keyword: "",
-					storeCatId: "",
-					storeId: "",
-				},
-			};
-		},
-		components: {
-			goodsTemplate
-		},
-		onLoad(options) {
-			this.routerVal = options;
-			this.params.storeId = options.storeId;
-			this.params.storeCatId = options.id;
-			this.title = options.title;
-		},
-		onShow() {
-			this.goodsList = []
-			this.params.pageNumber = 1;
-			this.getGoodsData();
-		},
-		onReachBottom() {
-			this.params.pageNumber++;
-			this.getGoodsData();
-		},
-		methods: {
-			async getGoodsData() {
-				// #TODO
-				let goodsList = await getGoodsList(this.params);
-				if (goodsList.data.success) {
-					this.goodsList.push(...goodsList.data.result.records);
-				}
-			},
-		},
-	};
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+import { onLoad, onReachBottom, onShow } from '@dcloudio/uni-app'
+import { getGoodsList } from '@/api/goods.js'
+import goodsTemplate from '@/components/m-goods-list/list'
+
+const title = ref('')
+const routerVal = ref<any>('')
+const goodsList = ref<any[]>([])
+const params = reactive({
+  pageNumber: 1,
+  pageSize: 10,
+  keyword: '',
+  storeCatId: '',
+  storeId: '',
+})
+
+async function getGoodsData() {
+  const res = await getGoodsList(params)
+  if (res.data.success) {
+    goodsList.value.push(...res.data.result.records)
+  }
+}
+
+onLoad((options: any) => {
+  routerVal.value = options
+  params.storeId = options.storeId
+  params.storeCatId = options.id
+  title.value = options.title
+})
+
+onShow(() => {
+  goodsList.value = []
+  params.pageNumber = 1
+  getGoodsData()
+})
+
+onReachBottom(() => {
+  params.pageNumber++
+  getGoodsData()
+})
 </script>
 
 <style lang="scss" scoped>

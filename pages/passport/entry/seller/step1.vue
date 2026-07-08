@@ -1,113 +1,118 @@
 <template>
-  <div class="wrapper">
-    <u-form label-width="200" :model="form" ref="uForm">
+  <div class="wrapper" :style="themeStyle">
+    <up-form label-position="top" :model="form" ref="uForm">
       <div class="column">
         <div class="flag-title light-color">基础信息</div>
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="companyName"
           label="公司名称"
-          ><u-input
+          ><u-input border="none" class="field-input"
             v-model="form.companyName"
-            :custom-style="defaultInputStyle"
-        /></u-form-item>
-        <u-form-item
+            :custom-style="fieldInputStyle"
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="companyAddressPath"
           label="公司所在地"
           >
-          <div @click="showPicker()" style="margin-right: 30rpx;">选择</div>
-          <u-input
-            disabled
-            :custom-style="defaultInputStyle"
-            v-model="form.companyAddressPath"
-        /></u-form-item>
-        <u-form-item
+          <view class="field-row">
+            <u-input
+              disabled
+              border="none"
+              class="field-input"
+              :custom-style="fieldInputStyle"
+              v-model="form.companyAddressPath"
+            />
+            <view class="picker-action" @click="showPicker()">选择</view>
+          </view>
+        </up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="companyAddress"
           label="公司详细地址"
-          ><u-input
-            :custom-style="defaultInputStyle"
+          ><u-input border="none" class="field-input"
+            :custom-style="fieldInputStyle"
             v-model="form.companyAddress"
-        /></u-form-item>
-        <u-form-item
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="employeeNum"
           label="员工人数"
-          ><u-input
+          ><u-input border="none" class="field-input"
             type="number"
-            :custom-style="defaultInputStyle"
+            :custom-style="fieldInputStyle"
             v-model="form.employeeNum"
-        /></u-form-item>
+        /></up-form-item>
 
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="companyPhone"
           label="公司电话"
-          ><u-input
+          ><u-input border="none" class="field-input"
             type="number"
-            :custom-style="defaultInputStyle"
+            :custom-style="fieldInputStyle"
             v-model="form.companyPhone"
-        /></u-form-item>
-        <u-form-item
+        /></up-form-item>
+        <up-form-item
           :border-bottom="false"
           prop="registeredCapital"
           label="注册资金"
           required
-          ><u-input
+          ><u-input border="none" class="field-input"
             type="number"
-            :custom-style="defaultInputStyle"
+            :custom-style="fieldInputStyle"
             v-model="form.registeredCapital"
-        /></u-form-item>
-        <u-form-item
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="linkName"
           label="联系人姓名"
-          ><u-input :custom-style="defaultInputStyle" v-model="form.linkName"
-        /></u-form-item>
-        <u-form-item
+          ><u-input border="none" class="field-input" :custom-style="fieldInputStyle" v-model="form.linkName"
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="linkPhone"
           label="联系人电话"
-          ><u-input
+          ><u-input border="none" class="field-input"
             type="number"
-            :custom-style="defaultInputStyle"
+            :custom-style="fieldInputStyle"
             v-model="form.linkPhone"
-        /></u-form-item>
-        <u-form-item
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="companyEmail"
           label="电子邮箱"
-          ><u-input
-            :custom-style="defaultInputStyle"
+          ><u-input border="none" class="field-input"
+            :custom-style="fieldInputStyle"
             v-model="form.companyEmail"
-        /></u-form-item>
+        /></up-form-item>
       </div>
       <div class="column">
         <div class="flag-title light-color">营业执照信息</div>
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="licenseNum"
           label="营业执照号"
-          ><u-input :custom-style="defaultInputStyle" v-model="form.licenseNum"
-        /></u-form-item>
-        <u-form-item
+          ><u-input border="none" class="field-input" :custom-style="fieldInputStyle" v-model="form.licenseNum"
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="scope"
           label="法定经营范围"
-          ><u-input :custom-style="defaultInputStyle" v-model="form.scope"
-        /></u-form-item>
-        <u-form-item
+          ><u-input border="none" class="field-input" :custom-style="fieldInputStyle" v-model="form.scope"
+        /></up-form-item>
+        <up-form-item
           :border-bottom="false"
           prop="licencePhoto"
           label="营业执照电子版"
@@ -126,25 +131,25 @@
               请压缩图片在2M以内，确保文字清晰以免上传或审核失败
             </div>
           </div>
-        </u-form-item>
+        </up-form-item>
       </div>
       <div class="column">
         <div class="flag-title light-color">法人信息</div>
-        <u-form-item
+        <up-form-item
           required
           :border-bottom="false"
           prop="legalName"
           label="法人姓名"
-          ><u-input :custom-style="defaultInputStyle" v-model="form.legalName"
-        /></u-form-item>
-        <u-form-item
+          ><u-input border="none" class="field-input" :custom-style="fieldInputStyle" v-model="form.legalName"
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="legalId"
           label="法人证件号"
-          ><u-input :custom-style="defaultInputStyle" v-model="form.legalId"
-        /></u-form-item>
-        <u-form-item
+          ><u-input border="none" class="field-input" :custom-style="fieldInputStyle" v-model="form.legalId"
+        /></up-form-item>
+        <up-form-item
           required
           :border-bottom="false"
           prop="legalPhoto"
@@ -166,11 +171,10 @@
               :max-count="1"
             ></u-upload>
           </div>
-        </u-form-item>
-        {{form}}
+        </up-form-item>
       </div>
-    </u-form>
-    <div class="submit" @click="validatorStep1Form">提交/下一步</div>
+    </up-form>
+    <view class="submit" @click="validatorStep1Form">提交/下一步</view>
     <m-city
       :provinceData="list"
       headTitle="区域选择"
@@ -182,234 +186,222 @@
   </div>
 </template>
 
-<script>
-import { applyFirst } from "@/api/entry";
-import city from "@/components/m-city/m-city.vue";
-import storage from "@/utils/storage.js";
-import { handleUploadAfterRead, getUploadedUrls } from "@/utils/uploadHelper.js";
-import * as RegExp from "@/utils/RegExp.js";
-export default {
-  components: { "m-city": city },
-  data() {
-    return {
-      storage,
-      defaultInputStyle: {
-        background: "#f7f7f7",
-        padding: "0 20rpx",
-        "border-radius": "10rpx",
-      },
-      legalPhotoFileList: [],
-      legalPhotoBackFileList: [],
-      licencePhotoFileList: [],
-      form: {
-        companyName: "",
-        companyAddressIdPath: [],
-        companyAddressPath: "",
-        companyAddress: "",
-        employeeNum: "",
-        registeredCapital: "",
-        linkName: "",
-        linkPhone: "",
-        companyPhone: "",
-        companyEmail: "",
-        licenseNum: "",
-        scope: "",
-        legalPhoto: "",
-        licencePhoto: "",
-        legalName: "",
-        legalId: "",
-      },
-      list: [
-        {
-          id: "",
-          localName: "请选择",
-          children: [],
-        },
-      ],
-      rules: {
-        // 验证规则
-        companyName: [{ required: true, message: "请填写公司信息" }],
-        companyAddressPath: [{ required: true, message: "请选择公司所在地" }],
-        companyAddress: [{ required: true, message: "请填写公司详细地址" }],
-        employeeNum: [{ required: true, message: "请填写公司员工总数" }],
-        registeredCapital: [{ required: true, message: "请填写公司注册资金" }],
-        linkName: [{ required: true, message: "请填写联系人姓名" }],
-        linkPhone: [
-          { required: true, message: "请填写联系人电话" },
-          {
-            // 自定义验证函数，见上说明
-            validator: (rule, value, callback) => {
-              // 上面有说，返回true表示校验通过，返回false表示不通过
-              // this.$u.test.mobile()就是返回true或者false的
-              return this.$u.test.mobile(value);
-            },
-            message: "手机号码不正确",
-            // 触发器可以同时用blur和change
-            trigger: ["change", "blur"],
-          },
-        ],
-        companyPhone: [
-          { required: true, message: "请填写公司电话" },
-          {
-            // 自定义验证函数，见上说明
-            validator: (rule, value, callback) => {
-              // 上面有说，返回true表示校验通过，返回false表示不通过
-              // this.$u.test.mobile()就是返回true或者false的
-              return this.$u.test.mobile(value);
-            },
-            message: "请填写正确的号码",
-            // 触发器可以同时用blur和change
-            trigger: ["change", "blur"],
-          },
-        ],
-        companyEmail: [
-          { required: true, message: "请填写电子邮箱" },
-          {
-            // 自定义验证函数，见上说明
-            validator: (rule, value, callback) => {
-              // 上面有说，返回true表示校验通过，返回false表示不通过
-              // this.$u.test.mobile()就是返回true或者false的
-              return this.$u.test.email(value);
-            },
-            message: "请填写正确的电子邮箱",
-            // 触发器可以同时用blur和change
-            trigger: ["change", "blur"],
-          },
-        ],
-        licenseNum: [
-          { required: true, message: "请填写营业执照号" },
-          { pattern: RegExp.licenseNum, message: "请输入正确的营业执照号" },
-        ],
-        scope: [{ required: true, message: "请填写营业执照所示经营范围" }],
-        legalPhoto: [{ required: true, message: "请上传法人身份证照片" },
-          {
-            // 自定义验证函数，见上说明
-            validator: (rule, value, callback) => {
-              // 上面有说，返回true表示校验通过，返回false表示不通过
-              // this.$u.test.mobile()就是返回true或者false的
-              return value.length === 2;
-            },
-            message: "请上传法人身份证正反照片",
-            // 触发器可以同时用blur和change
-            trigger: ["change", "blur"],
-          }],
-        licencePhoto: [{ required: true, message: "请上传营业执照" }],
-        legalName: [{ required: true, message: "请输入法人姓名" }],
-        legalId: [
-          { required: true, message: "请输入法人证件号" },
-          { pattern: RegExp.IDCard, message: "请输入正确的证件号" },
-        ],
-      },
-    };
+<script setup lang="ts">
+import { ref, reactive, computed, watch, getCurrentInstance } from 'vue'
+import { onReady } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { applyFirst } from '@/api/entry'
+import MCity from '@/components/m-city/m-city.vue'
+import { handleUploadAfterRead, getUploadedUrls } from '@/utils/uploadHelper.js'
+import * as RegExp from '@/utils/RegExp.js'
+import { getThemeStyle } from '@/utils/theme'
+import { fieldInputStyle } from '@/utils/form-style.js'
+
+const props = defineProps<{ companyData?: any }>()
+const emit = defineEmits<{ callback: [] }>()
+
+const store = useStore()
+const { proxy } = getCurrentInstance()!
+
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
+
+const uForm = ref<any>(null)
+const cityPicker = ref<any>(null)
+
+const legalPhotoFileList = ref<any[]>([])
+const legalPhotoBackFileList = ref<any[]>([])
+const licencePhotoFileList = ref<any[]>([])
+
+const form = reactive<Record<string, any>>({
+  companyName: '',
+  companyAddressIdPath: [],
+  companyAddressPath: '',
+  companyAddress: '',
+  employeeNum: '',
+  registeredCapital: '',
+  linkName: '',
+  linkPhone: '',
+  companyPhone: '',
+  companyEmail: '',
+  licenseNum: '',
+  scope: '',
+  legalPhoto: '',
+  licencePhoto: '',
+  legalName: '',
+  legalId: '',
+})
+
+const list = ref([
+  {
+    id: '',
+    localName: '请选择',
+    children: [],
   },
-  mounted() {
-    this.$refs.uForm.setRules(this.rules);
-  },
-  props: ["companyData"],
-  watch: {
-    companyData: {
-      handler(val) {
-        if (val) {
-          this["form"] = val;
-          // 给图片赋值
-          const judgeDeepPhoto = ["legalPhoto", "licencePhoto"];
-          judgeDeepPhoto.forEach((key) => {
-            if (this.form[key]) {
-              this.form[key].split(",").forEach((item) => {
-                this[`${key}FileList`].push({ url: item });
-              });
-            }
-          });
-        }
-      },
-      deep: true,
+])
+
+const rules = {
+  companyName: [{ required: true, message: '请填写公司信息' }],
+  companyAddressPath: [{ required: true, message: '请选择公司所在地' }],
+  companyAddress: [{ required: true, message: '请填写公司详细地址' }],
+  employeeNum: [{ required: true, message: '请填写公司员工总数' }],
+  registeredCapital: [{ required: true, message: '请填写公司注册资金' }],
+  linkName: [{ required: true, message: '请填写联系人姓名' }],
+  linkPhone: [
+    { required: true, message: '请填写联系人电话' },
+    {
+      validator: (_rule: unknown, value: string) => proxy.$u.test.mobile(value),
+      message: '手机号码不正确',
+      trigger: ['change', 'blur'],
     },
-  },
-  methods: {
-    onUploadAfterRead(event, key, fileListKey) {
-      if (!Array.isArray(this.form[key])) {
-        this.form[key] = [];
+  ],
+  companyPhone: [
+    { required: true, message: '请填写公司电话' },
+    {
+      validator: (_rule: unknown, value: string) => proxy.$u.test.mobile(value),
+      message: '请填写正确的号码',
+      trigger: ['change', 'blur'],
+    },
+  ],
+  companyEmail: [
+    { required: true, message: '请填写电子邮箱' },
+    {
+      validator: (_rule: unknown, value: string) => proxy.$u.test.email(value),
+      message: '请填写正确的电子邮箱',
+      trigger: ['change', 'blur'],
+    },
+  ],
+  licenseNum: [
+    { required: true, message: '请填写营业执照号' },
+    { pattern: RegExp.licenseNum, message: '请输入正确的营业执照号' },
+  ],
+  scope: [{ required: true, message: '请填写营业执照所示经营范围' }],
+  legalPhoto: [
+    { required: true, message: '请上传法人身份证照片' },
+    {
+      validator: (_rule: unknown, value: string | string[]) =>
+        Array.isArray(value) ? value.length === 2 : false,
+      message: '请上传法人身份证正反照片',
+      trigger: ['change', 'blur'],
+    },
+  ],
+  licencePhoto: [{ required: true, message: '请上传营业执照' }],
+  legalName: [{ required: true, message: '请输入法人姓名' }],
+  legalId: [
+    { required: true, message: '请输入法人证件号' },
+    { pattern: RegExp.IDCard, message: '请输入正确的证件号' },
+  ],
+}
+
+watch(
+  () => props.companyData,
+  (val) => {
+    if (val) {
+      Object.assign(form, val)
+      const judgeDeepPhoto = ['legalPhoto', 'licencePhoto'] as const
+      const fileListMap = {
+        legalPhoto: legalPhotoFileList,
+        licencePhoto: licencePhotoFileList,
       }
-      handleUploadAfterRead(event, this[fileListKey], () => {
-        if (key === "legalPhoto") {
-          this.form[key] = [
-            ...getUploadedUrls(this.legalPhotoFileList),
-            ...getUploadedUrls(this.legalPhotoBackFileList),
-          ];
-        } else {
-          this.form[key] = getUploadedUrls(this[fileListKey]);
+      judgeDeepPhoto.forEach((key) => {
+        if (form[key]) {
+          form[key].split(',').forEach((item: string) => {
+            fileListMap[key].value.push({ url: item })
+          })
         }
-      });
-    },
-    getPickerParentValue(e) {
-      this.form.companyAddressIdPath = [];
-
-      let name = "";
-      e.forEach((item, index) => {
-        if (item.id) {
-          // 遍历数据
-          this.form.companyAddressIdPath.push(item.id);
-          if (index == e.length - 1) {
-            name += item.localName;
-          } else {
-            name += item.localName + ",";
-          }
-          this.form.companyAddressPath = name;
-        }
-      });
-    },
-    // 显示三级地址联动
-    showPicker() {
-      console.log(this.$refs)
-      this.$refs.cityPicker.show();
-    },
-    validatorStep1Form() {
-      this.$refs.uForm.validate(async (valid) => {
-        console.log(valid);
-        if (valid) {
-          const params = { ...this.form };
-
-          params.legalPhoto = params.legalPhoto.toString();
-          params.licencePhoto = params.licencePhoto.toString();
-          params.companyAddressIdPath = params.companyAddressIdPath.toString();
-          delete params.complexAddress;
-
-          const res = await applyFirst(params);
-          if (res.data.success) {
-            uni.showToast({
-              title: "提交成功!",
-              icon: "none",
-            });
-            this.$emit("callback");
-          }
-        }
-      });
-    },
+      })
+    }
   },
-};
+  { deep: true }
+)
+
+onReady(() => {
+  uForm.value?.setRules(rules)
+})
+
+function onUploadAfterRead(
+  event: any,
+  key: string,
+  fileListKey: 'licencePhotoFileList' | 'legalPhotoFileList' | 'legalPhotoBackFileList'
+) {
+  const fileListMap = {
+    licencePhotoFileList,
+    legalPhotoFileList,
+    legalPhotoBackFileList,
+  }
+
+  if (!Array.isArray(form[key])) {
+    form[key] = []
+  }
+
+  handleUploadAfterRead(event, fileListMap[fileListKey].value, () => {
+    if (key === 'legalPhoto') {
+      form[key] = [
+        ...getUploadedUrls(legalPhotoFileList.value),
+        ...getUploadedUrls(legalPhotoBackFileList.value),
+      ]
+    } else {
+      form[key] = getUploadedUrls(fileListMap[fileListKey].value)
+    }
+  })
+}
+
+function getPickerParentValue(e: any[]) {
+  form.companyAddressIdPath = []
+
+  let name = ''
+  e.forEach((item, index) => {
+    if (item.id) {
+      form.companyAddressIdPath.push(item.id)
+      if (index == e.length - 1) {
+        name += item.localName
+      } else {
+        name += item.localName + ','
+      }
+      form.companyAddressPath = name
+    }
+  })
+}
+
+function showPicker() {
+  cityPicker.value?.show()
+}
+
+function validatorStep1Form() {
+  uForm.value?.validate(async (valid: boolean) => {
+    if (valid) {
+      const params = { ...form }
+
+      params.legalPhoto = params.legalPhoto.toString()
+      params.licencePhoto = params.licencePhoto.toString()
+      params.companyAddressIdPath = params.companyAddressIdPath.toString()
+      delete params.complexAddress
+
+      const res = await applyFirst(params)
+      if (res.data.success) {
+        uni.showToast({
+          title: '提交成功!',
+          icon: 'none',
+        })
+        emit('callback')
+      }
+    }
+  })
+}
 </script>
-<style>
-/* page {
-  background: #fff;
-} */
+<style lang="scss">
+page {
+  background: #f8f8f8;
+}
 </style>
 <style lang="scss" scoped>
-@import url("./entry.scss");
+@import "./entry.scss";
+@import "./entry-form.scss";
 
-.column {
-  padding: 32rpx;
-  margin-bottom: 20rpx;
-  background: #fff;
+.wrapper {
+  @include seller-entry-form;
 }
+
 .submit {
-  color: #fff;
-  margin-top: 120rpx;
-  background: rgba($light-color, 0.8);
-}
-.tips {
-  color: #999;
-  font-size: 24rpx;
-  line-height: 1.2;
-  margin-top: 10rpx;
+  @include seller-entry-submit;
 }
 </style>

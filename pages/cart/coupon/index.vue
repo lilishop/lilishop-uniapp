@@ -59,81 +59,59 @@
     </view>
   </div>
 </template>
-<script>
-import { useCoupon } from "@/api/trade.js";
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { useCoupon } from '@/api/trade.js'
+import { unitPrice } from '@/utils/filters.js'
 
-export default {
-  data() {
-    return {
-      lightColor: this.$lightColor,
-      current: 0,
-      list: [
-        {
-          name: "可用优惠券",
-        },
-        {
-          name: "不可用优惠券",
-        },
-      ],
-      couponsList: [], //优惠券集合
-      params: {
-        //传参
-        memberCouponStatus: "NEW", //优惠券状态
-        pageNumber: 1,
-        pageSize: 10,
-        scopeId: "", //商品skuid
-        storeId: "", //店铺id
-        totalPrice: "", //价格
-      },
-      routerVal: "", //上级传参
-    };
-  },
-  onLoad(options) {
-    this.routerVal = options;
-  },
-  watch: {
-    current(val) {
-      console.log(this.$store.state.cantUseCoupons);
-      val == 0
-        ? (this.couponsList = this.$store.state.canUseCoupons)
-        : (this.couponsList = this.$store.state.cantUseCoupons);
-    },
-  },
+const store = useStore()
 
-  mounted() {
-    this.init();
-    console.log(this.routerVal);
-  },
+const lightColor = computed(() => store.getters.lightColor)
+const current = ref(0)
+const list = [
+  { name: '可用优惠券' },
+  { name: '不可用优惠券' },
+]
+const couponsList = ref<any[]>([])
+const routerVal = ref<Record<string, any>>({})
 
-  methods: {
-    /**
-     * 从vuex中拿取优惠券信息
-     */
-    init() {
-      this.couponsList = this.$store.state.canUseCoupons;
-    },
-    /**
-     * 领取优惠券
-     */
-    clickWay(coupon) {
-      useCoupon({
-        memberCouponId: coupon.id,
-        used: !this.routerVal.selectedCoupon.includes(coupon.id),
-        way: this.routerVal.way,
-      }).then((res) => {
-        if (res.data.success) {
-          uni.navigateBack();
-        } else {
-          uni.showToast({
-            title: res.data.message,
-            duration: 2000,
-            icon: "none",
-          });
-        }
-      });
-    },
-  },
-};
+onLoad((options) => {
+  routerVal.value = options || {}
+})
+
+watch(current, (val) => {
+  couponsList.value = val == 0
+    ? store.state.canUseCoupons
+    : store.state.cantUseCoupons
+})
+
+onMounted(() => {
+  init()
+})
+
+function init() {
+  couponsList.value = store.state.canUseCoupons
+}
+
+function clickWay(coupon: any) {
+  useCoupon({
+    memberCouponId: coupon.id,
+    used: !routerVal.value.selectedCoupon.includes(coupon.id),
+    way: routerVal.value.way,
+  }).then((res) => {
+    if (res.data.success) {
+      uni.navigateBack()
+    } else {
+      uni.showToast({
+        title: res.data.message,
+        duration: 2000,
+        icon: 'none',
+      })
+    }
+  })
+}
 </script>
 <style scoped lang="scss">
 .desc {

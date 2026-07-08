@@ -1,6 +1,7 @@
 /**
  * 直播腾讯云 IM（由 saas-uni-v3 useChat 迁移）
  */
+// #ifndef MP-WEIXIN
 import TencentCloudChat from "@tencentcloud/chat";
 import { fetchLiveSetting } from "./liveSetting.js";
 
@@ -321,3 +322,13 @@ export class LiveChatService {
     this.savedViewLiveResult = null;
   }
 }
+// #endif
+
+// #ifdef MP-WEIXIN
+export class LiveChatService {
+  constructor() {}
+  setGroupID() {}
+  async initTencentIm() {}
+  cleanup() {}
+}
+// #endif

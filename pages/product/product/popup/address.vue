@@ -26,83 +26,81 @@
     <m-city :provinceData="cityList" headTitle="区域选择" ref="cityPicker"  pickerSize="4"></m-city>
   </u-popup>
 </template>
-<script>
-import setup from "@/components/m-buy/popup.js";
-/************请求存储***************/
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import setup from '@/components/m-buy/popup.js'
+import * as API_Address from '@/api/address.js'
+import { clearStrComma, isLogin } from '@/utils/filters.js'
 
-import * as API_Address from "@/api/address.js";
-export default {
-  data() {
-    return {
-      checked: "",
-      setup,
-      addressDetail: "",
-      cityList: [
-        {
-          id: "",
-          localName: "请选择",
-          children: [],
-        },
-      ],
-    };
+const props = defineProps<{
+  goodsId?: string | number
+  addressFlag?: boolean
+}>()
+
+const emit = defineEmits<{
+  closeAddress: [val: boolean]
+  deliveryData: [val: any]
+}>()
+
+const checked = ref<any>('')
+const addressDetail = ref<any>('')
+const cityList = ref([
+  {
+    id: '',
+    localName: '请选择',
+    children: [],
   },
-  props: ["goodsId", "addressFlag"],
+])
 
-  mounted() {
-    if (this.isLogin("auth")) {
-      this.getShippingAddress();
-    } else {
-      uni.navigateTo({
-        url: "/pages/passport/login",
-      });
-    }
-  },
+onMounted(() => {
+  if (isLogin('auth')) {
+    getShippingAddress()
+  } else {
+    uni.navigateTo({
+      url: '/pages/passport/login',
+    })
+  }
+})
 
-  methods: {
-    /**关闭地址 */
-    closeAddress() {
-      this.$emit("closeAddress", false);
-      this.$emit("deliveryData", this.checked);
-    },
+function closeAddress() {
+  emit('closeAddress', false)
+  emit('deliveryData', checked.value)
+}
 
-    getpicker() {
-      uni.navigateTo({
-        url: "/pages/mine/address/add",
-      });
-      this.closeAddress();
-    },
+function getpicker() {
+  uni.navigateTo({
+    url: '/pages/mine/address/add',
+  })
+  closeAddress()
+}
 
-    /**获取地址 */
-    getShippingAddress() {
-      if (this.isLogin("auth")) {
-        API_Address.getAddressList(1, 50).then((res) => {
-          if (res.data.success) {
-            this.addressDetail = res.data.result.records;
-            let addr = res.data.result.records.filter((item) => {
-              return item.isDefault == 1;
-            });
+function getShippingAddress() {
+  if (isLogin('auth')) {
+    API_Address.getAddressList(1, 50).then((res) => {
+      if (res.data.success) {
+        addressDetail.value = res.data.result.records
+        const addr = res.data.result.records.filter((item: any) => {
+          return item.isDefault == 1
+        })
 
-            if (addr[0]) {
-              this.checked = addr[0];
-              this.$emit("deliveryData", this.checked);
-            }
-          }
-        });
+        if (addr[0]) {
+          checked.value = addr[0]
+          emit('deliveryData', checked.value)
+        }
       }
-    },
+    })
+  }
+}
 
-    /**点击地址返回父级商品状态 */
-    clickAddress(val) {
-      this.checked = val;
+function clickAddress(val: any) {
+  checked.value = val
 
-      this.addressDetail.forEach((item) => {
-        item.isDefault = false;
-      });
-      val.isDefault = !val.isDefault;
-      this.$emit("deliveryData", this.checked);
-    },
-  },
-};
+  addressDetail.value.forEach((item: any) => {
+    item.isDefault = false
+  })
+  val.isDefault = !val.isDefault
+  emit('deliveryData', checked.value)
+}
 </script>
 <style lang="scss" scoped>
 .light {

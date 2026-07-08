@@ -49,7 +49,13 @@
 
     <!-- 倒计时 -->
     <div class="count-down" v-if="!isOver && master.toBeGroupedNum">
-      <u-count-down bg-color="#ededed" :hide-zero-day="true" @end="isOver" :timestamp="timeStamp"></u-count-down>
+      <u-count-down
+        v-if="timeStamp > 0"
+        bgColor="#ededed"
+        :time="timeStamp * 1000"
+        format="HH:mm:ss"
+        @finish="onCountDownEnd"
+      ></u-count-down>
     </div>
 
     <div class="user-list" v-if="data.pintuanMemberVOS">
@@ -59,173 +65,184 @@
       </div>
     </div>
 
-    <popupGoods :addr="addr" ref="popupGoods" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" v-if="goodsDetail.id " @handleClickSku="getGoodsDetail" />
-    <shares @close="closeShare" :link="'/pages/cart/payment/shareOrderGoods?sn='+this.routers.sn+'&sku='+this.routers.sku+'&goodsId='+this.routers.goodsId" type="pintuan"
-      :thumbnail="data.promotionGoods.thumbnail" :goodsName="data.promotionGoods.goodsName" v-if="shareFlag " />
+    <popupGoods
+      :addr="addr"
+      ref="popupGoodsRef"
+      :buyMask="maskFlag"
+      @closeBuy="closePopupBuy"
+      :goodsDetail="goodsDetail"
+      :goodsSpec="goodsSpec"
+      v-if="goodsDetail.id"
+      @handleClickSku="getGoodsDetail"
+    />
+    <shares
+      @close="closeShare"
+      :link="shareLink"
+      type="pintuan"
+      :thumbnail="data.promotionGoods.thumbnail"
+      :goodsName="data.promotionGoods.goodsName"
+      v-if="shareFlag"
+    />
   </view>
 </template>
 
-<script>
-import { getGoods } from "@/api/goods.js";
-import { getPinTuanShare } from "@/api/order";
-import shares from "@/components/m-share/index";
-import storage from "@/utils/storage.js";
-import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { getGoods } from '@/api/goods.js'
+import { getPinTuanShare } from '@/api/order'
+import shares from '@/components/m-share/index'
+import storage from '@/utils/storage.js'
+import popupGoods from '@/components/m-buy/goods'
+import { unitPrice } from '@/utils/filters.js'
 
-export default {
-  data() {
-    return {
-      flag: false, //判断接口是否正常请求
-      addr: {
-        id: "",
-      },
-      maskFlag: false, //商品弹框
-      timeStamp: 0,
-      shareFlag: false,
-      data: "",
-      isMaster: true,
-      selectedGoods: "", //选择的商品规格昵称
-      routers: "", //传参数据
-      goodsDetail: "", //商品详情
-      goodsSpec: "",
-      master: "", // 团长
-      PromotionList: "", //优惠集合
-      isGroup: false, //是否拼团
-      isOver: false, //是否结束活动
-      isBuy: false, //当前用户是是否购买
-    };
-  },
-  components: {
-    shares,
-    popupGoods,
-  },
-  watch: {
-    isGroup(val) {
-      if (val) {
-        let timer = setInterval(() => {
-          this.$refs.popupGoods.buyType = "PINTUAN";
-          clearInterval(timer);
-        }, 100);
-      } else {
-        this.$refs.popupGoods.buyType = "";
+const store = useStore()
+
+const popupGoodsRef = ref<any>(null)
+const flag = ref(false)
+const addr = ref({ id: '' })
+const maskFlag = ref(false)
+const timeStamp = ref(0)
+const shareFlag = ref(false)
+const data = ref<any>(null)
+const isMaster = ref(true)
+const selectedGoods = ref<any>(null)
+const routers = ref<Record<string, string>>({})
+const goodsDetail = ref<any>({})
+const goodsSpec = ref<any>(null)
+const master = ref<any>(null)
+const PromotionList = ref<any>(null)
+const isGroup = ref(false)
+const isOver = ref(false)
+const isBuy = ref(false)
+
+const shareLink = computed(() => {
+  const { sn, sku, goodsId } = routers.value
+  return `/pages/cart/payment/shareOrderGoods?sn=${sn}&sku=${sku}&goodsId=${goodsId}`
+})
+
+watch(isGroup, (val) => {
+  if (val) {
+    const timer = setInterval(() => {
+      if (popupGoodsRef.value) {
+        popupGoodsRef.value.buyType = 'PINTUAN'
       }
-    },
-  },
-  onLoad(options) {
-    this.routers = options;
-  },
-  mounted() {
-    this.init(this.routers.sn, this.routers.sku);
-  },
-  methods: {
-    closeShare() {
-      this.shareFlag = false;
-    },
-    // 这里的话得先跳到商品详情才能购买商品
-    toBuy() {
-      this.maskFlag = true;
-      this.$refs.popupGoods.parentOrder = {
-        ...this.master,
-        orderSn: this.routers.sn,
-      };
-      this.$refs.popupGoods.isMask = true;
-      this.$refs.popupGoods.isClose = true;
-      this.$refs.popupGoods.buyType = "PINTUAN";
-    },
-    // 分享
-    share() {
-      this.shareFlag = true;
-    },
-    closePopupBuy(val) {
-      this.maskFlag = false;
-    },
-    // 实例化本页面
-    async init(sn, sku) {
-      let res = await getPinTuanShare(sn, sku);
-      if (res.data.success && res.data.result.promotionGoods) {
-        this.flag = true;
-        this.data = res.data.result;
-        this.selectedGoods = res.data.result.promotionGoods;
-        let endTime = Date.parse(
-          res.data.result.promotionGoods.endTime.replace(/-/g, "/")
-        );
-        // 获取当前剩余的拼团商品时间
-        let timeStamp = Date.parse(new Date(endTime)) / 1000;
+      clearInterval(timer)
+    }, 100)
+  } else if (popupGoodsRef.value) {
+    popupGoodsRef.value.buyType = ''
+  }
+})
 
-        // 获取当前时间时间戳
-        let dateTime = Date.parse(new Date()) / 1000;
+onLoad((options) => {
+  routers.value = options || {}
+})
 
-        this.timeStamp = parseInt(timeStamp - dateTime);
+onMounted(() => {
+  init(routers.value.sn, routers.value.sku)
+})
 
-        this.timeStamp <= 0 ? (this.isOver = true) : (this.isOver = false);
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
 
-        // 获取剩余拼团人数
-        this.master =
-          res.data.result.pintuanMemberVOS.length != 0 &&
-          res.data.result.pintuanMemberVOS.filter((item) => {
-            return item.orderSn == "";
-          })[0];
+function closeShare() {
+  shareFlag.value = false
+}
 
-        // 获取当前是否是拼团本人
-        if (
-          storage.getUserInfo(this.routers.sku, this.routers.goodsId).id ==
-          this.master.memberId
-        ) {
-          this.isMaster = true;
-        } else {
-          this.isMaster = false;
-          // 获取商品详情
-          this.getGoodsDetail({
-            id: this.routers.sku,
-            goodsId: this.routers.goodsId,
-          });
+function onCountDownEnd() {
+  isOver.value = true
+}
+
+function toBuy() {
+  maskFlag.value = true
+  if (!popupGoodsRef.value) return
+  popupGoodsRef.value.parentOrder = {
+    ...master.value,
+    orderSn: routers.value.sn,
+  }
+  popupGoodsRef.value.isMask = true
+  popupGoodsRef.value.isClose = true
+  popupGoodsRef.value.buyType = 'PINTUAN'
+}
+
+function share() {
+  shareFlag.value = true
+}
+
+function closePopupBuy() {
+  maskFlag.value = false
+}
+
+async function init(sn: string, sku: string) {
+  const res = await getPinTuanShare(sn, sku)
+  if (res.data.success && res.data.result.promotionGoods) {
+    flag.value = true
+    data.value = res.data.result
+    selectedGoods.value = res.data.result.promotionGoods
+    const endTime = Date.parse(
+      res.data.result.promotionGoods.endTime.replace(/-/g, '/')
+    )
+    const endTimestamp = Date.parse(new Date(endTime) as any) / 1000
+    const dateTime = Date.parse(new Date() as any) / 1000
+    timeStamp.value = parseInt(String(endTimestamp - dateTime))
+    isOver.value = timeStamp.value <= 0
+
+    master.value =
+      res.data.result.pintuanMemberVOS.length != 0 &&
+      res.data.result.pintuanMemberVOS.filter((item: any) => item.orderSn == '')[0]
+
+    if (
+      storage.getUserInfo(routers.value.sku, routers.value.goodsId).id ==
+      master.value.memberId
+    ) {
+      isMaster.value = true
+    } else {
+      isMaster.value = false
+      getGoodsDetail({
+        id: routers.value.sku,
+        goodsId: routers.value.goodsId,
+      })
+    }
+
+    if (storage.getUserInfo().id) {
+      const bought = res.data.result.pintuanMemberVOS.filter(
+        (item: any) => item.memberId == storage.getUserInfo().id
+      )
+      isBuy.value = bought.length != 0
+    }
+  } else {
+    uni.showToast({
+      title: '当前拼团单有误！请联系管理员重试',
+      duration: 2000,
+      icon: 'none',
+    })
+  }
+}
+
+function getGoodsDetail(val: { id: string; goodsId: string }) {
+  const { id, goodsId } = val
+  uni.showLoading({ title: '加载中', mask: true })
+  getGoods(id, goodsId).then((response) => {
+    goodsDetail.value = response.data.result.data
+    selectedGoods.value = response.data.result.data
+    goodsSpec.value = response.data.result.specs
+    hideLoadingIfNeeded()
+    PromotionList.value = response.data.result.promotionMap
+    if (PromotionList.value) {
+      Object.keys(PromotionList.value).forEach((item) => {
+        if (item.indexOf('PINTUAN') == 0) {
+          isGroup.value = true
         }
+      })
+    }
+  })
+}
 
-        // 获取当前商品是否已经购买
-        if (storage.getUserInfo().id) {
-          let isBuy = res.data.result.pintuanMemberVOS.filter((item) => {
-            return item.memberId == storage.getUserInfo().id;
-          });
-          isBuy.length != 0 ? (this.isBuy = true) : (this.isBuy = false);
-        }
-      } else {
-        uni.showToast({
-          title: "当前拼团单有误！请联系管理员重试",
-          duration: 2000,
-          icon: "none",
-        });
-      }
-    },
-    // 获取商品详情
-    getGoodsDetail(val) {
-      let { id, goodsId } = val;
-      uni.showLoading({
-        title: "加载中",
-        mask: true,
-      });
-      getGoods(id, goodsId).then((response) => {
-        this.goodsDetail = response.data.result.data;
-        this.selectedGoods = response.data.result.data;
-        this.goodsSpec = response.data.result.specs;
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        this.PromotionList = response.data.result.promotionMap;
-
-        // 判断是否拼团活动 如果有则显示拼团活动信息
-        this.PromotionList &&
-          Object.keys(this.PromotionList).forEach((item) => {
-            if (item.indexOf("PINTUAN") == 0) {
-              this.isGroup = true;
-            }
-          });
-      });
-    },
-    handleClickHome() {
-      uni.switchTab({
-        url: "/pages/tabbar/home/index",
-      });
-    },
-  },
-};
+function handleClickHome() {
+  uni.switchTab({ url: '/pages/tabbar/home/index' })
+}
 </script>
 
 <style lang="scss" scoped>

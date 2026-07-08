@@ -384,471 +384,426 @@
     </div>
   </div>
 </template>
-<script>
-import * as API_Address from "@/api/address";
-import * as API_Order from "@/api/order";
-import * as API_Trade from "@/api/trade";
-import configs from "@/config/config";
-import LiLiWXPay from "@/js_sdk/lili-pay/wx-pay.js";
-import invoices from "@/pages/order/invoice/setInvoice";
-import { mapState } from "vuex";
-export default {
-  onLoad: function (val) {
-    this.routerVal = val;
-  },
-  components: {
-    invoices,
-  },
+<script setup lang="ts">
+import { ref, computed, watch, getCurrentInstance } from 'vue'
+import { onLoad, onShow, onBackPress } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import * as API_Address from '@/api/address'
+import * as API_Order from '@/api/order'
+import * as API_Trade from '@/api/trade'
+import configs from '@/config/config'
+import LiLiWXPay from '@/js_sdk/lili-pay/wx-pay.js'
+import invoices from '@/pages/order/invoice/setInvoice'
+import {
+  unitPrice,
+  goodsFormatPrice,
+  secrecyMobile,
+  isLogin,
+} from '@/utils/filters.js'
 
-  data() {
-    return {
-      configs,
-      userImage: configs.defaultUserPhoto,
-      invoiceFlag: false, //开票开关
-      shippingText: "LOGISTICS",
-      shippingFlag: false,
-      shippingMethod: [],
-      shippingWay: [
-        {
-          value: "LOGISTICS",
-          label: "物流",
-        },
-        {
-          value: "SELF_PICK_UP",
-          label: "自提",
-        },
-      ],
-      isAssemble: false, //是否拼团
-      // 判断是否填写过备注
-      remarkFlag: false,
-      selectAddressId: "",
-      routerVal: "",
-      params: {},
-      // 优惠劵
-      couponList: "",
-      // 已选地址
-      address: "",
-      shopAddress: "",
-      // 发票信息
-      receiptList: "",
-      // 店铺信息
-      orderMessage: "",
-      data: "",
-      // 存储备注
-      remarkVal: [],
-      remarkVal1: "",
-      detail: "", //返回的所有数据
-      endWay: "", //最后一个参团人
-      masterWay: "", //团长信息
-      pintuanFlage: true, //是开团还是拼团
-      notSupportFreight: [], //不支持运费
-      notSupportFreightNoticeText: "",
-      storeAddress: "",
+const store = useStore()
+const { proxy } = getCurrentInstance()!
+const lightColor = computed(() => store.getters.lightColor)
+const mainColor = computed(() => store.getters.mainColor)
+const aiderLightColor = computed(() => store.getters.aiderLightColor)
+const remark = computed(() => store.state.remark)
 
-      originOrderData:"", // 原始订单数据
-    };
+interface ShippingOption {
+  value: string
+  label: string
+}
+
+const shippingWay: ShippingOption[] = [
+  { value: 'LOGISTICS', label: '物流' },
+  { value: 'SELF_PICK_UP', label: '自提' },
+]
+
+const userImage = configs.defaultUserPhoto
+const invoiceFlag = ref(false)
+const shippingText = ref('LOGISTICS')
+const shippingFlag = ref(false)
+const shippingMethod = ref<ShippingOption[]>([])
+const isAssemble = ref(false)
+const remarkFlag = ref(false)
+const selectAddressId = ref('')
+const routerVal = ref<Record<string, any>>({})
+const params = ref<Record<string, any>>({})
+const couponList = ref('')
+const address = ref<any>('')
+const shopAddress = ref('')
+const receiptList = ref<any>('')
+const orderMessage = ref<any>('')
+const data = ref('')
+const remarkVal = ref<any[]>([])
+const remarkVal1 = ref('')
+const detail = ref('')
+const endWay = ref<any>('')
+const masterWay = ref<any>('')
+const pintuanFlage = ref(true)
+const notSupportFreight = ref<any[]>([])
+const notSupportFreightNoticeText = ref('')
+const storeAddress = ref<any>('')
+const originOrderData = ref<any>('')
+
+watch(
+  remarkVal,
+  (val) => {
+    store.commit('setRemark', val)
   },
-  watch: {
-    // 监听备注 并在 vuex 中存储
-    remarkVal: {
-      handler(val) {
-        this.$store.commit("setRemark", val);
-      },
-      immediate: true,
-      deep: true,
-    },
-  },
-  computed: {
-    ...mapState(["remark"]),
-  },
-  /**
-   * 监听返回
-   */
-  onBackPress(e) {
-    if (e.from == "backbutton") {
-      const curRoute = getCurrentPages().slice(-1)[0]?.options || {};
-      if (curRoute.addId) {
-        uni.reLaunch({
-          url: "/pages/tabbar/cart/cartList",
-        });
-      } else if (this.routerVal?.way === "CART") {
-        uni.switchTab({
-          url: "/pages/tabbar/cart/cartList",
-        });
-      } else {
-        uni.navigateBack();
-      }
-      return true;
+  { immediate: true, deep: true }
+)
+
+onLoad((val) => {
+  routerVal.value = val || {}
+})
+
+onBackPress((e) => {
+  if (e.from == 'backbutton') {
+    const curRoute = getCurrentPages().slice(-1)[0]?.options || {}
+    if (curRoute.addId) {
+      uni.reLaunch({
+        url: '/pages/tabbar/cart/cartList',
+      })
+    } else if (routerVal.value?.way === 'CART') {
+      uni.switchTab({
+        url: '/pages/tabbar/cart/cartList',
+      })
+    } else {
+      uni.navigateBack()
     }
-  },
+    return true
+  }
+  return false
+})
 
-  async onShow() {
-    // 判断是否存在写过备注信息的商品
-    if (this.remark && this.remark.length > 0) {
-      this.remarkFlag = true;
+onShow(async () => {
+  if (remark.value && remark.value.length > 0) {
+    remarkFlag.value = true
+  }
+  uni.showLoading({
+    mask: true,
+  })
+  try {
+    await getOrderList()
+    await getDistribution()
+    if (routerVal.value.way == 'PINTUAN') {
+      isAssemble.value = true
+      routerVal.value.parentOrder = JSON.parse(
+        decodeURIComponent(routerVal.value.parentOrder)
+      )
+      pintuanWay()
     }
-    uni.showLoading({
-      mask: true,
-    });
-    try {
-      await this.getOrderList();
-      await this.getDistribution();
-      if (this.routerVal.way == "PINTUAN") {
-        this.isAssemble = true;
-        this.routerVal.parentOrder = JSON.parse(
-          decodeURIComponent(this.routerVal.parentOrder)
-        );
-        this.pintuanWay();
-      }
-    } finally {
-      uni.hideLoading();
+  } finally {
+    uni.hideLoading()
+  }
+})
+
+function getShippingLabel() {
+  const item =
+    shippingMethod.value.find((e) => e.value === shippingText.value) ||
+    shippingWay.find((e) => e.value === shippingText.value)
+  return item ? item.label : ''
+}
+
+async function callbackInvoice(val: any) {
+  invoiceFlag.value = false
+  receiptList.value = val
+  if (val) {
+    const submit = {
+      way: routerVal.value.way,
+      ...receiptList.value,
     }
-  },
-  mounted() {},
+    const receipt = await API_Order.getReceipt(submit)
+    if (receipt.data.success) {
+      shippingFlag.value = false
+      getOrderList()
+    }
+  }
+}
 
-  methods: {
-    getShippingLabel() {
-      const item =
-        this.shippingMethod.find((e) => e.value === this.shippingText) ||
-        this.shippingWay.find((e) => e.value === this.shippingText);
-      return item ? item.label : "";
-    },
+function navigateToStore(val: any) {
+  uni.navigateTo({
+    url: '/pages/product/shopPage?id=' + val.storeId,
+  })
+}
 
-    //发票回调 选择发票之后刷新购物车
-    async callbackInvoice(val) {
-      this.invoiceFlag = false;
-      this.receiptList = val;
-      if (val) {
-        let submit = {
-          way: this.routerVal.way,
-          ...this.receiptList,
-        };
-        let receipt = await API_Order.getReceipt(submit);
-        if (receipt.data.success) {
-          this.shippingFlag = false;
-          this.getOrderList();
-        }
+function clickToAddress() {
+  navigateTo(
+    `/pages/mine/address/address?from=cart&way=${
+      routerVal.value.way
+    }&parentOrder=${encodeURIComponent(
+      JSON.stringify(routerVal.value.parentOrder)
+    )}`
+  )
+}
+
+function clickToStoreAddress() {
+  navigateTo(
+    `/pages/mine/address/storeAddress?from=cart&way=${routerVal.value.way}&storeId=${remarkVal.value[0].storeId}`
+  )
+}
+
+function pintuanWay() {
+  const { memberId } = routerVal.value.parentOrder
+  const userInfo = isLogin()
+  if (memberId) {
+    endWay.value = userInfo
+    masterWay.value = routerVal.value.parentOrder
+    pintuanFlage.value = false
+  } else {
+    pintuanFlage.value = true
+    masterWay.value = userInfo
+  }
+}
+
+function invoice() {
+  invoiceFlag.value = true
+}
+
+function GET_Discount() {
+  let storeIds: any[] = []
+  let skus: any[] = []
+  const selectedCoupon: any[] = []
+  if (orderMessage.value.platformCoupon) {
+    selectedCoupon.push(orderMessage.value.platformCoupon.memberCoupon.id)
+  }
+  if (
+    orderMessage.value.storeCoupons &&
+    Object.keys(orderMessage.value.storeCoupons)[0]
+  ) {
+    const storeMemberCouponsId = Object.keys(
+      orderMessage.value.storeCoupons
+    )[0]
+    const storeCouponId =
+      orderMessage.value.storeCoupons[storeMemberCouponsId].memberCoupon.id
+    selectedCoupon.push(storeCouponId)
+  }
+  orderMessage.value.cartList.forEach((item: any) => {
+    item.skuList.forEach((sku: any) => {
+      storeIds.push(sku.storeId)
+      skus.push(sku.goodsSku.id)
+    })
+  })
+  storeIds = Array.from(new Set(storeIds))
+  skus = Array.from(new Set(skus))
+  uni.setStorage({
+    key: 'totalPrice',
+    data: orderMessage.value.priceDetailDTO.goodsPrice,
+  })
+  navigateTo(
+    `/pages/cart/coupon/index?way=${routerVal.value.way}&storeId=${storeIds}&skuId=${skus}&selectedCoupon=${selectedCoupon}`
+  )
+}
+
+function navigateTo(url: string) {
+  uni.navigateTo({
+    url,
+  })
+}
+
+function createTradeFun() {
+  proxy!.$u.throttle(() => {
+    if (shippingText.value === 'SELF_PICK_UP') {
+      if (!storeAddress.value.id) {
+        uni.showToast({
+          title: '请选择提货点',
+          duration: 2000,
+          icon: 'none',
+        })
+        return false
       }
-    },
-
-    // 跳转到店铺
-    navigateToStore(val) {
-      uni.navigateTo({
-        url: "/pages/product/shopPage?id=" + val.storeId,
-      });
-    },
-    // 点击跳转地址
-    clickToAddress() {
-      this.navigateTo(
-        `/pages/mine/address/address?from=cart&way=${
-          this.routerVal.way
-        }&parentOrder=${encodeURIComponent(
-          JSON.stringify(this.routerVal.parentOrder)
-        )}`
-      );
-    },
-    clickToStoreAddress() {
-      this.navigateTo(
-        `/pages/mine/address/storeAddress?from=cart&way=${this.routerVal.way}&storeId=${this.remarkVal[0].storeId}`
-      );
-    },
-
-    // 判断团长以及团员信息
-    pintuanWay() {
-      const { memberId } = this.routerVal.parentOrder;
-
-      const userInfo = this.isLogin();
-      if (memberId) {
-        this.endWay = userInfo;
-        this.masterWay = this.routerVal.parentOrder;
-        this.pintuanFlage = false;
-      } else {
-        this.pintuanFlage = true;
-        this.masterWay = userInfo;
+    } else if (
+      shippingText.value === 'LOGISTICS' &&
+      orderMessage.value.cartTypeEnum !== 'VIRTUAL'
+    ) {
+      if (!address.value.id) {
+        uni.showToast({
+          title: '请选择地址',
+          duration: 2000,
+          icon: 'none',
+        })
+        return false
       }
-    },
-    // 判断发票
-    invoice() {
-      this.invoiceFlag = true;
-    },
+    }
 
-    // 领取优惠券
-    GET_Discount() {
-      // 循环店铺id,商品id获取优惠券
-      let store = [];
-      let skus = [];
-      let selectedCoupon = [];
-      if (this.orderMessage.platformCoupon)
-        selectedCoupon.push(this.orderMessage.platformCoupon.memberCoupon.id);
-      if (
-        this.orderMessage.storeCoupons &&
-        Object.keys(this.orderMessage.storeCoupons)[0]
-      ) {
-        let storeMemberCouponsId = Object.keys(
-          this.orderMessage.storeCoupons
-        )[0];
-        let storeCouponId =
-          this.orderMessage.storeCoupons[storeMemberCouponsId].memberCoupon.id;
-        selectedCoupon.push(storeCouponId);
-      }
-      this.orderMessage.cartList.forEach((item) => {
-        item.skuList.forEach((sku) => {
-          store.push(sku.storeId);
-          skus.push(sku.goodsSku.id);
-        });
-      });
-      store = Array.from(new Set(store));
-      skus = Array.from(new Set(skus));
-      uni.setStorage({
-        key: "totalPrice",
-        data: this.orderMessage.priceDetailDTO.goodsPrice,
-      });
-      this.navigateTo(
-        `/pages/cart/coupon/index?way=${this.routerVal.way}&storeId=${store}&skuId=${skus}&selectedCoupon=${selectedCoupon}`
-      );
-    },
+    let client
+    // #ifdef H5
+    client = 'H5'
+    // #endif
+    // #ifdef MP-WEIXIN
+    client = 'WECHAT_MP'
+    // #endif
+    // #ifdef APP-PLUS
+    client = 'APP'
+    // #endif
 
-    /**
-     * 跳转
-     */
-    navigateTo(url) {
-      uni.navigateTo({
-        url,
-      });
-    },
+    const submit: Record<string, any> = {
+      client,
+      way: routerVal.value.way,
+      remark: remarkVal.value,
+      parentOrderSn: '',
+    }
+    if (routerVal.value.parentOrder && routerVal.value.parentOrder.orderSn) {
+      submit.parentOrderSn = routerVal.value.parentOrder.orderSn
+    } else {
+      delete submit.parentOrderSn
+    }
 
-    /**
-     * 提交订单准备支付
-     */
-
-    // 创建订单
-    createTradeFun() {
-      // 防抖
-      this.$u.throttle(() => {
-        if (this.shippingText === "SELF_PICK_UP") {
-          if (!this.storeAddress.id) {
-            uni.showToast({
-              title: "请选择提货点",
-              duration: 2000,
-              icon: "none",
-            });
-            return false;
-          }
-        } else if (this.shippingText === "LOGISTICS" && this.orderMessage.cartTypeEnum !== 'VIRTUAL') {
-          if (!this.address.id) {
-            uni.showToast({
-              title: "请选择地址",
-              duration: 2000,
-              icon: "none",
-            });
-            return false;
-          }
-        }
-
-        //  创建订单
-        let client;
-        // #ifdef H5
-        client = "H5";
-        // #endif
-        // #ifdef MP-WEIXIN
-        client = "WECHAT_MP";
-        // #endif
-        // #ifdef APP-PLUS
-        client = "APP";
-        // #endif
-
-        let submit = {
-          client,
-          way: this.routerVal.way,
-          remark: this.remarkVal,
-          parentOrderSn: "",
-        };
-        // 如果是拼团并且当前用户不是团长
-        this.routerVal.parentOrder && this.routerVal.parentOrder.orderSn
-          ? (submit.parentOrderSn = this.routerVal.parentOrder.orderSn)
-          : delete submit.parentOrderSn;
-
-        /**
-         * 创建订单
-         */
-        API_Trade.createTrade(submit).then((res) => {
-          if (res.data.success) {
-            uni.showToast({
-              title: "创建订单成功!",
-              duration: 2000,
-              icon: "none",
-            });
-            // 如果当前价格为0跳转到订单列表
-            if (this.orderMessage.priceDetailDTO.billPrice == 0) {
-              uni.navigateTo({
-                url: "/pages/order/myOrder?status=0",
-              });
-            } else {
-              // #ifdef MP-WEIXIN
-              // 微信小程序中点击创建订单直接开始支付
-              this.pay(res.data.result.sn);
-              // #endif
-
-              // #ifndef MP-WEIXIN
-              this.navigateTo(
-                `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
-              );
-              // #endif
-            }
-          } else {
-            uni.showToast({
-              title: res.data.message,
-              duration: 2000,
-              icon: "none",
-            });
-          }
-        });
-      }, 3000);
-    },
-
-    /**
-     * 微信小程序中直接支付
-     */
-    async pay(sn) {
-      new LiLiWXPay({
-        sn: sn,
-        price: this.orderMessage.priceDetailDTO.billPrice,
-      }).pay();
-    },
-
-    /**
-     * 获取用户地址
-     */
-    getUserAddress() {
-      // 如果没有商品选择地址的话 则选择 默认地址
-      API_Address.getAddressDefault().then((res) => {
-        if (res.data.result) {
-          res.data.result.consigneeAddressPath =
-            res.data.result.consigneeAddressPath.split(",");
-          this.address = res.data.result;
-        }
-      });
-    },
-    // 获取配送列表
-    async getDistribution() {
-      let shopRes = await API_Trade.shippingMethodList({
-        way: this.routerVal.way,
-      });
-      let shopList;
-      if (shopRes.data.success) {
-        shopList = shopRes.data.result;
-        let way = [];
-        console.log(shopList);
-        this.shippingWay.forEach((item) => {
-          shopList.forEach((child) => {
-            if (item.value == child) {
-              way.push(item);
-            }
-          });
-        });
-        this.shippingMethod = way;
-        if (way.length && !way.some((item) => item.value === this.shippingText)) {
-          this.shippingText = way[0].value;
-        }
-      }
-    },
-
-    // 选择配送
-    async confirmDistribution(val) {
-      const selected = val?.value?.[0] || val?.[0];
-      if (!selected?.value) {
-        return;
-      }
-      let res = await API_Trade.setShipMethod({
-        shippingMethod: selected.value,
-        way: this.routerVal.way,
-      });
-
-      this.shippingText = selected.value;
+    API_Trade.createTrade(submit).then((res) => {
       if (res.data.success) {
-        this.getOrderList();
-      }
-    },
-
-    // 获取结算参数
-    getOrderList() {
-      this.notSupportFreight = [];
-      this.notSupportFreightNoticeText = "";
-      return API_Trade.getCheckoutParams(this.routerVal.way).then((res) => {
-        // 获取结算参数 进行首次判断
-        this.originOrderData = this.orderMessage
-          ? JSON.parse(JSON.stringify(this.orderMessage))
-          : null;
-
-        if (
-          !res.data.result.checkedSkuList ||
-          res.data.result.checkedSkuList.length === 0
-        ) {
-          if (!this.originOrderData?.checkedSkuList?.length) {
-            uni.switchTab({
-              url: "/pages/tabbar/cart/cartList",
-            });
-          }
-        }
-        if (res.data.result.skuList.length <= 0) {
-          if (!this.originOrderData?.skuList?.length) {
-            uni.navigateTo({
-              url: "/pages/order/myOrder?status=0",
-            });
-          }
-        }
-
-        let repeatData;
-        res.data.result.cartList.forEach((item, index) => {
-          // 如果已经写过备注信息的话赋值
-          repeatData = {
-            remark: this.remarkFlag
-              ? this.remark[index].storeId == item.storeId
-                ? this.remark[index].remark
-                : item.remark
-              : item.remark,
-            storeId: item.storeId,
-          };
-
-          this.remarkVal[index] = repeatData;
-        });
-
-        this.orderMessage = res.data.result;
-        /**
-         * 为了避免路径传值在h5中超出限制问题
-         * 这块将可用的优惠券以及不可用的优惠券放入到vuex里面进行存储
-         */
-        this.$store.state.canUseCoupons = res.data.result.canUseCoupons;
-        this.$store.state.cantUseCoupons = res.data.result.cantUseCoupons;
-
-        if (!res.data.result.memberAddress) {
-          // 获取会员默认地址
-          this.getUserAddress();
+        uni.showToast({
+          title: '创建订单成功!',
+          duration: 2000,
+          icon: 'none',
+        })
+        if (orderMessage.value.priceDetailDTO.billPrice == 0) {
+          uni.navigateTo({
+            url: '/pages/order/myOrder?status=0',
+          })
         } else {
-          this.address = res.data.result.memberAddress;
-          res.data.result.memberAddress.consigneeAddressPath =
-            res.data.result.memberAddress.consigneeAddressPath.split(",");
-        }
-        if (res.data.result.storeAddress) {
-          this.storeAddress = res.data.result.storeAddress;
-          console.log("storeAddress", this.storeAddress);
-        }
-        if (
-          res.data.result.notSupportFreight &&
-          res.data.result.notSupportFreight.length != 0
-        ) {
-          this.notSupportFreight = res.data.result.notSupportFreight;
-          this.notSupportFreightNoticeText = "以下商品超出配送范围：";
-          res.data.result.notSupportFreight.forEach((item) => {
-            this.notSupportFreightNoticeText += item.goodsSku.goodsName;
-          });
-        }
-      });
-    },
+          // #ifdef MP-WEIXIN
+          pay(res.data.result.sn)
+          // #endif
 
-    //
-  },
-};
+          // #ifndef MP-WEIXIN
+          navigateTo(
+            `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
+          )
+          // #endif
+        }
+      } else {
+        uni.showToast({
+          title: res.data.message,
+          duration: 2000,
+          icon: 'none',
+        })
+      }
+    })
+  }, 3000)
+}
+
+async function pay(sn: string) {
+  new LiLiWXPay({
+    sn,
+    price: orderMessage.value.priceDetailDTO.billPrice,
+  }).pay()
+}
+
+function getUserAddress() {
+  API_Address.getAddressDefault().then((res) => {
+    if (res.data.result) {
+      res.data.result.consigneeAddressPath =
+        res.data.result.consigneeAddressPath.split(',')
+      address.value = res.data.result
+    }
+  })
+}
+
+async function getDistribution() {
+  const shopRes = await API_Trade.shippingMethodList({
+    way: routerVal.value.way,
+  })
+  if (shopRes.data.success) {
+    const shopList = shopRes.data.result
+    const way: ShippingOption[] = []
+    console.log(shopList)
+    shippingWay.forEach((item) => {
+      shopList.forEach((child: string) => {
+        if (item.value == child) {
+          way.push(item)
+        }
+      })
+    })
+    shippingMethod.value = way
+    if (way.length && !way.some((item) => item.value === shippingText.value)) {
+      shippingText.value = way[0].value
+    }
+  }
+}
+
+async function confirmDistribution(val: any) {
+  const selected = val?.value?.[0] || val?.[0]
+  if (!selected?.value) {
+    return
+  }
+  const res = await API_Trade.setShipMethod({
+    shippingMethod: selected.value,
+    way: routerVal.value.way,
+  })
+
+  shippingText.value = selected.value
+  if (res.data.success) {
+    getOrderList()
+  }
+}
+
+function getOrderList() {
+  notSupportFreight.value = []
+  notSupportFreightNoticeText.value = ''
+  return API_Trade.getCheckoutParams(routerVal.value.way).then((res) => {
+    originOrderData.value = orderMessage.value
+      ? JSON.parse(JSON.stringify(orderMessage.value))
+      : null
+
+    if (
+      !res.data.result.checkedSkuList ||
+      res.data.result.checkedSkuList.length === 0
+    ) {
+      if (!originOrderData.value?.checkedSkuList?.length) {
+        uni.switchTab({
+          url: '/pages/tabbar/cart/cartList',
+        })
+      }
+    }
+    if (res.data.result.skuList.length <= 0) {
+      if (!originOrderData.value?.skuList?.length) {
+        uni.navigateTo({
+          url: '/pages/order/myOrder?status=0',
+        })
+      }
+    }
+
+    let repeatData
+    res.data.result.cartList.forEach((item: any, index: number) => {
+      repeatData = {
+        remark: remarkFlag.value
+          ? remark.value[index].storeId == item.storeId
+            ? remark.value[index].remark
+            : item.remark
+          : item.remark,
+        storeId: item.storeId,
+      }
+
+      remarkVal.value[index] = repeatData
+    })
+
+    orderMessage.value = res.data.result
+    ;(store.state as any).canUseCoupons = res.data.result.canUseCoupons
+    ;(store.state as any).cantUseCoupons = res.data.result.cantUseCoupons
+
+    if (!res.data.result.memberAddress) {
+      getUserAddress()
+    } else {
+      address.value = res.data.result.memberAddress
+      res.data.result.memberAddress.consigneeAddressPath =
+        res.data.result.memberAddress.consigneeAddressPath.split(',')
+    }
+    if (res.data.result.storeAddress) {
+      storeAddress.value = res.data.result.storeAddress
+      console.log('storeAddress', storeAddress.value)
+    }
+    if (
+      res.data.result.notSupportFreight &&
+      res.data.result.notSupportFreight.length != 0
+    ) {
+      notSupportFreight.value = res.data.result.notSupportFreight
+      notSupportFreightNoticeText.value = '以下商品超出配送范围：'
+      res.data.result.notSupportFreight.forEach((item: any) => {
+        notSupportFreightNoticeText.value += item.goodsSku.goodsName
+      })
+    }
+  })
+}
 </script>
 <style scoped>
 page {

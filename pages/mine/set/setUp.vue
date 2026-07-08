@@ -38,112 +38,95 @@
   </view>
 </template>
 
-<script>
-import config from "@/config/config";
-export default {
-  data() {
-    return {
-      config,
-      userImage: config.defaultUserPhoto,
-      isCertificate: false,
-      userInfo: {},
-      fileSizeString: "0B",
-    };
-  },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import config from '@/config/config'
+import { isLogin, tipsToLogin, quiteLoginOut, logoff } from '@/utils/filters.js'
 
-  methods: {
-    navigateTo(url) {
-      if (url == "/pages/set/securityCenter/securityCenter") {
-        url += `?mobile=${this.userInfo.mobile}`;
-      }
-      uni.navigateTo({
-        url: url,
-      });
-    },
+const userImage = config.defaultUserPhoto
+const userInfo = ref<Record<string, any>>({})
+const fileSizeString = ref('0B')
 
-    getCacheSize() {
-      let that = this;
-      plus.cache.calculate(function (size) {
-        let sizeCache = parseInt(size);
-        if (sizeCache == 0) {
-          that.fileSizeString = "0B";
-        } else if (sizeCache < 1024) {
-          that.fileSizeString = sizeCache + "B";
-        } else if (sizeCache < 1048576) {
-          that.fileSizeString = (sizeCache / 1024).toFixed(2) + "KB";
-        } else if (sizeCache < 1073741824) {
-          that.fileSizeString = (sizeCache / 1048576).toFixed(2) + "MB";
-        } else {
-          that.fileSizeString = (sizeCache / 1073741824).toFixed(2) + "GB";
-        }
-      });
-    },
+onShow(() => {
+	userInfo.value = isLogin() || {}
+	// #ifdef APP-PLUS
+	getCacheSize()
+	// #endif
+})
 
-    checkUserInfo() {
-      if (this.isLogin("auth")) {
-        this.navigateTo("/pages/mine/set/personMsg");
-      } else {
-        this.tipsToLogin();
-      }
-    },
+function navigateTo(url: string) {
+	if (url === '/pages/mine/set/securityCenter/securityCenter') {
+		url += `?mobile=${userInfo.value.mobile || ''}`
+	}
+	uni.navigateTo({ url })
+}
 
-    clearCache() {
-      let that = this;
-      let os = plus.os.name;
-      if (os == "Android") {
-        let main = plus.android.runtimeMainActivity();
-        let sdRoot = main.getCacheDir();
-        let files = plus.android.invoke(sdRoot, "listFiles");
-        let len = files.length;
-        for (let i = 0; i < len; i++) {
-          let filePath = "" + files[i];
-          plus.io.resolveLocalFileSystemURL(
-            filePath,
-            function (entry) {
-              if (entry.isDirectory) {
-                entry.removeRecursively(
-                  function () {
-                    uni.showToast({
-                      title: "缓存清理完成",
-                      duration: 2000,
-                      icon: "none",
-                    });
-                    that.getCacheSize();
-                  },
-                  function () {}
-                );
-              } else {
-                entry.remove();
-              }
-            },
-            function () {
-              uni.showToast({
-                title: "文件路径读取失败",
-                duration: 2000,
-                icon: "none",
-              });
-            }
-          );
-        }
-      } else {
-        plus.cache.clear(function () {
-          uni.showToast({
-            title: "缓存清理完成",
-            duration: 2000,
-            icon: "none",
-          });
-          that.getCacheSize();
-        });
-      }
-    },
-  },
-  onShow() {
-    this.userInfo = this.isLogin();
-    // #ifdef APP-PLUS
-    this.getCacheSize();
-    // #endif
-  },
-};
+function getCacheSize() {
+	// #ifdef APP-PLUS
+	plus.cache.calculate((size) => {
+		const sizeCache = parseInt(String(size))
+		if (sizeCache === 0) {
+			fileSizeString.value = '0B'
+		} else if (sizeCache < 1024) {
+			fileSizeString.value = `${sizeCache}B`
+		} else if (sizeCache < 1048576) {
+			fileSizeString.value = `${(sizeCache / 1024).toFixed(2)}KB`
+		} else if (sizeCache < 1073741824) {
+			fileSizeString.value = `${(sizeCache / 1048576).toFixed(2)}MB`
+		} else {
+			fileSizeString.value = `${(sizeCache / 1073741824).toFixed(2)}GB`
+		}
+	})
+	// #endif
+}
+
+function checkUserInfo() {
+	if (isLogin('auth')) {
+		navigateTo('/pages/mine/set/personMsg')
+	} else {
+		tipsToLogin()
+	}
+}
+
+function clearCache() {
+	// #ifdef APP-PLUS
+	const os = plus.os.name
+	if (os === 'Android') {
+		const main = plus.android.runtimeMainActivity()
+		const sdRoot = main.getCacheDir()
+		const files = plus.android.invoke(sdRoot, 'listFiles')
+		const len = files.length
+		for (let i = 0; i < len; i++) {
+			const filePath = `${files[i]}`
+			plus.io.resolveLocalFileSystemURL(
+				filePath,
+				(entry) => {
+					if (entry.isDirectory) {
+						entry.removeRecursively(
+							() => {
+								uni.showToast({ title: '缓存清理完成', duration: 2000, icon: 'none' })
+								getCacheSize()
+							},
+							() => {}
+						)
+					} else {
+						entry.remove()
+					}
+				},
+				() => {
+					uni.showToast({ title: '文件路径读取失败', duration: 2000, icon: 'none' })
+				}
+			)
+		}
+	} else {
+		plus.cache.clear(() => {
+			uni.showToast({ title: '缓存清理完成', duration: 2000, icon: 'none' })
+			getCacheSize()
+		})
+	}
+	// #endif
+}
 </script>
 
 <style lang="scss" scoped>
