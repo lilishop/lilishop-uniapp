@@ -69,30 +69,28 @@
               <!-- 规格 -->
               <p class="sp-type" style="width:300rpx">{{skuItem.goodsSku.simpleSpecs}}</p>
               <p class="sp-type" v-if="skuItem.goodsSku.salesModel == 'WHOLESALE'">批发商品</p>
-              <p class="sp-number">
+              <view class="sp-number">
                 <view class="sp-price">
                   <div class="main-color">
                     ￥<span>{{ goodsFormatPrice(skuItem.goodsSku.price)[0] }}</span>
                     <span>.{{ goodsFormatPrice(skuItem.goodsSku.price)[1] }}</span>
                   </div>
                 </view>
-                <view>
-                  <uni-number-box class="uNumber" :min="1" :max="999"  @change="numChange(skuItem)"	 v-model="skuItem.num"></uni-number-box>
+                <view class="sp-numbox">
+                  <uni-number-box class="uNumber" :min="1" :max="999" @change="numChange(skuItem)" v-model="skuItem.num"></uni-number-box>
                 </view>
-                <!-- 如果当有促销并且促销是 限时抢购 -->
-                <div class="promotions-list" v-if="Object.keys(skuItem.promotionMap).length != 0"
-                >
-                  <div class="promotions-item-seckill" v-if="getPromotion(skuItem).includes('SECKILL')">
-                    距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
-                      font-size="24" :timestamp="getCountDownTime(skuItem)">
-                    </u-count-down>
-                  </div>
+              </view>
+              <!-- 如果当有促销并且促销是 限时抢购 -->
+              <div class="promotions-list" v-if="Object.keys(skuItem.promotionMap).length != 0">
+                <div class="promotions-item-seckill" v-if="getPromotion(skuItem).includes('SECKILL')">
+                  距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
+                    font-size="24" :timestamp="getCountDownTime(skuItem)">
+                  </u-count-down>
                 </div>
-
-                <div style='margin-left: 20rpx;' v-if="!skuItem.checked && skuItem.errorMessage">
-                  {{skuItem.errorMessage}}
-                </div>
-              </p>
+              </div>
+              <div class="sku-error" v-if="!skuItem.checked && skuItem.errorMessage">
+                {{ skuItem.errorMessage }}
+              </div>
               
             </view>
           </view>
@@ -889,11 +887,16 @@ page {
 
 
 .sp-number {
+  width: 100%;
   font-weight: bold;
-
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
+
   > .sp-price {
+    flex-shrink: 0;
+
     ::v-deep span:nth-of-type(1) {
       font-size: 38rpx;
     }
@@ -901,6 +904,17 @@ page {
       font-size: 24rpx;
     }
   }
+
+  > .sp-numbox {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
+
+.sku-error {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #999;
 }
 .priceDetail-flowPrice {
   font-weight: bold;

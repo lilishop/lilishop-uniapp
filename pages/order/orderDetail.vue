@@ -145,7 +145,9 @@
           <view class="title">订单编号：</view>
           <view class="value order-sn-value">
             <text class="order-sn-text">{{ order.sn }}</text>
-            <u-tag class="copy" text="复制" type="info" mode="plain" size="mini" @click="onCopy(order.sn)" />
+            <view class="copy" @click.stop="onCopy(order.sn)">
+              <u-tag text="复制" type="info" plain size="mini" />
+            </view>
           </view>
         </view>
         <view class="order-info-view">
@@ -395,7 +397,11 @@ function gotoGoodsDetail(sku: any) {
 }
 
 function onCopy(orderSnText: string) {
-	setClipboard(orderSnText)
+	if (!orderSnText) {
+		uni.showToast({ title: '暂无订单编号', icon: 'none' })
+		return
+	}
+	setClipboard(String(orderSnText))
 }
 
 function onAfterSales(orderSnText: string, sku: any) {
