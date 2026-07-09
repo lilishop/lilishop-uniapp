@@ -577,7 +577,7 @@ onMounted(() => {
     color: #333;
     letter-spacing: 1rpx;
     font-weight: bold;
-    text-align: center;
+    text-align: left;
   }
 
   .store-name-text {
@@ -585,14 +585,14 @@ onMounted(() => {
     text-overflow: ellipsis;
     white-space: nowrap;
     display: block;
-    padding: 0 150rpx;
+    padding: 0 150rpx 0 0;
     box-sizing: border-box;
   }
 
   .store-message {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     flex-wrap: nowrap;
     margin-top: 12rpx;
     font-size: 24rpx;

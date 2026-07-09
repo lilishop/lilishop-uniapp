@@ -3,7 +3,10 @@
     <view class="popups" :class="[theme]" :style="{top: popupsTop ,left: popupsLeft,flexDirection:direction}">
       <text :class="dynPlace" :style="{width:'0px',height:'0px'}" v-if="triangle"></text>
       <view v-for="(item,index) in popData" :key="index" @tap.stop="tapItem(item)" class="itemChild view" :class="[direction=='row'?'solid-right':'solid-bottom',item.disabled?'disabledColor':'']">
-        <u-icon size="35" :name="item.icon" v-if="item.icon"></u-icon><span class="title">{{item.title}}</span>
+        <view class="popup-icon" v-if="item.icon">
+          <u-icon size="35rpx" :name="item.icon"></u-icon>
+        </view>
+        <span class="title">{{item.title}}</span>
       </view>
       <slot></slot>
     </view>
@@ -183,7 +186,7 @@ watch(() => props.placement, (newVal) => {
 
 <style lang="scss" scoped>
 .title {
-  margin-left: 20rpx;
+  margin-left: 16rpx;
 }
 .shadow {
   position: fixed;
@@ -211,6 +214,15 @@ watch(() => props.placement, (newVal) => {
     align-items: center;
     padding: 15rpx 10rpx;
     font-size: 25rpx;
+  }
+  .popup-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40rpx;
+    height: 40rpx;
+    line-height: 40rpx;
   }
   .image {
     display: inline-block;

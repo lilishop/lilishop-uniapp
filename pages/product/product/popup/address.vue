@@ -5,7 +5,6 @@
       <view class="view-item" v-for="(item, index) in addressDetail" :key="index" @click="clickAddress(item)">
         <view class="view-box-checkbox">
           <view class="checkbox" :class="{ checked: item.isDefault }">
-            <u-icon v-if="item.isDefault" :class="{ active: item.isDefault }" name="checkmark" size="12"></u-icon>
           </view>
         </view>
         <view class="view-box-dress" :class="{ 'box-dress-blod': item.isDefault }">{{clearStrComma(item.consigneeAddressPath) }}</view>
@@ -27,10 +26,10 @@
   </u-popup>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import setup from '@/components/m-buy/popup.js'
-import * as API_Address from '@/api/address.js'
-import { clearStrComma, isLogin } from '@/utils/filters.js'
+import * as API_Address from '@/api/address.js';
+import setup from '@/components/m-buy/popup.js';
+import { clearStrComma, isLogin } from '@/utils/filters.js';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps<{
   goodsId?: string | number
