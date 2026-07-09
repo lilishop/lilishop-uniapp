@@ -247,6 +247,26 @@ page {
   position: relative;
   z-index: 10;
   background: #ffffff;
+  height: 88rpx;
+  box-shadow: 0 1rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+:deep(.u-tabs),
+:deep(.u-tabs__wrapper),
+:deep(.u-tabs__wrapper__scroll-view-wrapper),
+:deep(.u-tabs__wrapper__scroll-view),
+:deep(.u-tabs__wrapper__nav) {
+  background: #fff;
+  height: 88rpx;
+}
+
+:deep(.u-tabs__wrapper__nav__item) {
+  min-height: 88rpx;
+}
+
+:deep(.u-tabs__wrapper__nav__item__text) {
+  color: #333;
+  font-size: 28rpx;
 }
 .box-content {
   margin: 20rpx 0;

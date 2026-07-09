@@ -1,17 +1,23 @@
 <template>
   <view class="serach">
     <view class="left-box" @tap="onClickLeft">
-      <u-icon name="arrow-left" size="28" color="#666"></u-icon>
+      <u-icon name="arrow-left" size="28rpx" color="#606266"></u-icon>
     </view>
     <view class="content" :style="{ 'border-radius': radius + 'px' }">
       <!-- HM修改 增加进入输入状态的点击范围 -->
       <view class="content-box" :class="{ center: mode === 2 }">
-        <u-icon name="search" size="32" style="padding:0 15rpx;"></u-icon>
+        <u-icon name="search" size="30rpx" color="#909399" style="padding:0 14rpx;"></u-icon>
         <!-- HM修改 增加placeholder input confirm-type confirm-->
         <input style="width:100%; " :placeholder="placeholder" placeholder-class="placeholder-color"
           @input="inputChange" confirm-type="search" @confirm="triggerConfirm" class="input"
           :class="{ center: !active && mode === 2 }" :focus="isFocus" v-model="inputVal" @focus="focus" @blur="blur" />
-        <u-icon name="close" v-if="showClear && isDelShow" style="padding:0 30rpx;" @click="clear"></u-icon>
+        <view
+          class="clear-icon"
+          v-if="showClear && isDelShow"
+          @tap.stop.prevent="clear"
+        >
+          <u-icon name="close" size="28rpx" color="#909399"></u-icon>
+        </view>
       </view>
 
     </view>
@@ -21,8 +27,8 @@
       </view>
 
       <view v-else class="button-item">
-        <u-icon name="grid-fill" size="32" @click="handelListClass()" v-if="!switchLayout"></u-icon>
-        <u-icon v-else @click="handelListClass()" name="list-dot" size="32"></u-icon>
+        <u-icon name="grid-fill" size="32rpx" color="var(--theme-light, #ff6b35)" @click="handelListClass()" v-if="!switchLayout"></u-icon>
+        <u-icon v-else @click="handelListClass()" name="list-dot" size="32rpx" color="var(--theme-light, #ff6b35)"></u-icon>
       </view>
     </view>
   </view>
@@ -34,6 +40,7 @@ import { ref, watch, onMounted } from 'vue'
 const props = withDefaults(defineProps<{
 	mode?: number
 	placeholder?: string
+	modelValue?: string
 	value?: string
 	radius?: string
 	isFocusVal?: boolean
@@ -41,13 +48,14 @@ const props = withDefaults(defineProps<{
 }>(), {
 	mode: 1,
 	placeholder: "请输入搜索内容",
+	modelValue: "",
 	value: "",
 	radius: "60",
 	isFocusVal: true,
 	showClear: true,
 })
 
-const emit = defineEmits(['confirm', 'input', 'search', 'SwitchType'])
+const emit = defineEmits(['confirm', 'input', 'update:modelValue', 'search', 'SwitchType'])
 
 const isShowSeachGoods = ref(false)
 const active = ref(false)
@@ -58,6 +66,7 @@ const switchLayout = ref(true)
 
 onMounted(() => {
 	isFocus.value = props.isFocusVal
+	inputVal.value = props.modelValue || props.value || ''
 })
 
 //
@@ -80,6 +89,7 @@ const triggerConfirm = () => {
 const inputChange = (event: any) => {
 	var keyword = event.detail.value
 	emit("input", keyword)
+	emit("update:modelValue", keyword)
 	if (inputVal.value) {
 		isDelShow.value = true
 	}
@@ -103,9 +113,17 @@ const clear = () => {
 	isFocus.value = false
 	inputVal.value = ""
 	active.value = false
+	isDelShow.value = false
 	//HM修改 清空内容时候触发组件input
 	emit("input", "")
+	emit("update:modelValue", "")
 	//this.$emit('search', '');//HM修改 清空内容时候不进行搜索
+}
+
+const setInputValue = (value: string) => {
+	inputVal.value = value || ''
+	emit("input", inputVal.value)
+	emit("update:modelValue", inputVal.value)
 }
 
 /**
@@ -143,6 +161,19 @@ const search = () => {
  */
 watch(inputVal, (newVal) => {
 	newVal ? (isDelShow.value = true) : (isDelShow.value = false)
+})
+
+watch(() => props.modelValue, (newVal) => {
+	if (newVal !== inputVal.value) {
+		inputVal.value = newVal || ''
+	}
+})
+
+defineExpose({
+	isShowSeachGoods,
+	inputVal,
+	clear,
+	setInputValue,
 })
 </script>
 
@@ -194,6 +225,15 @@ watch(inputVal, (newVal) => {
         &.center {
           width: auto;
         }
+      }
+
+      .clear-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 72rpx;
+        height: 70rpx;
       }
     }
   }

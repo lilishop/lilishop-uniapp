@@ -4,7 +4,10 @@
 			<u-tabs
 				:list="list"
 				:scrollable="false"
+				:inactiveStyle="{ color: '#333' }"
 				v-model:current="current"
+				:lineColor="lightColor"
+				:activeStyle="{ color: lightColor }"
 				@change="change"
 			></u-tabs>
 			<view v-if="showLoading" style="width:500rpx;margin:0 auto;text-align: center;height:800rpx;line-height: 800rpx;">
@@ -183,9 +186,27 @@ function getMessage() {
 	})
 }
 </script>
-<style>
+<style lang="scss" scoped>
 	.foot {
 		position: fixed;
 		bottom: 0;
+	}
+
+	:deep(.u-tabs),
+	:deep(.u-tabs__wrapper),
+	:deep(.u-tabs__wrapper__scroll-view-wrapper),
+	:deep(.u-tabs__wrapper__scroll-view),
+	:deep(.u-tabs__wrapper__nav) {
+		background: #fff;
+		height: 88rpx;
+	}
+
+	:deep(.u-tabs__wrapper__nav__item) {
+		min-height: 88rpx;
+	}
+
+	:deep(.u-tabs__wrapper__nav__item__text) {
+		color: #333;
+		font-size: 28rpx;
 	}
 </style>

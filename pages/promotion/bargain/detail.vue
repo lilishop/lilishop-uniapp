@@ -1,6 +1,12 @@
 <template>
-  <div class="page">
-    <u-navbar :auto-back="false" @leftClick="back" left-icon-color="#fff" :bg-color="background.backgroundColor" :border="false">
+  <div class="page" :style="themeStyle">
+    <u-navbar
+      :auto-back="false"
+      @leftClick="back"
+      left-icon-color="#fff"
+      :bg-color="background.backgroundColor"
+      :border="false"
+    >
     </u-navbar>
 
     <div class="wrapper-box">
@@ -9,62 +15,64 @@
         <div class="bargain">
           <div class="flex bargain-item">
             <div class="goods-img">
-              <u-image width="200" height="200" :src="bargainDetail.thumbnail"></u-image>
+              <u-image width="200rpx" height="200rpx" :src="bargainDetail.thumbnail"></u-image>
             </div>
             <div class="goods-config">
               <div class="goods-title wes-2">
-                {{bargainDetail.goodsName}}
+                {{ bargainDetail.goodsName }}
               </div>
               <div class="flex price-box">
                 <div class="purchase-price">
-                  当前:<span>￥{{ activityData.surplusPrice == 0 ? bargains.purchasePrice : unitPrice(activityData.surplusPrice)}}</span>
+                  当前:<text>￥{{ activityData.surplusPrice == 0 ? bargains.purchasePrice : unitPrice(activityData.surplusPrice) }}</text>
                 </div>
-                <div class="max-price">原价:<span>￥{{unitPrice(bargainDetail.price)}}</span>
-
-                </div>
+                <div class="max-price">原价:<text>￥{{ unitPrice(bargainDetail.price) }}</text></div>
               </div>
-              <div class="tips">{{bargainDetail.sellingPoint}}</div>
+              <div class="tips">{{ bargainDetail.sellingPoint }}</div>
             </div>
           </div>
           <!-- 砍价进度 -->
           <div class="bargain-progress">
-            <u-line-progress class="line" :active-color="lightColor" striped striped-active :percent="totalPercent">
+            <u-line-progress
+              class="line"
+              :active-color="lightColor"
+              :percentage="totalPercent"
+              :show-text="false"
+              height="12"
+            >
             </u-line-progress>
             <div class="flex tips">
-              <div>已砍{{cutPrice}}元</div>
-              <div>还剩{{activityData.surplusPrice}}元</div>
+              <div>已砍{{ cutPrice }}元</div>
+              <div>还剩{{ activityData.surplusPrice }}元</div>
             </div>
           </div>
           <!-- 参与砍价 -->
-          <div class="bargaining" v-if="!activityData.pass && activityData.status!='END'" @click="shareBargain">
+          <div class="bargaining" v-if="!activityData.pass && activityData.status != 'END'" @click="shareBargain">
             邀请砍价
           </div>
           <!-- 立即购买 -->
           <div v-else>
-
-            <div v-if="activityData.status!='END'" class="buy" @click="getGoodsDetail">
+            <div v-if="activityData.status != 'END'" class="buy" @click="getGoodsDetail">
               立即购买
             </div>
           </div>
           <!-- 我要开团 -->
-          <div class="start" v-if="activityData.memberId != loginUser.id" @click="startOpenGroup">我要开团
-          </div>
+          <div class="start" v-if="activityData.memberId != loginUser.id" @click="startOpenGroup">我要开团</div>
         </div>
       </div>
       <!-- 帮砍列表 -->
       <div class="box box2">
         <div class="bargain">
           <div class="bargain-title">帮忙砍</div>
-          <div class="user-item flex" v-if="logData.length !=0 " v-for="(item,index) in logData" :key="index">
+          <div class="user-item flex" v-if="logData.length != 0" v-for="(item, index) in logData" :key="index">
             <div>
-              <u-image width="75" shape="circle" height="75" :src="item.kanjiaMemberFace"></u-image>
+              <u-image width="75rpx" shape="circle" height="75rpx" :src="item.kanjiaMemberFace"></u-image>
             </div>
             <div class="user-config flex">
               <div class="user-name">
-                <div>{{noPassByName(item.kanjiaMemberName)}}</div>
+                <div>{{ noPassByName(item.kanjiaMemberName) }}</div>
                 <div>使出吃的奶劲儿</div>
               </div>
-              <div class="save">砍掉：<span>￥{{unitPrice(item.kanjiaPrice)}}</span></div>
+              <div class="save">砍掉：<text>￥{{ unitPrice(item.kanjiaPrice) }}</text></div>
             </div>
           </div>
         </div>
@@ -76,36 +84,61 @@
           <view class="u-content">
             <u-parse :content="bargainDetail.mobileIntro" :tag-style="style"></u-parse>
           </view>
-
         </div>
       </div>
 
       <!-- 砍价 -->
-      <u-modal title="恭喜您砍掉了" v-model:show="Bargaining" mask-close-able :show-confirm-button="false"
-        :title-style="{color: lightColor}">
+      <u-modal
+        title="恭喜您砍掉了"
+        v-model:show="Bargaining"
+        :close-on-click-overlay="true"
+        :show-confirm-button="false"
+      >
         <view class="slot-content">
-          <u-count-to :start-val="0" ref="uCountToRef" font-size="100" :color="lightColor" :end-val="kanjiaPrice"
-            :decimals="2" :autoplay="autoplay"></u-count-to><span class="price">元</span>
+          <u-count-to
+            :start-val="0"
+            ref="uCountToRef"
+            font-size="100"
+            :color="lightColor"
+            :end-val="kanjiaPrice"
+            :decimals="2"
+            :autoplay="autoplay"
+          ></u-count-to>
+          <text class="price">元</text>
         </view>
       </u-modal>
       <!-- 帮砍 -->
-
-      <u-modal :show-title="false" v-model:show="helpBargainFlage" :show-confirm-button="false">
+      <u-modal title=" " v-model:show="helpBargainFlage" :show-confirm-button="false">
         <view class="help-bargain" @click="handleClickHelpBargain">
-          <u-image width="100%" height="600rpx"
-            src="https://lilishop-oss.oss-cn-beijing.aliyuncs.com/91631d5a66c7426bbe3f7d644ee41946.jpeg"></u-image>
+          <u-image
+            width="100%"
+            height="600rpx"
+            src="https://lilishop-oss.oss-cn-beijing.aliyuncs.com/91631d5a66c7426bbe3f7d644ee41946.jpeg"
+          ></u-image>
           <u-image class="help" width="300rpx" height="80rpx" src="/pages/promotion/static/help-bargain.png"></u-image>
         </view>
       </u-modal>
 
       <!-- 分享 -->
-      <shares @close="closeShare" :link="share()" type="kanjia" :thumbnail="bargainDetail.thumbnail"
-        :goodsName="bargainDetail.goodsName" v-if="shareFlage " />
+      <shares
+        @close="closeShare"
+        :link="share()"
+        type="kanjia"
+        :thumbnail="bargainDetail.thumbnail"
+        :goodsName="bargainDetail.goodsName"
+        v-if="shareFlage"
+      />
 
       <!-- 购买 -->
-      <popupGoods ref="popupGoodsRef" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="bargainDetail"
-        :goodsSpec="goodsSpec" v-if="bargainDetail.id " @handleClickSku="getGoodsDetail" />
-
+      <popupGoods
+        ref="popupGoodsRef"
+        :buyMask="maskFlag"
+        @closeBuy="closePopupBuy"
+        :goodsDetail="bargainDetail"
+        :goodsSpec="goodsSpec"
+        v-if="bargainDetail.id"
+        @handleClickSku="getGoodsDetail"
+      />
     </div>
   </div>
 </template>
@@ -128,10 +161,12 @@ import {
 import shares from '@/components/m-share/index'
 import config from '@/config/config'
 import { unitPrice, noPassByName, isLogin } from '@/utils/filters.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
 
 const lightColor = computed(() => store.getters.lightColor)
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const style = ref({
   img: 'display:block',
@@ -205,8 +240,7 @@ watch(
   (val) => {
     if (val) {
       totalPercent.value =
-        100 -
-        Math.floor((val.surplusPrice / bargainDetail.value.price) * 100)
+        100 - Math.floor((val.surplusPrice / bargainDetail.value.price) * 100)
       cutPrice.value = (
         bargainDetail.value.price - activityData.value.surplusPrice
       ).toFixed(2)
@@ -324,32 +358,44 @@ async function openActivity() {
   }
 }
 </script>
+
 <style lang="scss">
 page {
-  background-color: $light-color !important;
+  background-color: var(--theme-light, #ff6b35) !important;
 }
 </style>
+
 <style lang="scss" scoped>
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: 40rpx;
+}
+
 .slot-content {
   display: flex;
   align-items: flex-end;
   justify-content: center;
   margin: 20rpx 0 80rpx 0;
 }
+
 .price {
   margin-left: 10rpx;
-  color: $light-color;
+  color: var(--theme-light, #ff6b35);
 }
+
 .price-box {
   align-items: center;
   padding: 10rpx 0;
 }
+
 .wrapper-box {
-  background: url("https://lili-system.oss-cn-beijing.aliyuncs.com/kanjia.png");
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  height: 506rpx;
+  background: url('https://lili-system.oss-cn-beijing.aliyuncs.com/kanjia.png') no-repeat top center;
+  background-size: 100% 506rpx;
   width: 100%;
+  box-sizing: border-box;
+  padding-top: 420rpx;
+  padding-bottom: 40rpx;
 }
 
 .box {
@@ -357,99 +403,92 @@ page {
   border-radius: 20rpx;
   position: relative;
   width: 94%;
-  margin: 0 auto;
+  margin: 0 auto 20rpx;
+  overflow: hidden;
+
   > .bargain {
     padding: 32rpx;
   }
 }
-.box1 {
-  top: 560rpx;
-}
-.box2 {
-  top: 580rpx;
-}
-.box3 {
-  top: 600rpx;
-}
-.box4 {
-  top: 620  rpx;
-  height: 200rpx;
-}
+
 .bargain-item {
   align-items: center;
 }
+
+.goods-img {
+  flex-shrink: 0;
+}
+
 .goods-config {
+  flex: 1;
+  min-width: 0;
   margin-left: 20rpx;
+
   > .goods-title {
     font-weight: bold;
+    font-size: 28rpx;
+    color: #333;
+    line-height: 1.4;
   }
 }
+
 .max-price,
 .purchase-price {
   font-size: 24rpx;
   color: #999;
 }
+
 .max-price {
   margin-left: 10rpx;
   text-decoration: line-through;
 }
+
 .purchase-price {
-  color: $main-color;
-  > span {
+  color: var(--theme-primary, #ff3c2a);
+
+  > text {
     font-size: 32rpx;
     font-weight: bold;
   }
 }
+
 .bargaining,
 .buy,
 .start {
-  font-size: 24rpx;
-
   width: 80%;
-  margin: 50rpx auto 0 auto;
+  margin: 50rpx auto 0;
   text-align: center;
-
   font-size: 30rpx;
   padding: 18rpx;
   border-radius: 100px;
+  box-sizing: border-box;
 }
+
 .start {
-  border: 1rpx solid $main-color;
-  color: $main-color;
+  border: 1rpx solid var(--theme-primary, #ff3c2a);
+  color: var(--theme-primary, #ff3c2a);
 }
+
 .bargaining,
 .buy {
-  font-size: 24rpx;
   color: #fff;
-  width: 80%;
-  margin: 50rpx auto 0 auto;
-  text-align: center;
-  font-size: 30rpx;
   background-image: linear-gradient(
     25deg,
-    $main-color,
-    $light-color,
-    $aider-light-color
+    var(--theme-primary, #ff3c2a),
+    var(--theme-light, #ff6b35),
+    var(--theme-aider, #ff9f28)
   );
-
-  padding: 18rpx;
-  border-radius: 100px;
   animation: mymove 5s infinite;
-  -webkit-animation: mymove 5s infinite; /*Safari and Chrome*/
-  animation-direction: alternate; /*轮流反向播放动画。*/
-  animation-timing-function: ease-in-out; /*动画的速度曲线*/
-  /* Safari 和 Chrome */
-  -webkit-animation: mymove 5s infinite;
-  -webkit-animation-direction: alternate; /*轮流反向播放动画。*/
-  -webkit-animation-timing-function: ease-in-out; /*动画的速度曲线*/
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
 }
 
 @keyframes mymove {
   0% {
-    transform: scale(1); /*开始为原始大小*/
+    transform: scale(1);
   }
   25% {
-    transform: scale(1.1); /*放大1.1倍*/
+    transform: scale(1.1);
   }
   50% {
     transform: scale(1);
@@ -458,65 +497,80 @@ page {
     transform: scale(1.1);
   }
 }
+
 .line {
   margin: 20rpx 0;
 }
+
 .tips {
   font-size: 24rpx;
   color: #999;
   justify-content: space-between;
 }
+
 .bargain-progress {
   margin: 20rpx 0;
 }
+
 .bargain-title {
   font-size: 32rpx;
   font-weight: bold;
-  color: $light-color;
+  color: var(--theme-light, #ff6b35);
   text-align: center;
   margin-bottom: 40rpx;
 }
+
 .user-item {
   margin: 40rpx 0;
   align-items: center;
 }
+
 .user-config {
   margin-left: 20rpx;
-  flex: 8;
+  flex: 1;
+  min-width: 0;
   align-items: center;
   justify-content: space-between;
+
   > .user-name {
+    flex: 1;
+    min-width: 0;
+
     > div:nth-of-type(1) {
       font-size: 28rpx;
       max-width: 300rpx;
       overflow: hidden;
-      word-wrap: normal;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
+
     > div:nth-last-of-type(1) {
       font-size: 24rpx;
       color: #999;
     }
   }
 }
+
 .save {
-  color: $light-color;
-  > span {
+  flex-shrink: 0;
+  color: var(--theme-light, #ff6b35);
+
+  > text {
     font-weight: bold;
   }
 }
-.mobile-intro {
+
+.u-content {
   overflow: hidden;
   max-width: 100%;
 }
 
 @keyframes fontMove {
   0% {
-    transform: scale(1); /*开始为原始大小*/
+    transform: scale(1);
   }
   25% {
-    transform: scale(1.1); /*放大1.1倍*/
+    transform: scale(1.1);
   }
   50% {
     transform: scale(1);
@@ -531,19 +585,13 @@ page {
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  > .help {
-    margin-bottom: 40rpx;
-    border-radius: 20rpx;
 
-    margin-top: 40rpx;
+  > .help {
+    margin: 40rpx 0;
+    border-radius: 20rpx;
     animation: fontMove 5s infinite;
-    -webkit-animation: fontMove 5s infinite; /*Safari and Chrome*/
-    animation-direction: alternate; /*轮流反向播放动画。*/
-    animation-timing-function: ease-in-out; /*动画的速度曲线*/
-    /* Safari 和 Chrome */
-    -webkit-animation: fontMove 5s infinite;
-    -webkit-animation-direction: alternate; /*轮流反向播放动画。*/
-    -webkit-animation-timing-function: ease-in-out; /*动画的速度曲线*/
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
   }
 }
 </style>

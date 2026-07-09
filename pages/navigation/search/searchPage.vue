@@ -15,7 +15,6 @@
 					<mSearch
 						ref="mSearchRef"
 						class="mSearch-input-box"
-						:show-clear="false"
 						@clickLeft="back"
 						:mode="2"
 						:placeholder="defaultKeyword"
@@ -271,7 +270,7 @@ import storage from '@/utils/storage'
 const store = useStore()
 const { proxy } = getCurrentInstance()!
 
-const mSearchRef = ref<InstanceType<typeof mSearch> | null>(null)
+const mSearchRef = ref<any>(null)
 
 const empty = ref(false)
 const scrollTop = ref(0)
@@ -806,7 +805,7 @@ function doSearch(searchKeyword: string | false) {
 	isShowSeachGoods.value = true
 	if (mSearchRef.value) {
 		mSearchRef.value.isShowSeachGoods = true
-		mSearchRef.value.inputVal = resolvedKeyword
+		mSearchRef.value.setInputValue(resolvedKeyword)
 	}
 	params.value.keyword = keyword.value
 	params.value.pageNumber = 1

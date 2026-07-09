@@ -126,7 +126,7 @@
 					"path": "myCollect",
 					"style": {
 						"navigationBarTitleText": "收藏",
-						"enablePullDownRefresh": true, //下拉刷新
+						"enablePullDownRefresh": false,
 						"navigationStyle": "custom",
 						"app-plus": {
 							"scrollIndicator": "none"
