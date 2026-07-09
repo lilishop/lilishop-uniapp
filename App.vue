@@ -170,6 +170,7 @@ function checkArguments() {
 
 <style lang="scss">
 @import "uview-plus/index.scss";
+@import "@/styles/uview-form-fix.scss";
 
 // -------适配底部安全区  苹果x系列刘海屏
 
