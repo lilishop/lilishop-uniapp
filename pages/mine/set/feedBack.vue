@@ -4,9 +4,9 @@
       <view class="box-title">猜你想问</view>
       <view
         class="feedBack-item"
-        :class="{ active: feedBack.type == item.value }"
-        @click="handleClick(index)"
-        v-for="(item, index) in list"
+        :class="{ active: feedbackForm.type == item.value }"
+        @click="selectFeedbackType(index)"
+        v-for="(item, index) in feedbackTypeList"
         :key="index"
       >
         {{ item.text }}
@@ -15,11 +15,11 @@
 
     <view class="feedBack-box">
       <view class="box-title">问题反馈
-        <text class="box-tag" v-if="feedBack.type">@{{ list.find(item => item.value == feedBack.type).text }}</text>
+        <text class="box-tag" v-if="feedbackForm.type">@{{ feedbackTypeList.find(item => item.value == feedbackForm.type)?.text }}</text>
       </view>
       <u-textarea
         class="field-textarea"
-        v-model="feedBack.context"
+        v-model="feedbackForm.context"
         placeholder="请输入反馈信息"
         border="none"
         height="240"
@@ -39,7 +39,7 @@
       <view class="box-title">手机号</view>
       <u-input
         class="field-input"
-        v-model="feedBack.mobile"
+        v-model="feedbackForm.mobile"
         type="number"
         maxlength="11"
         border="none"
@@ -48,98 +48,69 @@
       ></u-input>
     </view>
 
-    <view class="submit" @click="submit()">提交</view>
+    <view class="submit" @click="submitFeedback">提交</view>
   </view>
 
 </template>
 
-<script>
-import storage from "@/utils/storage.js";
-import config from "@/config/config";
-import { feedBack } from "@/api/members.js";
-import { handleUploadAfterRead } from "@/utils/uploadHelper.js";
-export default {
-  data() {
-    return {
-      storage,
-      config,
-      feedBack: {
-        type: "FUNCTION",
-        context: "",
-        mobile: "",
-      },
-      inputStyle: {
-        background: "#fafafa",
-        borderRadius: "12rpx",
-        padding: "0 24rpx",
-        height: "80rpx",
-      },
-      uploadFileList: [],
-      list: [
-        { text: "功能相关", value: "FUNCTION" },
-        { text: "优化反馈", value: "OPTIMIZE" },
-        { text: "其他", value: "OTHER" },
-      ],
-    };
-  },
-  methods: {
-    // 点击反馈内容
-    handleClick(index) {
-      this.feedBack["type"] = this.list[index].value;
-    },
+<script setup lang="ts">
+import { ref, reactive, getCurrentInstance } from 'vue'
+import { feedBack as submitFeedBackApi } from '@/api/members.js'
+import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
 
-    onUploadAfterRead(event) {
-      handleUploadAfterRead(event, this.uploadFileList, (urls) => {
-        this.feedBack.images = urls.join(",");
-      });
-    },
+const { proxy } = getCurrentInstance()!
 
-    /**
-     * 提交意见反馈
-     */
-    submit() {
-      if (!this.feedBack.type) {
-        uni.showToast({
-          title: "请填写反馈类型",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (!this.feedBack.context) {
-        uni.showToast({
-          title: "请填写反馈信息",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      if (this.feedBack.mobile && !this.$u.test.mobile(this.feedBack.mobile)) {
-        uni.showToast({
-          title: "请填写您的正确手机号",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      }
-      /** 提交 */
-      feedBack(this.feedBack).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "提交成功!",
-            duration: 2000,
-            icon: "none",
-          });
-          setTimeout(() => {
-            uni.navigateBack({
-              delta: 1,
-            });
-          }, 500);
-        }
-      });
-    },
-  },
-};
+const feedbackForm = reactive({
+	type: 'FUNCTION',
+	context: '',
+	mobile: '',
+	images: '',
+})
+const inputStyle = {
+	background: '#fafafa',
+	borderRadius: '12rpx',
+	padding: '0 24rpx',
+	height: '80rpx',
+}
+const uploadFileList = ref<any[]>([])
+const feedbackTypeList = [
+	{ text: '功能相关', value: 'FUNCTION' },
+	{ text: '优化反馈', value: 'OPTIMIZE' },
+	{ text: '其他', value: 'OTHER' },
+]
+
+function selectFeedbackType(index: number) {
+	feedbackForm.type = feedbackTypeList[index].value
+}
+
+function onUploadAfterRead(event: any) {
+	handleUploadAfterRead(event, uploadFileList.value, (urls) => {
+		feedbackForm.images = urls.join(',')
+	})
+}
+
+function submitFeedback() {
+	if (!feedbackForm.type) {
+		uni.showToast({ title: '请填写反馈类型', duration: 2000, icon: 'none' })
+		return
+	}
+	if (!feedbackForm.context) {
+		uni.showToast({ title: '请填写反馈信息', duration: 2000, icon: 'none' })
+		return
+	}
+	if (feedbackForm.mobile && !proxy.$u.test.mobile(feedbackForm.mobile)) {
+		uni.showToast({ title: '请填写您的正确手机号', duration: 2000, icon: 'none' })
+		return
+	}
+	submitFeedBackApi(feedbackForm).then((res) => {
+		if (res.data.success) {
+			uni.showToast({ title: '提交成功!', duration: 2000, icon: 'none' })
+			setTimeout(() => {
+				uni.navigateBack({ delta: 1 })
+			}, 500)
+		}
+	})
+}
 </script>
 
 <style lang="scss" scoped>

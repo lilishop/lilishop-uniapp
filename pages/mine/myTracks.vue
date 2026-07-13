@@ -7,14 +7,14 @@
 			:auto-back="true"
 		>
 			<template #right>
-        <div class="light-color edit" @click="isEdit = !isEdit">{{ !isEdit ? '编辑' : '完成'}}</div>
+        <view class="light-color edit" @click="isEdit = !isEdit">{{ !isEdit ? '编辑' : '完成'}}</view>
       </template>
 		</u-navbar>
 		<view class="tracks-tip">
 			<u-icon name="volume" color="#f9ae3d" size="19"></u-icon>
 			<text class="tracks-tip-text">右划删除浏览记录</text>
 		</view>
-		<u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="whetherEmpty"></u-empty>
+		<u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="isEmpty"></u-empty>
 		<view v-else class="tracks-list">
 			<block v-for="(item, index) in trackList" :key="index">
 				<view
@@ -26,9 +26,9 @@
 					<u-swipe-action-item
 						:show="item.show"
 						:name="index"
-						@click="delTracks"
-						@open="open"
-						:options="options"
+						@click="deleteTracks"
+						@open="openSwipe"
+						:options="swipeOptions"
 					>
 						<view class="myTracks-item">
 							<u-checkbox-group v-if="isEdit" class="store-line-check">
@@ -37,7 +37,7 @@
 									shape="circle"
 									:active-color="lightColor"
 									v-model:checked="item.checked"
-									@change="checkboxChangeDP(item)"
+									@change="onTrackCheckChange(item)"
 								></u-checkbox>
 							</u-checkbox-group>
 							<view class="myTracks-item-img" @click.stop="navigateToDetail(item)">
@@ -56,7 +56,7 @@
 				</u-swipe-action>
 				<view class="myTracks-divider"></view>
 			</block>
-			<view v-if="isEdit" class="submit" @click="handleClickDeleteSelected">
+			<view v-if="isEdit" class="submit" @click="deleteSelectedTracks">
 				删除所选
 			</view>
 		</view>
@@ -64,172 +64,147 @@
 	</view>
 </template>
 
-<script>
-	import {
-		myTrackList,
-		deleteHistoryListId
-	} from "@/api/members.js";
-	import { getStoreBaseInfo } from "@/api/store.js";
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onShow, onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { unitPrice } from '@/utils/filters.js'
+import { myTrackList, deleteHistoryListId } from '@/api/members.js'
+import { getStoreBaseInfo } from '@/api/store.js'
 
-	export default {
-		data() {
-			return {
-				isEdit:false,
-				whetherEmpty: false, //是否数据为空
-				params: {
-					pageNumber: 1,
-					pageSize: 10,
-					order: "desc",
-					sort: "updateTime",
-				},
-				lightColor:this.$lightColor,
-				options: [{
-					text: '删除',
-					style: {
-						backgroundColor: '#dd524d'
-					}
-				}],
-				trackList: [], //足迹列表
-				storeNameMap: {},
-			};
-		},
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
 
-		/**
-		 * 滑到底部加载下一页数据
-		 */
-		onReachBottom() {
-			this.params.pageNumber++;
-			this.getList();
-		},
-		onShow() {
-			this.params.pageNumber = 1
-			this.trackList = [];
-			this.getList();
-		},
-		onPullDownRefresh() {
-			this.trackList = [];
-			this.getList();
-		},
-		methods: {
-			getStoreName(item) {
-				return item.storeName || this.storeNameMap[item.storeId] || "";
-			},
-			async enrichStoreNames(records) {
-				const storeIds = [
-					...new Set(
-						records
-							.filter((item) => !item.storeName && item.storeId)
-							.map((item) => item.storeId)
-					),
-				].filter((storeId) => !this.storeNameMap[storeId]);
+const isEdit = ref(false)
+const isEmpty = ref(false)
+const params = ref({
+	pageNumber: 1,
+	pageSize: 10,
+	order: 'desc',
+	sort: 'updateTime',
+})
+const swipeOptions = [{ text: '删除', style: { backgroundColor: '#dd524d' } }]
+const trackList = ref<any[]>([])
+const storeNameMap = ref<Record<string, string>>({})
 
-				await Promise.all(
-					storeIds.map(async (storeId) => {
-						try {
-							const res = await getStoreBaseInfo(storeId);
-							const name = res.data?.result?.storeName;
-							if (name) {
-								this.storeNameMap[storeId] = name;
-							}
-						} catch (e) {
-							// ignore
-						}
-					})
-				);
-			},
-			checkboxChangeDP(val){
-				console.log(val)
-			},
-			// 删除所选的数据
-			handleClickDeleteSelected(val){
-				const ids = this.trackList.filter(item=>item.checked).map(item=>item.goodsId);
-				if(!ids.length){
-					uni.showToast({
-						title:"请选择删除数据",
-						icon:"none"
-					})
-				}else{
-					this.delTracks(0,ids)
+onReachBottom(() => {
+	params.value.pageNumber++
+	fetchTrackList()
+})
+
+onShow(() => {
+	params.value.pageNumber = 1
+	trackList.value = []
+	fetchTrackList()
+})
+
+onPullDownRefresh(() => {
+	params.value.pageNumber = 1
+	trackList.value = []
+	fetchTrackList()
+})
+
+function getStoreName(item: any) {
+	return item.storeName || storeNameMap.value[item.storeId] || ''
+}
+
+async function enrichStoreNames(records: any[]) {
+	const storeIds = [
+		...new Set(
+			records
+				.filter((item) => !item.storeName && item.storeId)
+				.map((item) => item.storeId)
+		),
+	].filter((storeId) => !storeNameMap.value[storeId])
+
+	await Promise.all(
+		storeIds.map(async (storeId) => {
+			try {
+				const res = await getStoreBaseInfo(storeId)
+				const name = res.data?.result?.storeName
+				if (name) {
+					storeNameMap.value[storeId] = name
 				}
-			},
-			/**
-			 * 导航到店铺
-			 */
-			navigateToStore(val) {
-				uni.navigateTo({
-					url: "/pages/product/shopPage?id=" + val.storeId,
-				});
-			},
-			open(index) {
-				// 先将正在被操作的swipeAction标记为打开状态，否则由于props的特性限制，
-				// 原本为'false'，再次设置为'false'会无效
-				this.trackList[index].show = true;
-				this.trackList.map((val, idx) => {
-					if (index != idx) this.trackList[idx].show = false;
-				})
-			},
-			/**
-			 * 跳转详情
-			 */
-			navigateToDetail(item) {
-				uni.navigateTo({
-					url: "/pages/product/goods?id=" + item.id + "&goodsId=" + item.goodsId,
-				});
-			},
+			} catch {
+				// ignore
+			}
+		})
+	)
+}
 
-			/**
-			 * 获取我的足迹列表
-			 */
-			getList() {
-				uni.showLoading({
-					title: "加载中",
-				});
-				myTrackList(this.params).then(async (res) => {
-					uni.stopPullDownRefresh();
-					uni.hideLoading();
-					if (res.statusCode == 200) {
-						const records = res.data.result.records || [];
-						records.forEach((item) => {
-							item.show = false;
-							item.checked = false;
-						});
+function onTrackCheckChange(_val: any) {
+	// 勾选状态由 v-model:checked 维护
+}
 
-						if (!records.length) {
-							if (this.trackList.length === 0) {
-								this.whetherEmpty = true;
-							}
-						} else {
-							await this.enrichStoreNames(records);
-							this.trackList.push(...records);
-						}
-					}
-				});
-			},
+function deleteSelectedTracks() {
+	const ids = trackList.value.filter((item) => item.checked).map((item) => item.goodsId)
+	if (!ids.length) {
+		uni.showToast({ title: '请选择删除数据', icon: 'none' })
+		return
+	}
+	deleteTracks(0, ids)
+}
 
+function navigateToStore(val: any) {
+	uni.navigateTo({ url: `/pages/product/shopPage?id=${val.storeId}` })
+}
 
-			/**
-			 * 删除足迹
-			 */
-			delTracks(e, ids) {
-				const index = typeof e === 'object' ? (e.name ?? e.index) : e;
-				const goodsId = ids || this.trackList[index]?.goodsId;
-				if (!goodsId) return;
-				deleteHistoryListId(goodsId).then((res) => {
-					if (res.data.code == 200) {
-						this.trackList = [];
-						this.params.pageNumber = 1
-						this.getList();
-					} else {
-						uni.showToast({
-							title: res.data.message,
-							duration: 2000,
-							icon: "none",
-						});
-					}
-				});
-			},
-		},
-	};
+function openSwipe(index: number) {
+	trackList.value[index].show = true
+	trackList.value.forEach((val, idx) => {
+		if (index !== idx) val.show = false
+	})
+}
+
+function navigateToDetail(item: any) {
+	uni.navigateTo({
+		url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
+	})
+}
+
+function fetchTrackList() {
+	uni.showLoading({ title: '加载中' })
+	myTrackList(params.value).then(async (res) => {
+		uni.stopPullDownRefresh()
+		uni.hideLoading()
+		if (res.statusCode === 200) {
+			const records = res.data.result.records || []
+			records.forEach((item: any) => {
+				item.show = false
+				item.checked = false
+			})
+
+			if (!records.length) {
+				if (trackList.value.length === 0) {
+					isEmpty.value = true
+				}
+			} else {
+				isEmpty.value = false
+				await enrichStoreNames(records)
+				trackList.value.push(...records)
+			}
+		}
+	})
+}
+
+function deleteTracks(e: any, ids?: any) {
+	const index = typeof e === 'object' ? (e.name ?? e.index) : e
+	const goodsId = ids || trackList.value[index]?.goodsId
+	if (!goodsId) return
+	deleteHistoryListId(goodsId).then((res) => {
+		if (res.data.code === 200) {
+			trackList.value = []
+			params.value.pageNumber = 1
+			fetchTrackList()
+		} else {
+			uni.showToast({
+				title: res.data.message,
+				duration: 2000,
+				icon: 'none',
+			})
+		}
+	})
+}
 </script>
 
 <style lang="scss" scoped>

@@ -49,192 +49,136 @@
   </div>
 </template>
 
-<script>
-// 引用组件
-import tpl_banner from "@/pages/tabbar/home/template/tpl_banner"; //导航栏模块
-import tpl_title from "@/pages/tabbar/home/template/tpl_title"; //标题栏模块
-import tpl_left_one_right_two from "@/pages/tabbar/home/template/tpl_left_one_right_two"; //左一右二模块
-import tpl_left_two_right_one from "@/pages/tabbar/home/template/tpl_left_two_right_one"; //左二右一模块
-import tpl_top_one_bottom_two from "@/pages/tabbar/home/template/tpl_top_one_bottom_two"; //上一下二模块
-import tpl_top_two_bottom_one from "@/pages/tabbar/home/template/tpl_top_two_bottom_one"; //上二下一模块
-import tpl_flex_one from "@/pages/tabbar/home/template/tpl_flex_one"; //单行图片模块
-import tpl_flex_two from "@/pages/tabbar/home/template/tpl_flex_two"; //两张横图模块
-import tpl_flex_three from "@/pages/tabbar/home/template/tpl_flex_three"; //三列单行图片模块
-import tpl_flex_five from "@/pages/tabbar/home/template/tpl_flex_five"; //五列单行图片模块
-import tpl_flex_four from "@/pages/tabbar/home/template/tpl_flex_four"; //四列单行图片模块
-import tpl_text_picture from "@/pages/tabbar/home/template/tpl_text_picture"; //文字图片模板
-import tpl_menu from "@/pages/tabbar/home/template/tpl_menu"; //五列菜单模块
-import tpl_search from "@/pages/tabbar/home/template/tpl_search"; //搜索栏
-import tpl_group from "@/pages/tabbar/home/template/tpl_group"; //
-import tpl_video from "@/pages/tabbar/home/template/tpl_video"; //视频模块
-import tpl_goods from "@/pages/tabbar/home/template/tpl_goods"; //商品分类以及分类中的商品
-// 结束引用组件
-import { toSpecial, getSpecial } from "@/api/home"; //获取楼层装修接口
-import permision from "@/js_sdk/wa-permission/permission.js"; //权限工具类
-import config from "@/config/config";
-import tpl_notice from "@/pages/tabbar/home/template/tpl_notice"; //标题栏模块
-import tpl_promotions from "@/pages/tabbar/home/template/tpl_promotions_detail"; //标题栏模块
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import carousel from '@/pages/tabbar/home/template/tpl_banner'
+import titleLayout from '@/pages/tabbar/home/template/tpl_title'
+import leftOneRightTwo from '@/pages/tabbar/home/template/tpl_left_one_right_two'
+import leftTwoRightOne from '@/pages/tabbar/home/template/tpl_left_two_right_one'
+import topOneBottomTwo from '@/pages/tabbar/home/template/tpl_top_one_bottom_two'
+import topTwoBottomOne from '@/pages/tabbar/home/template/tpl_top_two_bottom_one'
+import flexOne from '@/pages/tabbar/home/template/tpl_flex_one'
+import flexTwo from '@/pages/tabbar/home/template/tpl_flex_two'
+import flexThree from '@/pages/tabbar/home/template/tpl_flex_three'
+import flexFive from '@/pages/tabbar/home/template/tpl_flex_five'
+import flexFour from '@/pages/tabbar/home/template/tpl_flex_four'
+import textPicture from '@/pages/tabbar/home/template/tpl_text_picture'
+import menuLayout from '@/pages/tabbar/home/template/tpl_menu'
+import search from '@/pages/tabbar/home/template/tpl_search'
+import group from '@/pages/tabbar/home/template/tpl_group'
+import videoLayout from '@/pages/tabbar/home/template/tpl_video'
+import goods from '@/pages/tabbar/home/template/tpl_goods'
+import notice from '@/pages/tabbar/home/template/tpl_notice'
+import promotions from '@/pages/tabbar/home/template/tpl_promotions_detail'
+import { toSpecial, getSpecial } from '@/api/home'
+import permision from '@/js_sdk/wa-permission/permission.js'
+import config from '@/config/config'
 
-export default {
-  data() {
-    return {
-      id: "",
-      config,
-      pageData: "", //楼层页面数据
-      bodyParam: "",
-      isIos: ""
-    };
-  },
-  components: {
-    carousel: tpl_banner,
-    titleLayout: tpl_title,
-    leftOneRightTwo: tpl_left_one_right_two,
-    leftTwoRightOne: tpl_left_two_right_one,
-    topOneBottomTwo: tpl_top_one_bottom_two,
-    topTwoBottomOne: tpl_top_two_bottom_one,
-    flexThree: tpl_flex_three,
-    flexFive: tpl_flex_five,
-    flexFour: tpl_flex_four,
-    flexTwo: tpl_flex_two,
-    textPicture: tpl_text_picture,
-    menuLayout: tpl_menu,
-    search: tpl_search,
-    flexOne: tpl_flex_one,
-    goods: tpl_goods,
-    group: tpl_group,
-    notice: tpl_notice,
-    promotions: tpl_promotions,
-    videoLayout: tpl_video
-  },
+const id = ref('')
+const pageData = ref<any>('')
+const bodyParam = ref('')
+const isIos = ref('')
 
-  mounted() {
-    this.init();
-    // #ifdef MP-WEIXIN
-    // 小程序默认分享
-    uni.showShareMenu({ withShareTicket: true });
-    // #endif
-  },
-  onLoad(val) {
-    this.id = val.id;
-    this.bodyParam = val.body;
-  },
+onMounted(() => {
+  init()
+  // #ifdef MP-WEIXIN
+  uni.showShareMenu({ withShareTicket: true })
+  // #endif
+})
 
-  methods: {
-    /**
-     * 实例化首页数据楼层
-     */
-    init() {
-      this.pageData = "";
-	  console.log(this.bodyParam);
-      if (this.bodyParam) {
-        toSpecial({body: this.bodyParam}).then(res => {
-          if (res.data.success) {
-            this.pageData = JSON.parse(res.data.result.pageData);
-          }
-        });
-      } else {
-        getSpecial(this.id).then(res => {
-        if (res.data.success) {
-          this.pageData = JSON.parse(res.data.result.pageData);
-        }
-      });
+onLoad((val) => {
+  id.value = val.id
+  bodyParam.value = val.body
+})
+
+function init() {
+  pageData.value = ''
+  console.log(bodyParam.value)
+  if (bodyParam.value) {
+    toSpecial({ body: bodyParam.value }).then((res) => {
+      if (res.data.success) {
+        pageData.value = JSON.parse(res.data.result.pageData)
       }
-    },
-
-    /**
-     * TODO 扫码功能后续还会后续增加
-     * 应该实现的功能目前计划有：
-     * 扫描商品跳转商品页面
-     * 扫描活动跳转活动页面
-     * 扫描二维码登录
-     * 扫描其他站信息 弹出提示，返回首页。
-     */
-    seacnCode() {
-      uni.scanCode({
-        success: function(res) {
-          let path = encodeURIComponent(res.result);
-
-          // WX_CODE 为小程序码
-          if (res.scanType == "WX_CODE") {
-            console.log(res);
-            uni.navigateTo({
-              url: `/${res.path}`
-            });
-          } else {
-            config.scanAuthNavigation.forEach(src => {
-              if (res.result.indexOf(src) != -1) {
-                uni.navigateTo({
-                  url: `/${res.result.substring(src.length)}`
-                });
-              } else {
-                setTimeout(() => {
-                  uni.navigateTo({
-                    url: "/pages/tabbar/home/web-view?src=" + path
-                  });
-                }, 100);
-              }
-            });
-          }
-        }
-      });
-    },
-
-    /**
-     * 提示获取权限
-     */
-    tipsGetSettings() {
-      uni.showModal({
-        title: "提示",
-        content: "您已经关闭相机权限,去设置",
-        success: function(res) {
-          if (res.confirm) {
-            if (this.isIos) {
-              plus.runtime.openURL("app-settings:");
-            } else {
-              permision.gotoAppPermissionSetting();
-            }
-          }
-        }
-      });
-    },
-
-    /**
-     * 唤醒客户端扫码
-     * 没权限去申请权限，有权限获取扫码功能
-     */
-    async scan() {
-      // #ifdef APP-PLUS
-      this.isIos = plus.os.name == "iOS";
-      // 判断是否是Ios
-      if (this.isIos) {
-        const iosFirstCamera = uni.getStorageSync("iosFirstCamera"); //是不是第一次开启相机
-        if (iosFirstCamera !== "false") {
-          uni.setStorageSync("iosFirstCamera", "false"); //设为false就代表不是第一次开启相机
-          this.seacnCode();
-        } else {
-          if (permision.judgeIosPermission("camera")) {
-            this.seacnCode();
-          } else {
-            // 没有权限提醒是否去申请权限
-            this.tipsGetSettings();
-          }
-        }
-      } else {
-        /**
-         * TODO 安卓 权限已经授权了，调用api总是显示用户已永久拒绝申请。人傻了
-         * TODO 如果xdm有更好的办法请在 https://gitee.com/beijing_hongye_huicheng/lilishop/issues 提下谢谢
-         */
-        this.seacnCode();
+    })
+  } else {
+    getSpecial(id.value).then((res) => {
+      if (res.data.success) {
+        pageData.value = JSON.parse(res.data.result.pageData)
       }
-
-      // #endif
-
-      // #ifdef MP-WEIXIN
-      this.seacnCode();
-      // #endif
-    }
+    })
   }
-};
+}
+
+function seacnCode() {
+  uni.scanCode({
+    success: function (res) {
+      const path = encodeURIComponent(res.result)
+
+      if (res.scanType == 'WX_CODE') {
+        console.log(res)
+        uni.navigateTo({
+          url: `/${res.path}`,
+        })
+      } else {
+        config.scanAuthNavigation.forEach((src) => {
+          if (res.result.indexOf(src) != -1) {
+            uni.navigateTo({
+              url: `/${res.result.substring(src.length)}`,
+            })
+          } else {
+            setTimeout(() => {
+              uni.navigateTo({
+                url: '/pages/tabbar/home/web-view?src=' + path,
+              })
+            }, 100)
+          }
+        })
+      }
+    },
+  })
+}
+
+function tipsGetSettings() {
+  uni.showModal({
+    title: '提示',
+    content: '您已经关闭相机权限,去设置',
+    success: function (res) {
+      if (res.confirm) {
+        if (isIos.value) {
+          plus.runtime.openURL('app-settings:')
+        } else {
+          permision.gotoAppPermissionSetting()
+        }
+      }
+    },
+  })
+}
+
+async function scan() {
+  // #ifdef APP-PLUS
+  isIos.value = plus.os.name == 'iOS'
+  if (isIos.value) {
+    const iosFirstCamera = uni.getStorageSync('iosFirstCamera')
+    if (iosFirstCamera !== 'false') {
+      uni.setStorageSync('iosFirstCamera', 'false')
+      seacnCode()
+    } else {
+      if (permision.judgeIosPermission('camera')) {
+        seacnCode()
+      } else {
+        tipsGetSettings()
+      }
+    }
+  } else {
+    seacnCode()
+  }
+  // #endif
+
+  // #ifdef MP-WEIXIN
+  seacnCode()
+  // #endif
+}
 </script>
 
 <style scoped lang="scss">

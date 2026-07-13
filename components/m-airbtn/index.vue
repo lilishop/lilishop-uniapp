@@ -13,72 +13,62 @@
   </view>
 </template>
 
-<script>
-import config from "@/config/config";
-import logoImg from "@/icon.png";
-export default {
-  data() {
-    return {
-      config, // 设置工具类
-      weChat: false,  // 是否微信浏览器，该项为true时不显示 当前整个页面
-      logo: logoImg, //显示的圆形logo
-    };
-  },
-  mounted() {
-    // #ifdef H5
-    // 判断是否是微信浏览器
-    var ua = navigator.userAgent.toLowerCase();
-    var isWeixin = ua.indexOf("micromessenger") != -1;
-    if (isWeixin) {
-      this.weChat = true;
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import config from "@/config/config"
+import logoImg from "@/icon.png"
+
+const weChat = ref(false)
+const logo = logoImg
+
+onMounted(() => {
+  // #ifdef H5
+  // 判断是否是微信浏览器
+  var ua = navigator.userAgent.toLowerCase();
+  var isWeixin = ua.indexOf("micromessenger") != -1;
+  weChat.value = isWeixin ? true : false
+  // #endif
+})
+
+/**
+ * 跳转到下载app页面
+ */
+const downloadApp = () => {
+  setTimeout(function () {
+    window.location.href = config.downloadLink;
+  }, 2000);
+}
+
+/**
+ * 打开app 仅在h5生效 使用ifream唤醒app
+ */
+const openApp = () => {
+  let src: string = ''
+  if (location.href) {
+    src = location.href.split("/pages")[1];
+  }
+  let t = `${config.schemeLink}pages${src}`
+
+  try {
+    var e = navigator.userAgent.toLowerCase(),
+      n = e.match(/cpu iphone os (.*?) like mac os/);
+    if (
+      ((n = null !== n ? n[1].replace(/_/g, ".") : 0), parseInt(n) >= 9)
+    ) {
+      window.location.href = t
+
+      downloadApp()
     } else {
-      this.weChat = false;
+      var r = document.createElement("iframe");
+      (r.src = t), (r.style.display = "none"), document.body.appendChild(r)
+
+      downloadApp()
     }
-    // #endif
-  },
-  methods: {
-
-    /**
-     * 跳转到下载app页面
-     */
-    downloadApp() {
-      setTimeout(function () {
-        window.location.href = config.downloadLink;
-      }, 2000);
-    },
-
-    /**
-     * 打开app 仅在h5生效 使用ifream唤醒app
-     */
-    openApp() {
-      let src;
-      if (location.href) {
-        src = location.href.split("/pages")[1];
-      }
-      let t = `${config.schemeLink}pages${src}`;
-
-      try {
-        var e = navigator.userAgent.toLowerCase(),
-          n = e.match(/cpu iphone os (.*?) like mac os/);
-        if (
-          ((n = null !== n ? n[1].replace(/_/g, ".") : 0), parseInt(n) >= 9)
-        ) {
-          window.location.href = t;
-
-          this.downloadApp();
-        } else {
-          var r = document.createElement("iframe");
-          (r.src = t), (r.style.display = "none"), document.body.appendChild(r);
-
-          this.downloadApp();
-        }
-      } catch (e) {
-        window.location.href = t;
-        this.downloadApp();
-      }
-    },
-  },
-};
+  } catch (e) {
+    window.location.href = t
+    downloadApp()
+  }
+}
 </script>
 
 <style scoped lang="scss">

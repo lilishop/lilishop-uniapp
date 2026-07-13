@@ -74,185 +74,128 @@
   </view>
 </template>
 
-<script>
-import { getReceiptDetail } from "@/api/order.js";
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { getReceiptDetail } from '@/api/order.js'
+import { unitPrice } from '@/utils/filters.js'
 
-export default {
-  data() {
-    return {
-      order: {},
-      title_type: "",
-      showInvoicePopup: false,
-    };
-  },
-  onLoad(options) {
-    this.loadData(options.id);
-  },
-  methods: {
-    loadData(id) {
-      getReceiptDetail(id).then((res) => {
-        let order = res.data.result;
-        this.order = order;
-        this.title_type = order.companyName || order.taxpayerId ? "单位" : "个人";
-      });
-    },
-    getTitleNameValue() {
-      return this.title_type === "单位"
-        ? this.order.companyName || "-"
-        : this.order.personalName || "-";
-    },
-    viewInvoice() {
-      if (!this.order.invoiceAddress) {
+const order = ref<Record<string, any>>({})
+const title_type = ref('')
+const showInvoicePopup = ref(false)
+
+onLoad((options) => {
+  loadData(options.id)
+})
+
+function loadData(id: string) {
+  getReceiptDetail(id).then((res) => {
+    const result = res.data.result
+    order.value = result
+    title_type.value = result.companyName || result.taxpayerId ? '单位' : '个人'
+  })
+}
+
+function getTitleNameValue() {
+  return title_type.value === '单位'
+    ? order.value.companyName || '-'
+    : order.value.personalName || '-'
+}
+
+function viewInvoice() {
+  if (!order.value.invoiceAddress) {
+    uni.showToast({
+      title: '暂无发票地址',
+      duration: 2000,
+      icon: 'none',
+    })
+    return
+  }
+  if (isImageInvoice()) {
+    showInvoicePopup.value = true
+    return
+  }
+  // #ifdef APP-PLUS
+  plus.runtime.openURL(order.value.invoiceAddress)
+  // #endif
+  // #ifndef APP-PLUS
+  uni.navigateTo({
+    url: '/pages/tabbar/home/web-view?src=' + encodeURIComponent(order.value.invoiceAddress),
+  })
+  // #endif
+}
+
+function isImageInvoice() {
+  const url = (order.value.invoiceAddress || '').split('?')[0].toLowerCase()
+  return /\.(png|jpe?g|gif|bmp|webp)$/.test(url)
+}
+
+function previewImageInvoice() {
+  if (!order.value.invoiceAddress) return
+  uni.previewImage({
+    current: 0,
+    urls: [order.value.invoiceAddress],
+  })
+}
+
+function downloadImageInvoice() {
+  if (!order.value.invoiceAddress) {
+    uni.showToast({
+      title: '暂无发票可下载',
+      duration: 2000,
+      icon: 'none',
+    })
+    return
+  }
+  uni.downloadFile({
+    url: order.value.invoiceAddress,
+    success: (res) => {
+      if (res.statusCode !== 200) {
         uni.showToast({
-          title: "暂无发票地址",
+          title: '下载失败',
           duration: 2000,
-          icon: "none",
-        });
-        return;
+          icon: 'none',
+        })
+        return
       }
-      if (this.isImageInvoice()) {
-        this.showInvoicePopup = true;
-        return;
-      }
-      // #ifdef APP-PLUS
-      plus.runtime.openURL(this.order.invoiceAddress);
+      const tempFilePath = res.tempFilePath
+      // #ifdef H5
+      const link = document.createElement('a')
+      link.href = tempFilePath || order.value.invoiceAddress
+      link.download = 'invoice'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
       // #endif
-      // #ifndef APP-PLUS
-      uni.navigateTo({
-        url:
-          "/pages/tabbar/home/web-view?src=" +
-          encodeURIComponent(this.order.invoiceAddress),
-      });
-      // #endif
-    },
-    isImageInvoice() {
-      const url = (this.order.invoiceAddress || "").split("?")[0].toLowerCase();
-      return /\.(png|jpe?g|gif|bmp|webp)$/.test(url);
-    },
-    previewImageInvoice() {
-      if (!this.order.invoiceAddress) {
-        return;
-      }
-      uni.previewImage({
-        current: 0,
-        urls: [this.order.invoiceAddress],
-      });
-    },
-    downloadImageInvoice() {
-      if (!this.order.invoiceAddress) {
-        uni.showToast({
-          title: "暂无发票可下载",
-          duration: 2000,
-          icon: "none",
-        });
-        return;
-      }
-      uni.downloadFile({
-        url: this.order.invoiceAddress,
-        success: (res) => {
-          if (res.statusCode !== 200) {
-            uni.showToast({
-              title: "下载失败",
-              duration: 2000,
-              icon: "none",
-            });
-            return;
-          }
-          const tempFilePath = res.tempFilePath;
-          // #ifdef H5
-          const link = document.createElement("a");
-          link.href = tempFilePath || this.order.invoiceAddress;
-          link.download = "invoice";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          // #endif
-          // #ifndef H5
-          uni.saveImageToPhotosAlbum({
-            filePath: tempFilePath,
-            success: () => {
-              uni.showToast({
-                title: "发票已保存到相册",
-                duration: 2000,
-                icon: "none",
-              });
-            },
-            fail: () => {
-              uni.showToast({
-                title: "保存失败",
-                duration: 2000,
-                icon: "none",
-              });
-            },
-          });
-          // #endif
+      // #ifndef H5
+      uni.saveImageToPhotosAlbum({
+        filePath: tempFilePath,
+        success: () => {
+          uni.showToast({
+            title: '发票已保存到相册',
+            duration: 2000,
+            icon: 'none',
+          })
         },
         fail: () => {
           uni.showToast({
-            title: "下载失败",
+            title: '保存失败',
             duration: 2000,
-            icon: "none",
-          });
+            icon: 'none',
+          })
         },
-      });
+      })
+      // #endif
     },
-    /**
-     * 点击图片放大或保存
-     */
-    preview() {
-      //预览发票
-      if (this.order.elec_file_list.length) {
-        uni.previewImage({
-          current: 0,
-          urls: this.order.elec_file_list,
-          longPressActions: {
-            itemList: ["发送给朋友", "保存图片", "收藏"],
-            success: function (data) {},
-            fail: function (err) {},
-          },
-        });
-      } else {
-        uni.showToast({
-          title: "暂无发票可预览",
-          duration: 2000,
-          icon: "none",
-        });
-      }
+    fail: () => {
+      uni.showToast({
+        title: '下载失败',
+        duration: 2000,
+        icon: 'none',
+      })
     },
-    download() {
-      //下载发票
-      let _this = this;
-      if (this.order.elec_file_list.length) {
-        this.order.elec_file_list.forEach((item) => {
-          uni.downloadFile({
-            url: item,
-            success: (res) => {
-              if (res.statusCode === 200) {
-                let tempFilePath = res.tempFilePath;
-                uni.saveFile({
-                  tempFilePath: tempFilePath,
-                  success: function (res) {
-                    uni.showToast({
-                      title: "发票已下载到" + res.savedFilePath,
-                      duration: 2000,
-                      icon: "none",
-                    });
-                  },
-                });
-              }
-            },
-          });
-        });
-      } else {
-        uni.showToast({
-          title: "暂无发票可下载",
-          duration: 2000,
-          icon: "none",
-        });
-      }
-    },
-  },
-};
+  })
+}
 </script>
 
 <style lang="scss" scoped>

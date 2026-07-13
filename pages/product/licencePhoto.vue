@@ -9,41 +9,35 @@
   </div>
 </template>
 
-<script>
-import { getLicencePhoto } from "@/api/store.js";
-export default {
-  data() {
-    return {
-      storeData: {},
-    };
-  },
-  onLoad(options) {
-    this.getStoreLicencePhoto(options.id);
-  },
-  methods: {
-    async getStoreLicencePhoto(id) {
-      let res = await getLicencePhoto(id);
-      if (res.data.success) {
-        this.storeData = res.data.result;
-      }
-    },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { getLicencePhoto } from '@/api/store.js'
 
-    /**
-     * 点击图片放大或保存
-     */
-    preview() {
-      uni.previewImage({
-        current: 0,
-        urls: [this.storeData.licencePhoto],
-        longPressActions: {
-          itemList: ["保存图片"],
-          success: function (data) {},
-          fail: function (err) {},
-        },
-      });
+const storeData = ref<any>({})
+
+async function getStoreLicencePhoto(id: string) {
+  const res = await getLicencePhoto(id)
+  if (res.data.success) {
+    storeData.value = res.data.result
+  }
+}
+
+function preview() {
+  uni.previewImage({
+    current: 0,
+    urls: [storeData.value.licencePhoto],
+    longPressActions: {
+      itemList: ['保存图片'],
+      success: function () {},
+      fail: function () {},
     },
-  },
-};
+  })
+}
+
+onLoad((options: any) => {
+  getStoreLicencePhoto(options.id)
+})
 </script>
 
 <style lang="scss" scoped>

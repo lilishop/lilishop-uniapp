@@ -1,0 +1,40 @@
+/**
+ * uView 2 → uview-plus 3 表单布局兼容
+ * 修复 label 逐字换行、左右错位等问题
+ */
+.u-form-item__body {
+  align-items: center;
+}
+
+.u-form-item__body__left {
+  flex-shrink: 0;
+}
+
+.u-form-item__body__left__content__label {
+  display: block !important;
+  white-space: nowrap;
+  word-break: keep-all;
+  line-height: 1.5;
+}
+
+.u-form-item__body__right {
+  flex: 1;
+  min-width: 0;
+}
+
+.u-form-item__body__right__content,
+.u-form-item__body__right__content__slot {
+  flex: 1;
+  min-width: 0;
+}
+
+.u-form-item__body__right__content__slot {
+  display: flex;
+  align-items: center;
+}
+
+.u-form-item__body__right__content__slot > .u-input,
+.u-form-item__body__right__content__slot > .up-input {
+  flex: 1;
+  min-width: 0;
+}

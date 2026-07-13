@@ -15,20 +15,10 @@
   </div>
 </template>
 
-<script>
-import {modelNavigateTo} from './tpl'
-export default {
-  title: "左二右一",
-  props: ["res"],
-   data () {
-    return {
-      modelNavigateTo,
-    }
-  },
-  mounted() {
-   
-  }
-};
+<script setup lang="ts">
+import { modelNavigateTo } from "./tpl";
+
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

@@ -106,119 +106,118 @@
   </view>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      countdownData: {},
-      countdownTimer: null,
-    };
+<script setup lang="ts">
+import { computed, onUnmounted, ref, watch } from 'vue'
+import { goodsFormatPrice } from '@/utils/filters.js'
+
+const props = defineProps<{
+  res?: any
+  detail?: any
+}>()
+
+const countdownData = ref<Record<number, any>>({})
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+const promotionList = computed(() => {
+  if (!props.res || typeof props.res !== 'object') return []
+  return Object.keys(props.res).map((key) => ({
+    ...(props.res[key] || {}),
+    __key: key.split('-')[0],
+  }))
+})
+
+watch(
+  promotionList,
+  (list) => {
+    refreshCountdown(list)
+    startCountdownTimer()
   },
-  props: {
-    res: {
-      type: null,
-      default: {},
-    },
-    detail: {
-      type: null,
-      default: {},
-    },
-  },
-  computed: {
-    promotionList() {
-      if (!this.res || typeof this.res !== "object") return [];
-      return Object.keys(this.res).map((key) => ({
-        ...(this.res[key] || {}),
-        __key: key.split("-")[0],
-      }));
-    },
-  },
-  watch: {
-    promotionList: {
-      handler(list) {
-        this.refreshCountdown(list);
-        this.startCountdownTimer();
-      },
-      immediate: true,
-    },
-  },
-  beforeUnmount() {
-    this.clearCountdownTimer();
-  },
-  methods: {
-    clearCountdownTimer() {
-      if (this.countdownTimer) {
-        clearInterval(this.countdownTimer);
-        this.countdownTimer = null;
-      }
-    },
-    startCountdownTimer() {
-      this.clearCountdownTimer();
-      this.countdownTimer = setInterval(() => {
-        this.refreshCountdown(this.promotionList);
-      }, 1000);
-    },
-    refreshCountdown(list = this.promotionList) {
-      const next = {};
-      list.forEach((promotion, index) => {
-        next[index] = this.msToTimeData(this.getCountDownMs(promotion));
-      });
-      this.countdownData = next;
-    },
-    padTime(val) {
-      return String(val ?? 0).padStart(2, "0");
-    },
-    countdownDisplayHours(index) {
-      const data = this.countdownData[index];
-      if (!data) return 0;
-      return data.days * 24 + data.hours;
-    },
-    msToTimeData(ms) {
-      const DAY = 86400000;
-      const HOUR = 3600000;
-      const MINUTE = 60000;
-      const SECOND = 1000;
-      const time = Math.max(Number(ms) || 0, 0);
-      return {
-        days: Math.floor(time / DAY),
-        hours: Math.floor((time % DAY) / HOUR),
-        minutes: Math.floor((time % HOUR) / MINUTE),
-        seconds: Math.floor((time % MINUTE) / SECOND),
-      };
-    },
-    parsePromotionTime(val) {
-      if (val == null || val === "") return 0;
-      if (typeof val === "number" && !Number.isNaN(val)) {
-        return val < 1e12 ? val * 1000 : val;
-      }
-      const text = String(val).trim();
-      if (/^\d+$/.test(text)) {
-        const num = Number(text);
-        return num < 1e12 ? num * 1000 : num;
-      }
-      const parsed = Date.parse(text.replace(/-/g, "/"));
-      return Number.isNaN(parsed) ? 0 : parsed;
-    },
-    getCountDownMs(promotion) {
-      if (!promotion || !promotion.endTime) return 0;
-      const now = Date.now();
-      const startMs = this.parsePromotionTime(promotion.startTime || promotion.start_time);
-      const endMs = this.parsePromotionTime(promotion.endTime);
-      if (!endMs) return 0;
-      const target = startMs && now < startMs ? startMs : endMs;
-      const remain = target - now;
-      return remain > 0 ? remain : 0;
-    },
-    getIsTimer(val) {
-      const now = Date.now();
-      const startMs = this.parsePromotionTime(val.startTime || val.start_time);
-      if (startMs && now < startMs) {
-        return "距离活动开始";
-      }
-      return "距离活动结束";
-    },
-  },
-};
+  { immediate: true }
+)
+
+onUnmounted(() => {
+  clearCountdownTimer()
+})
+
+function clearCountdownTimer() {
+  if (countdownTimer) {
+    clearInterval(countdownTimer)
+    countdownTimer = null
+  }
+}
+
+function startCountdownTimer() {
+  clearCountdownTimer()
+  countdownTimer = setInterval(() => {
+    refreshCountdown(promotionList.value)
+  }, 1000)
+}
+
+function refreshCountdown(list = promotionList.value) {
+  const next: Record<number, any> = {}
+  list.forEach((promotion, index) => {
+    next[index] = msToTimeData(getCountDownMs(promotion))
+  })
+  countdownData.value = next
+}
+
+function padTime(val: number | undefined) {
+  return String(val ?? 0).padStart(2, '0')
+}
+
+function countdownDisplayHours(index: number) {
+  const data = countdownData.value[index]
+  if (!data) return 0
+  return data.days * 24 + data.hours
+}
+
+function msToTimeData(ms: number) {
+  const DAY = 86400000
+  const HOUR = 3600000
+  const MINUTE = 60000
+  const SECOND = 1000
+  const time = Math.max(Number(ms) || 0, 0)
+  return {
+    days: Math.floor(time / DAY),
+    hours: Math.floor((time % DAY) / HOUR),
+    minutes: Math.floor((time % HOUR) / MINUTE),
+    seconds: Math.floor((time % MINUTE) / SECOND),
+  }
+}
+
+function parsePromotionTime(val: any) {
+  if (val == null || val === '') return 0
+  if (typeof val === 'number' && !Number.isNaN(val)) {
+    return val < 1e12 ? val * 1000 : val
+  }
+  const text = String(val).trim()
+  if (/^\d+$/.test(text)) {
+    const num = Number(text)
+    return num < 1e12 ? num * 1000 : num
+  }
+  const parsed = Date.parse(text.replace(/-/g, '/'))
+  return Number.isNaN(parsed) ? 0 : parsed
+}
+
+function getCountDownMs(promotion: any) {
+  if (!promotion || !promotion.endTime) return 0
+  const now = Date.now()
+  const startMs = parsePromotionTime(promotion.startTime || promotion.start_time)
+  const endMs = parsePromotionTime(promotion.endTime)
+  if (!endMs) return 0
+  const target = startMs && now < startMs ? startMs : endMs
+  const remain = target - now
+  return remain > 0 ? remain : 0
+}
+
+function getIsTimer(val: any) {
+  const now = Date.now()
+  const startMs = parsePromotionTime(val.startTime || val.start_time)
+  if (startMs && now < startMs) {
+    return '距离活动开始'
+  }
+  return '距离活动结束'
+}
 </script>
 
 <style scoped lang="scss">

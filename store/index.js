@@ -48,4 +48,8 @@ const store = createStore({
   actions: {}
 })
 
+export function useStore() {
+  return store
+}
+
 export default store

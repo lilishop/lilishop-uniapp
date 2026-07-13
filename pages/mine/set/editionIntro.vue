@@ -16,7 +16,7 @@
 
     <u-cell-group class="cell-group" :border="false">
       <!-- #ifdef APP-PLUS -->
-      <u-cell v-if="IosWhether" is-link title="去评分" @click="checkStar"></u-cell>
+      <u-cell v-if="showIosRating" is-link title="去评分" @click="openAppStoreRating"></u-cell>
       <u-cell is-link title="功能介绍" @click="navigateTo('/pages/mine/set/versionFunctionList')"></u-cell>
       <u-cell is-link title="检查更新" @click="checkUpdate"></u-cell>
       <!-- #endif -->
@@ -40,93 +40,72 @@
   </view>
 </template>
 
-<script>
-import APPUpdate from "@/plugins/APPUpdate";
-import config from "@/config/config";
-import { getAppVersion } from "@/api/message.js";
-export default {
-  data() {
-    return {
-      config,
-      IosWhether: false,
-      editionHistory: [],
-      versionData: {},
-      localVersion: "",
-      params: {
-        pageNumber: 1,
-        pageSize: 5,
-      },
-    };
-  },
-  onLoad() {
-    // #ifdef APP-PLUS
-    const platform = uni.getSystemInfoSync().platform;
-    if (platform === "android") {
-      this.params.type = 0;
-    } else {
-      this.IosWhether = true;
-      this.params.type = 1;
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import APPUpdate from '@/plugins/APPUpdate'
+import config from '@/config/config'
+import { getAppVersion } from '@/api/message.js'
+
+const showIosRating = ref(false)
+const versionData = ref<Record<string, any>>({})
+const localVersion = ref<Record<string, any>>({})
+const params = ref<Record<string, any>>({ pageNumber: 1, pageSize: 5 })
+
+onLoad(() => {
+  // #ifdef APP-PLUS
+  const platform = uni.getSystemInfoSync().platform
+  if (platform === 'android') {
+    params.value.type = 0
+  } else {
+    showIosRating.value = true
+    params.value.type = 1
+  }
+  fetchRemoteVersion(platform)
+
+  plus.runtime.getProperty(plus.runtime.appid, (inf) => {
+    localVersion.value = {
+      versionCode: inf.version.replace(/\./g, ''),
+      version: inf.version,
     }
-    this.getVersion(platform);
+  })
+  // #endif
 
-    plus.runtime.getProperty(plus.runtime.appid, (inf) => {
-      this.localVersion = {
-        versionCode: inf.version.replace(/\./g, ""),
-        version: inf.version,
-      };
-    });
-    // #endif
+  // #ifdef MP-WEIXIN
+  const accountInfo = wx.getAccountInfoSync()
+  localVersion.value = {
+    versionCode: accountInfo.miniProgram.version.replace(/\./g, ''),
+    version: accountInfo.miniProgram.version,
+    envVersion: accountInfo.miniProgram.envVersion,
+  }
+  // #endif
+})
 
-    // #ifdef MP-WEIXIN
-    const accountInfo = wx.getAccountInfoSync();
-    this.version_number = accountInfo.miniProgram.version;
-    this.localVersion = {
-      versionCode: accountInfo.miniProgram.version.replace(/\./g, ""),
-      version: accountInfo.miniProgram.version,
-      envVersion: accountInfo.miniProgram.envVersion,
-    };
-    // #endif
-  },
+async function fetchRemoteVersion(platform: string) {
+  const type = platform === 'android' ? 'ANDROID' : 'IOS'
+  const res = await getAppVersion(type)
+  if (res.data.success) {
+    versionData.value = res.data.result
+  }
+}
 
-  methods: {
-    async getVersion(platform) {
-      let type;
-      platform == "android" ? (type = "ANDROID") : (type = "IOS");
+function navigateTo(url: string) {
+  uni.navigateTo({ url })
+}
 
-      let res = await getAppVersion(type);
-      if (res.data.success) {
-        this.versionData = res.data.result;
-      }
-    },
+function openAppStoreRating() {
+  plus.runtime.launchApplication({
+    action: `itms-apps://itunes.apple.com/app/${config.iosAppId}?action=write-review`,
+  })
+}
 
-    navigateTo(url) {
-      uni.navigateTo({
-        url,
-      });
-    },
-
-    checkStar() {
-      plus.runtime.launchApplication({
-        action: `itms-apps://itunes.apple.com/app/${config.iosAppId}?action=write-review`,
-      });
-    },
-
-    checkUpdate() {
-      if (
-        this.versionData.version.replace(/\./g, "") <
-        this.localVersion.versionCode
-      ) {
-        APPUpdate();
-      } else {
-        uni.showToast({
-          title: "当前版本已是最新版",
-          duration: 2000,
-          icon: "none",
-        });
-      }
-    },
-  },
-};
+function checkUpdate() {
+  if (versionData.value.version?.replace(/\./g, '') < localVersion.value.versionCode) {
+    APPUpdate()
+  } else {
+    uni.showToast({ title: '当前版本已是最新版', duration: 2000, icon: 'none' })
+  }
+}
 </script>
 
 <style lang="scss" scoped>

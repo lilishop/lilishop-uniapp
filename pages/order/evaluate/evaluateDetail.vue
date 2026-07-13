@@ -31,7 +31,7 @@
           <view class="img">
             <!-- 循环出商家回复评价的图片 -->
             <u-image width="140rpx" height="140rpx" v-if="comment.replyImage" v-for="(replyImg, replyIndex) in splitImg(comment.replyImage)" :src="replyImg" :key="replyIndex"
-              @click="preview(splitImg( comment.replyImage), index)">
+              @click="preview(splitImg(comment.replyImage), replyIndex)">
             </u-image>
           </view>
         </view>
@@ -40,56 +40,46 @@
   </view>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import configs from '@/config/config'
-export default {
-  data() {
-    return {
-      configs,
-      userImage:configs.defaultUserPhoto,
 
-      comment: {}, //评论信息
-      gradeList: {
-        //评价grade
-        GOOD: "好评",
-        MODERATE: "中评",
-        WORSE: "差评",
-        haveImage: "有图",
-      },
-    };
-  },
-  onLoad(options) {
-    this.comment = JSON.parse(decodeURIComponent(options.comment));
-  },
-  methods: {
-    /**
-     * 切割图像
-     */
-    splitImg(val) {
-      if (val && val.split(",")) {
-        return val.split(",");
-      } else if (val) {
-        return val;
-      } else {
-        return false;
-      }
+const userImage = configs.defaultUserPhoto
+
+const comment = ref<Record<string, any>>({})
+const gradeList: Record<string, string> = {
+  GOOD: '好评',
+  MODERATE: '中评',
+  WORSE: '差评',
+  haveImage: '有图',
+}
+
+onLoad((options) => {
+  comment.value = JSON.parse(decodeURIComponent(options.comment))
+})
+
+function splitImg(val: string) {
+  if (val && val.split(',')) {
+    return val.split(',')
+  } else if (val) {
+    return val
+  }
+  return false
+}
+
+function preview(urls: string[] | false, index: number) {
+  if (!urls) return
+  uni.previewImage({
+    current: index,
+    urls: Array.isArray(urls) ? urls : [urls],
+    longPressActions: {
+      itemList: ['保存图片'],
+      success: () => {},
+      fail: () => {},
     },
-    /**
-     * 点击图片放大或保存
-     */
-    preview(urls, index) {
-      uni.previewImage({
-        current: index,
-        urls: urls,
-        longPressActions: {
-          itemList: ["保存图片"],
-          success: function (data) {},
-          fail: function (err) {},
-        },
-      });
-    },
-  },
-};
+  })
+}
 </script>
 
 <style lang="scss" scoped>

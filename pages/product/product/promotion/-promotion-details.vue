@@ -1,140 +1,134 @@
 <template>
   <view class="wrapper" v-if="res">
-    <view v-for="(prom, index) in Object.keys(res)" :key="index">
-      <view>
-        <view v-if="prom.split('-')[0] == 'FULL_DISCOUNT'">
-          <div class="res_prom_item" v-if="res[prom].fullMinus">
-            <u-tag text="满减" type="error"></u-tag>
-            <!-- TODO 后续将优化为可点击的商品以及优惠券显示明细 -->
-            <span class="pro-text"
-              >满{{ res[prom].fullMoney }}元 立减现金
-              <span class="price">{{ res[prom].fullMinus }}元</span>
-              <span v-if="res[prom].couponFlag"> 赠送<span>优惠券</span></span>
-              <span v-if="res[prom].pointFlag"> 赠送{{ res[prom].point }}积分</span>
-              <span v-if="res[prom].giftFlag"> 赠送商品</span>
-              <span v-if="res[prom].freeFreightFlag">赠送包邮服务</span>
-            </span>
-          </div>
-          <div class="res_prom_item" v-if="res[prom].fullRate && res[prom].fullRateFlag">
-            <u-tag text="打折" type="error"></u-tag>
-            <span class="pro-text"
-              >满{{ res[prom].fullMoney }}元，立享<span class="price"
-                >{{ res[prom].fullRate }}折</span
-              >优惠</span
-            >
-          </div>
+    <view v-for="prom in promotionKeys" :key="prom">
+      <view v-if="getPromType(prom) == 'FULL_DISCOUNT'">
+        <view class="res_prom_item" v-if="res[prom].fullMinus">
+          <view class="deg_tag">满减</view>
+          <text class="pro-text">
+            满{{ res[prom].fullMoney }}元 立减现金
+            <text class="price">{{ res[prom].fullMinus }}元</text>
+            <text v-if="res[prom].couponFlag"> 赠送优惠券</text>
+            <text v-if="res[prom].pointFlag"> 赠送{{ res[prom].point }}积分</text>
+            <text v-if="res[prom].giftFlag"> 赠送商品</text>
+            <text v-if="res[prom].freeFreightFlag"> 赠送包邮服务</text>
+          </text>
         </view>
-
-        <view v-if="prom.split('-')[0] == 'PINTUAN'">
-          <div class="res_prom_item" v-if="res[prom].requiredNum">
-            <u-tag text="拼团" type="error"></u-tag>
-            <span class="pro-text"
-              >{{ res[prom].requiredNum }}人拼团 限购<span class="price"
-                >{{ res[prom].limitNum }}件</span
-              ></span
-            >
-          </div>
+        <view class="res_prom_item" v-if="res[prom].fullRate && res[prom].fullRateFlag">
+          <view class="deg_tag">打折</view>
+          <text class="pro-text">
+            满{{ res[prom].fullMoney }}元，立享
+            <text class="price">{{ res[prom].fullRate }}折</text>
+            优惠
+          </text>
         </view>
+      </view>
 
-        <view v-if="prom.split('-')[0] == 'SECKILL'">
-          <div class="res_prom_item">
-            <u-tag text="限时抢购" type="error"></u-tag>
-            <span class="pro-text">限时抢购</span>
-          </div>
+      <view v-if="getPromType(prom) == 'PINTUAN'">
+        <view class="res_prom_item" v-if="res[prom].requiredNum">
+          <view class="deg_tag">拼团</view>
+          <text class="pro-text">
+            {{ res[prom].requiredNum }}人拼团 限购
+            <text class="price">{{ res[prom].limitNum }}件</text>
+          </text>
         </view>
+      </view>
 
-        <view v-if="prom.split('-')[0] == 'POINTS_GOODS'">
-          <div class="res_prom_item">
-            <u-tag text="积分活动" type="error"></u-tag>
-            <span class="pro-text">当前商品参与积分活动。<span @click="handClickToJoinPromotion(prom)" class="href">点击此处参与活动</span></span>
-          </div>
+      <view v-if="getPromType(prom) == 'SECKILL'">
+        <view class="res_prom_item">
+          <view class="deg_tag">限时抢购</view>
+          <text class="pro-text">限时抢购</text>
         </view>
+      </view>
 
-         <view v-if="prom.split('-')[0] == 'KANJIA'">
-          <div class="res_prom_item">
-            <u-tag text="砍价活动" type="error"></u-tag>
-            <span class="pro-text">当前商品参与砍价活动。<span @click="handClickToJoinPromotion(prom)" class="href">点击此处参与活动</span></span>
-          </div>
+      <view v-if="getPromType(prom) == 'POINTS_GOODS'">
+        <view class="res_prom_item">
+          <view class="deg_tag">积分活动</view>
+          <text class="pro-text">
+            当前商品参与积分活动。
+            <text @tap="handClickToJoinPromotion(prom)" class="href">点击此处参与活动</text>
+          </text>
+        </view>
+      </view>
+
+      <view v-if="getPromType(prom) == 'KANJIA'">
+        <view class="res_prom_item">
+          <view class="deg_tag">砍价活动</view>
+          <text class="pro-text">
+            当前商品参与砍价活动。
+            <text @tap="handClickToJoinPromotion(prom)" class="href">点击此处参与活动</text>
+          </text>
         </view>
       </view>
     </view>
-    <view v-if="!res">暂无促销活动</view>
+    <view v-if="!promotionKeys.length">暂无促销活动</view>
   </view>
 </template>
-<script>
-export default {
-  data() {
-    return {};
-  },
-  watch: {
-    res: {
-      handler() {
-        if (this.res && this.res.length != 0) {
-          Object.keys(this.res).forEach((item) => {
-            if (item != "COUPON") {
-              let key = item.split("-")[0];
-              this.res[item]._key = key;
-            }
-          });
-        }
-      },
 
-      immediate: true,
-    },
-  },
+<script setup lang="ts">
+import { computed } from 'vue'
 
-  props: {
-    // 父组件传递回来的数据
-    res: {
-      type: null,
-      default: "",
-    },
-  },
-  mounted() {},
-  methods: {
-    // 跳转到参与商品活动的详情列表中
-    handClickToJoinPromotion(val){
-    
-      const promotion = {
-        "POINTS_GOODS": `/pages/promotion/point/detail?id=${this.res[val].id}`,
-        "KANJIA": `/pages/promotion/bargain/detail?id=${this.res[val].id}`,
-      }
+const props = defineProps<{
+  res?: any
+}>()
 
-      uni.navigateTo({
-        url:promotion[val.split('-')[0]]
-      })
+const promotionKeys = computed(() => {
+  if (!props.res || typeof props.res !== 'object') return []
+  return Object.keys(props.res).filter((key) => getPromType(key) !== 'COUPON')
+})
 
-    }
-  },
-};
+function getPromType(key: string) {
+  return key.split('-')[0]
+}
+
+function handClickToJoinPromotion(val: string) {
+  const type = getPromType(val)
+  const promotionMap: Record<string, string> = {
+    POINTS_GOODS: `/pages/promotion/point/detail?id=${props.res[val].id}`,
+    KANJIA: `/pages/promotion/bargain/detail?id=${props.res[val].id}`,
+  }
+  const url = promotionMap[type]
+  if (url) {
+    uni.navigateTo({ url })
+  }
+}
 </script>
+
 <style lang="scss" scoped>
+.deg_tag {
+  flex-shrink: 0;
+  color: $price-color;
+  padding: 4rpx 12rpx;
+  border: 2rpx solid $price-color;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
 .pro-text {
+  flex: 1;
+  min-width: 0;
   font-size: 26rpx;
-  font-family: PingFang SC, PingFang SC-Regular;
-  font-weight: 400;
-  text-align: left;
+  line-height: 1.6;
   color: #333333;
-  margin-left: 20rpx;
-  word-spacing: 15rpx;
 }
 
 .wrapper {
   display: block;
 }
 
-::v-deep .u-mode-light-error {
-  border: none;
-}
-
 .res_prom_item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
   margin: 20rpx 0;
 }
 
-.price_image {
-  display: block;
+.price {
+  color: $price-color;
 }
-.href{
+
+.href {
   color: $main-color;
 }
 </style>

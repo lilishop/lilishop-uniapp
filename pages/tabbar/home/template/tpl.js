@@ -118,9 +118,17 @@ export function modelNavigateTo(item) {
 					});
 					break;
 				case "小程序直播":
+					// #ifndef MP-WEIXIN
 					uni.navigateTo({
 						url: `/pages/promotion/lives`,
 					});
+					// #endif
+					// #ifdef MP-WEIXIN
+					uni.showToast({
+						title: "小程序暂不支持直播",
+						icon: "none",
+					});
+					// #endif
 					break;
 				case "砍价":
 					uni.navigateTo({

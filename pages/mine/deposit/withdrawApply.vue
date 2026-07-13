@@ -25,182 +25,149 @@
   </view>
 </template>
 
-<script>
-import { getWithdrawApplyPage, getWithdrawApplyWechatTransferInfo } from "@/api/members";
-export default {
-  data() {
-    return {
-      loaded: false,
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-        order: "desc",
-      },
-      records: [],
-    };
-  },
-  onShow() {
-    this.params.pageNumber = 1;
-    this.records = [];
-    this.loaded = false;
-    this.getData();
-  },
-  methods: {
-    withdrawStatusText(applyStatus) {
-      switch (applyStatus) {
-        case "APPLY":
-          return "申请中";
-        case "VIA_AUDITING":
-          return "审核通过";
-        case "D_VIA_AUDITING":
-          return "分销提现审核通过";
-        case "FAIL_AUDITING":
-          return "审核未通过";
-        case "D_FAIL_AUDITING":
-          return "分销提现审核未通过";
-        case "WAIT_USER_CONFIRM":
-          return "等待用户确认";
-        case "SUCCESS":
-          return "提现成功";
-        case "ERROR":
-          return "提现失败";
-        default:
-          return applyStatus || "";
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { getWithdrawApplyPage, getWithdrawApplyWechatTransferInfo } from '@/api/members'
+import { unitPrice } from '@/utils/filters.js'
+
+const loaded = ref(false)
+const params = ref({
+  pageNumber: 1,
+  pageSize: 10,
+  order: 'desc',
+})
+const records = ref<any[]>([])
+
+onShow(() => {
+  params.value.pageNumber = 1
+  records.value = []
+  loaded.value = false
+  getData()
+})
+
+function withdrawStatusText(applyStatus: string) {
+  switch (applyStatus) {
+    case 'APPLY':
+      return '申请中'
+    case 'VIA_AUDITING':
+      return '审核通过'
+    case 'D_VIA_AUDITING':
+      return '分销提现审核通过'
+    case 'FAIL_AUDITING':
+      return '审核未通过'
+    case 'D_FAIL_AUDITING':
+      return '分销提现审核未通过'
+    case 'WAIT_USER_CONFIRM':
+      return '等待用户确认'
+    case 'SUCCESS':
+      return '提现成功'
+    case 'ERROR':
+      return '提现失败'
+    default:
+      return applyStatus || ''
+  }
+}
+
+function getData() {
+  getWithdrawApplyPage(params.value).then((res) => {
+    loaded.value = true
+    if (res.data.success && res.data.result.records.length != 0) {
+      records.value.push(...res.data.result.records)
+    }
+  })
+}
+
+function loadMore() {
+  params.value.pageNumber++
+  getData()
+}
+
+function confirmWechatReceive(item: any) {
+  const id = item && item.id
+  if (!id) {
+    uni.showToast({ title: '缺少提现记录ID', duration: 2000, icon: 'none' })
+    return
+  }
+
+  uni.showLoading({ title: '加载中' })
+  getWithdrawApplyWechatTransferInfo(id)
+    .then((res) => {
+      if (!res.data || !res.data.success) return
+
+      const info = res.data.result || {}
+      const mchId = info.mchId
+      const wechatPackage = info.wechatPackage
+      let appId = info.appId
+
+      if (typeof wx !== 'undefined' && wx.getAccountInfoSync) {
+        try {
+          const accountInfo = wx.getAccountInfoSync()
+          const mpAppId = accountInfo && accountInfo.miniProgram && accountInfo.miniProgram.appId
+          if (mpAppId) appId = mpAppId
+        } catch (e) {}
       }
-    },
-    getData() {
-      getWithdrawApplyPage(this.params).then((res) => {
-        this.loaded = true;
-        if (res.data.success) {
-          if (res.data.result.records.length != 0) {
-            this.records.push(...res.data.result.records);
-          }
+
+      if (!mchId || !appId || !wechatPackage) {
+        uni.showToast({ title: '微信确认参数缺失', duration: 2000, icon: 'none' })
+        return
+      }
+
+      const openResultToast = (errMsg?: string) => {
+        if (errMsg === 'requestMerchantTransfer:ok') {
+          uni.showToast({ title: '已唤起确认页面', duration: 2000, icon: 'none' })
+          return
         }
-      });
-    },
-    loadMore() {
-      this.params.pageNumber++;
-      this.getData();
-    },
-    confirmWechatReceive(item) {
-      const id = item && item.id;
-      if (!id) {
+        if (errMsg === 'requestMerchantTransfer:cancel') {
+          uni.showToast({ title: '已取消', duration: 2000, icon: 'none' })
+          return
+        }
         uni.showToast({
-          title: "缺少提现记录ID",
-          duration: 2000,
-          icon: "none",
-        });
-        return;
+          title: errMsg ? `唤起失败：${errMsg}` : '唤起失败',
+          duration: 2500,
+          icon: 'none',
+        })
       }
 
-      uni.showLoading({
-        title: "加载中",
-      });
-      getWithdrawApplyWechatTransferInfo(id)
-        .then((res) => {
-          if (!res.data || !res.data.success) return;
-
-          const info = res.data.result || {};
-          const mchId = info.mchId;
-          const wechatPackage = info.wechatPackage;
-          let appId = info.appId;
-
-          if (typeof wx !== "undefined" && wx.getAccountInfoSync) {
-            try {
-              const accountInfo = wx.getAccountInfoSync();
-              const mpAppId = accountInfo && accountInfo.miniProgram && accountInfo.miniProgram.appId;
-              if (mpAppId) appId = mpAppId;
-            } catch (e) {}
-          }
-
-          if (!mchId || !appId || !wechatPackage) {
+      if (typeof wx !== 'undefined' && wx.getSystemInfoSync) {
+        try {
+          const sys = wx.getSystemInfoSync()
+          if (sys && sys.platform === 'devtools') {
             uni.showToast({
-              title: "微信确认参数缺失",
-              duration: 2000,
-              icon: "none",
-            });
-            return;
-          }
-
-          const openResultToast = (errMsg) => {
-            if (errMsg === "requestMerchantTransfer:ok") {
-              uni.showToast({
-                title: "已唤起确认页面",
-                duration: 2000,
-                icon: "none",
-              });
-              return;
-            }
-            if (errMsg === "requestMerchantTransfer:cancel") {
-              uni.showToast({
-                title: "已取消",
-                duration: 2000,
-                icon: "none",
-              });
-              return;
-            }
-            uni.showToast({
-              title: errMsg ? `唤起失败：${errMsg}` : "唤起失败",
+              title: '开发者工具可能不支持，请真机测试',
               duration: 2500,
-              icon: "none",
-            });
-          };
-
-          if (typeof wx !== "undefined" && wx.getSystemInfoSync) {
-            try {
-              const sys = wx.getSystemInfoSync();
-              if (sys && sys.platform === "devtools") {
-                uni.showToast({
-                  title: "开发者工具可能不支持，请真机测试",
-                  duration: 2500,
-                  icon: "none",
-                });
-              }
-            } catch (e) {}
+              icon: 'none',
+            })
           }
+        } catch (e) {}
+      }
 
-          if (typeof wx !== "undefined" && wx.canIUse && wx.canIUse("requestMerchantTransfer")) {
-            wx.requestMerchantTransfer({
-              mchId,
-              appId,
-              package: wechatPackage,
-              success: (r) => {
-                openResultToast(r && (r.errMsg || r.err_msg));
-              },
-              fail: (r) => {
-                openResultToast(r && (r.errMsg || r.err_msg));
-              },
-            });
-            return;
-          }
-
-          if (typeof WeixinJSBridge !== "undefined" && WeixinJSBridge.invoke) {
-            WeixinJSBridge.invoke(
-              "requestMerchantTransfer",
-              {
-                mchId,
-                appId,
-                package: wechatPackage,
-              },
-              (r) => {
-                openResultToast(r && (r.errMsg || r.err_msg));
-              }
-            );
-            return;
-          }
-
-          uni.showToast({
-            title: "请在微信内打开确认收款",
-            duration: 2000,
-            icon: "none",
-          });
+      if (typeof wx !== 'undefined' && wx.canIUse && wx.canIUse('requestMerchantTransfer')) {
+        wx.requestMerchantTransfer({
+          mchId,
+          appId,
+          package: wechatPackage,
+          success: (r: any) => openResultToast(r && (r.errMsg || r.err_msg)),
+          fail: (r: any) => openResultToast(r && (r.errMsg || r.err_msg)),
         })
-        .finally(() => {
-          uni.hideLoading();
-        });
-    },
-  },
-};
+        return
+      }
+
+      if (typeof WeixinJSBridge !== 'undefined' && WeixinJSBridge.invoke) {
+        WeixinJSBridge.invoke(
+          'requestMerchantTransfer',
+          { mchId, appId, package: wechatPackage },
+          (r: any) => openResultToast(r && (r.errMsg || r.err_msg))
+        )
+        return
+      }
+
+      uni.showToast({ title: '请在微信内打开确认收款', duration: 2000, icon: 'none' })
+    })
+    .finally(() => {
+      uni.hideLoading()
+    })
+}
 </script>
 
 <style lang="scss" scoped>

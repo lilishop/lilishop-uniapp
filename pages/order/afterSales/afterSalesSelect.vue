@@ -57,59 +57,51 @@
   </view>
 </template>
 
-<script>
-import { getAfterSaleInfo } from "@/api/after-sale";
-import storage from "@/utils/storage";
-export default {
-  data() {
-    return {
-      sn: "",
-      sku: {}, //sku
-      applyInfo:""
-    };
-  },
-  onLoad(options) {
-    this.sn = options.sn;
-    this.sku = storage.getAfterSaleData();
-    // 查看当前商品是否支持退款退货
-    this.init()
-  },
-  methods: {
-    getGoodsName(item) {
-      return item.goodsName || item.name || "";
-    },
-    getGoodsImage(item) {
-      const image = item.image || item.goodsImage || item.thumbnail;
-      return this.parseGoodsImageUrl(image);
-    },
-    // 初始化数据
-    init() {
-      getAfterSaleInfo(this.sn).then((response) => {
-        if (response.data.success) {
-          this.applyInfo = response.data.result;
-        }
-      });
-    },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { unitPrice, parseGoodsImageUrl } from '@/utils/filters.js'
+import { getAfterSaleInfo } from '@/api/after-sale'
+import storage from '@/utils/storage'
 
-    /**
-     * 选择退货流程
-     */
-    onSelect(value) {
-      uni.redirectTo({
-        url: `./afterSalesDetail?sn=${this.sn}&value=${value}`,
-      });
-    },
+const sn = ref('')
+const sku = ref<any>({})
+const applyInfo = ref<any>({})
 
-    /**
-     * 跳转到商品信息
-     */
-    navigateToGoodsDetail(id) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${id}&goodsId=${goodsId}`,
-      });
-    },
-  },
-};
+onLoad((options) => {
+  sn.value = options?.sn || ''
+  sku.value = storage.getAfterSaleData()
+  init()
+})
+
+function getGoodsName(item: any) {
+  return item.goodsName || item.name || ''
+}
+
+function getGoodsImage(item: any) {
+  const image = item.image || item.goodsImage || item.thumbnail
+  return parseGoodsImageUrl(image)
+}
+
+function init() {
+  getAfterSaleInfo(sn.value).then((response) => {
+    if (response.data.success) {
+      applyInfo.value = response.data.result
+    }
+  })
+}
+
+function onSelect(value: number) {
+  uni.redirectTo({
+    url: `./afterSalesDetail?sn=${sn.value}&value=${value}`,
+  })
+}
+
+function navigateToGoodsDetail(skuId: string) {
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${skuId}&goodsId=${sku.value.goodsId}`,
+  })
+}
 </script>
 
 <style lang="scss">

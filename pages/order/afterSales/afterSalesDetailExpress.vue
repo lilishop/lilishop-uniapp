@@ -1,6 +1,11 @@
 <template>
   <view class="mp-iphonex-bottom content">
-    <u-form :model="form" ref="uForm">
+    <up-form
+      :model="form"
+      ref="uForm"
+      label-position="left"
+      label-width="180rpx"
+    >
       <view class="after-sales-goods-detail-view">
         <view class="header">
           <view>
@@ -29,32 +34,32 @@
         <!-- 上传凭证 -->
         <view class="opt-view">
           <view class="img-title" style="font-size: 30rpx">填写物流信息</view>
-          <u-form-item label="返回方式" :label-width="150">
+          <up-form-item label="返回方式" label-width="180rpx">
             <div style="width: 100%; text-align: right;">快递至第三方卖家</div>
-          </u-form-item>
-          <u-form-item label="快递公司" :label-width="150">
+          </up-form-item>
+          <up-form-item label="快递公司" label-width="180rpx">
             <div style="width: 100%; text-align: right;" @click="companySelectShow = true">
               {{ form.courierCompany || '请选择快递公司' }}
             </div>
-          </u-form-item>
-          <u-form-item label="快递单号" :label-width="150">
+          </up-form-item>
+          <up-form-item label="快递单号" label-width="180rpx">
             <u-input input-align="right" v-model="form.logisticsNo" placeholder="请输入快递单号"/>
-          </u-form-item>
-          <u-form-item label="发货时间" :label-width="150">
+          </up-form-item>
+          <up-form-item label="发货时间" label-width="180rpx">
             <div style="width: 100%; text-align: right;" @click="timeshow = true">{{
                 form.mDeliverTime || '请选择发货时间'
               }}
             </div>
-          </u-form-item>
+          </up-form-item>
         </view>
       </scroll-view>
 
       <view class="submit-view">
-        <u-button ripple :customStyle="{'background':$lightColor,'color':'#fff' }" shape="circle" @click="onSubmit">
+        <u-button ripple :customStyle="{ background: lightColor, color: '#fff' }" shape="circle" @click="onSubmit">
           提交申请
         </u-button>
       </view>
-    </u-form>
+    </up-form>
     <u-select mode="single-column" :list="companyList" v-model:show="companySelectShow"
               @confirm="companySelectConfirm"></u-select>
     <u-calendar v-model:show="timeshow" :mode="'date'" @change="onTimeChange"></u-calendar>
@@ -62,124 +67,98 @@
   </view>
 </template>
 
-<script>
-import {getLogistics} from "@/api/address.js";
-import {fillShipInfo} from "@/api/after-sale.js";
-import storage from "@/utils/storage";
+<script setup lang="ts">
+import { ref, reactive, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { unitPrice } from '@/utils/filters.js'
+import { getLogistics } from '@/api/address.js'
+import { fillShipInfo } from '@/api/after-sale.js'
+import storage from '@/utils/storage'
 
-export default {
-  data() {
-    return {
-      //快递公司 弹出框
-      companySelectShow: false,
-      companyList: [], //快递公司集合
-      timeshow: false, //发货时间
-      form: {
-        courierCompany: "", //快递公司
-        logisticsId: "", //快递公司ID
-        logisticsNo: "", //快递单号
-        mDeliverTime: "", //发货时间
-      },
-      serviceDetail: {}, //服务详情
-      sku: {}, //sku信息
-    };
-  },
-  onLoad(options) {
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
 
-    this.sku = storage.getAfterSaleData();
-    let navTitle = "服务单详情";
-    uni.setNavigationBarTitle({
-      title: navTitle, //此处写页面的title
-    });
-    this.serviceDetail.sn = options.serviceSn;
-    this.Logistics();
-  },
-  methods: {
-    /**
-     * 确认快递公司
-     */
-    companySelectConfirm(e) {
-      this.form.logisticsId = e[0].value;
-      this.form.courierCompany = e[0].label;
-    },
+const companySelectShow = ref(false)
+const companyList = ref<any[]>([])
+const timeshow = ref(false)
+const form = reactive({
+  courierCompany: '',
+  logisticsId: '',
+  logisticsNo: '',
+  mDeliverTime: '',
+})
+const serviceDetail = reactive<{ sn: string }>({ sn: '' })
+const sku = ref<any>({})
+const uToast = ref<any>(null)
 
-    /**
-     * 获取快递公司
-     */
-    Logistics() {
-      getLogistics().then((res) => {
-        if (res.data.success) {
-          res.data.result.forEach((item, index) => {
-            this.companyList[index] = {
-              value: item.id,
-              label: item.name,
-            };
-          });
-        }
-      });
-    },
+onLoad((options) => {
+  sku.value = storage.getAfterSaleData()
+  uni.setNavigationBarTitle({ title: '服务单详情' })
+  serviceDetail.sn = options?.serviceSn || ''
+  fetchLogisticsList()
+})
 
-    /**
-     * 更改时间
-     */
-    onTimeChange(e) {
-      this.form.mDeliverTime = e.result;
-    },
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
 
-    /**
-     * 点击提交
-     */
-    onSubmit() {
-      delete this.form.courierCompany;
+function companySelectConfirm(e: any[]) {
+  form.logisticsId = e[0].value
+  form.courierCompany = e[0].label
+}
 
-      if (this.form.logisticsId == "") {
-        this.$refs.uToast.show({
-          title: "请选择快递公司",
-          type: "error",
-        });
-        return;
-      }
-      if (this.form.logisticsNo == "") {
-        this.$refs.uToast.show({
-          title: "请填写快递单号",
-          type: "error",
-        });
-        return;
-      }
-      if (this.form.mDeliverTime == "") {
-        this.$refs.uToast.show({
-          title: "请选择发货时间",
-          type: "error",
-        });
-        return;
-      }
+function fetchLogisticsList() {
+  getLogistics().then((res) => {
+    if (res.data.success) {
+      companyList.value = res.data.result.map((item: any) => ({
+        value: item.id,
+        label: item.name,
+      }))
+    }
+  })
+}
 
-      uni.showLoading({
-        title: "加载中",
-        mask: true,
-      });
-      fillShipInfo(this.serviceDetail.sn, this.form).then((res) => {
-        if (this.$store.state.isShowToast) {
-          uni.hideLoading()
-        }
-        ;
-        if (res.statusCode === 200) {
-          this.$refs.uToast.show({
-            title: "提交成功",
-            type: "success",
-            back: true,
-            url: "/pages/order/afterSales/afterSales",
-          });
-        }
-      });
-    },
-    gotoGoodsDetail(sku) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${sku.skuId}&goodsId=${sku.goodsId}`,
-      });
-    },
-  },
-};
+function onTimeChange(e: { result: string }) {
+  form.mDeliverTime = e.result
+}
+
+function onSubmit() {
+  const submitForm = { ...form }
+  delete submitForm.courierCompany
+
+  if (form.logisticsId == '') {
+    uToast.value?.show({ title: '请选择快递公司', type: 'error' })
+    return
+  }
+  if (form.logisticsNo == '') {
+    uToast.value?.show({ title: '请填写快递单号', type: 'error' })
+    return
+  }
+  if (form.mDeliverTime == '') {
+    uToast.value?.show({ title: '请选择发货时间', type: 'error' })
+    return
+  }
+
+  uni.showLoading({ title: '加载中', mask: true })
+  fillShipInfo(serviceDetail.sn, submitForm).then((res) => {
+    hideLoadingIfNeeded()
+    if (res.statusCode === 200) {
+      uToast.value?.show({
+        title: '提交成功',
+        type: 'success',
+        back: true,
+        url: '/pages/order/afterSales/afterSales',
+      })
+    }
+  })
+}
+
+function gotoGoodsDetail(item: any) {
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${item.skuId}&goodsId=${item.goodsId}`,
+  })
+}
 </script>
 
 <style lang="scss" scoped>

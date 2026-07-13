@@ -10,7 +10,7 @@
 			:password="isPassword"
 			:type="inputType"
 			:maxlength="size"
-			@input="input"
+			@input="handleInput"
 			@focus="inputFocus"
 			@blur="inputBlur"
 		/>
@@ -37,7 +37,7 @@
 		</view>
 	</view>
 </template>
-<script>
+<script setup lang="ts">
 /**
  * @description 输入验证码组件
  * @property {string} type = [box|middle|bottom] - 显示类型 默认：box -eg:bottom
@@ -50,175 +50,155 @@
  * @property {string} boxActiveColor - 光标聚焦到的框的颜色 默认：#000000
  * @event {Function(data)} confirm - 输入完成
  */
-export default {
-	name: 'xt-verify-code',
-	emits: ['update:modelValue', 'input', 'confirm'],
-	props: {
-		modelValue: {
-			type: String,
-			default: () => ''
-		},
-		value: {
-			type: String,
-			default: () => ''
-		},
-		type: {
-			type: String,
-			default: () => 'box'
-		},
-		inputType: {
-			type: String,
-			default: () => 'number'
-		},
-		size: {
-			type: Number,
-			default: () => 6
-		},
-		isFocus: {
-			type: Boolean,
-			default: () => true
-		},
-		isPassword: {
-			type: Boolean,
-			default: () => false
-		},
-		cursorColor: {
-			type: String,
-			default: () => '#cccccc'
-		},
-		boxNormalColor: {
-			type: String,
-			default: () => '#cccccc'
-		},
-		boxActiveColor: {
-			type: String,
-			default: () => '#000000'
-		}
-	},
-	data() {
-		return {
-			focused: false,
-			cursorVisible: false,
-			cursorHeight: 35,
-			code: '', // 输入的验证码
-			codeCursorLeft: [] // 向左移动的距离数组
-		};
-	},
-	created() {
-		this.code = this.modelValue || this.value || '';
-		this.focused = this.isFocus;
-		this.cursorVisible = this.isFocus;
-	},
-	mounted() {
-		this.init();
-		if (this.isFocus) {
-			this.$nextTick(() => {
-				this.focusInput();
-			});
-		}
-	},
-	methods: {
-		focusInput() {
-			this.focused = false;
-			this.$nextTick(() => {
-				this.focused = true;
-				// #ifdef H5
-				const inputEl = this.$refs.codeInput;
-				if (inputEl && typeof inputEl.focus === 'function') {
-					inputEl.focus();
-				}
-				// #endif
-			});
-		},
-		/**
-		 * @description 初始化
-		 */
-		init() {
-			this.getCodeCursorLeft();
-			this.setCursorHeight();
-		},
-		/**
-		 * @description 获取元素节点
-		 * @param {string} elm - 节点的id、class 相当于 document.querySelect的参数 -eg: #id
-		 * @param {string} type = [single|array] - 单个元素获取多个元素 默认是单个元素
-		 * @param {Function} callback - 回调函数
-		 */
-		getElement(elm, type = 'single', callback) {
-			uni
-				.createSelectorQuery()
-				.in(this)
-				[type === 'array' ? 'selectAll' : 'select'](elm)
-				.boundingClientRect()
-				.exec(data => {
-					callback(data[0]);
-				});
-		},
-		/**
-		 * @description 计算光标的高度
-		 */
-		setCursorHeight() {
-			this.getElement('.xt__box', 'single', boxElm => {
-				this.cursorHeight = boxElm.height * 0.6;
-			});
-		},
-		/**
-		 * @description 获取光标在每一个box的left位置
-		 */
-		getCodeCursorLeft() {
-			// 获取父级框的位置信息
-			this.getElement('#xt__input-ground', 'single', parentElm => {
-				const parentLeft = parentElm.left;
-				// 获取各个box信息
-				this.getElement('.xt__box', 'array', elms => {
-					this.codeCursorLeft = [];
-					elms.forEach(elm => {
-						this.codeCursorLeft.push(elm.left - parentLeft + elm.width / 2);
-					});
-				});
-			});
-		},
+import { ref, watch, onMounted, nextTick, getCurrentInstance } from 'vue'
 
-		// 输入框输入变化的回调
-		input(e) {
-			const value = e.detail.value;
-			this.code = value;
-			this.cursorVisible = value.length !== this.size;
-			this.$emit('update:modelValue', value);
-			this.$emit('input', value);
-			this.inputSuccess(value);
-		},
+const emit = defineEmits(['update:modelValue', 'input', 'confirm'])
+const props = withDefaults(defineProps<{
+	modelValue?: string
+	value?: string
+	type?: string
+	inputType?: string
+	size?: number
+	isFocus?: boolean
+	isPassword?: boolean
+	cursorColor?: string
+	boxNormalColor?: string
+	boxActiveColor?: string
+}>(), {
+	modelValue: '',
+	value: '',
+	type: 'box',
+	inputType: 'number',
+	size: 6,
+	isFocus: true,
+	isPassword: false,
+	cursorColor: '#cccccc',
+	boxNormalColor: '#cccccc',
+	boxActiveColor: '#000000'
+})
 
-		// 输入完成回调
-		inputSuccess(value) {
-			if (value.length === this.size) {
-				this.$emit('confirm', value);
-			}
-		},
-		// 输入聚焦
-		inputFocus() {
-			this.cursorVisible = this.code.length !== this.size;
-		},
-		// 输入失去焦点
-		inputBlur() {
-			this.cursorVisible = false;
-		},
-		codeFormat(val, isPassword) {
-			let value = '';
-			if (val) {
-				value = isPassword ? '*' : val;
-			}
-			return value;
-		}
-	},
-	watch: {
-		modelValue(val) {
-			this.code = val || '';
-		},
-		value(val) {
-			this.code = val || '';
-		}
+const instance = getCurrentInstance()
+const codeInput = ref<any>(null)
+const focused = ref(false)
+const cursorVisible = ref(false)
+const cursorHeight = ref(35)
+const code = ref('') // 输入的验证码
+const codeCursorLeft = ref<number[]>([]) // 向左移动的距离数组
+
+// 初始化
+watch([() => props.modelValue, () => props.value], ([modelVal, val]) => {
+	code.value = modelVal || val || ''
+}, { immediate: true })
+
+onMounted(() => {
+	focused.value = props.isFocus
+	cursorVisible.value = props.isFocus
+	init()
+	if (props.isFocus) {
+		nextTick(() => {
+			focusInput()
+		})
 	}
-};
+})
+
+function focusInput() {
+	focused.value = false
+	nextTick(() => {
+		focused.value = true
+		// #ifdef H5
+		const inputEl = codeInput.value
+		if (inputEl && typeof inputEl.focus === 'function') {
+			inputEl.focus()
+		}
+		// #endif
+	})
+}
+
+/**
+ * @description 初始化
+ */
+function init() {
+	getCodeCursorLeft()
+	setCursorHeight()
+}
+
+/**
+ * @description 获取元素节点
+ * @param {string} elm - 节点的id、class 相当于 document.querySelect的参数 -eg: #id
+ * @param {string} type = [single|array] - 单个元素获取多个元素 默认是单个元素
+ * @param {Function} callback - 回调函数
+ */
+function getElement(elm: string, type: string = 'single', callback: Function) {
+	uni
+		.createSelectorQuery()
+		.in(instance?.proxy)
+		[type === 'array' ? 'selectAll' : 'select'](elm)
+		.boundingClientRect()
+		.exec((data: any) => {
+			callback(data[0])
+		})
+}
+
+/**
+ * @description 计算光标的高度
+ */
+function setCursorHeight() {
+	getElement('.xt__box', 'single', (boxElm: any) => {
+		cursorHeight.value = boxElm.height * 0.6
+	})
+}
+
+/**
+ * @description 获取光标在每一个box的left位置
+ */
+function getCodeCursorLeft() {
+	// 获取父级框的位置信息
+	getElement('#xt__input-ground', 'single', (parentElm: any) => {
+		const parentLeft = parentElm.left
+		// 获取各个box信息
+		getElement('.xt__box', 'array', (elms: any) => {
+			codeCursorLeft.value = []
+			elms.forEach((elm: any) => {
+				codeCursorLeft.value.push(elm.left - parentLeft + elm.width / 2)
+			})
+		})
+	})
+}
+
+// 输入框输入变化的回调
+function handleInput(e: any) {
+	const value = e.detail.value
+	code.value = value
+	cursorVisible.value = value.length !== props.size
+	emit('update:modelValue', value)
+	emit('input', value)
+	inputSuccess(value)
+}
+
+// 输入完成回调
+function inputSuccess(value: string) {
+	if (value.length === props.size) {
+		emit('confirm', value)
+	}
+}
+
+// 输入聚焦
+function inputFocus() {
+	cursorVisible.value = code.value.length !== props.size
+}
+
+// 输入失去焦点
+function inputBlur() {
+	cursorVisible.value = false
+}
+
+function codeFormat(val: string | undefined, isPassword: boolean): string {
+	let value = ''
+	if (val) {
+		value = isPassword ? '*' : val
+	}
+	return value
+}
 </script>
 <style lang="scss" scoped>
 .xt__verify-code {

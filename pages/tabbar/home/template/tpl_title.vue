@@ -12,18 +12,10 @@
 </template>
 
 
-<script>
+<script setup lang="ts">
 import { modelNavigateTo } from "./tpl";
-export default {
-  title: "标题栏",
-  props: ["res"],
-  data() {
-    return {
-      modelNavigateTo,
-    };
-  },
-  mounted() {},
-};
+
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

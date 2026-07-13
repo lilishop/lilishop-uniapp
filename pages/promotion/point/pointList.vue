@@ -99,172 +99,168 @@
   </view>
 </template>
 
-<script>
-import { getPointsCategory, getPointsGoods } from "@/api/promotions.js";
-import userPoint from "./user";
-export default {
-  components: {
-    "user-point": userPoint,
-  },
-  data() {
-    return {
-      headOffSetTop: "0",
-      tabIndex: 0,
-      categoryIndexData: [
-        {
-          categoryId: 0,
-          name: "全部",
-          loadStatus: "more",
-          goods: [],
-          params: {
-            pageNumber: 1,
-            pageSize: 10,
-            pointsGoodsCategoryId: "",
-          },
-        },
-      ],
-      currentLeft: 0,
-      pageParams: {
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import {
+  onLoad,
+  onShow,
+  onPullDownRefresh,
+  onReachBottom,
+  onPageScroll,
+} from '@dcloudio/uni-app'
+import { getPointsCategory, getPointsGoods } from '@/api/promotions.js'
+import userPoint from './user.vue'
+import { unitPrice } from '@/utils/filters.js'
+
+interface CategoryTab {
+  categoryId: number | string
+  name: string
+  loadStatus: string
+  goods: any[]
+  params: {
+    pageNumber: number
+    pageSize: number
+    pointsGoodsCategoryId: number | string
+  }
+}
+
+function createDefaultCategory(): CategoryTab[] {
+  return [
+    {
+      categoryId: 0,
+      name: '全部',
+      loadStatus: 'more',
+      goods: [],
+      params: {
         pageNumber: 1,
         pageSize: 10,
-        pointsGoodsCategoryId: 0,
+        pointsGoodsCategoryId: '',
       },
-      flag: true,
-    };
-  },
-  onLoad() {},
-  async onPullDownRefresh() {
-    // #ifndef H5
-    this.categoryIndexData[this.tabIndex].goods = [];
-    this.categoryIndexData[this.tabIndex].params.pageNumber = 1;
-    this.categoryIndexData[this.tabIndex].loadStatus = "more";
-    this.loadGoods();
-    // #endif
-  },
-  // #ifndef H5
-  onPageScroll(e) {
-    if (e.scrollTop < -40 && this.flag) {
-      this.flag = false;
-      this.categoryIndexData[this.tabIndex].goods = [];
-      this.categoryIndexData[this.tabIndex].params.pageNumber = 1;
-      this.categoryIndexData[this.tabIndex].loadStatus = "more";
-      uni.startPullDownRefresh();
-      this.loadGoods();
-    }
-  },
-  // #endif
-  watch: {
-    tabIndex(val) {
-      if (
-        this.categoryIndexData[this.tabIndex].goods.length == 0 &&
-        this.categoryIndexData[this.tabIndex].params.pageNumber == 1
-      ) {
-        this.loadGoods();
-      }
     },
-  },
-  async onShow() {
-    //获取顶级分类
-    this.categoryIndexData = [
-      {
-        categoryId: 0,
-        name: "全部",
-        loadStatus: "more",
+  ]
+}
+
+const tabIndex = ref(0)
+const categoryIndexData = ref<CategoryTab[]>(createDefaultCategory())
+const currentLeft = ref(0)
+const flag = ref(true)
+
+onLoad(() => {})
+
+async function onPullDownRefreshHandler() {
+  // #ifndef H5
+  categoryIndexData.value[tabIndex.value].goods = []
+  categoryIndexData.value[tabIndex.value].params.pageNumber = 1
+  categoryIndexData.value[tabIndex.value].loadStatus = 'more'
+  loadGoods()
+  // #endif
+}
+
+onPullDownRefresh(onPullDownRefreshHandler)
+
+// #ifndef H5
+onPageScroll((e) => {
+  if (e.scrollTop < -40 && flag.value) {
+    flag.value = false
+    categoryIndexData.value[tabIndex.value].goods = []
+    categoryIndexData.value[tabIndex.value].params.pageNumber = 1
+    categoryIndexData.value[tabIndex.value].loadStatus = 'more'
+    uni.startPullDownRefresh()
+    loadGoods()
+  }
+})
+// #endif
+
+watch(tabIndex, () => {
+  if (
+    categoryIndexData.value[tabIndex.value].goods.length == 0 &&
+    categoryIndexData.value[tabIndex.value].params.pageNumber == 1
+  ) {
+    loadGoods()
+  }
+})
+
+onShow(async () => {
+  categoryIndexData.value = createDefaultCategory()
+
+  const response = await getPointsCategory()
+
+  if (response.data.success) {
+    const navData = response.data.result.records
+    navData.forEach((item: any) => {
+      categoryIndexData.value.push({
+        categoryId: item.id,
         goods: [],
+        loadStatus: 'more',
+        name: item.name,
         params: {
           pageNumber: 1,
           pageSize: 10,
-          pointsGoodsCategoryId: "",
+          pointsGoodsCategoryId: item.id,
         },
-      },
-    ];
+      })
+    })
+  }
 
-    let response = await getPointsCategory();
+  loadGoods()
+})
 
-    if (response.data.success) {
-      let navData = response.data.result.records;
-      navData.forEach((item) => {
-        this.categoryIndexData.push({
-          categoryId: item.id,
-          goods: [],
-          loadStatus: "more",
-          name: item.name,
-          params: {
-            pageNumber: 1,
-            pageSize: 10,
-            pointsGoodsCategoryId: item.id,
-          },
-        });
-      });
+function toGoods(item: any) {
+  uni.navigateTo({
+    url: `/pages/promotion/point/detail?id=${item.id}`,
+  })
+}
+
+async function loadGoods() {
+  const index = tabIndex.value
+
+  const response = await getPointsGoods(categoryIndexData.value[index].params)
+  if (response.data.success) {
+    categoryIndexData.value[index].goods.push(
+      ...response.data.result.records
+    )
+    if (response.data.result.records.length < 10) {
+      categoryIndexData.value[index].loadStatus = 'noMore'
     }
+    setTimeout(() => {
+      flag.value = true
+    }, 3000)
+  }
 
-    this.loadGoods();
-  },
-  methods: {
-    // 跳转
-    navigateTo(url) {
-      uni.navigateTo({
-        url,
-      });
-    },
-
-    toGoods(item) {
-      //跳转详情
-      uni.navigateTo({
-        url: `/pages/promotion/point/detail?id=${item.id}`,
-      });
-    },
-
-    async loadGoods() {
-      let index = this.tabIndex;
-
-      //获取商品数据
-      let response = await getPointsGoods(this.categoryIndexData[index].params);
-      if (response.data.success) {
-        this.categoryIndexData[index].goods.push(
-          ...response.data.result.records
-        );
-        if (response.data.result.records.length < 10) {
-          this.categoryIndexData[index].loadStatus = "noMore";
-        }
-        let _this = this;
-        setTimeout(function () {
-          _this.flag = true;
-        }, 3000);
-      }
-
-      // #ifndef H5
-      uni.stopPullDownRefresh();
-      // #endif
-    },
-    setCat(type) {
-      this.tabIndex = type;
-    },
-    ontabchange(e) {
-      this.tabIndex = e.detail.current;
-      if (e.detail.current > 3) {
-        this.currentLeft = (e.detail.current - 3) * 70;
-      } else {
-        this.currentLeft = 0;
-      }
-    },
-    loadMore() {
-      if (this.categoryIndexData[this.tabIndex].loadStatus !== "more") {
-        return;
-      }
-      this.categoryIndexData[this.tabIndex].params.pageNumber++;
-      this.loadGoods();
-    },
-  },
-  // #ifdef H5
-  onReachBottom() {
-    if (this.categoryIndexData[this.tabIndex].loadStatus !== 'more') {
-      return;
-    }
-    this.loadMore();
-  },
+  // #ifndef H5
+  uni.stopPullDownRefresh()
   // #endif
-};
+}
+
+function setCat(type: number) {
+  tabIndex.value = type
+}
+
+function ontabchange(e: any) {
+  tabIndex.value = e.detail.current
+  if (e.detail.current > 3) {
+    currentLeft.value = (e.detail.current - 3) * 70
+  } else {
+    currentLeft.value = 0
+  }
+}
+
+function loadMore() {
+  if (categoryIndexData.value[tabIndex.value].loadStatus !== 'more') {
+    return
+  }
+  categoryIndexData.value[tabIndex.value].params.pageNumber++
+  loadGoods()
+}
+
+// #ifdef H5
+onReachBottom(() => {
+  if (categoryIndexData.value[tabIndex.value].loadStatus !== 'more') {
+    return
+  }
+  loadMore()
+})
+// #endif
 </script>
 <style lang="scss" scoped>
 page {

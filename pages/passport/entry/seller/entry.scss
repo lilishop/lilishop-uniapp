@@ -1,18 +1,28 @@
 .flag-title {
-    font-size: 42rpx;
-    font-weight: bold;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  margin-bottom: 8rpx;
 }
-.submit,
-.notice {
-  font-weight: bold;
-  font-size: 28rpx;
 
-  height: 92rpx;
-  text-align: center;
-  letter-spacing: 4rpx;
-  line-height: 92rpx;
+.wrapper {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 20rpx 24rpx 40rpx;
+  background: #f8f8f8;
+}
+
+.column {
+  padding: 32rpx;
+  margin-bottom: 20rpx;
+  background: #fff;
   border-radius: 20rpx;
 }
-.wrapper {
-  padding:16rpx;
+
+.tips {
+  color: #999;
+  font-size: 24rpx;
+  line-height: 1.4;
+  margin-top: 12rpx;
 }

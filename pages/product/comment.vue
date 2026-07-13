@@ -82,130 +82,129 @@
   </view>
 </template>
 
-<script>
-import * as membersApi from "@/api/members.js";
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+import { onLoad, onReachBottom } from '@dcloudio/uni-app'
+import * as membersApi from '@/api/members.js'
 import configs from '@/config/config'
-export default {
-  data() {
-    return {
-      configs,
-      status: "loadmore",
-      userImage: configs.defaultUserPhoto,
-      commentDetail: "",
-      selectIndex: "0",
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-        grade: "",
+import { noPassByName } from '@/utils/filters.js'
+
+const status = ref('loadmore')
+const userImage = configs.defaultUserPhoto
+const commentDetail = ref<any>('')
+const selectIndex = ref(0)
+const params = reactive<any>({
+  pageNumber: 1,
+  pageSize: 10,
+  grade: '',
+})
+const gradeList: Record<string, string> = {
+  GOOD: '好评',
+  MODERATE: '中评',
+  WORSE: '差评',
+  HAVEIMAGE: '有图',
+}
+const commDetail = ref<any[]>([])
+const opid = ref('')
+
+function commentScore(item: any) {
+  return item.descriptionScore || item.deliveryScore || 0
+}
+
+function splitImg(val: any) {
+  if (val && val.split(',')) {
+    return val.split(',')
+  } else if (val) {
+    return val
+  } else {
+    return false
+  }
+}
+
+function getGoodsCommentsFun(id: string) {
+  status.value = 'loading'
+  membersApi.getGoodsComments(id, params).then((res) => {
+    if (
+      res.data.result.records == [] ||
+      res.data.result.records == '' ||
+      res.data.result.records == null
+    ) {
+      status.value = 'noMore'
+      return false
+    }
+    commDetail.value = commDetail.value.concat(res.data.result.records)
+    status.value = 'loadmore'
+  })
+}
+
+function getGoodsCommentsNum(id: string) {
+  membersApi.getGoodsCommentsCount(id).then((res) => {
+    if (res.statusCode === 200) {
+      commentDetail.value = res.data.result
+    }
+  })
+}
+
+function select(index: number) {
+  Object.assign(params, {
+    pageNumber: 1,
+    pageSize: 10,
+  })
+  selectIndex.value = index
+  params.grade = ['', 'GOOD', 'MODERATE', 'WORSE', ''][selectIndex.value]
+  if (selectIndex.value === 4) {
+    params.haveImage = 1
+  }
+  commDetail.value = []
+  if (selectIndex.value === 0) {
+    Object.assign(params, {
+      pageNumber: 1,
+      pageSize: 10,
+      grade: '',
+    })
+  }
+  getGoodsCommentsFun(opid.value)
+}
+
+function preview(urls: string[], index: number) {
+  uni.previewImage({
+    current: index,
+    urls: urls,
+    longPressActions: {
+      itemList: ['保存图片'],
+      success: function () {
+        uni.showToast({
+          title: '保存成功',
+          duration: 2000,
+          icon: 'none',
+        })
       },
-      gradeList: {
-        GOOD: "好评",
-        MODERATE: "中评",
-        WORSE: "差评",
-        HAVEIMAGE: "有图",
+      fail: function () {
+        uni.showToast({
+          title: '保存失败',
+          duration: 2000,
+          icon: 'none',
+        })
       },
-      commDetail: [],
-      dataTotal: 0,
-      opid: "",
-    };
-  },
-  async onLoad(options) {
-    this.getGoodsCommentsFun(options.id);
-    this.getGoodsCommentsNum(options.id);
-    this.opid = options.id;
-  },
-
-  onReachBottom() {
-    this.params.pageNumber++;
-    this.getGoodsCommentsFun(this.opid);
-  },
-
-  methods: {
-    commentScore(item) {
-      return item.descriptionScore || item.deliveryScore || 0;
     },
+  })
+}
 
-    splitImg(val) {
-      if (val && val.split(",")) {
-        return val.split(",");
-      } else if (val) {
-        return val;
-      } else {
-        return false;
-      }
-    },
+function loadmore() {
+  params.pageNumber++
+  getGoodsCommentsFun(opid.value)
+}
 
-    getGoodsCommentsFun(id) {
-      this.status = "loading";
-      membersApi.getGoodsComments(id, this.params).then((res) => {
-        if (
-          res.data.result.records == [] ||
-          res.data.result.records == "" ||
-          res.data.result.records == null
-        ) {
-          this.status = "noMore";
-          return false;
-        }
-        this.commDetail = this.commDetail.concat(res.data.result.records);
-        this.dataTotal = res.data.result.total;
-        this.status = "loadmore";
-      });
-    },
+onLoad((options: any) => {
+  getGoodsCommentsFun(options.id)
+  getGoodsCommentsNum(options.id)
+  opid.value = options.id
+})
 
-    getGoodsCommentsNum(id) {
-      membersApi.getGoodsCommentsCount(id).then((res) => {
-        if (res.statusCode === 200) {
-          this.commentDetail = res.data.result;
-        }
-      });
-    },
-
-    select(index) {
-      this.params = {
-        pageNumber: 1,
-        pageSize: 10,
-      };
-      this.selectIndex = index;
-      this.params.grade = ["", "GOOD", "MODERATE", "WORSE", ""][
-        this.selectIndex
-      ];
-      this.selectIndex === 4 ? (this.params.haveImage = 1) : true;
-      this.commDetail = [];
-      if (this.selectIndex === 0) {
-        this.params = {
-          pageNumber: 1,
-          pageSize: 10,
-          grade: "",
-        };
-      }
-      this.getGoodsCommentsFun(this.opid);
-    },
-
-    preview(urls, index) {
-      uni.previewImage({
-        current: index,
-        urls: urls,
-        longPressActions: {
-          itemList: ["保存图片"],
-          success: function () {
-            uni.showToast({
-              title: "保存成功",
-              duration: 2000,
-              icon: "none",
-            });
-          },
-          fail: function () {
-            uni.showToast({
-              title: "保存失败",
-              duration: 2000,
-              icon: "none",
-            });
-          },
-        },
-      });
-    },
-  },
-};
+onReachBottom(() => {
+  params.pageNumber++
+  getGoodsCommentsFun(opid.value)
+})
 </script>
 
 <style lang="scss" scoped>

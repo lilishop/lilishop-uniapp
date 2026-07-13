@@ -74,7 +74,7 @@ function sendMessage(price) {
     uni.requestSubscribeMessage({
       tmplIds: templateid,
       success: (res) => {
-      
+
       },
       fail: (res) => {
         console.log('fail', res)

@@ -1,38 +1,30 @@
 
 <template>
-  <div class="layout">
-    <div class="view-height-150" @click="modelNavigateTo(res.list[0])">
-      <u-image width="100%" height="340rpx" class="image-mode" :src="res.list[0].img">
-        <template #loading><u-loading></u-loading></template>
-      </u-image>
-    </div>
-    <div class="view-height-150">
-      <div class="view-height-75" @click="modelNavigateTo(res.list[1])">
-        <u-image width="100%" height="170rpx" class="image-mode" :src="res.list[1].img" alt>
-          <template #loading><u-loading></u-loading></template>
-        </u-image>
-      </div>
-      <div class="view-height-75" @click="modelNavigateTo(res.list[2])">
-        <u-image width="100%" height="170rpx" class="image-mode" :src="res.list[2].img" alt>
-          <template #loading><u-loading></u-loading></template>
-        </u-image>
-      </div>
-    </div>
-  </div>
-</template>
-<script>
 
+<view class="layout">
+    <view class="view-height-150" @click="modelNavigateTo(res.list[0])">
+      <u-image width="100%" height="340rpx" class="image-mode" :src="res.list[0].img">
+        <template #loading><u-loading-icon></u-loading-icon></template>
+      </u-image>
+    </view>
+    <view class="view-height-150">
+      <view class="view-height-75" @click="modelNavigateTo(res.list[1])">
+        <u-image width="100%" height="170rpx" class="image-mode" :src="res.list[1].img" alt>
+          <template #loading><u-loading-icon></u-loading-icon></template>
+        </u-image>
+      </view>
+      <view class="view-height-75" @click="modelNavigateTo(res.list[2])">
+        <u-image width="100%" height="170rpx" class="image-mode" :src="res.list[2].img" alt>
+          <template #loading><u-loading-icon></u-loading-icon></template>
+        </u-image>
+      </view>
+    </view>
+  </view>
+</template>
+<script setup lang="ts">
 import { modelNavigateTo } from "./tpl";
-export default {
-  title: "左一右二",
-  props: ["res"],
-  data() {
-    return {
-      modelNavigateTo,
-    };
-  },
-  mounted() {},
-};
+
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

@@ -51,99 +51,91 @@
   </view>
 </template>
 
-<script>
-import { getComplainDetail, communication } from "@/api/after-sale";
-export default {
-  data() {
-    return {
-      complainId: "",
-      complainValue: "", //回复内容
-      complainDetail: "", //投诉详情
-      statusData: {
-        NEW: "新投诉",
-        NO_APPLY: "未申请",
-        APPLYING: "申请中",
-        COMPLETE: "已完成",
-        EXPIRED: "已失效",
-        CANCEL: "已取消",
-        WAIT_ARBITRATION:"等待仲裁"
-      },
-    };
-  },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { getComplainDetail, communication } from '@/api/after-sale'
 
-  onLoad(option) {
-    this.complainId = option.id;
-    this.init(option.id);
-  },
-  methods: {
-    /**
-     * 点击图片放大或保存
-     */
-    preview(urls, index) {
-      uni.previewImage({
-        current: index,
-        urls: urls,
-        longPressActions: {
-          itemList: ["保存图片"],
-          success: function (data) {},
-          fail: function (err) {},
-        },
-      });
-    },
-    handleSubmit() {
-      if (!this.complainValue) {
-        uni.showToast({
-          title: "请输入回复内容",
-          duration: 2000,
-          icon: "none",
-        });
-        return;
-      }
-      let params = {
-        content: this.complainValue,
-        complainId: this.complainId,
-      };
-      communication(params).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "回复成功",
-            duration: 2000,
-            icon: "none",
-          });
-          this.complainValue = '';
-          this.init(this.complainId);
-        } else {
-          uni.showToast({
-            title: res.data.message,
-            duration: 2000,
-            icon: "none",
-          });
-        }
-      });
+const store = useStore()
 
+const complainId = ref('')
+const complainValue = ref('')
+const complainDetail = ref<Record<string, any>>({})
+const statusData: Record<string, string> = {
+  NEW: '新投诉',
+  NO_APPLY: '未申请',
+  APPLYING: '申请中',
+  COMPLETE: '已完成',
+  EXPIRED: '已失效',
+  CANCEL: '已取消',
+  WAIT_ARBITRATION: '等待仲裁',
+}
+
+onLoad((option) => {
+  complainId.value = option.id
+  init(option.id)
+})
+
+function preview(urls: string[], index: number) {
+  uni.previewImage({
+    current: index,
+    urls,
+    longPressActions: {
+      itemList: ['保存图片'],
+      success: () => {},
+      fail: () => {},
     },
-    /**
-     * 初始化投诉详情
-     */
-    init(id) {
-      uni.showLoading({
-        title: "加载中",
-      });
-      getComplainDetail(id).then((res) => {
-        if (res.data.success) {
-          this.complainDetail = res.data.result;
-        } else {
-          uni.showToast({
-            title: res.data.message,
-            duration: 2000,
-            icon: "none",
-          });
-        }
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
-    },
-  },
-};
+  })
+}
+
+function handleSubmit() {
+  if (!complainValue.value) {
+    uni.showToast({
+      title: '请输入回复内容',
+      duration: 2000,
+      icon: 'none',
+    })
+    return
+  }
+  const params = {
+    content: complainValue.value,
+    complainId: complainId.value,
+  }
+  communication(params).then((res) => {
+    if (res.data.success) {
+      uni.showToast({
+        title: '回复成功',
+        duration: 2000,
+        icon: 'none',
+      })
+      complainValue.value = ''
+      init(complainId.value)
+    } else {
+      uni.showToast({
+        title: res.data.message,
+        duration: 2000,
+        icon: 'none',
+      })
+    }
+  })
+}
+
+function init(id: string) {
+  uni.showLoading({ title: '加载中' })
+  getComplainDetail(id).then((res) => {
+    if (res.data.success) {
+      complainDetail.value = res.data.result
+    } else {
+      uni.showToast({
+        title: res.data.message,
+        duration: 2000,
+        icon: 'none',
+      })
+    }
+    if (store.state.isShowToast) uni.hideLoading()
+  })
+}
 </script>
 <style lang="scss" scoped>
 .row {

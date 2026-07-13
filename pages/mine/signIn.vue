@@ -3,10 +3,10 @@
     <view class="date-card">
       <div class="box">
         <div class="circle-box">
-          <div class="cricle" @click="signIn()">
-            <span v-if="!ifSign" :class="{ active: signFlag || ifSign }">签到</span>
-            <span v-else :class="{ active: signFlag || ifSign }"
-              :style="ifSign ? 'transform: rotateY(0deg);' : ''">已签</span>
+          <div class="cricle" @click="handleSignIn()">
+            <span v-if="!hasSignedToday" :class="{ active: signAnimating || hasSignedToday }">签到</span>
+            <span v-else :class="{ active: signAnimating || hasSignedToday }"
+              :style="hasSignedToday ? 'transform: rotateY(0deg);' : ''">已签</span>
           </div>
         </div>
         <text class="tips">坚持每天连续签到可以获多重奖励哦</text>
@@ -22,19 +22,19 @@
         <view class="week">
           <text v-for="item in weekArr" :key="item.id">{{ item }}</text>
         </view>
-        <view class="date" v-for="obj in dataObj" :key="obj.id">
-          <view class="item" v-for="item in obj" :key="item.id" :class="item == '' ? 'hide' : ''"
+        <view class="date" v-for="(obj, rowIndex) in calendarRows" :key="rowIndex">
+          <view class="item" v-for="(item, dayIndex) in obj" :key="dayIndex" :class="item == '' ? 'hide' : ''"
             :animation="item == currentDay ? animationData : ''">
-            <view class="just" :class="signArr.indexOf(item) != -1 ? 'active' : ''">
+            <view class="just" :class="signedDays.indexOf(item) != -1 ? 'active' : ''">
               <view class="top">{{ item }} </view>
               <view class="bottom">
                 <u-icon name="error" v-if="item <= currentDay" size="24" color="#999"></u-icon>
               </view>
             </view>
-            <view class="back" :class="signArr.indexOf(item) != -1 ? 'active' : ''" :style="
-                signArr.indexOf(item) != -1 && ifSign
+            <view class="back" :class="signedDays.indexOf(item) != -1 ? 'active' : ''" :style="
+                signedDays.indexOf(item) != -1 && hasSignedToday
                   ? 'transform: rotateY(0deg);'
-                  : signArr.indexOf(item) != -1 && item != currentDay
+                  : signedDays.indexOf(item) != -1 && item != currentDay
                   ? 'transform: rotateY(0deg);'
                   : ''
               ">
@@ -47,11 +47,11 @@
         </view>
       </view>
     </div>
-    <view class="mask" :class="{ show: maskFlag, trans: transFlag }" ref="mask">
+    <view class="mask" :class="{ show: showSuccessMask, trans: maskClosing }" ref="mask">
       <view class="mask-header">
         <text class="close"></text>
         <text>签到成功</text>
-        <text class="close" @click="close">×</text>
+        <text class="close" @click="closeSuccessMask">×</text>
       </view>
       <view class="mask-con">
         <u-icon size="120" style="margin: 50rpx 0" :color="aiderLightColor" name="checkmark"></u-icon>
@@ -61,231 +61,147 @@
   </view>
 </template>
 
-<script>
-import { sign, signTime } from "@/api/point.js";
-export default {
-  data() {
-    return {
-      aiderLightColor:this.$aiderLightColor,
-      signFlag: false,
-      animationData: {},
-      maskFlag: false, //
-      transFlag: false, //动画
-      weekArr: ["日", "一", "二", "三", "四", "五", "六"], //周数组
-      dateArr: [], //每个月的天数
-      monthArr: [
-        //实例化每个月
-        "1月",
-        "2月",
-        "3月",
-        "4月",
-        "5月",
-        "6月",
-        "7月",
-        "8月",
-        "9月",
-        "10月",
-        "11月",
-        "12月",
-      ], //今天一个月英文
-      currentMonth: "", //当月
-      currentMonthIndex: "", //当月
-      currentYear: "", //今年
-      currentDay: "", //今天
-      currentWeek: "", //获取当月一号是周几
-      dataObj: [], //一个月有多少天这个获取
-      signArr: [], //本月签到过的天数 该参数用于请求接口后获取当月都哪天签到了
-      signAll: [], //所有签到数据
-      ifSign: false, //今天是否签到
-    };
-  },
-  async onLoad() {
-    //获取签到数据
-    var response = await signTime(
-      new Date().getFullYear() + "" + this.makeUp(new Date().getMonth() + 1)
-    );
-    this.signAll = response.data.result;
-    //获取展示数据
-    this.getDate();
-  },
-  methods: {
-    /**
-     * 补0
-     */
-    makeUp(val) {
-      if (val >= 10) {
-        return val;
-      } else {
-        return "0" + val;
-      }
-    },
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { sign, signTime } from '@/api/point.js'
 
-    /**
-     * 点击签到
-     */
-    async signIn() {
-      await sign().then((response) => {
-        if (this.ifSign) return;
-        if (this.signFlag) return;
-        if (response.data.code != 200) {
-          uni.showToast({
-            title: response.data.message,
-            duration: 2000,
-            icon: "none",
-          });
+const store = useStore()
+const aiderLightColor = computed(() => store.getters.aiderLightColor)
 
-          return false;
-        }
-        var that = this;
-        var animation = uni.createAnimation({
-          duration: 200,
-          timingFunction: "linear",
-        });
-        this.signArr.push(this.currentDay);
-        this.animation = animation;
-        animation.rotateY(0).step();
-        this.animationData = animation.export();
+const signAnimating = ref(false)
+const animationData = ref({})
+const showSuccessMask = ref(false)
+const maskClosing = ref(false)
+const weekArr = ['日', '一', '二', '三', '四', '五', '六']
+const monthLabels = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+const currentMonth = ref('')
+const currentMonthIndex = ref(0)
+const currentYear = ref(0)
+const currentDay = ref(0)
+const calendarRows = ref<any[][]>([])
+const signedDays = ref<number[]>([])
+const signRecords = ref<any[]>([])
+const hasSignedToday = ref(false)
 
-        setTimeout(
-          function () {
-            that.signFlag = true;
-            this.maskFlag = true;
-            this.ifSign = !this.ifSign;
-            animation.rotateY(0).step();
-            this.animationData = animation.export();
-          }.bind(this),
-          200
-        );
-      });
-    },
+onLoad(async () => {
+	const response = await signTime(
+		`${new Date().getFullYear()}${padZero(new Date().getMonth() + 1)}`
+	)
+	signRecords.value = response.data.result
+	buildCalendar()
+})
 
-    /**
-     * 签到成功后关闭弹窗
-     */
-    close() {
-      var that = this;
-      this.maskFlag = false;
-      this.transFlag = true;
-      setTimeout(() => {
-        that.transFlag = false;
-      }, 500);
-    },
+function padZero(val: number) {
+	return val >= 10 ? String(val) : `0${val}`
+}
 
-    /**
-     * 获取今天时间
-     *
-     */
-    getDate() {
-      var date = new Date(),
-        index = date.getMonth(),
-        curDay = null;
-      this.currentYear = date.getFullYear();
-      this.currentMonth = this.monthArr[index];
-      this.currentMonthIndex = index + 1;
-      this.currentDay = date.getDate();
-      if (this.currentDay == this.signArr[this.signArr.length - 1]) {
-        this.ifSign = true;
-      }
-      curDay = this.getWeekByDay(this.currentYear + "-" + (index + 1) + "-1");
-      this.getMonthDays(index, curDay);
-      this.curentSignData();
-    },
+async function handleSignIn() {
+	if (hasSignedToday.value || signAnimating.value) return
 
-    /**
-     * 获取当前已经签到的时间
-     */
-    curentSignData() {
-      var date = new Date(),
-        index = date.getMonth(),
-        curDay = null;
-      this.signArr = [];
-      for (var i = 0; i < this.signAll.length; i++) {
-        var item = this.signAll[i];
-        item.createTime = item.createTime.split(" ")[0];
-        var itemVal = item.createTime.split("-");
-        if (
-          Number(itemVal[0]) === Number(this.currentYear) &&
-          Number(itemVal[1]) === Number(this.currentMonthIndex)
-        ) {
-          this.signArr.push(Number(itemVal[2]));
-        }
-        if (
-          Number(itemVal[0]) === Number(date.getFullYear()) &&
-          Number(itemVal[1]) === Number(index + 1) &&
-          Number(itemVal[2]) === Number(date.getDate())
-        ) {
-          this.ifSign = true;
-        }
-      }
-    },
+	const response = await sign()
+	if (response.data.code !== 200) {
+		uni.showToast({
+			title: response.data.message,
+			duration: 2000,
+			icon: 'none',
+		})
+		return
+	}
 
-    /**
-     *  循环出当前月份的时间
-     *  例子：
-     *  "","","","","","",1,
-     *  2 ,3 ,4 ,5 ,6 ,7 ,8,
-     *  ...依次向下排
-     */
-    getMonthDays(index, day) {
-      //day 当月1号是周几
-      this.dateArr = [];
-      this.dataObj = [];
-      for (var i = 0; i < day; i++) {
-        this.dateArr.push("");
-      }
-      if (
-        index == 0 ||
-        index == 2 ||
-        index == 4 ||
-        index == 6 ||
-        index == 7 ||
-        index == 9 ||
-        index == 11
-      ) {
-        for (let i = 1; i < 32; i++) {
-          this.dateArr.push(i);
-        }
-      }
-      if (index == 3 || index == 5 || index == 8 || index == 10) {
-        for (let i = 1; i < 31; i++) {
-          this.dateArr.push(i);
-        }
-      }
-      if (index == 1) {
-        if (
-          (this.currentYear % 4 == 0 && this.currentYear % 100 != 0) ||
-          this.currentYear % 400 == 0
-        ) {
-          for (let i = 1; i < 30; i++) {
-            this.dateArr.push(i);
-          }
-        } else {
-          for (let i = 1; i < 29; i++) {
-            this.dateArr.push(i);
-          }
-        }
-      }
-      for (var y = 0; y < 10; y++) {
-        if (this.dateArr.length > 7) {
-          this.dataObj.push(this.dateArr.splice(0, 7));
-        } else {
-          for (let i = 0; i < 7 - this.dateArr.length; i++) {
-            this.dateArr.push("");
-          }
-        }
-      }
-      this.dataObj.push(this.dateArr);
-    },
+	const animation = uni.createAnimation({ duration: 200, timingFunction: 'linear' })
+	signedDays.value.push(currentDay.value)
+	animation.rotateY(0).step()
+	animationData.value = animation.export()
 
-    /**
-     * 获取当前月份有几周
-     */
-    getWeekByDay(dayValue) {
-      var day = new Date(Date.parse(dayValue.replace(/-/g, "/"))).getDay(); //将日期值格式化
-      return day;
-    },
-  },
-};
+	setTimeout(() => {
+		signAnimating.value = true
+		showSuccessMask.value = true
+		hasSignedToday.value = true
+		animation.rotateY(0).step()
+		animationData.value = animation.export()
+	}, 200)
+}
+
+function closeSuccessMask() {
+	showSuccessMask.value = false
+	maskClosing.value = true
+	setTimeout(() => {
+		maskClosing.value = false
+	}, 500)
+}
+
+function buildCalendar() {
+	const date = new Date()
+	const monthIndex = date.getMonth()
+	currentYear.value = date.getFullYear()
+	currentMonth.value = monthLabels[monthIndex]
+	currentMonthIndex.value = monthIndex + 1
+	currentDay.value = date.getDate()
+	syncSignedDays()
+	const firstWeekDay = getWeekByDay(`${currentYear.value}-${monthIndex + 1}-1`)
+	buildMonthDays(monthIndex, firstWeekDay)
+}
+
+function syncSignedDays() {
+	const date = new Date()
+	const monthIndex = date.getMonth()
+	signedDays.value = []
+	hasSignedToday.value = false
+
+	signRecords.value.forEach((item) => {
+		const datePart = item.createTime.split(' ')[0]
+		const parts = datePart.split('-')
+		if (
+			Number(parts[0]) === currentYear.value &&
+			Number(parts[1]) === currentMonthIndex.value
+		) {
+			signedDays.value.push(Number(parts[2]))
+		}
+		if (
+			Number(parts[0]) === date.getFullYear() &&
+			Number(parts[1]) === monthIndex + 1 &&
+			Number(parts[2]) === date.getDate()
+		) {
+			hasSignedToday.value = true
+		}
+	})
+}
+
+function buildMonthDays(monthIndex: number, firstWeekDay: number) {
+	const daysInRow: any[] = []
+	const rows: any[][] = []
+	for (let i = 0; i < firstWeekDay; i++) {
+		daysInRow.push('')
+	}
+
+	const isLongMonth = [0, 2, 4, 6, 7, 9, 11].includes(monthIndex)
+	const isFebruary = monthIndex === 1
+	let totalDays = isLongMonth ? 31 : 30
+	if (isFebruary) {
+		const year = currentYear.value
+		const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
+		totalDays = isLeap ? 29 : 28
+	}
+
+	for (let day = 1; day <= totalDays; day++) {
+		daysInRow.push(day)
+	}
+
+	while (daysInRow.length) {
+		const row = daysInRow.splice(0, 7)
+		while (row.length < 7) {
+			row.push('')
+		}
+		rows.push(row)
+	}
+	calendarRows.value = rows
+}
+
+function getWeekByDay(dayValue: string) {
+	return new Date(Date.parse(dayValue.replace(/-/g, '/'))).getDay()
+}
 </script>
 <style scoped>
 page {

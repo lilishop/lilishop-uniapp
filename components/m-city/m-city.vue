@@ -79,192 +79,182 @@
   </view>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, getCurrentInstance } from 'vue'
+import { getRegionsById } from "@/api/common.js"
+
+const instance = getCurrentInstance()
+
 let windowWidth = 0
-import { getRegionsById } from "@/api/common.js";
-export default {
-  name: "UniCityNvue",
-  props: {
-    headTitle: {
-      //标题
-      type: String,
-      default: "区域选择",
-    },
-    pickerSize: {
-      // 使用多少个tab
-      type: [String, String],
-      default: "1",
-    },
-    provinceData: {
-      // 默认的省市区id，如果不使用id的情况下则为[]；
-      type: Array,
-      default: function () {
-        return [];
+
+const props = withDefaults(defineProps<{
+	headTitle?: string
+	pickerSize?: string | string[]
+	provinceData?: any[]
+}>(), {
+	headTitle: "区域选择",
+	pickerSize: "1",
+	provinceData: () => [],
+})
+
+const emit = defineEmits(['funcValue'])
+
+const clearRightIcon = ref(true)
+const scrollLeft = ref(500)
+const scrollTop = ref(0)
+const enableScroll = ref(true)
+const tabCurrentIndex = ref(0)
+const tabbars = ref<any[]>(props.provinceData)
+const pickersize = ref(props.pickerSize)
+const showPicker = ref(false)
+
+/**
+ * 显示选择器
+ */
+const show = () => {
+  showPicker.value = true
+  if (tabbars.value[0].children.length == 0) {
+    getRegionsById(0).then((res: any) => {
+      tabbars.value[0].children = res.data.result
+    })
+  }
+
+  windowWidth = uni.getSystemInfoSync().windowWidth
+}
+
+/**
+ * 关闭选择器
+ */
+const hide = () => {
+  showPicker.value = false
+}
+
+/**
+ * tab切换
+ */
+const changeTab = (e: number) => {
+  let index = e
+  setScroll(index)
+  //延迟300ms,等待swiper动画结束再修改tabbar
+  tabCurrentIndex.value = index
+  setTimeout(() => {
+    getScroll("show" + index)
+  }, 10)
+}
+
+/**
+ * 获得元素的大小
+ */
+const getElSize = (id: string): Promise<any> => {
+  return new Promise((res) => {
+    let el = uni
+      .createSelectorQuery()
+      .in(instance!.proxy)
+      .select("#" + id)
+    el.fields(
+      {
+        size: true,
+        scrollOffset: true,
+        rect: true,
       },
-    },
-  },
-  data() {
-    return {
-      clearRightIcon: true, //是否显示右侧关闭icon
-      scrollLeft: 500, //顶部选项卡左滑距离
-      scrollTop: 0, //默认滚动顶部为0
-      enableScroll: true, //是否启用滚动
-      tabCurrentIndex: 0, //当前选项卡索引
-      tabbars: this.provinceData, //默认的省市区id
-      pickersize: this.pickerSize, //多少个tab 推荐为4级 
-      showPicker: false, //显示选取器
-    };
-  },
-  methods: {
-
-    /**
-     * 显示选择器
-     */
-    show() {
-      this.showPicker = true;
-      if (this.tabbars[0].children.length == 0) {
-        getRegionsById(0).then((res) => {
-          this.tabbars[0].children = res.data.result;
-        });
+      (data: any) => {
+        res(data)
       }
+    ).exec()
+  })
+}
 
-      windowWidth = uni.getSystemInfoSync().windowWidth;
-    },
-
-    /**
-     * 关闭选择器
-     */
-    hide() {
-      this.showPicker = false;
-    },
-    
-    /**
-     * tab切换
-     */
-    changeTab(e) {
-      let index = e;
-      this.setScroll(index);
-      //延迟300ms,等待swiper动画结束再修改tabbar
-      this.tabCurrentIndex = index;
-      setTimeout(() => {
-        this.getScroll("show" + index);
-      }, 10);
-    },
-    
-    /**
-     * 获得元素的大小
-     */
-    getElSize(id) {
-      return new Promise((res, rej) => {
-        let el = uni
-          .createSelectorQuery()
-          .in(this)
-          .select("#" + id);
-        el.fields(
-          {
-            size: true,
-            scrollOffset: true,
-            rect: true,
-          },
-          (data) => {
-            res(data);
-          }
-        ).exec();
-      });
-    },
-
-    /**
-     * 点击城市后回调
-     */
-    async changCity(index, item) {
-      if (this.tabbars[index].id != item.id) {
-        this.tabbars[index].localName = item.name;
-        this.tabbars[index].id = item.id;
-        this.tabbars[index].center = item.center
-        if (index < this.tabbars.length - 1) {
-          this.tabbars.splice(index + 1, this.tabbars.length - index - 1);
-        }
-        if (this.tabbars.length < this.pickersize) {
-          uni.showLoading({
-            title: "加载中",
-            mask:true
-          });
-          try {
-            let data = await getRegionsById(item.id);
-            uni.hideLoading();
-            // 当前选项级为最后一级时回调，将选中的数据返回
-            if (data.data.result.length == 0) {
-              this.$emit("funcValue", this.tabbars);
-              this.hide();
-            } else {
-              // 将新的数据填充进下一级
-              var current = {
-                localName: "请选择",
-                id: "",
-                children: data.data.result,
-                
-              };
-              this.tabbars.push(current);
-              this.tabCurrentIndex++;
-
-              // 当前距离重新为最上面
-              this['scrollTop'] = 0
-            }
-            } catch (error) {
-              uni.hideLoading();
-            }
-         
+/**
+ * 点击城市后回调
+ */
+const changCity = async (index: number, item: any) => {
+  if (tabbars.value[index].id != item.id) {
+    tabbars.value[index].localName = item.name
+    tabbars.value[index].id = item.id
+    tabbars.value[index].center = item.center
+    if (index < tabbars.value.length - 1) {
+      tabbars.value.splice(index + 1, tabbars.value.length - index - 1)
+    }
+    if (tabbars.value.length < pickersize.value as number) {
+      uni.showLoading({
+        title: "加载中",
+        mask: true
+      })
+      try {
+        let data = await getRegionsById(item.id)
+        uni.hideLoading()
+        // 当前选项级为最后一级时回调，将选中的数据返回
+        if (data.data.result.length == 0) {
+          emit("funcValue", tabbars.value)
+          hide()
         } else {
-          this.$emit("funcValue", this.tabbars);
-          this.hide();
-        }
-      }
-    },
+          // 将新的数据填充进下一级
+          var current = {
+            localName: "请选择",
+            id: "",
+            children: data.data.result,
+          }
+          tabbars.value.push(current)
+          tabCurrentIndex.value++
 
-    /**
-     * 获取当前tab中滚动的距离
-     */
-    async setScroll(index) {
-      let width = 0;
-      let nowWidth = 0;
-      for (let i = 0; i <= index; i++) {
-        let result = await this.getElSize("tab" + i);
-        width += result.width;
-        if (i === index) {
-          nowWidth = result.width;
+          // 当前距离重新为最上面
+          scrollTop.value = 0
         }
+      } catch (error) {
+        uni.hideLoading()
       }
-      if (width + nowWidth > windowWidth) {
-        this.scrollLeft = width + nowWidth;
-      } else {
-        this.scrollLeft = 0;
-      }
-    },
+    } else {
+      emit("funcValue", tabbars.value)
+      hide()
+    }
+  }
+}
 
-    /**
-     * 计算当前的滚动距离
-     */
-    getScroll(id) {
+/**
+ * 获取当前tab中滚动的距离
+ */
+const setScroll = async (index: number) => {
+  let width = 0
+  let nowWidth = 0
+  for (let i = 0; i <= index; i++) {
+    let result = await getElSize("tab" + i)
+    width += result.width
+    if (i === index) {
+      nowWidth = result.width
+    }
+  }
+  if (width + nowWidth > windowWidth) {
+    scrollLeft.value = width + nowWidth
+  } else {
+    scrollLeft.value = 0
+  }
+}
+
+/**
+ * 计算当前的滚动距离
+ */
+const getScroll = (id: string) => {
+  uni
+    .createSelectorQuery()
+    .in(instance!.proxy)
+    .select(".panel-scroll-box")
+    .boundingClientRect((data: any) => {
       uni
         .createSelectorQuery()
-        .in(this)
-        .select(".panel-scroll-box")
-        .boundingClientRect((data) => {
-          uni
-            .createSelectorQuery()
-            .in(this)
-            .select("#" + id)
-            .boundingClientRect((res) => {
-              if (res != undefined && res != null && res != "") {
-                this.scrollTop = res.top - data.top;
-              }
-            })
-            .exec();
+        .in(instance!.proxy)
+        .select("#" + id)
+        .boundingClientRect((res: any) => {
+          if (res != undefined && res != null && res != "") {
+            scrollTop.value = res.top - data.top
+          }
         })
-        .exec();
-    },
-  },
-};
+        .exec()
+    })
+    .exec()
+}
+
+// 暴露方法给父组件调用
+defineExpose({ show, hide })
 </script>
 
 <style lang="scss" scoped>

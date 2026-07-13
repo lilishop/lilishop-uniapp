@@ -39,33 +39,31 @@
   </view>
 </template>
 
-<script>
-export default {
-  data() {
-    return {};
-  },
-  props: ["res", "goodsDetail", "storeDetail"],
-  computed: {
-    recommendGoods() {
-      return (this.res || []).filter((item) => item && item.thumbnail && item.goodsName);
-    },
-  },
-  mounted() {},
-  methods: {
-    // 点击商品
-    clickGoods(val) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
-      });
-    },
+<script setup lang="ts">
+import { computed } from 'vue'
+import { goodsFormatPrice } from '@/utils/filters.js'
 
-    tostorePage(val) {
-      uni.navigateTo({
-        url: "../product/shopPage?id=" + val.storeId,
-      });
-    },
-  },
-};
+const props = defineProps<{
+  res?: any[]
+  goodsDetail?: any
+  storeDetail?: any
+}>()
+
+const recommendGoods = computed(() => {
+  return (props.res || []).filter((item) => item && item.thumbnail && item.goodsName)
+})
+
+function clickGoods(val: any) {
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${val.id}&goodsId=${val.goodsId}`,
+  })
+}
+
+function tostorePage(val: any) {
+  uni.navigateTo({
+    url: '../product/shopPage?id=' + val.storeId,
+  })
+}
 </script>
 
 <style lang="scss" scoped>

@@ -58,77 +58,68 @@
   </view>
 </template>
 
-<script>
-import { getUserWallet, withdrawalApply, withdrawalSettingVO } from "@/api/members";
-export default {
-  data() {
-    return {
-      price: "",
-      walletNum: 0,
-      minPrice: 0,
-      type: "",
-      connectNumber: "",
-      realName: "",
-    };
-  },
-  computed: {
-    typeLabel() {
-      if (this.type === "ALI") return "支付宝";
-      if (this.type) return "微信";
-      return "--";
-    },
-  },
-  async mounted() {
-    const result = await getUserWallet();
-    const res = await withdrawalSettingVO();
-    this.walletNum = result.data.result.memberWallet;
-    this.minPrice = res.data.result.minPrice;
-    this.type = res.data.result.type;
-  },
-  methods: {
-    cashd() {
-      const amount = Number(this.price);
-      if (!this.$u.test.amount(parseInt(amount))) {
-        uni.showToast({
-          title: "请输入正确金额",
-          duration: 2000,
-          icon: "none",
-        });
-        return;
-      }
+<script setup lang="ts">
+import { ref, computed, getCurrentInstance, onMounted } from 'vue'
+import { getUserWallet, withdrawalApply, withdrawalSettingVO } from '@/api/members'
+import { unitPrice } from '@/utils/filters.js'
 
-      const params = { price: amount };
-      if (this.type === "ALI") {
-        if (!this.connectNumber || !this.realName) {
-          uni.showToast({
-            title: "请输入真实姓名和第三方登录账号",
-            duration: 2000,
-            icon: "none",
-          });
-          return;
-        }
-        params.connectNumber = this.connectNumber;
-        params.realName = this.realName;
-      }
+const { proxy } = getCurrentInstance()!
 
-      withdrawalApply(params).then((res) => {
-        if (res.data.success) {
-          uni.showToast({
-            title: "提现成功!",
-            duration: 2000,
-            icon: "none",
-          });
-          setTimeout(() => {
-            uni.navigateBack({ delta: 1 });
-          }, 1000);
-        }
-      });
-    },
-    handleAll() {
-      this.price = String(this.walletNum || "");
-    },
-  },
-};
+const price = ref('')
+const walletNum = ref(0)
+const minPrice = ref(0)
+const type = ref('')
+const connectNumber = ref('')
+const realName = ref('')
+
+const typeLabel = computed(() => {
+  if (type.value === 'ALI') return '支付宝'
+  if (type.value) return '微信'
+  return '--'
+})
+
+onMounted(async () => {
+  const result = await getUserWallet()
+  const res = await withdrawalSettingVO()
+  walletNum.value = result.data.result.memberWallet
+  minPrice.value = res.data.result.minPrice
+  type.value = res.data.result.type
+})
+
+function cashd() {
+  const amount = Number(price.value)
+  if (!proxy.$u.test.amount(parseInt(String(amount)))) {
+    uni.showToast({ title: '请输入正确金额', duration: 2000, icon: 'none' })
+    return
+  }
+
+  const params: Record<string, any> = { price: amount }
+  if (type.value === 'ALI') {
+    if (!connectNumber.value || !realName.value) {
+      uni.showToast({
+        title: '请输入真实姓名和第三方登录账号',
+        duration: 2000,
+        icon: 'none',
+      })
+      return
+    }
+    params.connectNumber = connectNumber.value
+    params.realName = realName.value
+  }
+
+  withdrawalApply(params).then((res) => {
+    if (res.data.success) {
+      uni.showToast({ title: '提现成功!', duration: 2000, icon: 'none' })
+      setTimeout(() => {
+        uni.navigateBack({ delta: 1 })
+      }, 1000)
+    }
+  })
+}
+
+function handleAll() {
+  price.value = String(walletNum.value || '')
+}
 </script>
 
 <style lang="scss" scoped>

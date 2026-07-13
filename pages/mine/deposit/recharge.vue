@@ -19,40 +19,30 @@
   </view>
 </template>
 
-<script>
-import { recharge } from "@/api/members";
-export default {
-  data() {
-    return {
-      price: "",
-      flag: true,
-    };
-  },
-  watch: {
-    price(val) {
-      this.flag = !(Number(val) > 0);
-    },
-  },
-  methods: {
-    async handlerRecharge() {
-      const amount = Number(this.price);
-      if (!(amount > 0)) {
-        uni.showToast({
-          title: "请输入充值金额",
-          icon: "none",
-        });
-        return;
-      }
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { recharge } from '@/api/members'
 
-      const res = await recharge({ price: amount });
-      if (res.data.success) {
-        uni.navigateTo({
-          url: `/pages/cart/payment/payOrder?orderType=RECHARGE&recharge_sn=${res.data.result.rechargeSn}`,
-        });
-      }
-    },
-  },
-};
+const price = ref('')
+const flag = ref(true)
+
+watch(price, (val) => {
+  flag.value = !(Number(val) > 0)
+})
+
+async function handlerRecharge() {
+  const amount = Number(price.value)
+  if (!(amount > 0)) {
+    uni.showToast({ title: '请输入充值金额', icon: 'none' })
+    return
+  }
+  const res = await recharge({ price: amount })
+  if (res.data.success) {
+    uni.navigateTo({
+      url: `/pages/cart/payment/payOrder?orderType=RECHARGE&recharge_sn=${res.data.result.rechargeSn}`,
+    })
+  }
+}
 </script>
 
 <style lang="scss" scoped>

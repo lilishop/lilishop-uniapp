@@ -20,67 +20,57 @@
   </view>
 </template>
 
-<script>
-import * as API_Trade from "@/api/trade";
-import * as API_Store from "@/api/store.js";
-export default {
-  data() {
-    return {
-      storeAddressList: [], //地址列表
-      showAction: false, //是否显示下栏框
-      removeList: [
-        {
-          text: "确定",
-        },
-      ],
-      tips: {
-        text: "确定要删除该收货人信息吗？",
-      },
-      removeId: "", //删除的地址id
-      routerVal: "",
-      params: {
-        pageNumber: 1,
-        pageSize: 1000,
-      },
-    };
-  },
-  onPullDownRefresh() {
-    //下拉刷新
-    this.storeAddressList = [];
-    this.getAddressList();
-  },
-  onLoad: function (val) {
-    this.routerVal = val;
-  },
-  onShow() {
-    this.storeAddressList = [];
-    this.getAddressList();
-  },
-  onHide() {},
-  methods: {
-    async selectAddressData(val) {
-      await API_Trade.setStoreAddressId(val.id, this.routerVal.way);
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad, onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import * as API_Trade from '@/api/trade'
+import * as API_Store from '@/api/store.js'
 
-      uni.navigateBack({
-        delta: 1,
-      });
-    },
-    //获取地址列表
-    getAddressList() {
-      uni.showLoading();
+const store = useStore()
 
-      API_Store.getStoreAddress(
-        this.routerVal.storeId,
-        this.params
-      ).then((res) => {
-        this.storeAddressList = res.data.result.records;
-        console.log(this.storeAddressList);
+const storeAddressList = ref<any[]>([])
+const showAction = ref(false)
+const removeList = [{ text: '确定' }]
+const tips = { text: '确定要删除该收货人信息吗？' }
+const removeId = ref('')
+const routerVal = ref<Record<string, string>>({})
+const params = { pageNumber: 1, pageSize: 1000 }
 
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
-    },
-  },
-};
+onPullDownRefresh(() => {
+  storeAddressList.value = []
+  getAddressList()
+})
+
+onLoad((val) => {
+  routerVal.value = val || {}
+})
+
+onShow(() => {
+  storeAddressList.value = []
+  getAddressList()
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+async function selectAddressData(val: any) {
+  await API_Trade.setStoreAddressId(val.id, routerVal.value.way)
+  uni.navigateBack({ delta: 1 })
+}
+
+function getAddressList() {
+  uni.showLoading()
+  API_Store.getStoreAddress(routerVal.value.storeId, params).then((res) => {
+    storeAddressList.value = res.data.result.records
+    hideLoadingIfNeeded()
+  })
+}
+
+function deleteAddressMessage() {
+  // 保留 action-sheet 回调占位，当前页面无删除入口
+}
 </script>
 
 <style lang="scss" scoped>

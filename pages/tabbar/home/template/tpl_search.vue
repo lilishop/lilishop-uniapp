@@ -6,25 +6,20 @@
     </view>
   </view>
 </template>
-<script>
-export default {
-  title:"搜索栏",
-  props: ["res","storeId"],
-  methods: {
-    handleSearch() {
-      if(this.storeId){
-        uni.navigateTo({
-        url: `/pages/navigation/search/searchPage?storeId=${this.storeId}`,
-      });
-      }else{
-         uni.navigateTo({
-        url: `/pages/navigation/search/searchPage`,
-      });
-      }
-      
-    },
-  },
-};
+<script setup lang="ts">
+const props = defineProps<{ res: any; storeId?: string }>();
+
+function handleSearch() {
+  if (props.storeId) {
+    uni.navigateTo({
+      url: `/pages/navigation/search/searchPage?storeId=${props.storeId}`,
+    });
+  } else {
+    uni.navigateTo({
+      url: `/pages/navigation/search/searchPage`,
+    });
+  }
+}
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

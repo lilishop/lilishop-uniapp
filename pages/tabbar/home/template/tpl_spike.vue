@@ -31,41 +31,38 @@
     </div>
   </div>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import * as API_Promotions from "@/api/promotions";
-export default {
-  props: ["res"],
-  title: "秒杀",
-  data() {
-    return {
-      goodsList: [],
-    };
-  },
-  mounted() {
-    API_Promotions.getSeckillTimeLine().then((res) => {
-      if (res.data.success && res.data.result && res.data.result.length) {
-        const sorted = res.data.result.sort(
-          (x, y) => Number(x.timeLine) - Number(y.timeLine)
-        );
-        const first = sorted[0] || {};
-        this.goodsList = (first.seckillGoodsList || []).slice(
-          0,
-          this.res.list[0].count || 3
-        );
-      }
-    });
-  },
-  methods: {
-    goMore() {
-      uni.navigateTo({ url: "/pages/promotion/seckill" });
-    },
-    goDetail(item) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${item.skuId}&goodsId=${item.goodsId}`,
-      });
-    },
-  },
-};
+
+const props = defineProps<{ res: any }>();
+
+const goodsList = ref<any[]>([]);
+
+onMounted(() => {
+  API_Promotions.getSeckillTimeLine().then((res) => {
+    if (res.data.success && res.data.result && res.data.result.length) {
+      const sorted = res.data.result.sort(
+        (x: any, y: any) => Number(x.timeLine) - Number(y.timeLine)
+      );
+      const first = sorted[0] || {};
+      goodsList.value = (first.seckillGoodsList || []).slice(
+        0,
+        props.res.list[0].count || 3
+      );
+    }
+  });
+});
+
+function goMore() {
+  uni.navigateTo({ url: "/pages/promotion/seckill" });
+}
+
+function goDetail(item: any) {
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${item.skuId}&goodsId=${item.goodsId}`,
+  });
+}
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

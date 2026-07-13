@@ -5,7 +5,7 @@
         ￥{{unitPrice(Number(payPrice)) }}
       </div>
       <div class="pay-btns">
-        <div v-show="!from" @click="checkOrder">查看{{ this.orderType == "RECHARGE" ? '余额' : '订单' }}</div>
+        <div v-show="!from" @click="checkOrder">查看{{ orderType == "RECHARGE" ? '余额' : '订单' }}</div>
         <div @click="navigateTo('/pages/tabbar/home/index', 'switch')">回到首页</div>
       </div>
     </div>
@@ -24,73 +24,55 @@
   </div>
 
 </template>
-<script>
-import goodsRecommend from "@/components/m-goods-recommend";
-export default {
-  data() {
-    return {
-      checked: false,
-      paymentMethod: "",
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import goodsRecommend from '@/components/m-goods-recommend'
+import { unitPrice } from '@/utils/filters.js'
 
-      from: "",
-      payPrice: 0,
-      goodsList: [],
-      activeColor: this.$mainColor,
-    };
-  },
-  components: {
-    goodsRecommend,
-  },
-  onLoad(options) {
-    this.paymentMethod = options.paymentMethod || "";
-    this.from = options.from || "";
-    this.payPrice = options.payPrice || 0;
-    this.orderType = options.orderType;
+const paymentMethod = ref('')
+const from = ref('')
+const payPrice = ref<number | string>(0)
+const orderType = ref('')
 
-  },
-  methods: {
-    paymentTypeFilter(val) {
-      switch (val) {
-        case "WECHAT":
-          return "微信";
-        case "ALIPAY":
-          return "支付宝";
-        case "WALLET":
-          return "余额支付";
-        default:
-          return "";
-      }
-    },
-    checkOrder() {
-      /**
-       * 查看订单
-       * 1.充值跳转到明细里面
-       * 2.支付跳转到订单详情
-       */
-      if (this.orderType == "RECHARGE") {
-        uni.reLaunch({
-          url: `/pages/mine/deposit/operation`,
-        });
-      } else {
-        this.navigateTo("/pages/order/myOrder?status=0");
-      }
-    },
+onLoad((options) => {
+  paymentMethod.value = options.paymentMethod || ''
+  from.value = options.from || ''
+  payPrice.value = options.payPrice || 0
+  orderType.value = options.orderType || ''
+})
 
-    navigateTo(url, type) {
-      if (type === "switch") {
-        uni.switchTab({
-          url,
-        });
-      } else {
-        uni.redirectTo({
-          url,
-        });
-      }
-    },
-  },
-};
-</script>
-<style scoped lang="scss">
+function paymentTypeFilter(val: string) {
+  switch (val) {
+    case 'WECHAT':
+      return '微信'
+    case 'ALIPAY':
+      return '支付宝'
+    case 'WALLET':
+      return '余额支付'
+    default:
+      return ''
+  }
+}
+
+function checkOrder() {
+  if (orderType.value == 'RECHARGE') {
+    uni.reLaunch({
+      url: '/pages/mine/deposit/operation',
+    })
+  } else {
+    navigateTo('/pages/order/myOrder?status=0')
+  }
+}
+
+function navigateTo(url: string, type?: string) {
+  if (type === 'switch') {
+    uni.switchTab({ url })
+  } else {
+    uni.redirectTo({ url })
+  }
+}
+</script><style scoped lang="scss">
 .subscribe {
   justify-content: space-between;
   align-items: center;

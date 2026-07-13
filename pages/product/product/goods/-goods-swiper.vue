@@ -27,30 +27,33 @@
     <view class="swiper-dots">{{ current }}/{{ video ? res.length + 1 : res.length }}</view>
   </view>
 </template>
-<script>
-export default {
-  data() {
-    return {
-      current: 1,
-      html: ""
-    };
-  },
-  props: ["res", 'video'],
-  watch: {
-    video(val) {
-      this.html = '<video muted="muted"   ref="videoPlay" style="width:100%; height:100%;" src=' + val + '  page-gesture show-mute-btn   autoplay  webkit-playsinline="" playsinline="" ></video>'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+
+const props = defineProps<{
+  res?: string[]
+  video?: string
+}>()
+
+const current = ref(1)
+const html = ref('')
+
+watch(
+  () => props.video,
+  (val) => {
+    if (val) {
+      html.value =
+        '<video muted="muted"   ref="videoPlay" style="width:100%; height:100%;" src=' +
+        val +
+        '  page-gesture show-mute-btn   autoplay  webkit-playsinline="" playsinline="" ></video>'
     }
   },
-  methods: {
-    // 轮播图对应的dot
-    swiperChange(e) {
-      this.current = e.detail.current + 1;
-    },
-  },
-  mounted() {
-    console.log(this.video)
-  }
-};
+  { immediate: true }
+)
+
+function swiperChange(e: any) {
+  current.value = e.detail.current + 1
+}
 </script>
 <style lang="scss" scoped>
 .carousel {

@@ -63,15 +63,19 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export function getThemeStyle(theme) {
-  const primary = theme.mainColor || DEFAULT_THEME.mainColor;
+export function getThemeStyle(theme = DEFAULT_THEME) {
+  const safeTheme = theme || DEFAULT_THEME;
+  const primary = safeTheme.mainColor || DEFAULT_THEME.mainColor;
+  const light = safeTheme.lightColor || DEFAULT_THEME.lightColor;
   return {
     "--theme-primary": primary,
-    "--theme-light": theme.lightColor || DEFAULT_THEME.lightColor,
-    "--theme-aider": theme.aiderLightColor || DEFAULT_THEME.aiderLightColor,
+    "--theme-light": light,
+    "--theme-aider": safeTheme.aiderLightColor || DEFAULT_THEME.aiderLightColor,
     "--theme-primary-10": hexToRgba(primary, 0.1),
     "--theme-primary-20": hexToRgba(primary, 0.2),
     "--theme-primary-30": hexToRgba(primary, 0.3),
     "--theme-primary-70": hexToRgba(primary, 0.7),
+    "--theme-light-10": hexToRgba(light, 0.1),
+    "--theme-light-80": hexToRgba(light, 0.8),
   };
 }

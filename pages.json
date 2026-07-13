@@ -126,7 +126,7 @@
 					"path": "myCollect",
 					"style": {
 						"navigationBarTitleText": "收藏",
-						"enablePullDownRefresh": true, //下拉刷新
+						"enablePullDownRefresh": false,
 						"navigationStyle": "custom",
 						"app-plus": {
 							"scrollIndicator": "none"
@@ -580,6 +580,7 @@
 					}
 				},
 				
+				// #ifndef MP-WEIXIN
 				{
 					"path": "live/room",
 					"style": {
@@ -588,6 +589,7 @@
 						"disableScroll": true
 					}
 				},
+				// #endif
 				 {
 					"path": "joinGroup",
 					"style": {
@@ -599,14 +601,17 @@
 							"bounce": "none"
 						}
 					}
-				},{
+				},
+				// #ifndef MP-WEIXIN
+				{
 					"path": "lives",
 					"style": {
 						"navigationStyle": "custom",
 						"navigationBarTextStyle": "black"
-
 					}
-				},{
+				},
+				// #endif
+				{
 					"path": "bargain/list",
 					"style": {
 						"navigationStyle": "custom",
@@ -696,6 +701,17 @@
 						"app-plus": {
 							"popGesture": "none", //禁止侧滑退出
 							"titleNView": false
+						}
+					}
+				},
+				{
+					"path": "payment/error",
+					"style": {
+						"navigationBarTitleText": "支付失败",
+						"navigationStyle": "custom",
+						"navigationBarTextStyle": "black",
+						"app-plus": {
+							"popGesture": "none"
 						}
 					}
 				},

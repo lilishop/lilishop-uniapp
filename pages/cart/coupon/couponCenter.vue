@@ -1,302 +1,262 @@
 <template>
 	<view class="coupon-center">
-		<div class="swiper-box">
-			<div class="swiper-item">
-				<div class="scroll-v" enableBackToTop="true" scroll-y>
-					<u-empty mode="coupon" style='margin-top: 20%;' text="没有优惠券了" v-if="whetherEmpty"></u-empty>
-					<view v-else class="coupon-item" v-for="(item, index) in couponList" :key="index">
-						<view class="left">
-							<view class="wave-line">
-								<view class="wave" v-for="(item, index) in 12" :key="index"></view>
-							</view>
-							<view class="message">
-								<view>
-									<!--判断当前优惠券类型  couponType  PRICE || DISCOUNT -->
-									<span v-if="item.couponType == 'DISCOUNT'">{{ item.couponDiscount }}折</span>
-									<span v-else>{{ item.price }}元</span>
-								</view>
-								<view>满{{unitPrice(item.consumeThreshold) }}元可用</view>
-							</view>
-							<view class="circle circle-top"></view>
-							<view class="circle circle-bottom"></view>
-						</view>
-						<view class="right">
-							<view>
-								<!-- 根据scopeType 判断是否是 平台、品类或店铺  -->
-								<view class="coupon-title wes-3" v-if="item.scopeType">
-									<span v-if="item.scopeType == 'ALL' && item.storeId == '0'">全平台</span>
-									<span v-if="item.scopeType == 'PORTION_GOODS_CATEGORY'">仅限品类</span>
-									<view v-else>{{ item.storeName == 'platform' ? '全平台' :item.storeName+'店铺' }}使用
-									</view>
-								</view>
-								<view v-if="item.endTime">有效期至：{{ item.endTime.split(" ")[0] }}</view>
-							</view>
-							<view class="receive" @click="receive(item)">
-								<text>点击</text><br />
-								<text>领取</text>
-							</view>
-							<view class="bg-quan"> 券 </view>
-						</view>
+		<view class="coupon-list">
+			<u-empty mode="coupon" style='margin-top: 20%;' text="没有优惠券了" v-if="whetherEmpty"></u-empty>
+			<view v-else class="coupon-card" v-for="(item, index) in couponList" :key="index">
+				<view class="coupon-card-left">
+					<text class="coupon-price-symbol">¥</text>
+					<text class="coupon-price-value">{{ item.couponType == 'DISCOUNT' ? item.couponDiscount + '折' : unitPrice(item.price) }}</text>
+				</view>
+				<view class="coupon-divider"></view>
+				<view class="coupon-card-right">
+					<view class="coupon-info">
+						<text class="coupon-card-name">{{ item.storeName == 'platform' ? '全平台' : item.storeName + '店铺' }}使用</text>
+						<text class="coupon-card-desc">满{{unitPrice(item.consumeThreshold) }}元可用</text>
+						<text class="coupon-card-time" v-if="item.endTime">有效期至：{{ item.endTime.split(" ")[0] }}</text>
 					</view>
-
-				</div>
-			</div>
-		</div>
+					<view class="coupon-claim-btn" @click="receive(item)">
+						领取
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
-<script>
-	import {
-		receiveCoupons
-	} from "@/api/members.js";
-	import {
-		getAllCoupons
-	} from "@/api/promotions.js";
-	export default {
-		data() {
-			return {
-				loadStatus: "more", //下拉状态
-				whetherEmpty: false, //是否为空
-				couponList: [], // 优惠券列表
-				params: {
-					pageNumber: 1,
-					pageSize: 10,
-				},
-				storeId: "", //店铺 id,
-				couponData: ""
-			};
-		},
-		onLoad(option) {
-			this.storeId = option.storeId;
-			this.getCoupon();
-		},
-		onReachBottom() {
+<script setup lang="ts">
+import { receiveCoupons } from '@/api/members.js'
+import { getAllCoupons } from '@/api/promotions.js'
+import { useStore } from '@/store'
+import { unitPrice } from '@/utils/filters.js'
+import {
+	onLoad,
+	onNavigationBarButtonTap,
+	onPullDownRefresh,
+	onReachBottom,
+} from '@dcloudio/uni-app'
+import { getCurrentInstance, ref } from 'vue'
 
-			this.loadMore()
-		},
-		onPullDownRefresh() {
-			//下拉刷新
-			this.params.pageNumber = 1;
-			this.couponList = [];
-			this.getCoupon();
-		},
-		methods: {
-			/**
-			 * 获取当前优惠券
-			 */
-			getCoupon() {
-				uni.showLoading({
-					title: "加载中",
-				});
-				let submitData = {
-					...this.params
-				};
-				// 判断当前是否有店铺
-				this.storeId ? (submitData = {
-						...this.params,
-						storeId: this.storeId
-					}) : "",
-					getAllCoupons(submitData)
-					.then((res) => {
-						if (this.$store.state.isShowToast){ uni.hideLoading() };
-						uni.stopPullDownRefresh();
-						if (res.data.code == 200) {
-							// 如果请求成功，展示数据并进行展示
-							this.couponData = res.data.result
-							if (this.couponData.total == 0) {
-								// 当本次请求数据为空展示空信息
-								this.whetherEmpty = true;
-							} else {
-								this.couponList.push(...this.couponData.records);
-								this.loadStatus = "noMore";
-							}
-						}
-					})
-					.catch((err) => {
-						 if (this.$store.state.isShowToast){ uni.hideLoading() };
-					});
-			},
-			/**
-			 * 领取优惠券
-			 */
-			receive(val) {
-				this.$u.throttle(()=>{
-					this.fetchCoupon(val)
-				}, 1500)
-				
-			},
+const store = useStore()
+const { proxy } = getCurrentInstance()!
 
-			fetchCoupon(val){
-				receiveCoupons(val.id).then((res) => {
-					if (res.data.code == 200) {
-						uni.showToast({
-							title: "领取成功",
-							icon: "none",
-						});
-					} else {
-						uni.showToast({
-							title: res.data.message,
-							icon: "none",
-						});
-					}
-				});
-			},
+const loadStatus = ref('more')
+const whetherEmpty = ref(false)
+const couponList = ref<any[]>([])
+const params = ref({
+  pageNumber: 1,
+  pageSize: 10,
+})
+const storeId = ref('')
+const couponData = ref<any>(null)
 
-			/**
-			 * 加载更多
-			 */
-			loadMore() {
-				if (this.couponData.total > this.params.pageNumber * this.params.pageSize) {
-					this.params.pageNumber++;
-					this.getCoupon();
-				}
-			},
-		},
-		onNavigationBarButtonTap(e) {
-			uni.navigateTo({
-				url: "/pages/cart/coupon/couponIntro",
-			});
-		},
-	};
+onLoad((option) => {
+  storeId.value = option.storeId || ''
+  getCoupon()
+})
+
+onReachBottom(() => {
+  loadMore()
+})
+
+onPullDownRefresh(() => {
+  params.value.pageNumber = 1
+  couponList.value = []
+  getCoupon()
+})
+
+onNavigationBarButtonTap(() => {
+  uni.navigateTo({
+    url: '/pages/cart/coupon/couponIntro',
+  })
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+function getCoupon() {
+  uni.showLoading({ title: '加载中' })
+  const submitData = storeId.value
+    ? { ...params.value, storeId: storeId.value }
+    : { ...params.value }
+
+  getAllCoupons(submitData)
+    .then((res) => {
+      hideLoadingIfNeeded()
+      uni.stopPullDownRefresh()
+      if (res.data.code == 200) {
+        couponData.value = res.data.result
+        if (couponData.value.total == 0) {
+          whetherEmpty.value = true
+        } else {
+          couponList.value.push(...couponData.value.records)
+          loadStatus.value = 'noMore'
+        }
+      }
+    })
+    .catch(() => {
+      hideLoadingIfNeeded()
+    })
+}
+
+function receive(val: any) {
+  proxy.$u.throttle(() => {
+    fetchCoupon(val)
+  }, 1500)
+}
+
+function fetchCoupon(val: any) {
+  receiveCoupons(val.id).then((res) => {
+    if (res.data.code == 200) {
+      uni.showToast({ title: '领取成功', icon: 'none' })
+    } else {
+      uni.showToast({ title: res.data.message, icon: 'none' })
+    }
+  })
+}
+
+function loadMore() {
+  if (couponData.value?.total > params.value.pageNumber * params.value.pageSize) {
+    params.value.pageNumber++
+    getCoupon()
+  }
+}
 </script>
-<style>
-	page {
-		height: 100%;
-	}
-</style>
+
 <style lang="scss" scoped>
-	.coupon-center {
-		height: 100%;
+.coupon-center {
+  min-height: 100vh;
+  background: #f7f8fa;
+}
 
-		.swiper-box {
-			.coupon-item {
-				display: flex;
-				align-items: center;
-				height: 220rpx;
-				margin: 20rpx;
+.coupon-list {
+  padding: 24rpx;
+}
 
-				.left {
-					height: 100%;
-					width: 260rpx;
-					background-color: $light-color;
-					position: relative;
+.coupon-card {
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+  border-radius: 24rpx;
+  margin-bottom: 24rpx;
+  position: relative;
+  box-shadow: none;
+  border: 1rpx solid #f0f1f5;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-					.message {
-						color: $font-color-white;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						flex-direction: column;
-						margin-top: 40rpx;
+  &:active {
+    transform: scale(0.98);
+  }
 
-						view:nth-child(1) {
-							font-weight: bold;
-							font-size: 60rpx;
-						}
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 32rpx;
+    height: 32rpx;
+    background: #f7f8fa;
+    border-radius: 50%;
+    left: 204rpx;
+    z-index: 2;
+    box-shadow: inset 0 0 0 1rpx #eceef2;
+  }
 
-						view:nth-child(2) {
-							font-size: $font-sm;
-						}
-					}
+  &::before {
+    top: -16rpx;
+  }
 
-					.wave-line {
-						height: 220rpx;
-						width: 8rpx;
-						position: absolute;
-						top: 0;
-						left: 0;
-						background-color: $light-color;
-						overflow: hidden;
+  &::after {
+    bottom: -16rpx;
+  }
+}
 
-						.wave {
-							width: 8rpx;
-							height: 16rpx;
-							background-color: #ffffff;
-							border-radius: 0 16rpx 16rpx 0;
-							margin-top: 4rpx;
-						}
-					}
+.coupon-card-left {
+  width: 220rpx;
+  min-height: 180rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ff3b30;
+  position: relative;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffecec 100%);
+}
 
-					.circle {
-						width: 40rpx;
-						height: 40rpx;
-						background-color: $bg-color;
-						position: absolute;
-						border-radius: 50%;
-						z-index: 111;
-					}
+.coupon-price-symbol {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-right: 4rpx;
+}
 
-					.circle-top {
-						top: -20rpx;
-						right: -20rpx;
-					}
+.coupon-price-value {
+  font-size: 56rpx;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1rpx;
+}
 
-					.circle-bottom {
-						bottom: -20rpx;
-						right: -20rpx;
-					}
-				}
+.coupon-divider {
+  position: absolute;
+  left: 220rpx;
+  top: 24rpx;
+  bottom: 24rpx;
+  width: 0;
+  border-left: 2rpx dashed #eceef2;
+}
 
-				.right {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					width: 450rpx;
-					font-size: $font-sm;
-					height: 100%;
-					background-color: #ffffff;
-					overflow: hidden;
-					position: relative;
+.coupon-card-right {
+  flex: 1;
+  padding: 32rpx 32rpx 32rpx 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  background: #fff;
+}
 
-					>view:nth-child(1) {
-						color: #666666;
-						margin-left: 20rpx;
-						display: flex;
-						height: 100%;
-						flex-direction: column;
-						justify-content: space-around;
+.coupon-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  flex: 1;
+  min-width: 0;
+}
 
-						>view:nth-child(1) {
-							color: #ff6262;
-							font-size: 30rpx;
-						}
-					}
+.coupon-card-name {
+  font-size: 30rpx;
+  color: #111;
+  font-weight: 700;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
-					.receive {
-						color: #ffffff;
-						background-color: $main-color;
-						border-radius: 50%;
-						width: 86rpx;
-						height: 86rpx;
-						text-align: center;
-						margin-right: 30rpx;
-						vertical-align: middle;
-						padding-top: 8rpx;
-						position: relative;
-						z-index: 2;
-					}
+.coupon-card-desc {
+  font-size: 24rpx;
+  color: #8a8f99;
+  font-weight: 500;
+}
 
-					.bg-quan {
-						width: 244rpx;
-						height: 244rpx;
-						border: 6rpx solid $main-color;
-						border-radius: 50%;
-						opacity: 0.1;
-						color: $main-color;
-						text-align: center;
-						padding-top: 30rpx;
-						font-size: 130rpx;
-						position: absolute;
-						right: -54rpx;
-						bottom: -60rpx;
-					}
-				}
-			}
-		}
-	}
+.coupon-card-time {
+  font-size: 22rpx;
+  color: #b0b3bf;
+}
 
-	.coupon-title {
-		width: 260rpx;
+.coupon-claim-btn {
+  flex-shrink: 0;
+  padding: 16rpx 32rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #ff6b35, #ff4b2b);
+  box-shadow: 0 8rpx 16rpx rgba(255, 75, 43, 0.25);
 
-	}
+  &:active {
+    opacity: 0.9;
+  }
+}
 </style>

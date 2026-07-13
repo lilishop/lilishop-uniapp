@@ -82,19 +82,19 @@
 
 							<!-- 拼团购买，仅筛选出当前拼团类型商品 -->
 							<template v-for="(spec_val, spec_index) in spec.values" :key="spec_index">
-							<view
-								v-if="parentOrder && spec_val.skuId == goodsDetail.id"
-								:class="{ active: spec_val.value == currentSelected[specIndex] }"
-								class="skus-view-item"
-								@click="handleClickSpec(spec, specIndex, spec_val)"
-							>
-								{{ spec_val.value }}
-							</view>
+								<view
+									v-if="parentOrder && spec_val.skuId == goodsDetail.id"
+									:class="{ active: spec_val.value == currentSelected[specIndex] }"
+									class="skus-view-item"
+									@click="handleClickSpec(spec, specIndex, spec_val)"
+								>
+									{{ spec_val.value }}
+								</view>
 							</template>
 						</view>
 					</view>
 					<div class="soldout" v-if="goodsDetail.quantity === 0">
-						<u-alert-tips type="warning" title="商品已售罄" description="当前商品库存为0"></u-alert-tips>
+						<u-alert type="warning" title="商品已售罄" :description="'当前商品库存为0'"></u-alert>
 					</div>
 					<!-- 数量 -->
 					<view v-if="goodsDetail.quantity !== 0" class="goods-skus-number flex flex-a-c flex-j-sb">
@@ -111,313 +111,269 @@
 		</u-popup>
 	</div>
 </template>
-<script>
-import * as API_trade from '@/api/trade.js';
-import setup from './popup';
-import uniNumberBox from '@/components/uni-number-box'
-export default {
-	components: {
-		uniNumberBox
-	},
-	data() {
-		return {
-			setup,
-			num: this.wholesaleList && this.wholesaleList.length > 0 ? this.wholesaleList[0].num : 1,
 
-			selectName: '', //选中商品的昵称
-			selectSkuList: '', //选中商铺sku,
-			selectedSpecImg: '', //选中的图片路径
-			buyType: '', //用于存储促销，拼团等活动类型
-			parentOrder: '', //父级拼团活动的数据 - 如果是团员则有数据
-			formatList: [],
-			currentSelected: [],
-			skuList: '',
-			isClose: false //是否可以点击遮罩关闭
-		};
-	},
-	props: {
-		wholesaleList: {
-			type: null,
-			default: false
-		},
-		buyMask: {
-			type: Boolean,
-			default: false
-		},
-		isGroup: {
-			type: Boolean,
-			default: false
-		},
-		goodsDetail: {
-			default: '',
-			type: null
-		},
-		selectedSku: {
-			default: '',
-			type: null
-		},
-		goodsSpec: {
-			default: '',
-			type: null
-		},
-		addr: {
-			default: '',
-			type: null
-		},
-		pointDetail: {
-			default: '',
-			type: null
+<script setup lang="ts">
+import { ref, reactive, watch, onMounted } from 'vue'
+import * as API_trade from '@/api/trade.js'
+import setup from './popup.js'
+import uniNumberBox from '@/components/uni-number-box.vue'
+import { goodsFormatPrice } from '@/utils/filters.js'
+
+const props = withDefaults(defineProps<{
+	wholesaleList?: any[] | boolean
+	buyMask?: boolean
+	isGroup?: boolean
+	goodsDetail?: any
+	selectedSku?: any | null
+	goodsSpec?: any | null
+	addr?: any | null
+	pointDetail?: any | null
+}>(), {
+	wholesaleList: false,
+	buyMask: false,
+	isGroup: false,
+	goodsDetail: () => ({}),
+	selectedSku: '',
+	goodsSpec: '',
+	addr: '',
+	pointDetail: ''
+})
+
+const emit = defineEmits(['closeBuy', 'changed', 'handleClickSku', 'queryCart'])
+
+const num = ref(props.wholesaleList && Array.isArray(props.wholesaleList) && props.wholesaleList.length > 0 ? props.wholesaleList[0].num : 1)
+
+const selectName = ref('')
+const selectSkuList = ref<any>('')
+const selectedSpecImg = ref('')
+const buyType = ref('')
+const parentOrder = ref<any>('')
+const formatList = ref<any[]>([])
+const currentSelected = ref<string[]>([])
+const skuList = ref('')
+
+watch(num, (val) => {
+	val == 0 ? num.value = 1 : ''
+	if (val) {
+		//超过库存后修改回库存
+		if (val > props.goodsDetail.quantity) {
+			num.value = props.goodsDetail.quantity
 		}
-	},
-	computed: {
-		wholesalePrice(key) {
-			return this.wholesaleList.length
-				? this.wholesaleList.map(item => {
-						return item.price;
-				  })
-				: [];
-		},
-		wholesaleNum(key) {
-			return this.wholesaleList.length
-				? this.wholesaleList.map(item => {
-						return item.num;
-				  })
-				: [];
-		}
-	},
-	watch: {
-		num(val) {
-			
-			val == 0 ? this.num = 1 : ''
-			if (val) {
-				
-				//超过库存后修改回库存
-				if (val > this.goodsDetail.quantity) {
-					this.$nextTick(function() {
-						this.num = this.goodsDetail.quantity;
-					});
-				}
-			}
-		},
-		buyType: {
-			handler(val) {
-				if (val) {
-					this.buyType = val;
-				}
-			},
-			immediate: true
-		},
-		selectSkuList: {
-			handler(val, oldval) {
-				this.$emit('changed', val);
-			},
-			deep: true
-		},
-		'goodsDetail.quantity': {
-			handler(val) {
-				if (val == 0) {
-					uni.showToast({
-						title: '商品已售罄',
-						duration: 2000,
-						icon: 'none'
-					})
-					this.num = 1;
-				}
-			}
-		}
-	},
-
-	methods: {
-		numCheck(val) {
-			if (this.wholesaleList && this.wholesaleList.length > 0) {
-				if (this.num <= this.wholesaleList[0].num) {
-					uni.showToast({
-						title: '批发商品购买数量不能小于起批数量!',
-						duration: 2000,
-						icon: 'none'
-					});
-					this.num = this.wholesaleList[0].num;
-				}
-			}
-		},
-		closeMask() {
-			this.$emit('closeBuy', false);
-		},
-		
-		/**点击规格 */
-		handleClickSpec(val, index, specValue) {
-			this.currentSelected[index] = specValue.value;
-			let selectedSkuId = this.goodsSpec.find(i => {
-				let matched = true;
-				let specValues = i.specValues.filter(j => j.specName !== 'images');
-				for (let n = 0; n < specValues.length; n++) {
-					if (specValues[n].specValue !== this.currentSelected[n]) {
-						matched = false;
-						return;
-					}
-				}
-				if (matched) {
-					return i;
-				}
-			});
-			if (selectedSkuId?.skuId) {
-				this.currentSelected[index] = specValue.value;
-				this.selectSkuList = {
-					spec: {
-						specName: val.name,
-						specValue: specValue.value
-					},
-					data: this.goodsDetail
-				};
-				this.selectName = specValue.value;
-
-				this.$emit('handleClickSku', {
-					skuId: selectedSkuId.skuId,
-					goodsId: this.goodsDetail.goodsId
-				});
-			} else {
-				uni.showToast({
-					title: '暂无该商品!',
-					duration: 2000,
-					icon: 'none'
-				});
-			}
-		},
-
-		/**
-		 * 直接购买
-		 */
-		buy(data) {
-			API_trade.addToCart(data).then(res => {
-				if (res.data.success) {
-					uni.navigateTo({
-						url: `/pages/order/fillorder?way=${data.cartType}&addr=${''}&parentOrder=${encodeURIComponent(JSON.stringify(this.parentOrder))}`
-					});
-				}
-			});
-		},
-
-		/**
-		 * 添加到购物车或购买
-		 */
-		addToCartOrBuy(val) {
-			if (!this.selectSkuList) {
-				uni.showToast({
-					title: '请选择规格商品',
-					icon: 'none'
-				});
-				return;
-			}
-			let data = {
-				skuId: this.goodsDetail.id,
-				num: this.num
-			};
-
-			if (val == 'cart') {
-				API_trade.addToCart(data).then(res => {
-					if (res.data.code == 200) {
-						uni.showToast({
-							title: '商品已添加到购物车',
-							icon: 'none'
-						});
-
-						this.$emit('queryCart');
-						this.closeMask();
-					}
-				});
-			} else {
-				// 判断是否拼团商品
-				if (this.buyType) {
-					data.cartType = 'PINTUAN';
-				} else if (this.goodsDetail.goodsType == 'VIRTUAL_GOODS') {
-					data.cartType = 'VIRTUAL';
-				} else {
-					data.cartType = 'BUY_NOW';
-				}
-
-				API_trade.addToCart(data).then(res => {
-					if (res.data.code == 200) {
-						uni.navigateTo({
-							url: `/pages/order/fillorder?way=${data.cartType}&addr=${this.addr.id || ''}&parentOrder=${encodeURIComponent(JSON.stringify(this.parentOrder))}`
-						});
-					}
-				});
-			}
-		},
-		formatSku(list) {
-			// 格式化数据
-			let arr = [{}];
-
-			if (!Array.isArray(list)) {
-				return false;
-			}
-			list.forEach((item, index) => {
-				item.specValues.forEach((spec, specIndex) => {
-					let name = spec.specName;
-					let values = {
-						value: spec.specValue,
-						quantity: item.quantity,
-						skuId: item.skuId
-					};
-					if (name === 'images') {
-						return;
-					}
-
-					arr.forEach((arrItem, arrIndex) => {
-						if (
-							arrItem.name == name &&
-							arrItem.values &&
-							!arrItem.values.find(i => {
-								return i.value === values.value;
-							})
-						) {
-							arrItem.values.push(values);
-						}
-
-						let keys = arr.map(key => {
-							return key.name;
-						});
-						if (!keys.includes(name)) {
-							arr.push({
-								name: name,
-								values: [values]
-							});
-						}
-					});
-				});
-			});
-
-			arr.shift();
-			this.formatList = arr;
-
-			list.forEach(item => {
-				// 默认选中
-				if (item.skuId === this.goodsDetail.id) {
-					item.specValues
-						.filter(i => i.specName !== 'images')
-						.forEach((value, _index) => {
-							this.currentSelected[_index] = value.specValue;
-
-							this.selectName = value.specValue;
-
-							this.selectSkuList = {
-								spec: value,
-								data: this.goodsDetail
-							};
-						});
-				}
-			});
-
-			this.skuList = list;
-			// console.log(" this.skuList", this.skuList)
-		}
-	},
-
-	mounted() {
-		this.formatSku(this.goodsSpec);
 	}
-};
+})
+
+watch(() => props.buyType, (val) => {
+	if (val) {
+		buyType.value = val as string
+	}
+}, { immediate: true })
+
+watch(selectSkuList, (_val) => {
+	emit('changed', selectSkuList.value)
+}, { deep: true })
+
+watch(() => props.goodsDetail?.quantity, (val) => {
+	if (val == 0) {
+		uni.showToast({
+			title: '商品已售罄',
+			duration: 2000,
+			icon: 'none'
+		})
+		num.value = 1
+	}
+})
+
+const numCheck = (val: number) => {
+	if (Array.isArray(props.wholesaleList) && props.wholesaleList.length > 0) {
+		if (num.value <= props.wholesaleList[0].num) {
+			uni.showToast({
+				title: '批发商品购买数量不能小于起批数量!',
+				duration: 2000,
+				icon: 'none'
+			})
+			num.value = props.wholesaleList[0].num
+		}
+	}
+}
+
+const closeMask = () => {
+	emit('closeBuy', false)
+}
+
+/**点击规格 */
+const handleClickSpec = (val: any, index: number, specValue: any) => {
+	currentSelected.value[index] = specValue.value
+	let selectedSkuId = props.goodsSpec.find((i: any) => {
+		let matched = true
+		let specValues = i.specValues.filter((j: any) => j.specName !== 'images')
+		for (let n = 0; n < specValues.length; n++) {
+			if (specValues[n].specValue !== currentSelected.value[n]) {
+				matched = false
+				return
+			}
+		}
+		if (matched) {
+			return i
+		}
+	})
+	if (selectedSkuId?.skuId) {
+		currentSelected.value[index] = specValue.value
+		selectSkuList.value = {
+			spec: {
+				specName: val.name,
+				specValue: specValue.value
+			},
+			data: props.goodsDetail
+		}
+		selectName.value = specValue.value
+
+		emit('handleClickSku', {
+			skuId: selectedSkuId.skuId,
+			goodsId: props.goodsDetail.goodsId
+		})
+	} else {
+		uni.showToast({
+			title: '暂无该商品!',
+			duration: 2000,
+			icon: 'none'
+		})
+	}
+}
+
+/**
+ * 直接购买
+ */
+const buy = (data: any) => {
+	API_trade.addToCart(data).then(res => {
+		if (res.data.success) {
+			uni.navigateTo({
+				url: `/pages/order/fillorder?way=${data.cartType}&addr=${''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value))}`
+			})
+		}
+	})
+}
+
+/**
+ * 添加到购物车或购买
+ */
+const addToCartOrBuy = (val: string) => {
+	if (!selectSkuList.value) {
+		uni.showToast({
+			title: '请选择规格商品',
+			icon: 'none'
+		})
+		return
+	}
+	let data = {
+		skuId: props.goodsDetail.id,
+		num: num.value
+	}
+
+	if (val == 'cart') {
+		API_trade.addToCart(data).then(res => {
+			if (res.data.code == 200) {
+				uni.showToast({
+					title: '商品已添加到购物车',
+					icon: 'none'
+				})
+
+				emit('queryCart')
+				closeMask()
+			}
+		})
+	} else {
+		// 判断是否拼团商品
+		if (buyType.value) {
+			data.cartType = 'PINTUAN'
+		} else if (props.goodsDetail.goodsType == 'VIRTUAL_GOODS') {
+			data.cartType = 'VIRTUAL'
+		} else {
+			data.cartType = 'BUY_NOW'
+		}
+
+		API_trade.addToCart(data).then(res => {
+			if (res.data.code == 200) {
+				uni.navigateTo({
+					url: `/pages/order/fillorder?way=${data.cartType}&addr=${props.addr?.id || ''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value))}`
+				})
+			}
+		})
+	}
+}
+
+const formatSku = (list: any[]) => {
+	// 格式化数据
+	let arr: any[] = [{}]
+
+	if (!Array.isArray(list)) {
+		return false
+	}
+	list.forEach((_item, _index) => {
+		let item = list[_index]
+		item.specValues.forEach((spec: any, specIndex: number) => {
+			let name = spec.specName
+		let values = {
+			value: spec.specValue,
+			quantity: item.quantity,
+			skuId: item.skuId
+		}
+		if (name === 'images') {
+			return
+		}
+
+		arr.forEach((arrItem, arrIndex) => {
+			if (
+				arrItem.name == name &&
+				arrItem.values &&
+				!arrItem.values.find((i: any) => {
+					return i.value === values.value
+				})
+			) {
+				arrItem.values.push(values)
+			}
+
+			let keys = arr.map(key => {
+				return key.name
+			})
+			if (!keys.includes(name)) {
+				arr.push({
+					name: name,
+					values: [values]
+				})
+			}
+		})
+		})
+	})
+
+	arr.shift()
+	formatList.value = arr
+
+	list.forEach(item => {
+		// 默认选中
+		if (item.skuId === props.goodsDetail.id) {
+			item.specValues
+				.filter(i => i.specName !== 'images')
+				.forEach((value, _index) => {
+					currentSelected.value[_index] = value.specValue
+
+					selectName.value = value.specValue
+
+					selectSkuList.value = {
+						spec: value,
+						data: props.goodsDetail
+					}
+				})
+		}
+	})
+
+	skuList.value = list
+}
+
+onMounted(() => {
+	formatSku(props.goodsSpec)
+})
 </script>
+
 <style lang="scss" scoped>
 @import './popup.scss';
 

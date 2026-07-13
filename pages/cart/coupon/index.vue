@@ -1,294 +1,323 @@
 <template>
-  <div class="wrapper">
-    <u-tabs
-      class="coupon-tabs"
-      :list="list"
-      :scrollable="false"
-      :lineColor="lightColor"
-      :activeStyle="{ color: lightColor }"
-      v-model:current="current"
-    >
-    </u-tabs>
-
-    <div class="empty" v-if="couponsList.length <= 0">
-      <u-empty text="暂无优惠券" mode="coupon"></u-empty>
-    </div>
-    <view class="coupon-item" v-for="(item, index) in couponsList" :key="index">
-      <view class="left">
-        <view class="wave-line">
-          <view class="wave" v-for="(item, index) in 12" :key="index"></view>
-        </view>
-        <view class="message">
-          <view>
-            <span v-if="item.couponType == 'DISCOUNT'">{{ item.discount }}折</span>
-            <span v-else>{{ item.price }}元</span>
-          </view>
-          <view>满{{unitPrice(item.consumeThreshold) }}元可用</view>
-        </view>
-        <view class="circle circle-top"></view>
-        <view class="circle circle-bottom"></view>
-      </view>
-      <view class="right">
-        <view class="desc">
-          <view v-if="item.scopeType">
-            <span v-if="item.scopeType == 'ALL' && item.storeId == '0'">全平台</span>
-            <span v-if="item.scopeType == 'PORTION_GOODS_CATEGORY'">仅限品类</span>
-            <view v-else
-              >{{
-                item.storeName == "platform" ? "全平台" : item.storeName + "店铺"
-              }}使用</view
-            >
-          </view>
-          <view class="reason" v-if="item.reason">{{ item.reason }}</view>
-          <view class="end-time">有效期至:{{ item.endTime }}</view>
-        </view>
-        <view
-          class="receive"
-          v-if="current == 0 && !routerVal.selectedCoupon.includes(item.id)"
-          @click="clickWay(item)"
-        >
-          <text>立即</text><br />
-          <text>使用</text>
-        </view>
-        <view class="used" v-if="current == 0 && routerVal.selectedCoupon.includes(item.id)" @click="clickWay(item)">
-          <text>取消</text><br />
-          <text>使用</text>
-        </view>
-        <view class="bg-quan">券</view>
-      </view>
+  <view class="b-content" :style="themeStyle">
+    <view class="coupon-tabs">
+      <u-tabs
+        :list="list"
+        :scrollable="false"
+        :inactiveStyle="{ color: '#333' }"
+        v-model:current="current"
+        :lineColor="lightColor"
+        :activeStyle="{ color: lightColor }"
+      ></u-tabs>
     </view>
-  </div>
+
+    <scroll-view class="list-scroll-content" scroll-y>
+      <u-empty
+        mode="coupon"
+        text="暂无优惠券"
+        v-if="couponsList.length <= 0"
+      ></u-empty>
+
+      <view
+        class="coupon-card"
+        :class="{ 'coupon-used': current != 0 }"
+        v-for="(item, index) in couponsList"
+        :key="item.id || index"
+      >
+        <view class="coupon-card-left">
+          <text class="coupon-price-symbol" v-if="item.couponType != 'DISCOUNT'">¥</text>
+          <text class="coupon-price-value">
+            {{ item.couponType == 'DISCOUNT' ? item.discount + '折' : unitPrice(item.price) }}
+          </text>
+        </view>
+        <view class="coupon-divider"></view>
+        <view class="coupon-card-right">
+          <view class="coupon-info">
+            <text class="coupon-card-name">
+              <template v-if="item.scopeType == 'ALL' && item.storeId == '0'">全平台</template>
+              <template v-else-if="item.scopeType == 'PORTION_GOODS_CATEGORY'">仅限品类</template>
+              <template v-else>
+                {{ item.storeName == 'platform' ? '全平台' : (item.storeName || '') + '店铺' }}
+              </template>
+              使用
+            </text>
+            <text class="coupon-card-desc">满{{ unitPrice(item.consumeThreshold) }}元可用</text>
+            <text class="coupon-card-time" v-if="item.reason">{{ item.reason }}</text>
+            <text class="coupon-card-time" v-if="item.endTime">有效期至:{{ item.endTime }}</text>
+          </view>
+
+          <view
+            class="coupon-status-btn"
+            v-if="current == 0 && !isSelected(item)"
+            @click="clickWay(item)"
+          >
+            立即使用
+          </view>
+          <view
+            class="coupon-status-btn cancel"
+            v-else-if="current == 0 && isSelected(item)"
+            @click="clickWay(item)"
+          >
+            取消使用
+          </view>
+          <view class="coupon-status-btn disabled" v-else>
+            不可用
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
 </template>
-<script>
-import { useCoupon } from "@/api/trade.js";
 
-export default {
-  data() {
-    return {
-      lightColor: this.$lightColor,
-      current: 0,
-      list: [
-        {
-          name: "可用优惠券",
-        },
-        {
-          name: "不可用优惠券",
-        },
-      ],
-      couponsList: [], //优惠券集合
-      params: {
-        //传参
-        memberCouponStatus: "NEW", //优惠券状态
-        pageNumber: 1,
-        pageSize: 10,
-        scopeId: "", //商品skuid
-        storeId: "", //店铺id
-        totalPrice: "", //价格
-      },
-      routerVal: "", //上级传参
-    };
-  },
-  onLoad(options) {
-    this.routerVal = options;
-  },
-  watch: {
-    current(val) {
-      console.log(this.$store.state.cantUseCoupons);
-      val == 0
-        ? (this.couponsList = this.$store.state.canUseCoupons)
-        : (this.couponsList = this.$store.state.cantUseCoupons);
-    },
-  },
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { useCoupon } from '@/api/trade.js'
+import { unitPrice } from '@/utils/filters.js'
+import { getThemeStyle } from '@/utils/theme'
 
-  mounted() {
-    this.init();
-    console.log(this.routerVal);
-  },
+const store = useStore()
 
-  methods: {
-    /**
-     * 从vuex中拿取优惠券信息
-     */
-    init() {
-      this.couponsList = this.$store.state.canUseCoupons;
-    },
-    /**
-     * 领取优惠券
-     */
-    clickWay(coupon) {
-      useCoupon({
-        memberCouponId: coupon.id,
-        used: !this.routerVal.selectedCoupon.includes(coupon.id),
-        way: this.routerVal.way,
-      }).then((res) => {
-        if (res.data.success) {
-          uni.navigateBack();
-        } else {
-          uni.showToast({
-            title: res.data.message,
-            duration: 2000,
-            icon: "none",
-          });
-        }
-      });
-    },
-  },
-};
+const lightColor = computed(() => store.getters.lightColor)
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
+const current = ref(0)
+const list = [
+  { name: '可用优惠券' },
+  { name: '不可用优惠券' },
+]
+const couponsList = ref<any[]>([])
+const routerVal = ref<Record<string, any>>({
+  selectedCoupon: [],
+  way: '',
+})
+
+onLoad((options) => {
+  const selectedCoupon = options?.selectedCoupon
+  let selected: string[] = []
+  if (Array.isArray(selectedCoupon)) {
+    selected = selectedCoupon
+  } else if (typeof selectedCoupon === 'string' && selectedCoupon) {
+    selected = selectedCoupon.split(',')
+  }
+  routerVal.value = {
+    ...(options || {}),
+    selectedCoupon: selected,
+  }
+})
+
+watch(current, (val) => {
+  couponsList.value = val == 0
+    ? store.state.canUseCoupons
+    : store.state.cantUseCoupons
+})
+
+onMounted(() => {
+  couponsList.value = store.state.canUseCoupons || []
+})
+
+function isSelected(coupon: any) {
+  return (routerVal.value.selectedCoupon || []).includes(coupon.id)
+}
+
+function clickWay(coupon: any) {
+  useCoupon({
+    memberCouponId: coupon.id,
+    used: !isSelected(coupon),
+    way: routerVal.value.way,
+  }).then((res) => {
+    if (res.data.success) {
+      uni.navigateBack()
+    } else {
+      uni.showToast({
+        title: res.data.message,
+        duration: 2000,
+        icon: 'none',
+      })
+    }
+  })
+}
 </script>
-<style scoped lang="scss">
-.desc {
-  height: 220rpx;
-  flex: 2;
+
+<style lang="scss" scoped>
+.b-content {
+  background: #f7f8fa;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-}
-.end-time,
-.reason {
-  color: #999;
-  line-height: 1.5;
-  font-size: 24rpx;
 }
 
-.empty {
-  margin-top: 20px;
-  text-align: center;
+.coupon-tabs {
+  background: #fff;
+  height: 88rpx;
+  box-shadow: 0 1rpx 8rpx rgba(0, 0, 0, 0.04);
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
-.wrapper {
-  background: #f9f9f9;
+
+:deep(.u-tabs),
+:deep(.u-tabs__wrapper),
+:deep(.u-tabs__wrapper__scroll-view-wrapper),
+:deep(.u-tabs__wrapper__scroll-view),
+:deep(.u-tabs__wrapper__nav) {
+  background: #fff;
+  height: 88rpx;
+}
+
+:deep(.u-tabs__wrapper__nav__item) {
+  min-height: 88rpx;
+}
+
+:deep(.u-tabs__wrapper__nav__item__text) {
+  color: #333;
+  font-size: 28rpx;
+}
+
+.list-scroll-content {
+  flex: 1;
+  height: 0;
+  width: 100%;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.coupon-card {
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+  border-radius: 24rpx;
+  margin-bottom: 24rpx;
+  position: relative;
+  border: 1rpx solid #f0f1f5;
   overflow: hidden;
 
-  .coupon-tabs {
-    width: 100%;
-    background: #fff;
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 32rpx;
+    height: 32rpx;
+    background: #f7f8fa;
+    border-radius: 50%;
+    left: 204rpx;
+    z-index: 2;
+    box-shadow: inset 0 0 0 1rpx #eceef2;
+  }
+
+  &::before {
+    top: -16rpx;
+  }
+
+  &::after {
+    bottom: -16rpx;
+  }
+
+  &.coupon-used {
+    .coupon-card-left {
+      background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+      color: #999;
+    }
   }
 }
-.coupon-item {
+
+.coupon-card-left {
+  width: 220rpx;
+  min-height: 180rpx;
   display: flex;
   align-items: center;
-  height: 220rpx;
-  margin: 20rpx;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ff3b30;
+  position: relative;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffecec 100%);
+}
 
-  .left {
-    height: 100%;
-    width: 260rpx;
-    background-color: $light-color;
-    position: relative;
-    .message {
-      color: $font-color-white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      margin-top: 40rpx;
+.coupon-price-symbol {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-right: 4rpx;
+}
 
-      view:nth-child(1) {
-        font-weight: bold;
-        font-size: 60rpx;
-      }
+.coupon-price-value {
+  font-size: 56rpx;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1rpx;
+}
 
-      view:nth-child(2) {
-        font-size: $font-sm;
-      }
-    }
+.coupon-divider {
+  position: absolute;
+  left: 220rpx;
+  top: 24rpx;
+  bottom: 24rpx;
+  width: 0;
+  border-left: 2rpx dashed #eceef2;
+}
 
-    .wave-line {
-      height: 220rpx;
-      width: 8rpx;
-      position: absolute;
-      top: 0;
-      left: 0;
-      background-color: $light-color;
-      overflow: hidden;
+.coupon-card-right {
+  flex: 1;
+  padding: 32rpx 32rpx 32rpx 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  background: #fff;
+}
 
-      .wave {
-        width: 8rpx;
-        height: 16rpx;
-        background-color: #ffffff;
-        border-radius: 0 16rpx 16rpx 0;
-        margin-top: 4rpx;
-      }
-    }
-    .circle {
-      width: 40rpx;
-      height: 40rpx;
-      background-color: $bg-color;
-      position: absolute;
-      border-radius: 50%;
-      z-index: 111;
-    }
-    .circle-top {
-      top: -20rpx;
-      right: -20rpx;
-    }
-    .circle-bottom {
-      bottom: -20rpx;
-      right: -20rpx;
-    }
+.coupon-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.coupon-card-name {
+  font-size: 30rpx;
+  color: #111;
+  font-weight: 700;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.coupon-card-desc {
+  font-size: 24rpx;
+  color: #8a8f99;
+  font-weight: 500;
+}
+
+.coupon-card-time {
+  font-size: 22rpx;
+  color: #b0b3bf;
+}
+
+.coupon-status-btn {
+  flex-shrink: 0;
+  padding: 16rpx 28rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--theme-light, #ff6b35), var(--theme-primary, #ff4b2b));
+
+  &:active {
+    opacity: 0.9;
   }
 
-  .right {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 450rpx;
-    font-size: $font-sm;
-    height: 220rpx;
-    background-color: #ffffff;
-    overflow: hidden;
-    position: relative;
-    > view:nth-child(1) {
-      color: #666666;
-      margin-left: 20rpx;
+  &.cancel {
+    background: #333;
+  }
 
-      > view:nth-child(1) {
-        color: #ff6262;
-        font-size: 30rpx;
-      }
-    }
-
-    .receive {
-      color: #ffffff;
-      background-color: $main-color;
-      border-radius: 50%;
-      width: 86rpx;
-      height: 86rpx;
-      text-align: center;
-      margin-right: 30rpx;
-      vertical-align: middle;
-      padding-top: 8rpx;
-      position: relative;
-      z-index: 2;
-    }
-
-    .used {
-      color: #ffffff;
-      background-color: black;
-      border-radius: 50%;
-      width: 86rpx;
-      height: 86rpx;
-      text-align: center;
-      margin-right: 30rpx;
-      vertical-align: middle;
-      padding-top: 8rpx;
-      position: relative;
-      z-index: 2;
-    }
-
-    .bg-quan {
-      width: 244rpx;
-      height: 244rpx;
-      border: 6rpx solid $main-color;
-      border-radius: 50%;
-      opacity: 0.1;
-      color: $main-color;
-      text-align: center;
-      padding-top: 30rpx;
-      font-size: 130rpx;
-      position: absolute;
-      right: -54rpx;
-      bottom: -60rpx;
-    }
+  &.disabled {
+    background: #ccc;
   }
 }
 </style>

@@ -39,30 +39,32 @@
   </view>
 </template>
 
-<script>
-import { getGoodsMessage } from "@/api/goods";
-export default {
-  data() {
-    return {
-      goodsDetail: "",
-      style: {
-        img:"display:block;width:100%"
-			}
-    };
-  },
-  props: ["res", "goodsId", "goodsParams"],
-  computed: {
-    hasDetailContent() {
-      return !!(this.res?.mobileIntro || (this.goodsParams && this.goodsParams.length));
-    },
-  },
-  async mounted() {
-    let res = await getGoodsMessage(this.goodsId);
-    if (res.data.success) {
-      this.goodsDetail = res.data.result;
-    }
-  },
-};
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { getGoodsMessage } from '@/api/goods'
+
+const props = defineProps<{
+  res?: any
+  goodsId?: string | number
+  goodsParams?: any[]
+}>()
+
+const goodsDetail = ref('')
+const style = {
+  img: 'display:block;width:100%',
+}
+
+const hasDetailContent = computed(() => {
+  return !!(props.res?.mobileIntro || (props.goodsParams && props.goodsParams.length))
+})
+
+onMounted(async () => {
+  if (!props.goodsId) return
+  const res = await getGoodsMessage(props.goodsId)
+  if (res.data.success) {
+    goodsDetail.value = res.data.result
+  }
+})
 </script>
 
 <style lang="scss" scoped>

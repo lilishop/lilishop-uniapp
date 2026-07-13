@@ -56,106 +56,111 @@
   </view>
 </template>
 
-<script>
-import { getCategoryList } from "@/api/goods.js";
-export default {
-  data() {
-    return {
-      currentId: 0,
-      tabList: [], //左侧标题列表
-      categoryList: [], //右侧分类数据列表
-      topImg: "", //顶部图片
-      searchBarWidth: 0, //导航栏搜索框宽度（避让微信胶囊）
-    };
-  },
-  computed: {
-    searchBarStyle() {
-      if (this.searchBarWidth) {
-        return { width: `${this.searchBarWidth}px` };
-      }
-      return { width: "460rpx" };
-    },
-  },
-  onLoad() {
-    this.loadData();
-    // #ifdef MP-WEIXIN
-    // 小程序默认分享
-    uni.showShareMenu({ withShareTicket: true });
-    // #endif
-  },
-  onReady() {
-    this.setSearchBarWidth();
-  },
-  methods: {
-    /**
-     * 根据微信胶囊位置计算搜索框宽度，避免被胶囊遮挡
-     */
-    setSearchBarWidth() {
-      // #ifdef MP-WEIXIN
-      try {
-        const menuButton = uni.getMenuButtonBoundingClientRect();
-        const { windowWidth } = uni.getWindowInfo();
-        const capsuleInsetRight = windowWidth - menuButton.left;
-        const titleWidth = uni.upx2px(160); // “商品分类” 标题宽度
-        const leftPadding = uni.upx2px(60); // 左侧内边距
-        const gap = uni.upx2px(20); // 搜索框与胶囊间距
-        this.searchBarWidth =
-          windowWidth - capsuleInsetRight - titleWidth - leftPadding - gap;
-      } catch (e) {
-        this.searchBarWidth = 180;
-      }
-      // #endif
-    },
-    /**
-     * 查询
-     */
-    search() {
-      uni.navigateTo({
-        url: "/pages/navigation/search/searchPage",
-      });
-    },
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onLoad, onReady } from '@dcloudio/uni-app'
+import { getCategoryList } from '@/api/goods.js'
+import { getThemeStyle } from '@/utils/theme'
+import { useStore } from '@/store'
 
-    /**
-     * 加载图片
-     */
-    async loadData() {
-      let list = await getCategoryList(0);
-      this.tabList = list.data.result;
-      this.currentId = list.data.result[0].id;
-      this.loadListContent(0);
-    },
+const store = useStore()
 
-    /**
-     * 加载列表内容
-     */
-    loadListContent(index) {
-      this.topImg = this.tabList[index];
-      this.categoryList = this.tabList[index].children;
-    },
-    /**
-     * 一级分类点击
-     */
-    tabtap(item, i) {
-      if (item.id != this.currentId) {
-        this.currentId = item.id;
-        this.loadListContent(i);
-      }
-    },
+const currentId = ref(0)
+const tabList = ref<any[]>([]) // 左侧标题列表
+const categoryList = ref<any[]>([]) // 右侧分类数据列表
+const topImg = ref<any>("") // 顶部图片
+const searchBarWidth = ref(0) // 导航栏搜索框宽度（避让微信胶囊）
 
-    navigateToList(sid, tid) {
-      uni.navigateTo({
-        url: `/pages/navigation/search/searchPage?category=${tid}`,
-      });
-    },
-  },
-};
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
+
+const searchBarStyle = computed(() => {
+  if (searchBarWidth.value) {
+    return { width: `${searchBarWidth.value}px` }
+  }
+  return { width: "460rpx" }
+})
+
+onLoad(() => {
+  loadData()
+  // #ifdef MP-WEIXIN
+  uni.showShareMenu({ withShareTicket: true })
+  // #endif
+})
+
+onReady(() => {
+  setSearchBarWidth()
+})
+
+/**
+ * 根据微信胶囊位置计算搜索框宽度，避免被胶囊遮挡
+ */
+function setSearchBarWidth() {
+  // #ifdef MP-WEIXIN
+  try {
+    const menuButton = uni.getMenuButtonBoundingClientRect()
+    const { windowWidth } = uni.getWindowInfo()
+    const capsuleInsetRight = windowWidth - menuButton.left
+    const titleWidth = uni.upx2px(160) // "商品分类" 标题宽度
+    const leftPadding = uni.upx2px(60) // 左侧内边距
+    const gap = uni.upx2px(20) // 搜索框与胶囊间距
+    searchBarWidth.value =
+      windowWidth - capsuleInsetRight - titleWidth - leftPadding - gap
+  } catch (e) {
+    searchBarWidth.value = 180
+  }
+  // #endif
+}
+/**
+ * 查询
+ */
+function search() {
+  uni.navigateTo({
+    url: "/pages/navigation/search/searchPage",
+  })
+}
+
+/**
+ * 加载图片
+ */
+async function loadData() {
+  let list = await getCategoryList(0)
+  tabList.value = list.data.result
+  currentId.value = list.data.result[0].id
+  loadListContent(0)
+}
+
+/**
+ * 加载列表内容
+ */
+function loadListContent(index: number) {
+  topImg.value = tabList.value[index]
+  categoryList.value = tabList.value[index].children
+}
+/**
+ * 一级分类点击
+ */
+function tabtap(item: any, i: number) {
+  if (item.id != currentId.value) {
+    currentId.value = item.id
+    loadListContent(i)
+  }
+}
+
+function navigateToList(sid: any, tid: any) {
+  uni.navigateTo({
+    url: `/pages/navigation/search/searchPage?category=${tid}`,
+  })
+}
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 page {
   height: 100%;
   background-color: #fdfaff;
 }
+</style>
+
+<style lang="scss" scoped>
 /* 解决小程序和app滚动条的问题 */
 /* #ifdef MP-WEIXIN || APP-PLUS */
 ::-webkit-scrollbar {
@@ -190,22 +195,27 @@ uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
   white-space: nowrap;
 }
 .category-wrap {
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
   .content {
     flex: 1;
     min-height: 0;
+    height: 0;
     display: flex;
     color: #333;
     font-size: 28rpx;
     background: #fff;
+    overflow: hidden;
   }
   .left-aside {
     flex-shrink: 0;
     width: 200rpx;
     height: 100%;
     background-color: #f7f7f7;
+    box-sizing: border-box;
   }
   .f-item {
     display: flex;
@@ -222,8 +232,11 @@ uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
   }
   .right-aside {
     flex: 1;
+    height: 100%;
+    min-height: 0;
     overflow: hidden;
     padding: 40rpx 0 0 30rpx;
+    box-sizing: border-box;
   }
 
   .top-img {

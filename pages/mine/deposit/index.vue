@@ -52,84 +52,64 @@
   </view>
 </template>
 
-<script>
-import { getUserRecharge, getWalletLog, getUserWallet } from "@/api/members";
-export default {
-  data() {
-    return {
-      walletNum: 0,
-      current: 0,
-      swiperCurrent: 0,
-      userInfo: "",
-      params: {
-        pageNumber: 1,
-        pageSize: 10,
-        order: "desc",
-      },
-      depositData: [],
-      rechargeList: "",
-      walletLogList: "",
-      list: [{ name: "预存款变动明细" }],
-    };
-  },
-  watch: {
-    swiperCurrent(index) {
-      this.swiperCurrent = index;
-    },
-  },
-  async mounted() {
-    this.getWallet();
-    const result = await getUserWallet();
-    this.walletNum = result.data.result.memberWallet;
-  },
-  methods: {
-    isOutgoing(serviceType) {
-      return serviceType === "WALLET_PAY" || serviceType === "WALLET_WITHDRAWAL";
-    },
-    isIncoming(serviceType) {
-      return (
-        serviceType === "WALLET_REFUND" ||
-        serviceType === "WALLET_RECHARGE" ||
-        serviceType === "WALLET_COMMISSION"
-      );
-    },
-    getMoneyClass(serviceType) {
-      if (this.isOutgoing(serviceType)) return "out";
-      if (this.isIncoming(serviceType)) return "in";
-      return "";
-    },
-    formatLogMoney(logItem) {
-      const amount = this.unitPrice(logItem.money);
-      if (this.isOutgoing(logItem.serviceType)) return `-${amount}`;
-      if (this.isIncoming(logItem.serviceType)) return `+${amount}`;
-      return amount;
-    },
-    getRecharge() {
-      getUserRecharge(this.params).then((res) => {
-        if (res.data.success && res.data.result.records.length) {
-          this.depositData.push(...res.data.result.records);
-        }
-      });
-    },
-    getWallet() {
-      getWalletLog(this.params).then((res) => {
-        if (res.data.success && res.data.result.records.length) {
-          this.depositData.push(...res.data.result.records);
-        }
-      });
-    },
-    changed(index) {
-      this.depositData = [];
-      this.swiperCurrent = index;
-      this.params.pageNumber = 1;
-      this.getWallet();
-    },
-    loadMore() {
-      this.params.pageNumber++;
-      this.getWallet();
-    },
-  },
-};
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { getWalletLog, getUserWallet } from '@/api/members'
+import { unitPrice } from '@/utils/filters.js'
+
+const walletNum = ref(0)
+const swiperCurrent = ref(0)
+const params = ref({
+  pageNumber: 1,
+  pageSize: 10,
+  order: 'desc',
+})
+const depositData = ref<any[]>([])
+const list = [{ name: '预存款变动明细' }]
+
+onMounted(async () => {
+  getWallet()
+  const result = await getUserWallet()
+  walletNum.value = result.data.result.memberWallet
+})
+
+function isOutgoing(serviceType: string) {
+  return serviceType === 'WALLET_PAY' || serviceType === 'WALLET_WITHDRAWAL'
+}
+
+function isIncoming(serviceType: string) {
+  return (
+    serviceType === 'WALLET_REFUND' ||
+    serviceType === 'WALLET_RECHARGE' ||
+    serviceType === 'WALLET_COMMISSION'
+  )
+}
+
+function getMoneyClass(serviceType: string) {
+  if (isOutgoing(serviceType)) return 'out'
+  if (isIncoming(serviceType)) return 'in'
+  return ''
+}
+
+function formatLogMoney(logItem: any) {
+  const amount = unitPrice(logItem.money)
+  if (isOutgoing(logItem.serviceType)) return `-${amount}`
+  if (isIncoming(logItem.serviceType)) return `+${amount}`
+  return amount
+}
+
+function getWallet() {
+  getWalletLog(params.value).then((res) => {
+    if (res.data.success && res.data.result.records.length) {
+      depositData.value.push(...res.data.result.records)
+    }
+  })
+}
+
+function loadMore() {
+  params.value.pageNumber++
+  getWallet()
+}
 </script>
 
 <style lang="scss" scoped>

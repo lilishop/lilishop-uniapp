@@ -38,33 +38,30 @@
   </view>
 </template>
 
-<script>
-import { getUserWallet } from "@/api/members";
-export default {
-  data() {
-    return {
-      walletNum: 0,
-    };
-  },
-  async onShow() {
-    if (this.isLogin("auth")) {
-      let result = await getUserWallet();
-      this.walletNum = result.data.result.memberWallet;
-    } else {
-      this.navigateToLogin("redirectTo");
-    }
-  },
-  methods: {
-    back() {
-      uni.switchTab({
-        url: "/pages/tabbar/user/my",
-      });
-    },
-    navigateTo(url) {
-      uni.navigateTo({ url });
-    },
-  },
-};
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { getUserWallet } from '@/api/members'
+import { isLogin, navigateToLogin, unitPrice } from '@/utils/filters.js'
+
+const walletNum = ref(0)
+
+onShow(async () => {
+  if (isLogin('auth')) {
+    const result = await getUserWallet()
+    walletNum.value = result.data.result.memberWallet
+  } else {
+    navigateToLogin('redirectTo')
+  }
+})
+
+function back() {
+  uni.switchTab({ url: '/pages/tabbar/user/my' })
+}
+
+function navigateTo(url: string) {
+  uni.navigateTo({ url })
+}
 </script>
 
 <style lang="scss" scoped>

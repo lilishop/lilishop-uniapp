@@ -1,0 +1,92 @@
+@mixin seller-entry-form {
+  :deep(.u-form-item) {
+    padding: 0;
+    margin-top: 24rpx;
+  }
+
+  :deep(.u-form-item__body) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0;
+  }
+
+  :deep(.u-form-item__body__left) {
+    width: 100% !important;
+    margin-bottom: 16rpx;
+  }
+
+  :deep(.u-form-item__body__left__content__label) {
+    display: block;
+    font-size: 30rpx;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+    white-space: normal;
+  }
+
+  :deep(.u-form-item__body__right),
+  :deep(.u-form-item__body__right__content),
+  :deep(.u-form-item__body__right__content__slot) {
+    width: 100%;
+    flex: none;
+    min-width: 0;
+  }
+
+  :deep(.u-form-item__body__right__content__slot) {
+    display: block;
+  }
+
+  .field-input {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 16rpx;
+    width: 100%;
+  }
+
+  .field-row .field-input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .field-textarea {
+    width: 100%;
+
+    :deep(.u-textarea) {
+      background: #fafafa !important;
+      border-radius: 12rpx;
+      padding: 20rpx;
+      box-sizing: border-box;
+    }
+
+    :deep(.u-textarea__field) {
+      width: 100%;
+      font-size: 28rpx;
+      line-height: 1.6;
+      color: #333;
+    }
+  }
+}
+
+@mixin seller-entry-submit {
+  text-align: center;
+  background: var(--theme-light, #ff6b35);
+  height: 88rpx;
+  line-height: 88rpx;
+  color: #fff;
+  width: 92%;
+  margin: 40rpx auto 60rpx;
+  border-radius: 100px;
+  font-size: 30rpx;
+}
+
+.picker-action {
+  flex-shrink: 0;
+  color: var(--theme-light, #ff6b35);
+  font-size: 28rpx;
+  white-space: nowrap;
+}

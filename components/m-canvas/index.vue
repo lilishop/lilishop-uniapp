@@ -17,168 +17,156 @@
 
   </div>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, onMounted, getCurrentInstance } from 'vue'
 // 引入绘制插件
-import DrawPoster from "@/js_sdk/u-draw-poster";
-import logoImg from "@/pages/passport/static/logo-title.png";
+import DrawPoster from "@/js_sdk/u-draw-poster"
+import logoImg from "@/pages/passport/static/logo-title.png"
 
-export default {
-  data: () => ({
-    imgUrl: "", //绘制出来的图片路径
-    show: false, //是否展示模态框
-    dp: {}, //绘制的dp对象，用于存储绘制等一些方法。
-    logo: logoImg, //本地logo地址
-  }),
+const instance = getCurrentInstance()
 
-  props: {
-    /**
-     * 父级传参的数据
-     */
-    res: {
-      type: null,
-      default: "",
+const props = defineProps<{
+	res?: any
+}>()
+
+const imgUrl = ref("")
+const show = ref(false)
+const dp = ref<any>({})
+const logo = logoImg
+
+/**
+ * 解决微信小程序中图片模糊问题
+ */
+// #ifdef MP-WEIXIN
+const st2 = (size: number) => size * 2
+// #endif
+
+// #ifndef MP-WEIXIN
+const st2 = (size: number) => size
+// #endif
+
+/**
+ * 保存图片
+ */
+const downLoad = () => {
+  uni.saveImageToPhotosAlbum({
+    filePath: imgUrl.value,
+    success: function () {
+      uni.showToast({
+        title: "保存成功！",
+        icon: "none",
+      })
     },
-  },
-  onUnload() {},
-
-  methods: {
-    /**
-     * 解决微信小程序中图片模糊问题
-     */
-    // #ifdef MP-WEIXIN
-    st2: (size) => size * 2,
-    // #endif
-
-    // #ifndef MP-WEIXIN
-    st2: (size) => size,
-    // #endif
-
-    /**
-     * 保存图片
-     */
-    downLoad() {
-      uni.saveImageToPhotosAlbum({
-        filePath: this.imgUrl,
-        success: function () {
-          uni.showToast({
-            title: "保存成功！",
-            icon: "none",
-          });
-        },
-        fail: function () {
-          uni.showToast({
-            title: "保存失败，请稍后重试！",
-            icon: "none",
-          });
-        },
-      });
+    fail: function () {
+      uni.showToast({
+        title: "保存失败，请稍后重试！",
+        icon: "none",
+      })
     },
+  })
+}
 
-    /**
-     * 创建canvas
-     */
-    async init() {
-      this.show = true;
-      this.dp = await DrawPoster.build({
-        selector: "canvas",
-        componentThis: this,
-        loading: true,
-        debugging: true,
-      });
-      let dp = this.dp;
-      // #ifdef MP-WEIXIN
-      // 用于微信小程序中画布错乱问题
-      dp.canvas.width = this.st2(600);
-      dp.canvas.height = this.st2(960);
-      // #endif
-      this.draw(dp);
-    },
+/**
+ * 创建canvas
+ */
+const init = async () => {
+  show.value = true
+  dp.value = await DrawPoster.build({
+    selector: "canvas",
+    componentThis: instance?.proxy,
+    loading: true,
+    debugging: true,
+  })
+  let dpVal = dp.value
+  // #ifdef MP-WEIXIN
+  // 用于微信小程序中画布错乱问题
+  dpVal.canvas.width = st2(600)
+  dpVal.canvas.height = st2(960)
+  // #endif
+  await draw(dpVal)
+}
 
-    async draw(dp) {
-      const { width, height, background, title } = this.res.container;
-      const { code, img, price } = this.res.bottom;
+const draw = async (dp: any) => {
+  const { width, height, background, title } = props.res.container
+  const { code, img, price } = props.res.bottom
 
-      // /** 绘制背景 */
-      await dp.draw((ctx) => {
-        ctx.fillStyle = background;
-        ctx.fillRoundRect(
-          this.st2(0),
-          this.st2(0),
-          this.st2(width),
-          this.st2(height),
-          this.st2(12)
-        );
-        ctx.clip();
-      });
-      /** 绘制图片 */
-      dp.draw(async (ctx) => {
-        await Promise.all([
-          // 绘制Logo
-          ctx.drawImage(
-            this.logo,
-            this.st2(175),
-            this.st2(0),
-            this.st2(256),
-            this.st2(144)
-          ),
-          // 中间图片
-          ctx.drawImage(
-            img,
-            this.st2(100),
-            this.st2(150),
-            this.st2(400),
-            this.st2(400)
-          ),
-          // 二维码
-          ctx.drawImage(
-            code,
-            this.st2(39),
-            this.st2(750),
-            this.st2(150),
-            this.st2(150)
-          ),
-        ]);
-      });
+  // /** 绘制背景 */
+  await dp.draw((ctx: any) => {
+    ctx.fillStyle = background
+    ctx.fillRoundRect(
+      st2(0),
+      st2(0),
+      st2(width),
+      st2(height),
+      st2(12)
+    )
+    ctx.clip()
+  })
+  /** 绘制图片 */
+  dp.draw(async (ctx: any) => {
+    await Promise.all([
+      // 绘制Logo
+      ctx.drawImage(
+        logo,
+        st2(175),
+        st2(0),
+        st2(256),
+        st2(144)
+      ),
+      // 中间图片
+      ctx.drawImage(
+        img,
+        st2(100),
+        st2(150),
+        st2(400),
+        st2(400)
+      ),
+      // 二维码
+      ctx.drawImage(
+        code,
+        st2(39),
+        st2(750),
+        st2(150),
+        st2(150)
+      ),
+    ])
+  })
 
-      /** 绘制中间文字*/
-      await dp.draw((ctx) => {
-        ctx.fillStyle = "#333";
-        ctx.font = `bold ${this.st2(24)}px PingFang SC`;
-        ctx.textAlign = "center";
-        ctx.fillWarpText({
-          text: title,
-          maxWidth: this.st2(500),
-          x: this.st2(300),
-          y: this.st2(600),
-          layer: 1,
-        });
+  /** 绘制中间文字*/
+  await dp.draw((ctx: any) => {
+    ctx.fillStyle = "#333"
+    ctx.font = `bold ${st2(24)}px PingFang SC`
+    ctx.textAlign = "center"
+    ctx.fillWarpText({
+      text: title,
+      maxWidth: st2(500),
+      x: st2(300),
+      y: st2(600),
+      layer: 1,
+    })
 
-        ctx.fillStyle = "#ff3c2a";
-        ctx.font = `${this.st2(38)}px PingFang SC`;
-        ctx.textAlign = "center";
-        ctx.fillText(price, this.st2(300), this.st2(680));
-      });
+    ctx.fillStyle = "#ff3c2a"
+    ctx.font = `${st2(38)}px PingFang SC`
+    ctx.textAlign = "center"
+    ctx.fillText(price, st2(300), st2(680))
+  })
 
-      // /** 绘制底部文字 */
-      await dp.draw((ctx) => {
-        ctx.fillStyle = "#666";
-        ctx.font = `${this.st2(24)}px PingFang SC`;
-        ctx.fillText("长按图片，识别二维码", this.st2(200), this.st2(866));
-        ctx.fillStyle = "#666";
-        ctx.font = `${this.st2(24)}px PingFang SC`;
-        ctx.fillText("查看商品详情", this.st2(200), this.st2(900));
-      });
+  // /** 绘制底部文字 */
+  await dp.draw((ctx: any) => {
+    ctx.fillStyle = "#666"
+    ctx.font = `${st2(24)}px PingFang SC`
+    ctx.fillText("长按图片，识别二维码", st2(200), st2(866))
+    ctx.fillStyle = "#666"
+    ctx.font = `${st2(24)}px PingFang SC`
+    ctx.fillText("查看商品详情", st2(200), st2(900))
+  })
 
-      this.imgUrl = await dp.createImagePath();
+  imgUrl.value = await dp.createImagePath()
+}
 
-      // console.log(posterImgUrl)
-    },
-  },
-
-  async mounted() {
-    this.init();
-  },
-};
+onMounted(() => {
+  init()
+})
 </script>
 
 <style lang="scss" scoped>

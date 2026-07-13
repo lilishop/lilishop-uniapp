@@ -66,410 +66,264 @@
     </div>
   </div>
 </template>
-<script>
-	import * as API_Trade from "@/api/trade";
-	import {payCallback} from '@/api/members'
-	export default {
-		data() {
-			return {
-				//路径传参
-				routerVal: "",
-				//收银台参数
-				cashierParams: "",
-				//支付方式集合
-				payList: "",
-				//支付sn
-				sn: "",
-				//订单类型
-				orderType: "",
-				//支付异常
-				exception: {},
-				//支付表单
-				payForm: {},
-				//支付类型 APP/WECHAT_MP/H5/NATIVE app/微信小程序/h5/二维码
-				paymentType: "",
-				// 支付客户端 APP/NATIVE/JSAPI/H5
-				paymentClient: "",
-				//余额
-				walletValue: 0.0,
-				// 支付倒计时（毫秒）
-				autoCancelTime: 0,
-			
-			};
-		},
-		onLoad(val) {
-			this.routerVal = val;
+<script setup lang="ts">
+import { ref, getCurrentInstance, onMounted } from 'vue'
+import { onLoad, onBackPress } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import * as API_Trade from '@/api/trade'
+import { payCallback } from '@/api/members'
+import { unitPrice } from '@/utils/filters.js'
 
-			//初始化参数
-			// #ifdef APP-PLUS
-			this.paymentType = "APP";
-			this.paymentClient = "APP";
-			//#endif
-			// #ifdef MP-WEIXIN
-			this.paymentType = "WECHAT_MP";
-			this.paymentClient = "MP";
-			//#endif
-			// #ifdef H5
-			this.paymentType = "H5";
-			//如果是微信浏览器，则使用公众号支付，否则使用h5，
-			// 区别是：h5是通过浏览器外部调用微信app进行支付，而JSAPI则是 在微信浏览器内部，或者小程序 调用微信支付
-			this.paymentClient = this.isWeiXin() ? "JSAPI" : "H5";
-			//#endif
+const store = useStore()
+const { proxy } = getCurrentInstance()!
 
+const routerVal = ref<Record<string, string>>({})
+const cashierParams = ref<Record<string, any>>({ price: 0 })
+const payList = ref<string[]>([])
+const sn = ref('')
+const orderType = ref('')
+const paymentType = ref('')
+const paymentClient = ref('')
+const walletValue = ref(0)
+const autoCancelTime = ref(0)
 
+onLoad((val) => {
+  routerVal.value = val || {}
+  // #ifdef APP-PLUS
+  paymentType.value = 'APP'
+  paymentClient.value = 'APP'
+  // #endif
+  // #ifdef MP-WEIXIN
+  paymentType.value = 'WECHAT_MP'
+  paymentClient.value = 'MP'
+  // #endif
+  // #ifdef H5
+  paymentType.value = 'H5'
+  paymentClient.value = isWeiXin() ? 'JSAPI' : 'H5'
+  // #endif
+})
 
-			// 
-		},
-		onBackPress(e) {
-			if (e.from == "backbutton") {
-							if(this.routerVal.recharge_sn){
-								uni.switchTab({
-									 url: '/pages/tabbar/user/my'
-								});
-							}
-							else{
-							uni.navigateTo({
-								url: "/pages/order/myOrder?status=0",
-							});
-							}
-							return true; //阻止默认返回行为
-							}
-		},
-		mounted() {
-			this.cashierData();
-		},
-		methods: {
+onBackPress((e) => {
+  if (e.from == 'backbutton') {
+    if (routerVal.value.recharge_sn) {
+      uni.switchTab({ url: '/pages/tabbar/user/my' })
+    } else {
+      uni.navigateTo({ url: '/pages/order/myOrder?status=0' })
+    }
+    return true
+  }
+  return false
+})
 
-			/**
-			 * 支付成功后跳转
-			 */
-			callback(paymentMethod){
-				uni.navigateTo({
-					url: "/pages/cart/payment/success?paymentMethod=" +
-					paymentMethod +
-					"&payPrice=" +
-					this.cashierParams.price+
-					"&orderType="+this.orderType 
-				});
-			},
-			
-			/**
-			 * 获取收银详情
-			 */
-			cashierData() {
-				let parms = {};
+onMounted(() => {
+  cashierData()
+})
 
-				if (this.routerVal.recharge_sn) {
-					// 判断当前是否是充值
-					this.sn = this.routerVal.recharge_sn;
-					this.orderType = "RECHARGE";
-					
-				} else if (this.routerVal.trade_sn) {
-					this.sn = this.routerVal.trade_sn;
-					this.orderType = "TRADE";
-				} else {
-					this.sn = this.routerVal.order_sn;
-					this.orderType = "ORDER";
-				}
-				parms.sn = this.sn;
-				parms.orderType = this.orderType;
-				parms.clientType = this.paymentType;
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
 
-				API_Trade.getCashierData(parms).then((res) => {
-				
-					if(res.data.success){
-					this.cashierParams = res.data.result;
+function callback(paymentMethod: string) {
+  uni.navigateTo({
+    url:
+      '/pages/cart/payment/success?paymentMethod=' +
+      paymentMethod +
+      '&payPrice=' +
+      cashierParams.value.price +
+      '&orderType=' +
+      orderType.value,
+  })
+}
 
-					// #ifdef MP-WEIXIN
-					this.payList = res.data.result.support.filter((item) => {
-						return item != "ALIPAY";
-					});
-					// #endif
+function cashierData() {
+  const parms: Record<string, string> = {}
 
-					
-				  if(this.routerVal.recharge_sn){
-						this.payList = res.data.result.support.filter((item) => {
-						return item != "WALLET";
-					})
-					}
-					 else{
-						this.payList = res.data.result.support;
-					}
-					// #ifdef H5
-					//判断是否微信浏览器
-					var ua = window.navigator.userAgent.toLowerCase();
-					if (ua.match(/MicroMessenger/i) == 'micromessenger') {
-					
-						this.payList = res.data.result.support.filter((item) => {
-							return item != "ALIPAY";
-						});
-						// 充值的话仅保留微信支付
-						if(this.orderType == "RECHARGE"){
-							this.payList = res.data.result.support.filter((item) => {
-								return item == "WECHAT";
-							});
-						}
-						
-					}
-					// #endif
-					
-				
-					
+  if (routerVal.value.recharge_sn) {
+    sn.value = routerVal.value.recharge_sn
+    orderType.value = 'RECHARGE'
+  } else if (routerVal.value.trade_sn) {
+    sn.value = routerVal.value.trade_sn
+    orderType.value = 'TRADE'
+  } else {
+    sn.value = routerVal.value.order_sn
+    orderType.value = 'ORDER'
+  }
+  parms.sn = sn.value
+  parms.orderType = orderType.value
+  parms.clientType = paymentType.value
 
-					this.walletValue = res.data.result.walletValue;
-					const cancelAt = Number(res.data.result.autoCancel);
-					this.autoCancelTime = cancelAt > 0 ? Math.max(cancelAt - Date.now(), 0) : 0;
-					}
-					else if(res.data.code == 32000){
-						setTimeout(()=>{
-							uni.redirectTo({
-							 url: `/pages/order/myOrder?status=0`
-						});
-						},500)
-						
-					}
-				});
-			},
+  API_Trade.getCashierData(parms).then((res) => {
+    if (res.data.success) {
+      cashierParams.value = res.data.result
 
+      // #ifdef MP-WEIXIN
+      payList.value = res.data.result.support.filter((item: string) => item != 'ALIPAY')
+      // #endif
 
-			awaitPay(payment){
-				this.$u.throttle(()=>{
-					this.pay(payment)
-				}, 2000)
-			},
+      if (routerVal.value.recharge_sn) {
+        payList.value = res.data.result.support.filter((item: string) => item != 'WALLET')
+      } else {
+        payList.value = res.data.result.support
+      }
 
-			padTime(val) {
-				return String(val ?? 0).padStart(2, '0');
-			},
+      // #ifdef H5
+      const ua = window.navigator.userAgent.toLowerCase()
+      if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+        payList.value = res.data.result.support.filter((item: string) => item != 'ALIPAY')
+        if (orderType.value == 'RECHARGE') {
+          payList.value = res.data.result.support.filter((item: string) => item == 'WECHAT')
+        }
+      }
+      // #endif
 
-			onPayTimeout() {
-				uni.showToast({
-					title: '支付超时，请重新下单',
-					icon: 'none',
-				});
-				setTimeout(() => {
-					uni.redirectTo({
-						url: '/pages/order/myOrder?status=0',
-					});
-				}, 1500);
-			},
+      walletValue.value = res.data.result.walletValue
+      const cancelAt = Number(res.data.result.autoCancel)
+      autoCancelTime.value = cancelAt > 0 ? Math.max(cancelAt - Date.now(), 0) : 0
+    } else if (res.data.code == 32000) {
+      setTimeout(() => {
+        uni.redirectTo({ url: '/pages/order/myOrder?status=0' })
+      }, 500)
+    }
+  })
+}
 
-			//订单支付
-			async pay(payment) {
-				
-				// 支付编号
-				const sn = this.sn;
-				// 交易类型【交易号|订单号】
-				const orderType = this.orderType;
+function awaitPay(payment: string) {
+  proxy.$u.throttle(() => {
+    pay(payment)
+  }, 2000)
+}
 
-				const clientType = this.paymentType;
-				let params = {
-					sn,
-					orderType,
-					clientType,
-				};
+function padTime(val: number) {
+  return String(val ?? 0).padStart(2, '0')
+}
 
-				//支付方式 WECHAT/ALIPAY
-				const paymentMethod = payment;
-				// 客户端类型 APP/NATIVE/JSAPI/H5
-				const paymentClient = this.paymentClient;
-				
-				uni.showLoading({
-				  title: "正在唤起支付...",
-				  mask:true
-				});
-				
-				// #ifdef APP-PLUS
-				//APP pay
-				// 初始化支付签名
-				await API_Trade.initiatePay(paymentMethod, paymentClient, params).then(
-					(signXml) => {
-						 if (this.$store.state.isShowToast){ uni.hideLoading() };
-						//如果支付异常
-						if (!signXml.data.success) {
-							uni.showToast({
-								title: signXml.data.message,
-								duration: 2000
-							});
-							return;
-						}
-						
-						let payForm = signXml.data.result;
-						
-						let paymentType = paymentMethod === "WECHAT" ? "wxpay" : "alipay";
-						
-						if(paymentMethod === "WALLET"){
-							uni.showToast({
-								icon: "none",
-								title: "支付成功!",
-							});
-							this.callback(paymentMethod)
-						}
-						else{
-							uni.requestPayment({
-								provider: paymentType,
-								orderInfo: payForm || '',
-								success: (e) => {
-									uni.showToast({
-										icon: "none",
-										title: "支付成功!",
-									});
-									this.callback(paymentMethod)
-								},
-								fail: (e) => {
-									console.log(this);
-									this.exception = e;
-									uni.showModal({
-										content: "支付失败,如果您已支付，请勿反复支付",
-										showCancel: false,
-									});
-								},
-							});
-						}
-					}
-				);
-				//APP pay
-				// #endif
+function onPayTimeout() {
+  uni.showToast({ title: '支付超时，请重新下单', icon: 'none' })
+  setTimeout(() => {
+    uni.redirectTo({ url: '/pages/order/myOrder?status=0' })
+  }, 1500)
+}
 
-				//#ifdef H5
-				//H5 pay
-				await API_Trade.initiatePay(paymentMethod, paymentClient, params).then(
-					(res) => {
-						let response = res.data;
-						//如果非支付宝支付才需要进行判定，因为支付宝h5支付是直接输出的，没有返回所谓的消息状态
-						if(paymentMethod !== "ALIPAY"){
-							//如果支付异常
-							if (!response.success) {
-								uni.showToast({
-									title: response.message,
-									duration: 2000,
-									icon:"none"
-								});
-								return;
-							}
-						}
-						if (paymentMethod === "ALIPAY") {
-							document.write(response);
-						} else if (paymentMethod === "WECHAT") {
-							if (this.isWeiXin()) {
-								//微信公众号支付
-								WeixinJSBridge.invoke(
-									"getBrandWCPayRequest",
-									response.result,
-									(res) => {
-										if (res.err_msg == "get_brand_wcpay_request:ok") {
-											// 使用以上方式判断前端返回,微信团队郑重提示：
-											//res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
-											uni.showToast({
-												icon: "none",
-												title: "支付成功!",
-											});
-											this.callback(paymentMethod)
-											 
-										} else {
-											uni.showModal({
-												content: "支付失败,如果您已支付，请勿反复支付",
-												showCancel: false,
-											});
-										}
-									}
-								);
-								 if (this.$store.state.isShowToast){ uni.hideLoading() };
-							} else {
-								window.location.href = JSON.parse(response.result).h5_url;
-								const searchParams = {
-									...params,
-									price:this.cashierParams,
-								}
-								const timer = setInterval(()=>{
-									payCallback(searchParams).then(res=>{
-									if(res.data.result){
-										clearTimeout(timer);
-										uni.navigateTo({
-											url:"/pages/order/myOrder"
-										})
-									}
-								})
-								},3000)
-								
-								 if (this.$store.state.isShowToast){ uni.hideLoading() };		
-							}
-						} else if (paymentMethod === "WALLET") {
-							uni.showToast({
-								title: response.message,
-								icon: "none",
-							});
-							if (response.success) {
-								this.callback(paymentMethod)
-							}
-						}
-					}
-				);
-				//H5pay
-				// #endif
+function goPayError(message = '支付失败，如果您已支付，请勿反复支付') {
+  const query = [`orderSn=${encodeURIComponent(sn.value)}`, `message=${encodeURIComponent(message)}`]
+  uni.navigateTo({ url: `/pages/cart/payment/error?${query.join('&')}` })
+}
 
-				//#ifdef MP-WEIXIN
-				//微信小程序
-				await API_Trade.initiatePay(paymentMethod, paymentClient, params).then(
-					(res) => {
-						let response = res.data.result;
-						//如果支付异常
-						if (!res.data.success) {
-							uni.showModal({
-								content: res.data.message,
-								showCancel: false,
-							})
-							return;
-						}
-						if (paymentMethod === "WECHAT") {
-							uni.requestPayment({
-								provider: "wxpay",
-								appid: response.appid,
-								timeStamp: response.timeStamp,
-								nonceStr: response.nonceStr,
-								package: response.package,
-								signType: response.signType,
-								paySign: response.paySign,
-								success: (e) => {
-									console.log(e);
-									uni.showToast({
-										icon: "none",
-										title: "支付成功!",
-									});
-									this.callback(paymentMethod)
-									 
-								},
-								fail: (e) => {
-									console.log(e);
-									this.exception = e;
-									uni.showModal({
-										content: "支付失败,如果您已支付，请勿反复支付",
-										showCancel: false,
-									});
-								},
-							});
-						} else {
-							uni.showToast({
-								icon: "none",
-								title: "支付成功!",
-							});
-							this.callback(paymentMethod)
-							 
-						}
-					}
-				);
-				// #endif
-			},
-			isWeiXin() {
-				var ua = window.navigator.userAgent.toLowerCase();
-				if (ua.match(/MicroMessenger/i) == "micromessenger") {
-					return true;
-				} else {
-					return false;
-				}
-			},
-		},
-	};
+async function pay(payment: string) {
+  const params = {
+    sn: sn.value,
+    orderType: orderType.value,
+    clientType: paymentType.value,
+  }
+  const paymentMethod = payment
+  const client = paymentClient.value
+
+  uni.showLoading({ title: '正在唤起支付...', mask: true })
+
+  // #ifdef APP-PLUS
+  await API_Trade.initiatePay(paymentMethod, client, params).then((signXml) => {
+    hideLoadingIfNeeded()
+    if (!signXml.data.success) {
+      uni.showToast({ title: signXml.data.message, duration: 2000 })
+      return
+    }
+    const payForm = signXml.data.result
+    const provider = paymentMethod === 'WECHAT' ? 'wxpay' : 'alipay'
+    if (paymentMethod === 'WALLET') {
+      uni.showToast({ icon: 'none', title: '支付成功!' })
+      callback(paymentMethod)
+    } else {
+      uni.requestPayment({
+        provider,
+        orderInfo: payForm || '',
+        success: () => {
+          uni.showToast({ icon: 'none', title: '支付成功!' })
+          callback(paymentMethod)
+        },
+        fail: () => {
+          goPayError()
+        },
+      })
+    }
+  })
+  // #endif
+
+  // #ifdef H5
+  await API_Trade.initiatePay(paymentMethod, client, params).then((res) => {
+    const response = res.data
+    if (paymentMethod !== 'ALIPAY' && !response.success) {
+      uni.showToast({ title: response.message, duration: 2000, icon: 'none' })
+      return
+    }
+    if (paymentMethod === 'ALIPAY') {
+      document.write(response)
+    } else if (paymentMethod === 'WECHAT') {
+      if (isWeiXin()) {
+        WeixinJSBridge.invoke('getBrandWCPayRequest', response.result, (payRes: any) => {
+          if (payRes.err_msg == 'get_brand_wcpay_request:ok') {
+            uni.showToast({ icon: 'none', title: '支付成功!' })
+            callback(paymentMethod)
+          } else {
+            goPayError()
+          }
+        })
+        hideLoadingIfNeeded()
+      } else {
+        window.location.href = JSON.parse(response.result).h5_url
+        const searchParams = { ...params, price: cashierParams.value }
+        const timer = setInterval(() => {
+          payCallback(searchParams).then((cbRes) => {
+            if (cbRes.data.result) {
+              clearInterval(timer)
+              uni.navigateTo({ url: '/pages/order/myOrder' })
+            }
+          })
+        }, 3000)
+        hideLoadingIfNeeded()
+      }
+    } else if (paymentMethod === 'WALLET') {
+      uni.showToast({ title: response.message, icon: 'none' })
+      if (response.success) callback(paymentMethod)
+    }
+  })
+  // #endif
+
+  // #ifdef MP-WEIXIN
+  await API_Trade.initiatePay(paymentMethod, client, params).then((res) => {
+    const response = res.data.result
+    if (!res.data.success) {
+      uni.showModal({ content: res.data.message, showCancel: false })
+      return
+    }
+    if (paymentMethod === 'WECHAT') {
+      uni.requestPayment({
+        provider: 'wxpay',
+        appid: response.appid,
+        timeStamp: response.timeStamp,
+        nonceStr: response.nonceStr,
+        package: response.package,
+        signType: response.signType,
+        paySign: response.paySign,
+        success: () => {
+          uni.showToast({ icon: 'none', title: '支付成功!' })
+          callback(paymentMethod)
+        },
+        fail: () => {
+          goPayError()
+        },
+      })
+    } else {
+      uni.showToast({ icon: 'none', title: '支付成功!' })
+      callback(paymentMethod)
+    }
+  })
+  // #endif
+}
+
+function isWeiXin() {
+  const ua = window.navigator.userAgent.toLowerCase()
+  return ua.match(/MicroMessenger/i) == 'micromessenger'
+}
 </script>
 <style scoped lang="scss">
 .method_icon {

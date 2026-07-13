@@ -21,18 +21,10 @@
     </div>
   </div>
 </template>
-<script>
+<script setup lang="ts">
 import { modelNavigateTo } from "./tpl";
 
-export default {
-  title: "热区模块",
-  data() {
-    return {
-      modelNavigateTo,
-    };
-  },
-  props: ["res"],
-};
+defineProps<{ res: any }>();
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";

@@ -5,14 +5,12 @@
 	 </view>
 </template>
 
-<script>
+<script setup lang="ts">
 import goodsList from '@/components/m-goods-list/list.vue'
-export default {
-  props: ["res"],
-	components:{goodsList},
-  methods: {
-    }
-};
+
+defineProps<{
+  res?: any[]
+}>()
 </script>
 
 <style lang="scss" scoped>

@@ -4,7 +4,7 @@
     <u-cell-group>
       <u-cell class="border-top" :isLink="false" title="指纹登录">
         <template #right-icon>
-          <u-switch @change="fingerSwitchChange" :active-color="lightColor" size="40" v-model="checked"></u-switch>
+          <u-switch @change="onFingerSwitchChange" :active-color="lightColor" size="40" v-model="enabled"></u-switch>
         </template>
       </u-cell>
     </u-cell-group>
@@ -12,60 +12,57 @@
   </view>
 </template>
 
-<script>
-import storage from "@/utils/storage.js";
-import { setBiolofy } from "@/api/passport.js";
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import storage from '@/utils/storage.js'
+import { setBiolofy } from '@/api/passport.js'
 
-export default {
-  data() {
-    return {
-      lightColor: this.$lightColor,
-      checked: false,
-    };
-  },
-  methods: {
-    fingerSwitchChange(value) {
-      if (value === true) {
-        const res = uni.getSystemInfoSync();
-        plus.device.getInfo({
-          success: function (e) {
-            let params = {
-              mobile_type: res.model,
-              secret_key: e.uuid,
-            };
-            setBiolofy(params).then((res) => {
-              if (res.statusCode === 200) {
-                storage.setFingerLogin(true);
-              }
-            });
-          },
-          fail: function (e) {
-            console.error("getDeviceInfo failed: " + JSON.stringify(e));
-          },
-        });
-      } else {
-        storage.setFingerLogin(false);
-      }
-    },
-  },
-  onLoad() {
-    // #ifdef APP-PLUS
-    if (!plus.fingerprint.isSupport()) {
-      plus.nativeUI.toast("此设备不支持指纹识别");
-      uni.navigateBack();
-    }
-    if (!plus.fingerprint.isKeyguardSecure()) {
-      plus.nativeUI.toast("此设备未设置密码锁屏");
-      uni.navigateBack();
-    }
-    if (!plus.fingerprint.isEnrolledFingerprints()) {
-      plus.nativeUI.toast("此设备未录入指纹");
-      uni.navigateBack();
-    }
-    this.checked = storage.getFingerLogin() || false;
-    // #endif
-  },
-};
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
+const enabled = ref(false)
+
+onLoad(() => {
+  // #ifdef APP-PLUS
+  if (!plus.fingerprint.isSupport()) {
+    plus.nativeUI.toast('此设备不支持指纹识别')
+    uni.navigateBack()
+  }
+  if (!plus.fingerprint.isKeyguardSecure()) {
+    plus.nativeUI.toast('此设备未设置密码锁屏')
+    uni.navigateBack()
+  }
+  if (!plus.fingerprint.isEnrolledFingerprints()) {
+    plus.nativeUI.toast('此设备未录入指纹')
+    uni.navigateBack()
+  }
+  enabled.value = storage.getFingerLogin() || false
+  // #endif
+})
+
+function onFingerSwitchChange(value: boolean) {
+  if (value) {
+    const systemInfo = uni.getSystemInfoSync()
+    plus.device.getInfo({
+      success(e) {
+        setBiolofy({
+          mobile_type: systemInfo.model,
+          secret_key: e.uuid,
+        }).then((res) => {
+          if (res.statusCode === 200) {
+            storage.setFingerLogin(true)
+          }
+        })
+      },
+      fail(err) {
+        console.error('getDeviceInfo failed: ' + JSON.stringify(err))
+      },
+    })
+  } else {
+    storage.setFingerLogin(false)
+  }
+}
 </script>
 
 <style scoped lang="scss">

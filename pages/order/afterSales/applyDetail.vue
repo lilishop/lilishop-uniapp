@@ -25,7 +25,7 @@
       </view>
       <view class="goods-info">
         <view class="info-box">
-          <view class="goods-item-view" @click="navgiateToGoodsDetail(serviceDetail)">
+          <view class="goods-item-view" @click="navigateToGoodsDetail(serviceDetail)">
             <view class="goods-img">
               <u-image
                 border-radius="6"
@@ -184,198 +184,184 @@
   </view>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import {
+  unitPrice,
+  parseGoodsImageUrl,
+  serviceStatusList,
+  secrecyMobile,
+  unixToDate,
+} from '@/utils/filters.js'
 import {
   getServiceDetail,
   getStoreAfterSaleAddress,
   getAfterSaleLog,
   getAfterSaleReason,
-} from "@/api/after-sale.js";
-export default {
-  data() {
-    return {
-      reason: "", //申请原因
-      serviceTypeList: {
-        // 售后类型
-        CANCEL: "取消",
-        RETURN_GOODS: "退货",
-        EXCHANGE_GOODS: "换货",
-        RETURN_MONEY: "退款",
-      },
-      serviceDetail: {}, // 售后详情
-      logs: [], //日志
-      goodsList: [], //商品列表
-      storeAfterSaleAddress: {}, //售后地址
-      refundShow: false, //退款开关
-      accountShow: false, //账户显示
-      bankShow: false, //银行显示
-      sn: "", //订单sn
-    };
-  },
-  onLoad(options) {
-    uni.setNavigationBarTitle({
-      title: "服务单详情",
-    });
-    this.sn = options.sn;
-    this.loadDetail();
-    this.getAddress();
-    this.getLog(options.sn);
-  },
-  methods: {
-    statusFilter(val) {
-      switch (val) {
-        case "APPLY":
-          return "售后服务申请成功，等待商家审核";
-        case "PASS":
-          return "售后服务申请审核通过";
-        case "REFUSE":
-          return "售后服务申请已被商家拒绝，如有疑问请及时联系商家";
-        case "FULL_COURIER":
-          return "申请售后的商品已经寄出，等待商家收货";
-        case "STOCK_IN":
-          return "商家已将售后商品入库";
-        case "WAIT_FOR_MANUAL":
-          return "等待平台进行人工退款";
-        case "REFUNDING":
-          return "商家退款中，请您耐心等待";
-        case "COMPLETED":
-          return "售后服务已完成，感谢您的支持";
-        case "ERROR_EXCEPTION":
-          return "系统生成新订单异常，等待商家手动创建新订单";
-        case "CLOSED":
-          return "售后服务已关闭";
-        case "WAIT_REFUND":
-          return "等待平台进行退款";
-        default:
-          return "";
-      }
-    },
-    refundWayFilter(val) {
-      switch (val) {
-        case "OFFLINE":
-          return "账户退款";
-        case "ORIGINAL":
-          return "原路退回";
-        default:
-          return "";
-      }
-    },
-    accountTypeFilter(val) {
-      switch (val) {
-        case "WEIXINPAY":
-          return "微信";
-        case "ALIPAY":
-          return "支付宝";
-        case "BANK_TRANSFER":
-          return "银行卡";
-        default:
-          return "";
-      }
-    },
-    /**
-     * 点击图片放大或保存
-     */
-    preview(urls, index) {
-      uni.previewImage({
-        current: index,
-        urls: urls,
-        longPressActions: {
-          itemList: ["保存图片"],
-          success: function (data) {},
-          fail: function (err) {},
-        },
-      });
-    },
+} from '@/api/after-sale.js'
 
-    /**
-     * 获取地址信息
-     */
-    getAddress() {
-      getStoreAfterSaleAddress(this.sn).then((res) => {
-        if (res.data.success) {
-          this.storeAfterSaleAddress = res.data.result;
-        }
-      });
+const store = useStore()
+
+const reason = ref('')
+const serviceTypeList: Record<string, string> = {
+  CANCEL: '取消',
+  RETURN_GOODS: '退货',
+  EXCHANGE_GOODS: '换货',
+  RETURN_MONEY: '退款',
+}
+const serviceDetail = ref<any>(null)
+const logs = ref<any[]>([])
+const storeAfterSaleAddress = ref<any>({})
+const refundShow = ref(false)
+const accountShow = ref(false)
+const bankShow = ref(false)
+const sn = ref('')
+
+onLoad((options) => {
+  uni.setNavigationBarTitle({ title: '服务单详情' })
+  sn.value = options?.sn || ''
+  loadDetail()
+  fetchAddress()
+  fetchLog(sn.value)
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+function statusFilter(val: string) {
+  switch (val) {
+    case 'APPLY':
+      return '售后服务申请成功，等待商家审核'
+    case 'PASS':
+      return '售后服务申请审核通过'
+    case 'REFUSE':
+      return '售后服务申请已被商家拒绝，如有疑问请及时联系商家'
+    case 'FULL_COURIER':
+      return '申请售后的商品已经寄出，等待商家收货'
+    case 'STOCK_IN':
+      return '商家已将售后商品入库'
+    case 'WAIT_FOR_MANUAL':
+      return '等待平台进行人工退款'
+    case 'REFUNDING':
+      return '商家退款中，请您耐心等待'
+    case 'COMPLETED':
+      return '售后服务已完成，感谢您的支持'
+    case 'ERROR_EXCEPTION':
+      return '系统生成新订单异常，等待商家手动创建新订单'
+    case 'CLOSED':
+      return '售后服务已关闭'
+    case 'WAIT_REFUND':
+      return '等待平台进行退款'
+    default:
+      return ''
+  }
+}
+
+function refundWayFilter(val: string) {
+  switch (val) {
+    case 'OFFLINE':
+      return '账户退款'
+    case 'ORIGINAL':
+      return '原路退回'
+    default:
+      return ''
+  }
+}
+
+function accountTypeFilter(val: string) {
+  switch (val) {
+    case 'WEIXINPAY':
+      return '微信'
+    case 'ALIPAY':
+      return '支付宝'
+    case 'BANK_TRANSFER':
+      return '银行卡'
+    default:
+      return ''
+  }
+}
+
+function preview(urls: string[], index: number) {
+  uni.previewImage({
+    current: index,
+    urls,
+    longPressActions: {
+      itemList: ['保存图片'],
+      success: () => {},
+      fail: () => {},
     },
+  })
+}
 
-    /**
-     * 获取日志
-     */
-    getLog(sn) {
-      getAfterSaleLog(sn).then((res) => {
-        this.logs = res.data.result;
-      });
-    },
+function fetchAddress() {
+  getStoreAfterSaleAddress(sn.value).then((res) => {
+    if (res.data.success) {
+      storeAfterSaleAddress.value = res.data.result
+    }
+  })
+}
 
-    /**
-     * 获取申请原因
-     */
-    getReasonList(serviceType) {
-      getAfterSaleReason(serviceType).then((res) => {
-        if (res.data.success) {
-          // 1357583466371219456
-          this.reason = this.serviceDetail.reason;
-        }
-      });
-    },
+function fetchLog(serviceSn: string) {
+  getAfterSaleLog(serviceSn).then((res) => {
+    logs.value = res.data.result
+  })
+}
 
-    /**
-     * 初始化详情
-     */
-    loadDetail() {
-      uni.showLoading({
-        title: "加载中",
-      });
-      getServiceDetail(this.sn).then((res) => {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-        this.serviceDetail = res.data.result;
-        if (
-          this.serviceDetail.serviceType == "RETURN_GOODS" ||
-          this.serviceDetail.serviceType === "RETURN_MONEY"
-        ) {
-          this.refundShow = true;
-        }
+function fetchReasonList(serviceType: string) {
+  getAfterSaleReason(serviceType).then((res) => {
+    if (res.data.success) {
+      reason.value = serviceDetail.value.reason
+    }
+  })
+}
 
-        this.accountShow =
-          (this.serviceDetail.serviceType === "RETURN_GOODS" ||
-            this.serviceDetail.serviceType === "ORDER_CANCEL") &&
-          this.serviceDetail.refundWay === "OFFLINE";
+function loadDetail() {
+  uni.showLoading({ title: '加载中' })
+  getServiceDetail(sn.value).then((res) => {
+    hideLoadingIfNeeded()
+    serviceDetail.value = res.data.result
+    if (
+      serviceDetail.value.serviceType == 'RETURN_GOODS' ||
+      serviceDetail.value.serviceType === 'RETURN_MONEY'
+    ) {
+      refundShow.value = true
+    }
 
-        this.bankShow =
-          this.serviceDetail.accountType === "BANK_TRANSFER" &&
-          this.serviceDetail.refundWay === "OFFLINE" &&
-          ((this.serviceDetail.serviceType === "RETURN_GOODS") |
-            (this.serviceDetail.serviceType === "ORDER_CANCEL") ||
-            this.serviceDetail.serviceType === "RETURN_MONEY");
+    accountShow.value =
+      (serviceDetail.value.serviceType === 'RETURN_GOODS' ||
+        serviceDetail.value.serviceType === 'ORDER_CANCEL') &&
+      serviceDetail.value.refundWay === 'OFFLINE'
 
-        this.getReasonList(this.serviceDetail.serviceType);
-      });
-    },
+    bankShow.value =
+      serviceDetail.value.accountType === 'BANK_TRANSFER' &&
+      serviceDetail.value.refundWay === 'OFFLINE' &&
+      ((serviceDetail.value.serviceType === 'RETURN_GOODS') |
+        (serviceDetail.value.serviceType === 'ORDER_CANCEL') ||
+        serviceDetail.value.serviceType === 'RETURN_MONEY')
 
-    /**
-     * 访问商品详情
-     */
-    navgiateToGoodsDetail(item) {
-      uni.navigateTo({
-        url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
-      });
-    },
+    fetchReasonList(serviceDetail.value.serviceType)
+  })
+}
 
-    /**
-     * 进度
-     */
-    onProgress() {
-      uni.navigateTo({
-        url: `./applyProgress?sn=${
-          this.serviceDetail.sn
-        }&createTime=${encodeURIComponent(this.serviceDetail.createTime)}
-         &logs=${encodeURIComponent(JSON.stringify(this.logs))}&serviceStatus=${
-          this.serviceDetail.serviceStatus
-        }`,
-      });
-    },
-  },
-};
+function navigateToGoodsDetail(item: any) {
+  uni.navigateTo({
+    url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
+  })
+}
+
+function onProgress() {
+  uni.navigateTo({
+    url: `./applyProgress?sn=${
+      serviceDetail.value.sn
+    }&createTime=${encodeURIComponent(serviceDetail.value.createTime)}
+         &logs=${encodeURIComponent(JSON.stringify(logs.value))}&serviceStatus=${
+      serviceDetail.value.serviceStatus
+    }`,
+  })
+}
 </script>
 
 <style lang="scss" scoped>

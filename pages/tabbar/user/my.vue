@@ -72,83 +72,83 @@
 
   </view>
 </template>
-<script>
-import tool from "@/pages/tabbar/user/utils/tool.vue";
-import { getCouponsNum, getFootprintNum } from "@/api/members.js";
-import { getUserWallet } from "@/api/members";
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import {
+  onLoad,
+  onShow,
+  onPullDownRefresh,
+  onNavigationBarButtonTap,
+} from '@dcloudio/uni-app'
+import tool from '@/pages/tabbar/user/utils/tool.vue'
+import { getCouponsNum, getFootprintNum } from '@/api/members.js'
+import { getUserWallet } from '@/api/members'
 import configs from '@/config/config'
-export default {
-  components: {
-    tool,
-  },
-  data() {
-    return {
-      configs,
-      userImage:configs.defaultUserPhoto,
-      coverTransform: "translateY(0px)",
-      coverTransition: "0s",
-      moving: false,
-      userInfo: {},
-      couponNum: "",
-      footNum: "",
-      walletNum: "",
-    };
-  },
-  onLoad() { },
-  onShow() {
-    this.userInfo = this.isLogin() || {};
-    if (this.isLogin("auth")) {
-      this.getUserOrderNum();
-    } else {
-      this.walletNum = 0;
-      this.couponNum = 0;
-      this.footNum = 0;
-    }
-  },
-  onPullDownRefresh() {
-    this.getUserOrderNum();
-    this.userInfo = this.isLogin();
-  },
-  // #ifndef MP
-  onNavigationBarButtonTap(e) {
-    const index = e.index;
-    if (index === 0) {
-      this.navigateTo("/pages/mine/set/setUp");
-    }
-  },
-  // #endif
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+import { isLogin, navigateToLogin, unitPrice } from '@/utils/filters.js'
 
-  mounted() { },
-  methods: {
-    /**
-     * 统一跳转接口,拦截未登录路由
-     * navigator标签现在默认没有转场动画，所以用view
-     */
-    navigateTo(url) {
-      uni.navigateTo({
-        url,
-      });
-    },
-    userDetail() {
-      this.userInfo.id
-        ? this.navigateTo("/pages/mine/set/personMsg")
-        : this.navigateToLogin();;
-    },
-    async getUserOrderNum() {
-      uni.stopPullDownRefresh();
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
+const lightColor = computed(() => store.getters.lightColor)
+const mainColor = computed(() => store.getters.mainColor)
+const aiderLightColor = computed(() => store.getters.aiderLightColor)
 
-      Promise.all([
-        getCouponsNum(), //优惠券
-        getFootprintNum(), //浏览数量
-        getUserWallet(), //预存款
-      ]).then((res) => {
-        this.couponNum = res[0].data.result;
-        this.footNum = res[1].data.result;
-        this.walletNum = res[2].data.result.memberWallet;
-      });
-    },
-  },
-};
+const userImage = configs.defaultUserPhoto
+const userInfo = ref<any>({})
+const couponNum = ref<string | number>('')
+const footNum = ref<string | number>('')
+const walletNum = ref<string | number>('')
+
+onLoad(() => {})
+
+onShow(() => {
+  userInfo.value = isLogin() || {}
+  if (isLogin('auth')) {
+    getUserOrderNum()
+  } else {
+    walletNum.value = 0
+    couponNum.value = 0
+    footNum.value = 0
+  }
+})
+
+onPullDownRefresh(() => {
+  getUserOrderNum()
+  userInfo.value = isLogin()
+})
+
+// #ifndef MP
+onNavigationBarButtonTap((e) => {
+  if (e.index === 0) {
+    navigateTo('/pages/mine/set/setUp')
+  }
+})
+// #endif
+
+function navigateTo(url: string) {
+  uni.navigateTo({ url })
+}
+
+function userDetail() {
+  userInfo.value.id
+    ? navigateTo('/pages/mine/set/personMsg')
+    : navigateToLogin()
+}
+
+async function getUserOrderNum() {
+  uni.stopPullDownRefresh()
+
+  Promise.all([
+    getCouponsNum(),
+    getFootprintNum(),
+    getUserWallet(),
+  ]).then((res: any[]) => {
+    couponNum.value = res[0].data.result
+    footNum.value = res[1].data.result
+    walletNum.value = res[2].data.result.memberWallet
+  })
+}
 </script>
 
 <style lang="scss" scoped>

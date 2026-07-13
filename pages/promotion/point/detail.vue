@@ -49,70 +49,63 @@
       </div>
 
       <!-- 购买 -->
-      <popupGoods ref="popupGoods" :goodsSpec="goodsSpec" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="goodsData" v-if="goodsData.id " @handleClickSku="getGoodsDetail" />
+      <popupGoods ref="popupGoodsRef" :goodsSpec="goodsSpec" :buyMask="maskFlag" @closeBuy="closePopupBuy" :goodsDetail="goodsData" v-if="goodsData.id " @handleClickSku="getGoodsDetail" />
 
       <div class="box4"></div>
     </div>
   </div>
 </template>
 
-<script>
-import popupGoods from "@/components/m-buy/goods"; //购物车商品的模块
-import { getPointsGoodsDetail } from "@/api/promotions";
-export default {
-  components: {
-    popupGoods,
-  },
-  data() {
-    return {
-      style: {
-        img:"display:block"
-      },
-      maskFlag: false, //商品弹框
-      lightColor: this.$lightColor,
-      goodsData: {}, //积分商品中商品详情
-      pointDetail: {}, //积分商品详情
-      goodsDetail: {}, //商品详情
-      goodsSpec: {}, //商品规格
-      selectedGoods: {},
-    };
-  },
-  onLoad(options) {
-    this.routerVal = options;
-  },
-  onShow() {
-    this.init();
-  },
-  watch: {},
-  methods: {
-    // 购买积分商品
-    getGoodsDetail() {
-      uni.showLoading({
-        title: "加载中",
-        mask: true,
-      });
-      this.$refs.popupGoods.buy({
-        skuId: this.goodsData.id,
-        num: 1,
-        cartType: "POINTS",
-      });
-    },
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import popupGoods from '@/components/m-buy/goods'
+import { getPointsGoodsDetail } from '@/api/promotions'
+import { unitPrice } from '@/utils/filters.js'
 
-    // 初始化商品
-    async init() {
-      // 获取商品
-      let res = await getPointsGoodsDetail(this.routerVal.id);
-      if (res.data.success) {
-        this.goodsData = res.data.result.goodsSku;
-        this.pointDetail = res.data.result;
-      }
-    },
+const style = ref({
+  img: 'display:block',
+})
 
-    closePopupBuy(val) {
-      this.maskFlag = val;
-    },
-  },
-};
+const maskFlag = ref(false)
+const goodsData = ref<any>({})
+const pointDetail = ref<any>({})
+const goodsSpec = ref<any>({})
+const routerVal = ref<Record<string, string>>({})
+
+const popupGoodsRef = ref<any>(null)
+
+onLoad((options) => {
+  routerVal.value = options || {}
+})
+
+onShow(() => {
+  init()
+})
+
+function getGoodsDetail() {
+  uni.showLoading({
+    title: '加载中',
+    mask: true,
+  })
+  popupGoodsRef.value?.buy({
+    skuId: goodsData.value.id,
+    num: 1,
+    cartType: 'POINTS',
+  })
+}
+
+async function init() {
+  const res = await getPointsGoodsDetail(routerVal.value.id)
+  if (res.data.success) {
+    goodsData.value = res.data.result.goodsSku
+    pointDetail.value = res.data.result
+  }
+}
+
+function closePopupBuy(val: boolean) {
+  maskFlag.value = val
+}
 </script>
 <style lang="scss">
 </style>

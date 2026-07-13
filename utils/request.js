@@ -22,9 +22,9 @@ function cleanStorage() {
 		icon: "none",
 		duration: 1500,
 	});
-	if (uni.showLoading()) {
+	try {
 		uni.hideLoading();
-	}
+	} catch (e) {}
 
 	storage.setHasLogin(false);
 	storage.setAccessToken("");
@@ -82,7 +82,7 @@ http.interceptors.request.use(
 	(config) => {
 		/* 请求之前拦截器。可以使用async await 做异步操作 */
 		let accessToken = storage.getAccessToken();
-		if(storage.getInviter()){
+		if (storage.getInviter()) {
 			config.header.inviter = storage.getInviter();
 		}
 		if (accessToken) {
@@ -96,7 +96,7 @@ http.interceptors.request.use(
 				accessToken = ""
 				storage.setAccessToken('')
 			}
-			
+
 
 			const nonce = Foundation.randomString(6);
 			const timestamp = parseInt(new Date().getTime() / 1000);
@@ -144,7 +144,9 @@ http.interceptors.response.use(
 		//   cleanStorage();
 		//   isRefreshing = false;
 		// }
-		uni.showLoading() ? uni.hideLoading() : ''
+		try {
+			uni.hideLoading();
+		} catch (e) {}
 		let token = storage.getAccessToken();
 		if (
 			(token && response.statusCode === 403) ||

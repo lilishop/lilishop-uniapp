@@ -1,6 +1,7 @@
 /**
  * 直播 MQTT 连接管理（由 saas-uni-v3 useMqtt 迁移）
  */
+// #ifndef MP-WEIXIN
 import { createMqttClient } from "../mqtt/mqtt.js";
 
 export class LiveMqttService {
@@ -220,3 +221,20 @@ export class LiveMqttService {
     this.disconnectMqtt();
   }
 }
+// #endif
+
+// #ifdef MP-WEIXIN
+export class LiveMqttService {
+  constructor() {}
+  set messageHandlers() {}
+  setMessageHandlers() {}
+  initMqtt() {}
+  isConnected() {
+    return false;
+  }
+  get mqttClient() {
+    return null;
+  }
+  cleanup() {}
+}
+// #endif

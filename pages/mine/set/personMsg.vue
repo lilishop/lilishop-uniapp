@@ -5,48 +5,54 @@
       <view>点击修改头像</view>
     </view>
 
-    <u-form :model="form" ref="uForm" class="form">
-      <u-form-item label="昵称" label-width="150" :border-bottom="true">
+    <up-form
+      :model="form"
+      ref="uForm"
+      class="form"
+      label-position="left"
+      label-width="180rpx"
+    >
+      <up-form-item label="昵称" label-width="180rpx" :border-bottom="true">
         <u-input
           v-model="form.nickName"
           border="none"
           input-align="right"
           placeholder="请输入昵称"
         />
-      </u-form-item>
+      </up-form-item>
 
-      <u-form-item label="性别" label-width="150" :border-bottom="true">
+      <up-form-item label="性别" label-width="180rpx" :border-bottom="true">
         <view class="sex-row">
           <u-radio-group v-model="form.sex" :active-color="lightColor" :gap="40">
             <u-radio name="1" label="男" shape="circle"></u-radio>
             <u-radio name="0" label="女" shape="circle"></u-radio>
           </u-radio-group>
         </view>
-      </u-form-item>
+      </up-form-item>
 
-      <u-form-item label="生日" label-width="150" :border-bottom="true">
+      <up-form-item label="生日" label-width="180rpx" :border-bottom="true">
         <view class="form-value" @click="showBirthday = true">
           {{ birthday || '请选择出生日期' }}
         </view>
         <template #right>
           <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
         </template>
-      </u-form-item>
+      </up-form-item>
 
-      <u-form-item label="城市" label-width="150" :border-bottom="true">
+      <up-form-item label="城市" label-width="180rpx" :border-bottom="true">
         <view class="form-value" @click="clickRegion">
-          {{ form.___path || '请选择城市' }}
+          {{ form.regionPath || '请选择城市' }}
         </view>
         <template #right>
           <u-icon name="arrow-right" color="#ccc" size="16"></u-icon>
         </template>
-      </u-form-item>
+      </up-form-item>
 
-      <u-form-item label="手机号" label-width="150" :border-bottom="false">
+      <up-form-item label="手机号" label-width="180rpx" :border-bottom="false">
         <view v-if="form.mobile" class="form-value">{{ form.mobile }}</view>
-        <view v-else class="bind-mobile" @click="navigateTo(form.username)">绑定手机号码</view>
-      </u-form-item>
-    </u-form>
+        <view v-else class="bind-mobile" @click="navigateToBindMobile(form.username)">绑定手机号码</view>
+      </up-form-item>
+    </up-form>
 
     <view class="bottom">
       <view class="submit" @click="submit">保存</view>
@@ -74,152 +80,135 @@
   </view>
 </template>
 
-<script>
-import { saveUserInfo } from "@/api/members.js";
-import { upload } from "@/api/common.js";
-import storage from "@/utils/storage.js";
-import city from "@/components/m-city/m-city.vue";
+<script setup lang="ts">
+import { ref, reactive, computed } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { quiteLoginOut } from '@/utils/filters.js'
+import { saveUserInfo } from '@/api/members.js'
+import { upload } from '@/api/common.js'
+import storage from '@/utils/storage.js'
+import MCity from '@/components/m-city/m-city.vue'
 
-function parseBirthdayTimestamp(str) {
-  if (!str) {
-    return Date.now();
-  }
-  const timestamp = Date.parse(String(str).replace(/-/g, "/"));
-  return Number.isFinite(timestamp) ? timestamp : Date.now();
+function parseBirthdayTimestamp(str?: string) {
+	if (!str) return Date.now()
+	const timestamp = Date.parse(String(str).replace(/-/g, '/'))
+	return Number.isFinite(timestamp) ? timestamp : Date.now()
 }
 
-function formatBirthday(timestamp) {
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+function formatBirthday(timestamp: number) {
+	const date = new Date(timestamp)
+	const year = date.getFullYear()
+	const month = String(date.getMonth() + 1).padStart(2, '0')
+	const day = String(date.getDate()).padStart(2, '0')
+	return `${year}-${month}-${day}`
 }
 
-export default {
-  components: { "m-city": city },
-  data() {
-    const userInfo = storage.getUserInfo() || {};
-    return {
-      lightColor: this.$lightColor,
-      form: {
-        nickName: userInfo.nickName || "",
-        birthday: userInfo.birthday || "",
-        face: userInfo.face || "/static/missing-face.png",
-        regionId: [],
-        region: userInfo.region || [],
-        sex: userInfo.sex != null ? String(userInfo.sex) : "1",
-        ___path: userInfo.region,
-        mobile: userInfo.mobile,
-        username: userInfo.username,
-      },
-      birthday: userInfo.birthday || "",
-      birthdayValue: parseBirthdayTimestamp(userInfo.birthday),
-      minBirthdayDate: new Date("1950-01-01").getTime(),
-      maxBirthdayDate: Date.now(),
-      region: [
-        {
-          id: "",
-          localName: "请选择",
-          children: [],
-        },
-      ],
-      showBirthday: false,
-    };
-  },
-  methods: {
-    getPickerParentValue(e) {
-      this.form.region = [];
-      this.form.regionId = [];
-      let name = "";
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
 
-      e.forEach((item, index) => {
-        if (item.id) {
-          this.form.region.push(item.localName);
-          this.form.regionId.push(item.id);
-          if (index == e.length - 1) {
-            name += item.localName;
-          } else {
-            name += item.localName + ",";
-          }
-          this.form.___path = name;
-        }
-      });
-    },
+const userInfo = storage.getUserInfo() || {}
+const form = reactive<Record<string, any>>({
+	nickName: userInfo.nickName || '',
+	birthday: userInfo.birthday || '',
+	face: userInfo.face || '/static/missing-face.png',
+	regionId: [],
+	region: userInfo.region || [],
+	sex: userInfo.sex != null ? String(userInfo.sex) : '1',
+	regionPath: userInfo.region,
+	mobile: userInfo.mobile,
+	username: userInfo.username,
+})
+const birthday = ref(userInfo.birthday || '')
+const birthdayValue = ref(parseBirthdayTimestamp(userInfo.birthday))
+const minBirthdayDate = new Date('1950-01-01').getTime()
+const maxBirthdayDate = Date.now()
+const region = ref([{ id: '', localName: '请选择', children: [] }])
+const showBirthday = ref(false)
+const cityPicker = ref<any>(null)
 
-    clickRegion() {
-      this.$refs.cityPicker.show();
-    },
+function getPickerParentValue(selected: any[]) {
+	form.region = []
+	form.regionId = []
+	let name = ''
+	selected.forEach((item, index) => {
+		if (item.id) {
+			form.region.push(item.localName)
+			form.regionId.push(item.id)
+			name += index === selected.length - 1 ? item.localName : `${item.localName},`
+			form.regionPath = name
+		}
+	})
+}
 
-    submit() {
-      delete this.form.___path;
-      const params = JSON.parse(JSON.stringify(this.form));
-      saveUserInfo(params).then((res) => {
-        if (res.statusCode == 200) {
-          storage.setUserInfo(res.data.result);
-          uni.navigateBack();
-        }
-      });
-    },
+function clickRegion() {
+	cityPicker.value?.show()
+}
 
-    changeFace() {
-      uni.chooseImage({
-        success: (chooseImageRes) => {
-          const tempFilePaths = chooseImageRes.tempFilePaths;
-          uni.uploadFile({
-            url: upload,
-            filePath: tempFilePaths[0],
-            name: "file",
-            header: {
-              accessToken: storage.getAccessToken(),
-            },
-            success: (uploadFileRes) => {
-              const data = JSON.parse(uploadFileRes.data);
-              this.form.face = data.result;
-            },
-          });
-        },
-      });
-    },
+function submit() {
+	const params = JSON.parse(JSON.stringify(form))
+	delete params.regionPath
+	saveUserInfo(params).then((res) => {
+		if (res.statusCode === 200) {
+			storage.setUserInfo(res.data.result)
+			uni.navigateBack()
+		}
+	})
+}
 
-    selectTime(e) {
-      const timestamp = typeof e?.value === "number" ? e.value : this.birthdayValue;
-      const formatted = formatBirthday(timestamp);
-      this.birthdayValue = timestamp;
-      this.form.birthday = formatted;
-      this.birthday = formatted;
-      this.showBirthday = false;
-    },
+function changeFace() {
+	uni.chooseImage({
+		success: (chooseImageRes) => {
+			uni.uploadFile({
+				url: upload,
+				filePath: chooseImageRes.tempFilePaths[0],
+				name: 'file',
+				header: { accessToken: storage.getAccessToken() },
+				success: (uploadFileRes) => {
+					const data = JSON.parse(uploadFileRes.data)
+					form.face = data.result
+				},
+			})
+		},
+	})
+}
 
-    closeBirthdayPicker() {
-      this.showBirthday = false;
-    },
+function selectTime(e: any) {
+	const timestamp = typeof e?.value === 'number' ? e.value : birthdayValue.value
+	const formatted = formatBirthday(timestamp)
+	birthdayValue.value = timestamp
+	form.birthday = formatted
+	birthday.value = formatted
+	showBirthday.value = false
+}
 
-    navigateTo(username) {
-      uni.navigateTo({
-        url: "/pages/mine/set/securityCenter/bindMobile?username=" + username,
-      });
-    },
+function closeBirthdayPicker() {
+	showBirthday.value = false
+}
 
-    syncUserInfo() {
-      const userInfo = storage.getUserInfo() || {};
-      this.form.nickName = userInfo.nickName || "";
-      this.form.birthday = userInfo.birthday || "";
-      this.form.face = userInfo.face || "/static/missing-face.png";
-      this.form.region = userInfo.region || [];
-      this.form.sex = userInfo.sex != null ? String(userInfo.sex) : "1";
-      this.form.___path = userInfo.region;
-      this.form.mobile = userInfo.mobile;
-      this.form.username = userInfo.username;
-      this.birthday = userInfo.birthday || "";
-      this.birthdayValue = parseBirthdayTimestamp(userInfo.birthday);
-    },
-  },
+function navigateToBindMobile(username: string) {
+	uni.navigateTo({
+		url: `/pages/mine/set/securityCenter/bindMobile?username=${username}`,
+	})
+}
 
-  onShow() {
-    this.syncUserInfo();
-  },
-};
+function syncUserInfo() {
+	const latest = storage.getUserInfo() || {}
+	form.nickName = latest.nickName || ''
+	form.birthday = latest.birthday || ''
+	form.face = latest.face || '/static/missing-face.png'
+	form.region = latest.region || []
+	form.sex = latest.sex != null ? String(latest.sex) : '1'
+	form.regionPath = latest.region
+	form.mobile = latest.mobile
+	form.username = latest.username
+	birthday.value = latest.birthday || ''
+	birthdayValue.value = parseBirthdayTimestamp(latest.birthday)
+}
+
+onShow(() => {
+	syncUserInfo()
+})
 </script>
 
 <style lang="scss" scoped>

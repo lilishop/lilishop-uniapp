@@ -30,9 +30,7 @@
               <u-checkbox usedAlone shape="circle" :active-color="lightColor" v-model:checked="item.checked"
                 :label-size="14" @change="(checked) => onStoreCheckChange(item, checked)"></u-checkbox>
             </view>
-            <text class="store-name wes" @click.stop="navigateToStore(item)">{{
-              item.storeName
-            }}</text>
+            <text class="store-name wes" @click.stop="navigateToStore(item)">{{ item.storeName }}</text>
           </view>
           <view class="right-col" v-if="item.canReceiveCoupon" @click="navigateToCoupon(item)">
             <div class="right-line"></div>
@@ -71,39 +69,28 @@
               <!-- 规格 -->
               <p class="sp-type" style="width:300rpx">{{skuItem.goodsSku.simpleSpecs}}</p>
               <p class="sp-type" v-if="skuItem.goodsSku.salesModel == 'WHOLESALE'">批发商品</p>
-              <p class="sp-number">
+              <view class="sp-number">
                 <view class="sp-price">
-                  <!-- <div class="default-color" :class="{'main-color':Object.keys(skuItem.promotionMap).length ==0  }"> -->
                   <div class="main-color">
                     ￥<span>{{ goodsFormatPrice(skuItem.goodsSku.price)[0] }}</span>
                     <span>.{{ goodsFormatPrice(skuItem.goodsSku.price)[1] }}</span>
                   </div>
                 </view>
-                <view>
-                  <uni-number-box class="uNumber" :min="1" :max="999"  @change="numChange(skuItem)"	 v-model="skuItem.num"></uni-number-box>
+                <view class="sp-numbox">
+                  <uni-number-box class="uNumber" :min="1" :max="999" @change="numChange(skuItem)" v-model="skuItem.num"></uni-number-box>
                 </view>
-                <!-- 如果当有促销并且促销是 限时抢购 -->
-                <!-- promotions -->
-                <div class="promotions-list" v-if="Object.keys(skuItem.promotionMap).length != 0"
-                >
-                  <div class="promotions-item-seckill" v-if="getPromotion(skuItem).includes('SECKILL')">
-                    距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
-                      font-size="24" :timestamp="getCountDownTime(skuItem)">
-                    </u-count-down>
-                  </div>
+              </view>
+              <!-- 如果当有促销并且促销是 限时抢购 -->
+              <div class="promotions-list" v-if="Object.keys(skuItem.promotionMap).length != 0">
+                <div class="promotions-item-seckill" v-if="getPromotion(skuItem).includes('SECKILL')">
+                  距秒杀结束: <u-count-down show-border :hide-zero-day="true" :color="$mainColor" border-color="#ededed"
+                    font-size="24" :timestamp="getCountDownTime(skuItem)">
+                  </u-count-down>
                 </div>
-
-                <!-- 此处先隐藏 对于预估到手价来说 前端无法真正的计算出来，光靠促销模式进行展示可能有些不妥。所以暂且隐藏 -->
-                <!-- 如果有活动 并且是选中的状态,显示预估到手价格 -->
-                <!-- <div class="priceDetail-flowPrice" :class="{'main-color':skuItem.priceDetailDTO}"
-                  v-if="skuItem.priceDetailDTO && skuItem.invalid == 0  && Object.keys(skuItem.promotionMap).length != 0 && skuItem.checked && skuItem.checked">
-                  预估到手价 ￥<span>{{ goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[0]}}</span>
-                  <span>.{{ goodsFormatPrice(skuItem.priceDetailDTO.flowPrice)[1] }} </span>
-                </div> -->
-                <div style='margin-left: 20rpx;' v-if="!skuItem.checked && skuItem.errorMessage">
-                  {{skuItem.errorMessage}}
-                </div>
-              </p>
+              </div>
+              <div class="sku-error" v-if="!skuItem.checked && skuItem.errorMessage">
+                {{ skuItem.errorMessage }}
+              </div>
               
             </view>
           </view>
@@ -171,401 +158,390 @@
     <u-toast ref="uToast" />
   </div>
 </template>
-<script>
-import * as API_Trade from "@/api/trade";
-import { debounce } from "@/utils/tools.js";
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted } from 'vue'
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import * as API_Trade from '@/api/trade'
+import { debounce } from '@/utils/tools.js'
 import uniNumberBox from '@/components/uni-number-box'
-import config from "@/config/config";
-export default {
-  components:{uniNumberBox}, // 数量加减组件
-  data() {
-    return {
-      loading:false,
-      lightColor: this.$lightColor,
-      discountDetailsFlag: false, //优惠明细开关
-      // 商品栏右侧滑动按钮
-      options: [
-        {
-          text: "删除",
-          style: {
-            backgroundColor: this.$lightColor, //高亮颜色
-          },
-        },
-      ],
-      isInvalid(val) {
-        //是否无效商品/没库存商品
-        if (val.invalid == 1 || (!val.checked && val.errorMessage)) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      deleteShow: false, //右滑删除
-      deleteContent: "删除该商品？", //删除显示的信息
-      cartDetail: "", //购物车详情
-      goodsVal: "", //单个商品详情
-      isEdit: false, // 是否是编辑
-      checkout: false, //全选按钮
-      WEIXIN_num: "", //购物车兼容微信步进器
-      defaultGoodsImage: config.logo,
-      capsuleInsetRight: 0,
-    };
-  },
+import config from '@/config/config'
+import { useStore } from '@/store'
+import { unitPrice, goodsFormatPrice, isLogin, forceLogin } from '@/utils/filters.js'
 
-  computed: {
-    cartNavbarStyle() {
-      if (!this.capsuleInsetRight) {
-        return {};
-      }
-      return {
-        "--cart-capsule-inset": `${this.capsuleInsetRight}px`,
-      };
+const store = useStore()
+const uToast = ref()
+const swiperAction = ref()
+
+const lightColor = computed(() => store.getters.lightColor)
+const loading = ref(false)
+const discountDetailsFlag = ref(false)
+// 商品栏右侧滑动按钮
+const options = [
+  {
+    text: "删除",
+    style: {
+      backgroundColor: store.getters.lightColor,
     },
   },
+]
+const isInvalid = (val: any): boolean => {
+  if (!val) return false
+  if (val.invalid == 1 || (!val.checked && val.errorMessage)) {
+    return true
+  } else {
+    return false
+  }
+}
+const deleteShow = ref(false)
+const deleteContent = "删除该商品？"
+const cartDetail = ref<any>("")
+const goodsVal = ref<any>("")
+const isEdit = ref(false)
+const checkout = ref(false)
+const WEIXIN_num = ref("")
+const defaultGoodsImage = config.logo
+const capsuleInsetRight = ref(0)
 
-  mounted() {
-    this.setCapsuleInset();
-    // #ifdef MP-WEIXIN
-    // 小程序默认分享
-    uni.showShareMenu({ withShareTicket: true });
-    // #endif
-  },
-  onPullDownRefresh(){
-    this.getCardData();
-  },
-  /**
-   * 初始化信息
-   */
-  onShow() {
-    this.deleteShow ? (this.deleteShow = false) : true;
-    if (this.$refs.swiperAction) {
-      this.$refs.swiperAction.forEach((item, index) => {
-        item.show = false;
-      });
+const cartNavbarStyle = computed(() => {
+  if (!capsuleInsetRight.value) {
+    return {}
+  }
+  return {
+    "--cart-capsule-inset": `${capsuleInsetRight.value}px`,
+  }
+})
 
-      this.getCardData();
-    } else {
-      this.getCardData();
+onMounted(() => {
+  setCapsuleInset()
+  // #ifdef MP-WEIXIN
+  uni.showShareMenu({ withShareTicket: true })
+  // #endif
+})
+
+onPullDownRefresh(() => {
+  getCardData()
+})
+
+onShow(() => {
+  deleteShow.value ? (deleteShow.value = false) : true
+  if (swiperAction.value) {
+    (swiperAction.value as any[]).forEach((item: any) => {
+      item.show = false
+    })
+    getCardData()
+  } else {
+    getCardData()
+  }
+})
+
+function setCapsuleInset() {
+  // #ifdef MP-WEIXIN
+  try {
+    const menuButton = uni.getMenuButtonBoundingClientRect()
+    const { windowWidth } = uni.getWindowInfo()
+    capsuleInsetRight.value = windowWidth - menuButton.left + uni.upx2px(8)
+  } catch (e) {
+    capsuleInsetRight.value = 90
+  }
+  // #endif
+}
+
+function toggleEdit() {
+  isEdit.value = !isEdit.value
+}
+
+function getSkuThumbnail(url: any) {
+  if (url && /^(https?:)?\/\//.test(String(url))) {
+    return url
+  }
+  return defaultGoodsImage
+}
+
+/**
+ * 倒数计时
+ */
+function getCountDownTime(val: any) {
+  if (val.promotionMap) {
+    let key = Object.keys(val.promotionMap).find((child: string) => {
+      return child.split("-")[0] == 'SECKILL'
+    })
+    return val.promotionMap[key].endTime / 1000 - (new Date().getTime() / 1000)
+  }
+}
+
+/**
+ * 优惠明细开关
+ */
+function discountDetails() {
+  discountDetailsFlag.value = true
+}
+/**
+ * 左滑打开删除
+ */
+function openAction(skuItem: any) {
+  cartDetail.value.cartList.forEach((cartItem: any) => {
+    if (cartItem.skuList) {
+      cartItem.skuList.forEach((sku: any) => {
+        sku["selected"] = false
+      })
     }
-  },
-  methods: {
-    setCapsuleInset() {
-      // #ifdef MP-WEIXIN
-      try {
-        const menuButton = uni.getMenuButtonBoundingClientRect();
-        const { windowWidth } = uni.getWindowInfo();
-        this.capsuleInsetRight = windowWidth - menuButton.left + uni.upx2px(8);
-      } catch (e) {
-        this.capsuleInsetRight = 90;
-      }
-      // #endif
-    },
+  })
+  skuItem["selected"] = true
+}
 
-    toggleEdit() {
-      this.isEdit = !this.isEdit;
-    },
+/**
+ * 滑动删除
+ */
+function changeActionTab(val: any) {
+  deleteShow.value = true
+  goodsVal.value = val
+}
 
-    getSkuThumbnail(url) {
-      if (url && /^(https?:)?\/\//.test(String(url))) {
-        return url;
-      }
-      return this.defaultGoodsImage;
-    },
+/**
+ * 点击删除
+ */
+function deleteConfirm() {
+  API_Trade.deleteSkuItem(goodsVal.value.goodsSku.id).then((res: any) => {
+    if (res.statusCode == 200) {
+      uni.showToast({
+        title: "此商品删除成功",
+        duration: 2000,
+      })
+      deleteShow.value = false
+      getCardData()
+    }
+  })
+}
 
-    /**
-			 * 倒数计时
-			 */
-    getCountDownTime(val) {
-      if (val.promotionMap) {
-        let key = Object.keys(val.promotionMap).find((child, index) => {
-          return child.split("-")[0] == 'SECKILL'
-        });
-        return val.promotionMap[key].endTime / 1000 - (new Date().getTime() / 1000)
-      }
-    },
-
-    /**
-     * 优惠明细开关
-     */
-    discountDetails() {
-      this.discountDetailsFlag = true;
-    },
-    /**
-     * 左滑打开删除
-     */
-    openAction(skuItem) {
-      /**循环父级有多少个店铺 */
-      this.cartDetail.cartList.forEach((cartItem) => {
-        if (cartItem.skuList) {
-          cartItem.skuList.forEach((sku) => {
-            sku["selected"] = false;
-          });
+/**
+ * 删除商品
+ */
+function deleteGoods() {
+  if (whetherChecked()) {
+    var delGoodsData: any[] = []
+    cartDetail.value.cartList.forEach((item: any) => {
+      item.skuList.forEach((goodsItem: any) => {
+        if (goodsItem.checked) {
+          delGoodsData.push(goodsItem.goodsSku.id)
         }
-      });
-      skuItem["selected"] = true;
-    },
-
-    /**
-     * 滑动删除
-     */
-    changeActionTab(val) {
-      this.deleteShow = true;
-      this.goodsVal = val;
-    },
-
-    /**
-     * 点击删除
-     */
-    deleteConfirm() {
-      API_Trade.deleteSkuItem(this.goodsVal.goodsSku.id).then((res) => {
-        if (res.statusCode == 200) {
+      })
+    })
+    if (delGoodsData && delGoodsData.length > 0) {
+      API_Trade.deleteSkuItem(delGoodsData).then((res: any) => {
+        if (res.data.success) {
           uni.showToast({
-            title: "此商品删除成功",
-            duration: 2000,
-          });
-          this.deleteShow = false;
-          this.getCardData();
-        }
-      });
-    },
-
-    /**
-     * 删除商品
-     */
-    deleteGoods() {
-      if (this.whetherChecked()) {
-        var delGoodsData = [];
-        this.cartDetail.cartList.forEach((item) => {
-          item.skuList.forEach((goodsItem) => {
-            if (goodsItem.checked) {
-              delGoodsData.push(goodsItem.goodsSku.id);
-            }
-          });
-        });
-        if (delGoodsData && delGoodsData.length > 0) {
-          // 执行删除
-          API_Trade.deleteSkuItem(delGoodsData).then((res) => {
-            if (res.data.success) {
-              uni.showToast({
-                title: "删除成功!",
-                icon: "none",
-              });
-              this.getCardData();
-            }
-          });
-        } else {
-          uni.showToast({
-            title: "请选择删除商品，如果商品失效，请左滑无效商品删除",
+            title: "删除成功!",
             icon: "none",
-          });
-        }
-      }
-    },
-
-    /**
-     * 跳转到店铺
-     */
-    navigateToStore(val) {
-      uni.navigateTo({
-        url: "/pages/product/shopPage?id=" + val.storeId,
-      });
-    },
-
-    /**
-     * 跳转到优惠券
-     */
-    navigateToCoupon(val) {
-      uni.navigateTo({
-        url: "/pages/cart/coupon/couponCenter?storeId=" + val.storeId,
-      });
-    },
-
-    /**
-     * 跳转到商品
-     */
-    navigateToGoods(val) {
-      uni.navigateTo({
-        url:
-          "/pages/product/goods?id=" +
-          val.goodsSku.id +
-          "&goodsId=" +
-          val.goodsSku.goodsId,
-      });
-    },
-
-    /**
-     * 点击步进器回调
-     */
-     numChange: debounce(function (val) {
-      this.updateSkuNumFun(val.goodsSku.id, val.num);
-    }, 1000),
-    /**
-     * 去结算
-     */
-    submitOrder() {
-      if (this.whetherChecked()) {
-        this.navigateTo("/pages/order/fillorder?way=CART");
-      }
-    },
-
-    /**
-     * 验证是否选中商品
-     */
-    whetherChecked() {
-    this.forceLogin()
-
-      let canBuy = false;
-      this.cartDetail.cartList.forEach((item) => {
-        if (item.checked) {
-          canBuy = true;
-        } else {
-          item.skuList.forEach((skuItem) => {
-            if (skuItem.checked) {
-              canBuy = true;
-            }
-          });
-        }
-      });
-      if (!canBuy) {
-        uni.showToast({
-          title: "您还没有选择商品",
-          duration: 2000,
-          icon: "none",
-        });
-        return false;
-      } else {
-        return true;
-      }
-    },
-
-    /**
-     * 跳转
-     */
-    navigateTo(url) {
-      uni.navigateTo({
-        url,
-      });
-    },
-
-    /**
-     * 全选
-     */
-    checkOut(checked) {
-      const selected = typeof checked === "boolean" ? checked : this.checkout;
-      API_Trade.checkAll(selected).then((result) => {
-        if (result.data.success) {
-          this.getCardData();
-        }
-      });
-    },
-
-    /**
-     * 获取店铺选中信息
-     */
-    checkStoreFun(skuId, num) {
-      API_Trade.checkStore(skuId, num).then((result) => {
-        if (result.data.success) {
-          this.getCardData();
-        }
-      });
-    },
-
-    onStoreCheckChange(storeItem, checked) {
-      this.checkStoreFun(storeItem.storeId, checked);
-    },
-
-    onSkuCheckChange(skuItem, checked) {
-      this.updateSkuCheckedFun(skuItem.goodsSku.id, checked);
-    },
-
-    /**
-     * 获取购物车选中信息
-     */
-    updateSkuCheckedFun(skuId, num) {
-      API_Trade.updateSkuChecked(skuId, num).then((result) => {
-        if (result.data.success) {
-          this.getCardData();
-        }
-      });
-    },
-
-    /**
-     * 更新商品购物车数量
-     */
-    updateSkuNumFun(skuId, num) {
-      API_Trade.updateSkuNum(skuId, num).then((result) => {
-        if (result.statusCode == 200) {
-          this.getCardData();
-        } else {
-          let _this = this;
-          setTimeout(() => {
-            _this.getCardData();
-          }, 1000);
-        }
-      });
-    },
-
-    // 数据去重一下
-    getPromotion(item) {
-        return Object.keys(item.promotionMap).map((child) => {
-          return child.split("-")[0]
-        });
-    },
-
-    /**
-     * 获取购物车数据
-     */
-    getCardData() {
-      if (this.isLogin("auth")) {
-        uni.showLoading({
-          title: "加载中",
-        });
-        API_Trade.getCarts()
-          .then((result) => {
-            this.loading = false;
-            uni.stopPullDownRefresh();
-            if (result.data.success) {
-              this.cartDetail = result.data.result;
-              let checkOuted = true;
-              for (let i = 0; i < this.cartDetail.cartList.length; i++) {
-                let item = this.cartDetail.cartList[i];
-                item.checked = item.checked == 1;
-                // 循环出当前商品是否全选
-                if (!item.checked) {
-                  checkOuted = false;
-                }
-                // 如果有拼团活动顺便删除
-                item.skuList &&
-                  item.skuList.forEach((sku) => {
-                    sku.checked = sku.checked == 1;
-                    if (!sku.checked) {
-                      checkOuted = false;
-                    }
-                    if(Object.keys(sku.promotionMap).length != 0)
-                    {
-                      Object.keys(sku.promotionMap).forEach((pro, proIndex) => {
-                        pro = pro.split('-')[0]
-                        if (pro == "PINTUAN" ) {
-                           Object.keys(sku.promotionMap).splice(proIndex, 1);
-                        }
-                      });
-                    }
-
-                  });
-              }
-              this.checkout = checkOuted;
-              uni.stopPullDownRefresh();
-            }
           })
-          .catch((err) => {this.loading = false;});
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      } else {
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      }
-    },
+          getCardData()
+        }
+      })
+    } else {
+      uni.showToast({
+        title: "请选择删除商品，如果商品失效，请左滑无效商品删除",
+        icon: "none",
+      })
+    }
+  }
+}
 
-  },
-};
+/**
+ * 跳转到店铺
+ */
+function navigateToStore(val: any) {
+  uni.navigateTo({
+    url: "/pages/product/shopPage?id=" + val.storeId,
+  })
+}
+
+/**
+ * 跳转到优惠券
+ */
+function navigateToCoupon(val: any) {
+  uni.navigateTo({
+    url: "/pages/cart/coupon/couponCenter?storeId=" + val.storeId,
+  })
+}
+
+/**
+ * 跳转到商品
+ */
+function navigateToGoods(val: any) {
+  uni.navigateTo({
+    url:
+      "/pages/product/goods?id=" +
+      val.goodsSku.id +
+      "&goodsId=" +
+      val.goodsSku.goodsId,
+  })
+}
+
+/**
+ * 点击步进器回调
+ */
+const numChange = debounce(function (val: any) {
+  updateSkuNumFun(val.goodsSku.id, val.num)
+}, 1000)
+/**
+ * 去结算
+ */
+function submitOrder() {
+  if (whetherChecked()) {
+    navigateTo("/pages/order/fillorder?way=CART")
+  }
+}
+
+/**
+ * 验证是否选中商品
+ */
+function whetherChecked(): boolean {
+  forceLogin()
+
+  let canBuy = false
+  cartDetail.value.cartList.forEach((item: any) => {
+    if (item.checked) {
+      canBuy = true
+    } else {
+      item.skuList.forEach((skuItem: any) => {
+        if (skuItem.checked) {
+          canBuy = true
+        }
+      })
+    }
+  })
+  if (!canBuy) {
+    uni.showToast({
+      title: "您还没有选择商品",
+      duration: 2000,
+      icon: "none",
+    })
+    return false
+  } else {
+    return true
+  }
+}
+
+/**
+ * 跳转
+ */
+function navigateTo(url: string) {
+  uni.navigateTo({
+    url,
+  })
+}
+
+/**
+ * 全选
+ */
+function checkOut(checked?: boolean) {
+  const selected = typeof checked === "boolean" ? checked : checkout.value
+  API_Trade.checkAll(selected).then((result: any) => {
+    if (result.data.success) {
+      getCardData()
+    }
+  })
+}
+
+/**
+ * 获取店铺选中信息
+ */
+function checkStoreFun(skuId: any, num: any) {
+  API_Trade.checkStore(skuId, num).then((result: any) => {
+    if (result.data.success) {
+      getCardData()
+    }
+  })
+}
+
+function onStoreCheckChange(storeItem: any, checked: any) {
+  checkStoreFun(storeItem.storeId, checked)
+}
+
+function onSkuCheckChange(skuItem: any, checked: any) {
+  updateSkuCheckedFun(skuItem.goodsSku.id, checked)
+}
+
+/**
+ * 获取购物车选中信息
+ */
+function updateSkuCheckedFun(skuId: any, num: any) {
+  API_Trade.updateSkuChecked(skuId, num).then((result: any) => {
+    if (result.data.success) {
+      getCardData()
+    }
+  })
+}
+
+/**
+ * 更新商品购物车数量
+ */
+function updateSkuNumFun(skuId: any, num: any) {
+  API_Trade.updateSkuNum(skuId, num).then((result: any) => {
+    if (result.statusCode == 200) {
+      getCardData()
+    } else {
+      setTimeout(() => {
+        getCardData()
+      }, 1000)
+    }
+  })
+}
+
+// 数据去重一下
+function getPromotion(item: any) {
+  return Object.keys(item.promotionMap).map((child: string) => {
+    return child.split("-")[0]
+  })
+}
+
+/**
+ * 获取购物车数据
+ */
+function getCardData() {
+  if (isLogin("auth")) {
+    uni.showLoading({
+      title: "加载中",
+    })
+    API_Trade.getCarts()
+      .then((result: any) => {
+        loading.value = false
+        uni.stopPullDownRefresh()
+        if (result.data.success) {
+          cartDetail.value = result.data.result
+          let checkOuted = true
+          for (let i = 0; i < cartDetail.value.cartList.length; i++) {
+            let item = cartDetail.value.cartList[i]
+            item.checked = item.checked == 1
+            if (!item.checked) {
+              checkOuted = false
+            }
+            item.skuList &&
+              item.skuList.forEach((sku: any) => {
+                sku.checked = sku.checked == 1
+                if (!sku.checked) {
+                  checkOuted = false
+                }
+                if(Object.keys(sku.promotionMap).length != 0)
+                {
+                  Object.keys(sku.promotionMap).forEach((pro: string, proIndex: number) => {
+                    pro = pro.split('-')[0]
+                    if (pro == "PINTUAN" ) {
+                       Object.keys(sku.promotionMap).splice(proIndex, 1);
+                    }
+                  })
+                }
+              })
+          }
+          checkout.value = checkOuted
+          uni.stopPullDownRefresh()
+        }
+      })
+      .catch(() => { loading.value = false })
+     if (store.state.isShowToast){ uni.hideLoading() }
+  } else {
+     if (store.state.isShowToast){ uni.hideLoading() }
+  }
+}
 </script>
 
 <style lang="scss">
@@ -911,11 +887,16 @@ page {
 
 
 .sp-number {
+  width: 100%;
   font-weight: bold;
-
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
+
   > .sp-price {
+    flex-shrink: 0;
+
     ::v-deep span:nth-of-type(1) {
       font-size: 38rpx;
     }
@@ -923,6 +904,17 @@ page {
       font-size: 24rpx;
     }
   }
+
+  > .sp-numbox {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
+
+.sku-error {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #999;
 }
 .priceDetail-flowPrice {
   font-weight: bold;

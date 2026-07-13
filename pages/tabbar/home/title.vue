@@ -4,11 +4,14 @@
 			<u-tabs
 				:list="list"
 				:scrollable="false"
+				:inactiveStyle="{ color: '#333' }"
 				v-model:current="current"
+				:lineColor="lightColor"
+				:activeStyle="{ color: lightColor }"
 				@change="change"
 			></u-tabs>
 			<view v-if="showLoading" style="width:500rpx;margin:0 auto;text-align: center;height:800rpx;line-height: 800rpx;">
-				<u-loading mode="flower" ></u-loading>
+				<u-loading-icon mode="flower" ></u-loading-icon>
 				<text>正在加载中</text>
 			</view>
 			<u-cell-group v-if="current == 0">
@@ -64,134 +67,146 @@
 	</view>
 </template>
 
-<script>
-	import {
-		messages,
-		editMessages
-	} from "@/api/message.js"
-	export default {
-		data() {
-			return {
-				showLoading:true,
-				params: {
-					pageSize: 20,
-					pageNumber: 1,
-					memberId: "",
-					messageId: "",
-					status:"UN_READY"
-				},
-				loadText: {
-					loadmore: '轻轻上拉',
-					loading: '努力加载中',
-					nomore: '实在没有了'
-				},
-				list: [{
-					name: "未读"
-				}, {
-					name: "已读"
-				}],
-				current: 0,
-				lists: [],
-				status: "loadmore"
-			}
-		},
-		onShow() {
-			this.getMessage()
-		},
-		onReachBottom() {
-			this.params.pageNumber++;
-			this.statuss = "loading";
-			this.getMessage()
-		},
-		methods: {
-			linkMsgDetail(v) {
+<script setup lang="ts">
+import { ref, reactive, computed } from 'vue'
+import { onShow, onReachBottom } from '@dcloudio/uni-app'
+import { messages, editMessages } from '@/api/message.js'
+import { useStore } from '@/store'
+import { isLogin } from '@/utils/filters.js'
 
-				if (v.status == 'UN_READY') {
-					let params = {}
-					params.messageId = v.memberId
-					editMessages(v.id, params).then(res => {
-						if (res.data.success) {
-                            console.log( this.lists)
-                            this.lists.forEach((item,index)=>{
-                                console.log(item)
-                                if(item.id == v.id){
-                                    this.lists.splice(index, 1)
-                                }
-                            })
-						}
-					})
-				}
-				
-				// uni.navigateTo({
-				// 	url:`/pages/tabbar/home/messageDetail?data=${encodeURIComponent(JSON.stringify(v))}`
-				// })
-				
+const store = useStore()
+const lightColor = computed(() => store.getters.lightColor)
+const mainColor = computed(() => store.getters.mainColor)
+const aiderLightColor = computed(() => store.getters.aiderLightColor)
 
-			},
-			/**
-			 * 返回
-			 */
-			back() {
-				if (getCurrentPages().length == 1) {
-					uni.switchTab({
-						url: "/pages/tabbar/home/index",
-					});
-				} else {
-					uni.navigateBack();
-				}
-			},
-			change(e) {
-				const index = typeof e === 'object' && e != null ? e.index : e;
-				this.showLoading = true;
-				this.current = index;
-				if (index == 0) {
-					this.params.status = "UN_READY"
-					this.params.pageNumber = 1;
-				} else if (index == 1) {
-					this.params.status = "ALREADY_READY"
-					this.params.pageNumber = 1;
-				}
-				this.lists = []
-				this.getMessage()
-			},
-			getMessage() {
-				this.params.memberId = this.isLogin().id;
-				
-				messages(this.params).then(res => {
-					console.log(res)
-					if (res.data.success) {
-						this.showLoading = false
-						if (res.data.result.records == '') {
-							console.log(11111)
-							this.status = "nomore"
-						}
-						res.data.result.records.forEach(item => {
-							this.lists.push(item)
-							let obj = {};
-							this.lists = this.lists.reduce(
-								(cur, next) => {
-									//对象去重
-									if (next.id != undefined) {
-										obj[next.id] ?
-											"" :
-											(obj[next.id] = true && cur.push(next));
-									}
-									console.log(cur);
-									return cur;
-								},
-								[]
-							)
-						})
+const showLoading = ref(true)
+const params = reactive({
+	pageSize: 20,
+	pageNumber: 1,
+	memberId: '',
+	messageId: '',
+	status: 'UN_READY'
+})
+const loadText = {
+	loadmore: '轻轻上拉',
+	loading: '努力加载中',
+	nomore: '实在没有了'
+}
+const list = [
+	{ name: '未读' },
+	{ name: '已读' }
+]
+const current = ref(0)
+const lists = ref<any[]>([])
+const status = ref('loadmore')
 
+onShow(() => {
+	getMessage()
+})
+
+onReachBottom(() => {
+	params.pageNumber++
+	status.value = 'loading'
+	getMessage()
+})
+
+function linkMsgDetail(v: any) {
+	if (v.status == 'UN_READY') {
+		const editParams: any = {}
+		editParams.messageId = v.memberId
+		editMessages(v.id, editParams).then((res: any) => {
+			if (res.data.success) {
+				console.log(lists.value)
+				lists.value.forEach((item: any, index: number) => {
+					console.log(item)
+					if (item.id == v.id) {
+						lists.value.splice(index, 1)
 					}
 				})
 			}
-		},
+		})
 	}
+}
+
+/**
+ * 返回
+ */
+function back() {
+	if (getCurrentPages().length == 1) {
+		uni.switchTab({
+			url: '/pages/tabbar/home/index'
+		})
+	} else {
+		uni.navigateBack()
+	}
+}
+
+function change(e: any) {
+	const index = typeof e === 'object' && e != null ? e.index : e
+	showLoading.value = true
+	current.value = index
+	if (index == 0) {
+		params.status = 'UN_READY'
+		params.pageNumber = 1
+	} else if (index == 1) {
+		params.status = 'ALREADY_READY'
+		params.pageNumber = 1
+	}
+	lists.value = []
+	getMessage()
+}
+
+function getMessage() {
+	params.memberId = isLogin().id
+
+	messages(params).then((res: any) => {
+		console.log(res)
+		if (res.data.success) {
+			showLoading.value = false
+			if (res.data.result.records == '') {
+				console.log(11111)
+				status.value = 'nomore'
+			}
+			res.data.result.records.forEach((item: any) => {
+				lists.value.push(item)
+				let obj: Record<string, any> = {}
+				lists.value = lists.value.reduce(
+					(cur: any[], next: any) => {
+						// 对象去重
+						if (next.id != undefined) {
+							!obj[next.id] && (obj[next.id] = true) && cur.push(next)
+						}
+						console.log(cur)
+						return cur
+					},
+					[]
+				)
+			})
+		}
+	})
+}
 </script>
-<style>
+<style lang="scss" scoped>
 	.foot {
 		position: fixed;
 		bottom: 0;
+	}
+
+	:deep(.u-tabs),
+	:deep(.u-tabs__wrapper),
+	:deep(.u-tabs__wrapper__scroll-view-wrapper),
+	:deep(.u-tabs__wrapper__scroll-view),
+	:deep(.u-tabs__wrapper__nav) {
+		background: #fff;
+		height: 88rpx;
+	}
+
+	:deep(.u-tabs__wrapper__nav__item) {
+		min-height: 88rpx;
+	}
+
+	:deep(.u-tabs__wrapper__nav__item__text) {
+		color: #333;
+		font-size: 28rpx;
 	}
 </style>

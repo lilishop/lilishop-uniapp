@@ -31,79 +31,78 @@
   </view>
 </template>
 
-<script>
-import { scannerCodeLogin, scannerCodeLoginConfirm } from "@/api/login";
-export default {
-  data() {
-    return {
-      errorMsg: "",
-      token: "",
-    };
-  },
-  watch: {
-    errorMsg(val) {
-      if (val) {
-        uni.showToast({
-          title: val,
-          icon: "none",
-        });
-        // uni.navigateBack()
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import { forceLogin } from '@/utils/filters.js'
+import { scannerCodeLogin, scannerCodeLoginConfirm } from '@/api/login'
+
+const errorMsg = ref('')
+const token = ref('')
+
+watch(errorMsg, (val) => {
+  if (val) {
+    uni.showToast({
+      title: val,
+      icon: 'none',
+    })
+  }
+})
+
+onLoad((params) => {
+  token.value = params.token || ''
+  if (!token.value) {
+    errorMsg.value = '信息异常'
+  }
+})
+
+onShow(() => {
+  forceLogin()
+  scannerCodeLogin({ token: token.value }).then((res) => {
+    if (res.data.code == 200) {
+      const code = res.data.result
+      switch (code) {
+        case 0:
+        case 1:
+          errorMsg.value = ''
+          break
+        case 2:
+        case 3:
+          errorMsg.value = '请勿重复扫码'
+          break
+        case 4:
+          errorMsg.value = '二维码已过期，重新扫码'
+          break
+        default:
+          errorMsg.value = '状态异常'
       }
-    },
-  },
-  onShow() {
-    this.forceLogin();
-    scannerCodeLogin({ token: this.token }).then((res) => {
-      if (res.data.code == 200) {
-        let code = res.data.result;
-        switch (code) {
-          case 0:
-          case 1:
-            this.errorMsg = "";
-            break;
-          case 2:
-          case 3:
-            this.errorMsg = "请勿重复扫码";
-            break;
-          case 4:
-            this.errorMsg = "二维码已过期，重新扫码";
-            break;
-          default:
-            this.errorMsg = "状态异常";
-        }
-      } else {
-        this.errorMsg = res.data.message;
-      }
-    });
-  },
-  onLoad(params) {
-    this.token = params.token;
-    if (this.token == undefined || this.token == "") {
-      this.errorMsg = "信息异常";
+    } else {
+      errorMsg.value = res.data.message
     }
-  },
-  methods: {
-    confirmLogin() {
-      this.config(1);
-    },
-    cancelLogin() {
-      this.config(0);
-    },
-    config(code) {
-      scannerCodeLoginConfirm({ token: this.token, code: code }).then((res) => {
-        let title = res.data.success ? "操作成功" : "操作失败";
-        uni.showToast({
-          title: title,
-          duration: 1500,
-          icon: "none",
-        });
-        setTimeout(function () {
-          uni.navigateBack();
-        }, 1000);
-      });
-    },
-  },
-};
+  })
+})
+
+function confirmLogin() {
+  submitLoginConfirm(1)
+}
+
+function cancelLogin() {
+  submitLoginConfirm(0)
+}
+
+function submitLoginConfirm(code: number) {
+  scannerCodeLoginConfirm({ token: token.value, code }).then((res) => {
+    const title = res.data.success ? '操作成功' : '操作失败'
+    uni.showToast({
+      title,
+      duration: 1500,
+      icon: 'none',
+    })
+    setTimeout(() => {
+      uni.navigateBack()
+    }, 1000)
+  })
+}
 </script>
 <style lang="scss" scoped>
 page {

@@ -1,18 +1,15 @@
 <template>
   <view>
-	
     <view class="nav-list">
       <view class="total">可提现金额</view>
-      <view class="price">{{unitPrice(distributionData.canRebate) }}</view>
-      <view class="frozen"
-        >冻结金额{{unitPrice(distributionData.commissionFrozen) }}</view
-      >
+      <view class="price">{{ unitPrice(distributionData.canRebate) }}</view>
+      <view class="frozen">冻结金额{{ unitPrice(distributionData.commissionFrozen) }}</view>
     </view>
     <view class="nav">
       <view class="nav-item">
         <u-icon
           size="50"
-          @click="handleClick('/pages/mine/distribution/list?id='+distributionData.id+'&name='+distributionData.memberName)"
+          @click="navigateTo(`/pages/mine/distribution/list?id=${distributionData.id}&name=${distributionData.memberName}`)"
           color="#ff6b35"
           name="bag-fill"
         ></u-icon>
@@ -20,72 +17,54 @@
       </view>
       <view
         class="nav-item"
-        @click="handleClick(`/pages/mine/distribution/history?type=0&id=${distributionData.id}&name=${distributionData.memberName}`)"
+        @click="navigateTo(`/pages/mine/distribution/history?type=0&id=${distributionData.id}&name=${distributionData.memberName}`)"
       >
         <u-icon size="50" color="#ff6b35" name="order"></u-icon>
         <view>分销业绩</view>
       </view>
-      <view
-        class="nav-item"
-        @click="handleClick('/pages/mine/distribution/history?type=1')"
-      >
+      <view class="nav-item" @click="navigateTo('/pages/mine/distribution/history?type=1')">
         <u-icon size="50" color="#ff6b35" name="red-packet-fill"></u-icon>
         <view>提现记录</view>
       </view>
-      <view
-        class="nav-item"
-        @click="handleClick('/pages/mine/distribution/withdrawal')"
-      >
+      <view class="nav-item" @click="navigateTo('/pages/mine/distribution/withdrawal')">
         <u-icon size="50" color="#ffc71c" name="rmb-circle-fill"></u-icon>
         <view>提现</view>
       </view>
-  
-     
     </view>
-
   </view>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { distribution } from '@/api/goods'
+import { unitPrice } from '@/utils/filters.js'
 
-import { distribution } from "@/api/goods";
-export default {
+const store = useStore()
+const distributionData = ref<Record<string, any>>({})
 
-  data() {
-    return {
-      distributionData: "",
-    };
-  },
-  methods: {
-    handleClick(url) {
-      uni.navigateTo({
-        url,
-      });
-    },
-    queryGoods(src) {
-      uni.navigateTo({
-        url: `/pages/mine/distribution/${src}`,
-      });
-    },
-    /**
-     * 初始化推广商品
-     */
-    init() {
-      uni.showLoading({
-        title: "加载中",
-      });
-      distribution().then((res) => {
-        if (res.data.result) {
-          this.distributionData = res.data.result;
-        }
-         if (this.$store.state.isShowToast){ uni.hideLoading() };
-      });
-    },
-  },
-  onShow() {
-    this.init();
-  },
-};
+onShow(() => {
+  fetchDistributionInfo()
+})
+
+function hideLoadingIfNeeded() {
+  if (store.state.isShowToast) uni.hideLoading()
+}
+
+function navigateTo(url: string) {
+  uni.navigateTo({ url })
+}
+
+function fetchDistributionInfo() {
+  uni.showLoading({ title: '加载中' })
+  distribution().then((res) => {
+    if (res.data.result) {
+      distributionData.value = res.data.result
+    }
+    hideLoadingIfNeeded()
+  })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -124,6 +103,5 @@ export default {
   justify-content: center;
   gap: 20rpx;
   width: 33%;
-  //   color: #fff;
 }
 </style>

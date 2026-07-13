@@ -115,7 +115,7 @@
 				</div>
 				</template>
 			</div>
-			<myVerification v-if="codeFlag" @send="verification" class="verification" ref="verification"
+			<myVerification v-if="codeFlag" @send="handleVerification" class="verification" ref="verification"
 				business="LOGIN" />
 		</div>
 		<view v-else>
@@ -124,673 +124,572 @@
 	</div>
 </template>
 
-<script>
-	import {
-		openIdLogin,
-		loginCallback
-	} from "@/api/connect.js";
-	import api from "@/config/api.js";
-	import {
-		sendMobile,
-		smsLogin,
-		userLogin
-	} from "@/api/login";
-	import myVerification from "@/components/verification/verification.vue"; //验证码模块
-	import uuid from "@/utils/uuid.modified.js"; // uuid
-	import verifyCode from "@/components/verify-code/verify-code";
-	import {
-		getUserInfo
-	} from "@/api/members";
-	import {
-		whetherNavigate
-	} from "@/utils/Foundation"; //登录跳转
-	import storage from "@/utils/storage.js"; //缓存
-	import wechatH5Login from "./wechatH5Login.vue";
-	import {
-		webConnect
-	} from "@/api/connect.js";
-	import {
-		md5
-	} from "@/utils/md5.js";
+<script setup lang="ts">
+import { ref, reactive, computed, watch, nextTick, getCurrentInstance, onMounted } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import { useStore } from '@/store'
+import { openIdLogin, loginCallback, webConnect } from '@/api/connect.js'
+import api from '@/config/api.js'
+import { sendMobile, smsLogin, userLogin } from '@/api/login'
+import myVerification from '@/components/verification/verification.vue'
+import verifyCode from '@/components/verify-code/verify-code'
+import { getUserInfo } from '@/api/members'
+import { whetherNavigate } from '@/utils/Foundation'
+import storage from '@/utils/storage.js'
+import wechatH5Login from './wechatH5Login.vue'
+import { md5 } from '@/utils/md5.js'
+import { secrecyMobile } from '@/utils/filters.js'
 
-	export default {
-		components: {
-			myVerification,
-			verifyCode,
-			wechatH5Login
-		},
+interface LoginListItem {
+	icon: string
+	color: string
+	title: string
+	code: string
+	appcode?: string
+}
 
-		data() {
-			return {
-				uuid,
-				wechatLogin: false, //是否加载微信公众号登录
-				flage: false, //是否验证码验证
-				codeFlag: true, //验证开关，用于是否展示验证码
-				tips: "",
-				enableUserPwdBox: false, //帐号密码登录
-				current: 0,
-				codeColor: "#999", //按钮验证码颜色
-				lightColor: this.$lightColor,
-				seconds: 60, //默认验证码等待时间
-				loginTitleWay: [{
-						title: "欢迎登录",
-						desc: "登录后更精彩，美好生活即将开始",
-					},
-					{
-						title: "请输入验证码",
-						desc: "已经发送验证码至",
-					},
-				],
-				userData: {
-					username: "",
-					password: "",
-				},
-				showBack: false,
-				enableFetchCode: false,
-				enableUserBtnColor: false,
-				enablePrivacy: false, //隐私政策
-				mobile: "", //手机号
-				code: "", //验证码
-				inputStyle: {
-					height: "104rpx",
-					"border-bottom": "1rpx solid #D8D8D8",
-					"letter-spacing": "1rpx",
-					padding: "0",
-				},
-				placeholderStyle: "font-size: 32rpx;line-height: 32rpx;color: #999999;",
-				loginList: [
-					//第三方登录集合
-					{
-						icon: "weixin-fill",
-						color: "#00a327",
-						title: "微信",
-						code: "WECHAT",
-					},
-					{
-						icon: "qq-fill",
-						color: "#38ace9",
-						title: "QQ",
-						code: "QQ",
-					},
-					{
-						icon: "apple-fill",
-						color: "#000000",
-						title: "Apple",
-						code: "APPLE",
-					},
-				],
-			};
-		},
-		onShow() {
+const store = useStore()
+const { proxy } = getCurrentInstance()!
 
-			// 只要是app登录的全部清除内容
-			// #ifdef APP-PLUS
-			storage.setAccessToken("");
-			storage.setRefreshToken("");
-			storage.setUserInfo({});
-			// #endif
+const lightColor = computed(() => store.getters.lightColor)
+const aiderLightColor = computed(() => store.getters.aiderLightColor)
 
+const wechatLogin = ref(false)
+const flage = ref(false)
+const codeFlag = ref(true)
+const tips = ref('')
+const enableUserPwdBox = ref(false)
+const current = ref(0)
+const codeColor = ref('#999')
+const seconds = ref(60)
+const loginTitleWay = [
+	{ title: '欢迎登录', desc: '登录后更精彩，美好生活即将开始' },
+	{ title: '请输入验证码', desc: '已经发送验证码至' },
+]
+const userData = reactive({ username: '', password: '' })
+const showBack = ref(false)
+const enableFetchCode = ref(false)
+const enableUserBtnColor = ref(false)
+const enablePrivacy = ref(false)
+const mobile = ref('')
+const code = ref('')
+const inputStyle = {
+	height: '104rpx',
+	'border-bottom': '1rpx solid #D8D8D8',
+	'letter-spacing': '1rpx',
+	padding: '0',
+}
+const placeholderStyle = 'font-size: 32rpx;line-height: 32rpx;color: #999999;'
+const loginList = ref<LoginListItem[]>([
+	{ icon: 'weixin-fill', color: '#00a327', title: '微信', code: 'WECHAT' },
+	{ icon: 'qq-fill', color: '#38ace9', title: 'QQ', code: 'QQ' },
+	{ icon: 'apple-fill', color: '#000000', title: 'Apple', code: 'APPLE' },
+])
+const clientType = ref('')
 
-			//#ifdef H5
-			let isWXBrowser = /micromessenger/i.test(navigator.userAgent);
-			if (isWXBrowser) {
-				webConnect("WECHAT").then((res) => {
-					let data = res.data;
-					if (data.success) {
-						window.location = data.result;
-					}
-				});
+const verification = ref<any>(null)
+const uCode = ref<any>(null)
+
+onShow(() => {
+	// 只要是app登录的全部清除内容
+	// #ifdef APP-PLUS
+	storage.setAccessToken('')
+	storage.setRefreshToken('')
+	storage.setUserInfo({})
+	// #endif
+
+	//#ifdef H5
+	const isWXBrowser = /micromessenger/i.test(navigator.userAgent)
+	if (isWXBrowser) {
+		webConnect('WECHAT').then((res) => {
+			const data = res.data
+			if (data.success) {
+				window.location = data.result
 			}
-			//#endif
+		})
+	}
+	//#endif
+})
+
+onMounted(() => {
+	// #ifndef APP-PLUS
+	//判断是否微信浏览器
+	const ua = window.navigator.userAgent.toLowerCase()
+	if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+		wechatLogin.value = true
+		return
+	}
+	// #endif
+	/**
+	 * 条件编译判断当前客户端类型
+	 */
+	//#ifdef H5
+	clientType.value = 'H5'
+	//#endif
+
+	//#ifdef APP-PLUS
+	clientType.value = 'APP'
+	/**如果是app 加载支持的登录方式*/
+	uni.getProvider({
+		service: 'oauth',
+		success: (result) => {
+			loginList.value = result.provider.map((value) => {
+				let title = ''
+				let codeVal = ''
+				let color = '#8b8b8b'
+				let icon = ''
+				switch (value) {
+					case 'weixin':
+						icon = 'weixin-circle-fill'
+						color = '#00a327'
+						title = '微信'
+						codeVal = 'WECHAT'
+						break
+					case 'qq':
+						icon = 'qq-circle-fill'
+						color = '#38ace9'
+						title = 'QQ'
+						codeVal = 'QQ'
+						break
+					case 'apple':
+						icon = 'apple-fill'
+						color = '#000000'
+						title = 'Apple'
+						codeVal = 'APPLE'
+						break
+				}
+				return {
+					title,
+					code: codeVal,
+					color,
+					icon,
+					appcode: value,
+				}
+			})
 		},
-
-		mounted() {
-
-			// #ifndef APP-PLUS
-			//判断是否微信浏览器
-			var ua = window.navigator.userAgent.toLowerCase();
-			if (ua.match(/MicroMessenger/i) == "micromessenger") {
-				this.wechatLogin = true;
-				return;
-			}
-			// #endif
-			/**
-			 * 条件编译判断当前客户端类型
-			 */
-			//#ifdef H5
-			this.clientType = "H5";
-			//#endif
-
-			//#ifdef APP-PLUS
-			this.clientType = "APP";
-			/**如果是app 加载支持的登录方式*/
-			let _this = this;
-			uni.getProvider({
-				service: "oauth",
-				success: (result) => {
-					_this.loginList = result.provider.map((value) => {
-						//展示title
-						let title = "";
-						//系统code
-						let code = "";
-						//颜色
-						let color = "#8b8b8b";
-						//图标
-						let icon = "";
-						//uni 联合登录 code
-						let appcode = "";
-						switch (value) {
-							case "weixin":
-								icon = "weixin-circle-fill";
-								color = "#00a327";
-								title = "微信";
-								code = "WECHAT";
-								break;
-							case "qq":
-								icon = "qq-circle-fill";
-								color = "#38ace9";
-								title = "QQ";
-								code = "QQ";
-								break;
-							case "apple":
-								icon = "apple-fill";
-								color = "#000000";
-								title = "Apple";
-								code = "APPLE";
-								break;
-						}
-						return {
-							title: title,
-							code: code,
-							color: color,
-							icon: icon,
-							appcode: value,
-						};
-					});
-				},
-				fail: (error) => {
-					uni.showToast({
-						title: "获取登录通道失败" + error,
-						duration: 2000,
-						icon: "none",
-					});
-				},
-			});
-			//#endif
-
-			//特殊平台，登录方式需要过滤
-			// #ifdef H5
-			this.methodFilter(["QQ"]);
-			// #endif
-
-			//微信小程序，只支持微信登录
-			// #ifdef MP-WEIXIN
-			this.methodFilter(["WECHAT"]);
-			// #endif
+		fail: (error) => {
+			uni.showToast({
+				title: '获取登录通道失败' + error,
+				duration: 2000,
+				icon: 'none',
+			})
 		},
-		watch: {
-			current(val) {
-				val ? (this.showBack = true) : (this.showBack = false);
-			},
-			userData: {
-				handler(val) {
-					if (this.userData.username && this.userData.password) {
-						this.enableUserBtnColor = true;
-					} else {
-						this.enableUserBtnColor = false;
-					}
-				},
-				deep: true,
+	})
+	//#endif
 
-			},
-			mobile: {
-				handler(val) {
-					if (val.length == 11) {
-						this.enableFetchCode = true;
-					}
-				},
-			},
+	//特殊平台，登录方式需要过滤
+	// #ifdef H5
+	methodFilter(['QQ'])
+	// #endif
 
-			async flage(val) {
-				if (val) {
-					if (this.enableUserPwdBox) {
-						this.submitUserLogin();
-						return;
-					}
+	//微信小程序，只支持微信登录
+	// #ifdef MP-WEIXIN
+	methodFilter(['WECHAT'])
+	// #endif
+})
 
-					// 首次发送时 uCode 尚未挂载；重新获取时才检查倒计时
-					const canSendCode = this.current === 0 || this.$refs.uCode?.canGetCode;
-					if (!canSendCode) {
-						this.$u.toast("请倒计时结束后再发送");
-						return;
-					}
+watch(current, (val) => {
+	showBack.value = val ? true : false
+})
 
-					uni.showLoading({});
-					let res = await sendMobile(this.mobile);
-					if (this.$store.state.isShowToast) {
-						uni.hideLoading();
-					}
-					if (res.data.success) {
-						this.code = '';
-						this.current = 1;
-						this.$nextTick(() => {
-							this.$refs.uCode?.start();
-						});
-					} else {
-						uni.showToast({
-							title: res.data.message,
-							duration: 2000,
-							icon: "none",
-						});
-						this.flage = false;
-						this.$refs.verification?.getCode();
-					}
+watch(
+	userData,
+	() => {
+		enableUserBtnColor.value = !!(userData.username && userData.password)
+	},
+	{ deep: true }
+)
+
+watch(mobile, (val) => {
+	if (val.length == 11) {
+		enableFetchCode.value = true
+	}
+})
+
+watch(flage, async (val) => {
+	if (val) {
+		if (enableUserPwdBox.value) {
+			submitUserLogin()
+			return
+		}
+
+		// 首次发送时 uCode 尚未挂载；重新获取时才检查倒计时
+		const canSendCode = current.value === 0 || uCode.value?.canGetCode
+		if (!canSendCode) {
+			proxy.$u.toast('请倒计时结束后再发送')
+			return
+		}
+
+		uni.showLoading({})
+		const res = await sendMobile(mobile.value)
+		if (store.state.isShowToast) {
+			uni.hideLoading()
+		}
+		if (res.data.success) {
+			code.value = ''
+			current.value = 1
+			nextTick(() => {
+				uCode.value?.start()
+			})
+		} else {
+			uni.showToast({
+				title: res.data.message,
+				duration: 2000,
+				icon: 'none',
+			})
+			flage.value = false
+			verification.value?.getCode()
+		}
+	} else {
+		verification.value?.hide()
+	}
+})
+
+onLoad((options) => {
+	if (options && options.state) {
+		stateLogin(options.state as string)
+	}
+})
+
+function stateLogin(state: string) {
+	loginCallback(state).then((res) => {
+		const data = res.data
+		if (data.success) {
+			storage.setAccessToken(data.result.accessToken)
+			storage.setRefreshToken(data.result.refreshToken)
+			uni.showToast({
+				title: '登录成功!',
+				icon: 'none',
+			})
+			getUserInfo().then((user) => {
+				if (user.data.success) {
+					storage.setUserInfo(user.data.result)
+					storage.setHasLogin(true)
 				} else {
-					this.$refs.verification?.hide();
+					setTimeout(() => {
+						uni.showToast({
+							title: user.data.message,
+							icon: 'none',
+						})
+						storage.setAccessToken('')
+						storage.setRefreshToken('')
+						uni.switchTab({
+							url: '/pages/tabbar/user/my',
+						})
+					}, 500)
 				}
-			},
+			})
+			getCurrentPages().length > 1
+				? uni.navigateBack({
+						delta: getCurrentPages().length - 2,
+					})
+				: uni.switchTab({
+						url: '/pages/tabbar/home/index',
+					})
+		}
+	})
+}
+
+function methodFilter(codes: string[]) {
+	const way: LoginListItem[] = []
+	loginList.value.forEach((item) => {
+		if (codes.length != 0) {
+			codes.forEach((val) => {
+				if (item.code == val) {
+					way.push(item)
+				}
+			})
+		} else {
+			uni.showToast({
+				title: '配置有误请联系管理员',
+				duration: 2000,
+				icon: 'none',
+			})
+		}
+	})
+	loginList.value = way
+}
+
+async function nonH5OpenId(item: LoginListItem) {
+	let loginRes: UniApp.LoginRes | null = null
+	await uni.login({
+		provider: item.appcode,
+		// #ifdef MP-ALIPAY
+		scopes: 'auth_user',
+		// #endif
+		success(res) {
+			loginRes = res
+			uni.setStorageSync('type', item.code)
+			// #ifndef MP-WEIXIN
+			uni.setStorageSync('openid', res.authResult.openid)
+			res.authResult.unionId && uni.setStorageSync('unionId', res.authResult.unionId)
+			// #endif
 		},
-		onLoad(options) {
-			if (options && options.state) {
-				this.stateLogin(options.state);
-			}
+		fail() {
+			uni.showToast({
+				title: '第三方登录暂不可用！',
+				icon: 'none',
+				duration: 3000,
+			})
 		},
-		methods: {
-			//联合信息返回登录
-			stateLogin(state) {
-				loginCallback(state).then((res) => {
-					let data = res.data;
-					if (data.success) {
-						storage.setAccessToken(data.result.accessToken);
-						storage.setRefreshToken(data.result.refreshToken);
-						// 登录成功
-						uni.showToast({
-							title: "登录成功!",
-							icon: "none",
-						});
-						getUserInfo().then((user) => {
-							if(user.data.success){
-								storage.setUserInfo(user.data.result);
-								storage.setHasLogin(true);
-							}else {
-								setTimeout(() => {
-									uni.showToast({
-										title: user.data.message,
-										icon: "none",
-									});
-									storage.setAccessToken('');
-									storage.setRefreshToken('');
-									uni.switchTab({
-										url: "/pages/tabbar/user/my",
-									});
-								}, 500);
-							}
-						});
-						getCurrentPages().length > 1 ?
-							uni.navigateBack({
-								delta: getCurrentPages().length - 2,
-							}) :
-							uni.switchTab({
-								url: "/pages/tabbar/home/index",
-							});
+		complete() {
+			uni.getUserInfo({
+				provider: item.appcode,
+				success(infoRes) {
+					uni.setStorageSync('nickname', infoRes.userInfo.nickName)
+					uni.setStorageSync('avatar', infoRes.userInfo.avatarUrl)
+					uni.setStorageSync('unionId', infoRes.userInfo.unionId || infoRes.userInfo.unionid)
+
+					// #ifdef MP-WEIXIN
+					if (loginRes) {
+						weixinMPOpenID(loginRes).then(() => {
+							goOpenidLogin('WECHAT_MP')
+						})
 					}
-				});
-			},
-			/** 根据参数显示登录模块 */
-			methodFilter(code) {
-				let way = [];
-				this.loginList.forEach((item) => {
-					if (code.length != 0) {
-						code.forEach((val) => {
-							if (item.code == val) {
-								way.push(item);
-							}
-						});
-					} else {
-						uni.showToast({
-							title: "配置有误请联系管理员",
-							duration: 2000,
-							icon: "none",
-						});
-					}
-				});
-				this.loginList = way;
-			},
-			//非h5 获取openid
-			async nonH5OpenId(item) {
-				let _this = this;
-				//获取各个openid
-				await uni.login({
-					provider: item.appcode,
-					// #ifdef MP-ALIPAY
-					scopes: "auth_user", //支付宝小程序需设置授权类型
 					// #endif
-					success: function(res) {
-						uni.setStorageSync("type", item.code);
-						//微信小程序意外的其它方式直接在storage中写入openid
-						// #ifndef MP-WEIXIN
-						uni.setStorageSync("openid", res.authResult.openid);
-						res.authResult.unionId && uni.setStorageSync("unionId", res.authResult.unionId);
-						// #endif
-					},
-					fail(e) {
-						uni.showToast({
-							title: "第三方登录暂不可用！",
-							icon: "none",
-							duration: 3000,
-						});
-					},
-					complete(e) {
-						//获取用户信息
-						uni.getUserInfo({
-							provider: item.appcode,
-							success: function(infoRes) {
-								//写入用户信息
-								uni.setStorageSync("nickname", infoRes.userInfo.nickName);
-								uni.setStorageSync("avatar", infoRes.userInfo.avatarUrl);
-								uni.setStorageSync("unionId", infoRes.userInfo.unionId || infoRes.userInfo.unionid);
 
-								// #ifdef MP-WEIXIN
-								//微信小程序获取openid 需要特殊处理 如需获取openid请参考uni-id: https://uniapp.dcloud.net.cn/uniCloud/uni-id
-								_this.weixinMPOpenID(res).then((res) => {
-									//这里需要先行获得openid，再使用openid登录，小程序登录需要两步，所以这里特殊编译
-									_this.goOpenidLogin("WECHAT_MP");
-								});
-								// #endif
-
-								// #ifndef MP-WEIXIN
-								_this.goOpenidLogin("APP");
-								//#endif
-							},
-						});
-					},
-				});
-			},
-			//openid 登录
-			goOpenidLogin(clientType) {
-				// 获取准备好的参数，进行登录系统
-				let params = {
-					uuid: uni.getStorageSync("openid"), //联合登陆id
-					source: uni.getStorageSync("type"), //联合登陆类型
-					nickname: uni.getStorageSync("nickname"), // 昵称
-					username: uni.getStorageSync("openid"), // 昵称
-					avatar: uni.getStorageSync("avatar"), // 头像
-					uniAccessToken: uni.getStorageSync("uni_access_token"), //第三方token
-					type:this.clientType,
-					token:{unionId:"",openId:uni.getStorageSync("openid")}
-				};
-        		uni.getStorageSync("unionId") ? (params.token.unionId = uni.getStorageSync("unionId")) : delete params.token;
-
-				openIdLogin(params, clientType).then((res) => {
-					if (!res.data.success) {
-						let errormessage = "第三方登录暂不可用";
-						uni.showToast({
-							// title: '未绑定第三方账号',
-							title: errormessage,
-							icon: "none",
-							duration: 3000,
-						});
-						return;
-					} else {
-						storage.setAccessToken(res.data.result.accessToken);
-						storage.setRefreshToken(res.data.result.refreshToken);
-						// 登录成功
-						uni.showToast({
-							title: "第三方登录成功!",
-							icon: "none",
-						});
-						// 执行登录
-						getUserInfo().then((user) => {
-							if (user.data.success) {
-								/**
-								 * 个人信息存储到缓存userInfo中
-								 */
-								storage.setUserInfo(user.data.result);
-								storage.setHasLogin(true);
-								uni.switchTab({
-									url: "/pages/tabbar/home/index",
-								});
-								/**
-								 * 计算出当前router路径
-								 * 1.如果跳转的链接为登录页面或跳转的链接为空页面。则会重新跳转到首页
-								 * 2.都不满足返回跳转页面
-								 */
-								if (user.data.result.mobile) {
-									whetherNavigate();
-								} else {
-									uni.navigateTo({
-										url: "/pages/passport/bindUserPhone",
-									});
-								}
-							} else {
-								setTimeout(() => {
-									uni.showToast({
-										title: user.data.message,
-										icon: "none",
-									});
-									storage.setAccessToken('');
-									storage.setRefreshToken('');
-									uni.switchTab({
-										url: "/pages/tabbar/user/my",
-									});
-								}, 500);
-							}
-						});
-					}
-				});
-			},
-			//微信小程序获取openid
-			async weixinMPOpenID(res) {
-				await miniProgramLogin(res.code).then((res) => {
-					uni.setStorageSync("openid", res.data);
-				});
-			},
-			/**跳转到登录页面 */
-			navigateLogin(connectLogin) {
-				// #ifdef H5
-				let code = connectLogin.code;
-				let buyer = api.buyer;
-				window.open(
-					buyer + `/passport/connect/connect/login/web/` + code,
-					"_self"
-				);
-				// #endif
-				// #ifdef APP-PLUS
-				this.nonH5OpenId(connectLogin);
-				// #endif
-			},
-
-			// 提交
-			submit() {
-				/**
-				 * 清空当前账号信息
-				 */
-				storage.setHasLogin(false);
-				storage.setAccessToken("");
-				storage.setRefreshToken("");
-				storage.setUserInfo({});
-				/**
-				 * 执行登录
-				 */
-				smsLogin({
-					mobile: this.mobile,
-					code: this.code
-				}, this.clientType).then(
-					(res) => {
-						this.getUserInfoMethods(res);
-					}
-				);
-			},
-
-			// 登录成功之后获取用户信息
-			getUserInfoMethods(res) {
-				if (res.data.success) {
-					storage.setAccessToken(res.data.result.accessToken);
-					storage.setRefreshToken(res.data.result.refreshToken);
-
-					/**
-					 * 登录成功后获取个人信息
-					 */
-					getUserInfo().then((user) => {
-						if (user.data.success) {
-							/**
-							 * 个人信息存储到缓存userInfo中
-							 */
-							storage.setUserInfo(user.data.result);
-							storage.setHasLogin(true);
-							storage.setAutoCp(0)
-							// 登录成功
-							uni.showToast({
-								title:"提示",
-								content: "登录成功!",
-								icon: "none",
-							});
-
-
-							whetherNavigate();
-						}else{
-							setTimeout(() => {
-								uni.showToast({
-									title: user.data.message,
-									icon: "none",
-								});
-								storage.setAccessToken('');
-								storage.setRefreshToken('');
-								uni.switchTab({
-									url: "/pages/tabbar/user/my",
-								});
-							}, 500);
-
-						}
-					});
-				}
-			},
-
-			// 验证码验证
-			verification(val) {
-				this.flage = val == this.$store.state.verificationKey ? true : false;
-			},
-			// 跳转
-			navigateToPrivacy(val) {
-				uni.navigateTo({
-					url: "/pages/mine/help/tips?type=" + val,
-				});
-
-			},
-
-			// 点击获取验证码
-			start() {
-				this.codeColor = "#999";
-				this.$u.toast("验证码已发送");
-				this.flage = false;
-				this.codeFlag = false;
-
-				this.$refs.verification.hide();
-			},
-			/**点击验证码*/
-			codeChange(text) {
-				this.tips = text;
-			},
-			/** 结束验证码后执行 */
-			end() {
-				this.codeColor = this.lightColor;
-				this.codeFlag = true;
-				console.log(this.codeColor);
-			},
-
-			passwordLogin() {
-				if (!this.enablePrivacy) {
-					uni.showToast({
-						title: "请同意用户隐私",
-						duration: 2000,
-						icon: "none",
-					});
-					return false;
-				}
-
-				if (!this.userData.username) {
-					uni.showToast({
-						title: "请填写用户名",
-						duration: 2000,
-						icon: "none",
-					});
-					return false;
-				}
-
-				if (!this.userData.password) {
-					uni.showToast({
-						title: "请填写密码",
-						duration: 2000,
-						icon: "none",
-					});
-					return false;
-				}
-
-				if (!this.flage) {
-					this.$refs.verification.error(); //发送
-
-					return false;
-				}
-			},
-
-			// 提交用户登录
-			async submitUserLogin() {
-				const params = JSON.parse(JSON.stringify(this.userData));
-				params.password = md5(params.password);
-				try {
-					let res = await userLogin(params,this.clientType);
-					if (res.data.success) {
-						this.getUserInfoMethods(res);
-					} else {
-						this.$refs.verification.getCode();
-						this.flage = false;
-					}
-				} catch (error) {
-					this.$refs.verification.getCode();
-				}
-			},
-
-			// 发送验证码
-			fetchCode() {
-				if (!this.enablePrivacy) {
-					uni.showToast({
-						title: "请同意用户隐私",
-						duration: 2000,
-						icon: "none",
-					});
-					return false;
-				}
-
-				if (!this.$u.test.mobile(this.mobile)) {
-					uni.showToast({
-						title: "请填写正确手机号",
-						duration: 2000,
-						icon: "none",
-					});
-					return false;
-				}
-				if (this.tips == "重新获取验证码") {
-					uni.showLoading({
-						title: "加载中",
-					});
-					if (!this.codeFlag) {
-						let timer = setInterval(() => {
-							if (this.$refs.verification) {
-								this.$refs.verification.error(); //发送
-							}
-							clearInterval(timer);
-						}, 100);
-					}
-					 if (this.$store.state.isShowToast){ uni.hideLoading() };
-				}
-				if (!this.flage) {
-					this.$refs.verification.error(); //发送
-
-					return false;
-				}
-			},
+					// #ifndef MP-WEIXIN
+					goOpenidLogin('APP')
+					// #endif
+				},
+			})
 		},
-	};
+	})
+}
+
+function goOpenidLogin(loginClientType: string) {
+	const params: Record<string, any> = {
+		uuid: uni.getStorageSync('openid'),
+		source: uni.getStorageSync('type'),
+		nickname: uni.getStorageSync('nickname'),
+		username: uni.getStorageSync('openid'),
+		avatar: uni.getStorageSync('avatar'),
+		uniAccessToken: uni.getStorageSync('uni_access_token'),
+		type: clientType.value,
+		token: { unionId: '', openId: uni.getStorageSync('openid') },
+	}
+	uni.getStorageSync('unionId')
+		? (params.token.unionId = uni.getStorageSync('unionId'))
+		: delete params.token
+
+	openIdLogin(params, loginClientType).then((res) => {
+		if (!res.data.success) {
+			uni.showToast({
+				title: '第三方登录暂不可用',
+				icon: 'none',
+				duration: 3000,
+			})
+			return
+		}
+		storage.setAccessToken(res.data.result.accessToken)
+		storage.setRefreshToken(res.data.result.refreshToken)
+		uni.showToast({
+			title: '第三方登录成功!',
+			icon: 'none',
+		})
+		getUserInfo().then((user) => {
+			if (user.data.success) {
+				storage.setUserInfo(user.data.result)
+				storage.setHasLogin(true)
+				uni.switchTab({
+					url: '/pages/tabbar/home/index',
+				})
+				if (user.data.result.mobile) {
+					whetherNavigate()
+				} else {
+					uni.navigateTo({
+						url: '/pages/passport/bindUserPhone',
+					})
+				}
+			} else {
+				setTimeout(() => {
+					uni.showToast({
+						title: user.data.message,
+						icon: 'none',
+					})
+					storage.setAccessToken('')
+					storage.setRefreshToken('')
+					uni.switchTab({
+						url: '/pages/tabbar/user/my',
+					})
+				}, 500)
+			}
+		})
+	})
+}
+
+async function weixinMPOpenID(res: UniApp.LoginRes) {
+	await miniProgramLogin(res.code).then((loginRes) => {
+		uni.setStorageSync('openid', loginRes.data)
+	})
+}
+
+function navigateLogin(connectLogin: LoginListItem) {
+	// #ifdef H5
+	const codeVal = connectLogin.code
+	const buyer = api.buyer
+	window.open(buyer + `/passport/connect/connect/login/web/` + codeVal, '_self')
+	// #endif
+	// #ifdef APP-PLUS
+	nonH5OpenId(connectLogin)
+	// #endif
+}
+
+function submit() {
+	storage.setHasLogin(false)
+	storage.setAccessToken('')
+	storage.setRefreshToken('')
+	storage.setUserInfo({})
+	smsLogin({ mobile: mobile.value, code: code.value }, clientType.value).then((res) => {
+		getUserInfoMethods(res)
+	})
+}
+
+function getUserInfoMethods(res: any) {
+	if (res.data.success) {
+		storage.setAccessToken(res.data.result.accessToken)
+		storage.setRefreshToken(res.data.result.refreshToken)
+		getUserInfo().then((user) => {
+			if (user.data.success) {
+				storage.setUserInfo(user.data.result)
+				storage.setHasLogin(true)
+				storage.setAutoCp(0)
+				uni.showToast({
+					title: '提示',
+					content: '登录成功!',
+					icon: 'none',
+				})
+				whetherNavigate()
+			} else {
+				setTimeout(() => {
+					uni.showToast({
+						title: user.data.message,
+						icon: 'none',
+					})
+					storage.setAccessToken('')
+					storage.setRefreshToken('')
+					uni.switchTab({
+						url: '/pages/tabbar/user/my',
+					})
+				}, 500)
+			}
+		})
+	}
+}
+
+function handleVerification(val: string) {
+	flage.value = val == store.state.verificationKey ? true : false
+}
+
+function navigateToPrivacy(val: string) {
+	uni.navigateTo({
+		url: '/pages/mine/help/tips?type=' + val,
+	})
+}
+
+function start() {
+	codeColor.value = '#999'
+	proxy.$u.toast('验证码已发送')
+	flage.value = false
+	codeFlag.value = false
+	verification.value?.hide()
+}
+
+function codeChange(text: string) {
+	tips.value = text
+}
+
+function end() {
+	codeColor.value = lightColor.value
+	codeFlag.value = true
+	console.log(codeColor.value)
+}
+
+function passwordLogin() {
+	if (!enablePrivacy.value) {
+		uni.showToast({
+			title: '请同意用户隐私',
+			duration: 2000,
+			icon: 'none',
+		})
+		return false
+	}
+	if (!userData.username) {
+		uni.showToast({
+			title: '请填写用户名',
+			duration: 2000,
+			icon: 'none',
+		})
+		return false
+	}
+	if (!userData.password) {
+		uni.showToast({
+			title: '请填写密码',
+			duration: 2000,
+			icon: 'none',
+		})
+		return false
+	}
+	if (!flage.value) {
+		verification.value?.error()
+		return false
+	}
+}
+
+async function submitUserLogin() {
+	const params = JSON.parse(JSON.stringify(userData))
+	params.password = md5(params.password)
+	try {
+		const res = await userLogin(params, clientType.value)
+		if (res.data.success) {
+			getUserInfoMethods(res)
+		} else {
+			verification.value?.getCode()
+			flage.value = false
+		}
+	} catch {
+		verification.value?.getCode()
+	}
+}
+
+function fetchCode() {
+	if (!enablePrivacy.value) {
+		uni.showToast({
+			title: '请同意用户隐私',
+			duration: 2000,
+			icon: 'none',
+		})
+		return false
+	}
+	if (!proxy.$u.test.mobile(mobile.value)) {
+		uni.showToast({
+			title: '请填写正确手机号',
+			duration: 2000,
+			icon: 'none',
+		})
+		return false
+	}
+	if (tips.value == '重新获取验证码') {
+		uni.showLoading({ title: '加载中' })
+		if (!codeFlag.value) {
+			const timer = setInterval(() => {
+				if (verification.value) {
+					verification.value.error()
+				}
+				clearInterval(timer)
+			}, 100)
+		}
+		if (store.state.isShowToast) {
+			uni.hideLoading()
+		}
+	}
+	if (!flage.value) {
+		verification.value?.error()
+		return false
+	}
+}
+
+declare function miniProgramLogin(code: string | undefined): Promise<{ data: any }>
 </script>
 <style>
 	page {

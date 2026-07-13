@@ -10,40 +10,30 @@
 	</view>
 </template>
 
-<script>
-export default {
-	props: {
-		// 购物车 cart 消息 msg  订单 order 查询 search
-		type: {
-			type: String,
-			default: 'search'
-		},
-		isBtn:{
-			type: Boolean,
-			default: false
-		},
-		title:{
-			type: String,
-			default: '没有相关内容'
-		}
-	},
-	
-	data() {
-		return {
-			src:''
-		};
-	},
-	mounted() {
-		this.src ='/static/default/default_'+ this.type + '.png';
-	},
-	methods: {
-		toHome() {
-			uni.switchTab({
-			    url: '/pages/home/home'
-			});
-		}
-	}
-};
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
+const props = withDefaults(defineProps<{
+	type?: string
+	isBtn?: boolean
+	title?: string
+}>(), {
+	type: 'search',
+	isBtn: false,
+	title: '没有相关内容'
+})
+
+const src = ref('')
+
+onMounted(() => {
+	src.value = `/static/default/default_${props.type}.png`
+})
+
+const toHome = () => {
+	uni.switchTab({
+	    url: '/pages/home/home'
+	})
+}
 </script>
 
 <style lang="scss" scoped>
