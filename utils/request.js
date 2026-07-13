@@ -24,7 +24,7 @@ function cleanStorage() {
 	});
 	try {
 		uni.hideLoading();
-	} catch (e) {}
+	} catch (e) { }
 
 	storage.setHasLogin(false);
 	storage.setAccessToken("");
@@ -146,7 +146,7 @@ http.interceptors.response.use(
 		// }
 		try {
 			uni.hideLoading();
-		} catch (e) {}
+		} catch (e) { }
 		let token = storage.getAccessToken();
 		if (
 			(token && response.statusCode === 403) ||
