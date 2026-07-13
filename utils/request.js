@@ -22,9 +22,9 @@ function cleanStorage() {
 		icon: "none",
 		duration: 1500,
 	});
-	if (uni.showLoading()) {
+	try {
 		uni.hideLoading();
-	}
+	} catch (e) {}
 
 	storage.setHasLogin(false);
 	storage.setAccessToken("");
@@ -144,7 +144,9 @@ http.interceptors.response.use(
 		//   cleanStorage();
 		//   isRefreshing = false;
 		// }
-		uni.showLoading() ? uni.hideLoading() : ''
+		try {
+			uni.hideLoading();
+		} catch (e) {}
 		let token = storage.getAccessToken();
 		if (
 			(token && response.statusCode === 403) ||
