@@ -37,7 +37,7 @@ export function getLogistics() {
  */
 export function getAddressCode(cityCode, townName) {
   return http.request({
-    url: api.common + "/common/region/region",
+    url: `${api.buyer}/common/region/region`,
     method: Method.GET,
     needToken: true,
     params: { cityCode, townName },
