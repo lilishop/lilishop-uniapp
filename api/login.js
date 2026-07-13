@@ -59,7 +59,7 @@ export function getAutoCoup(){
  */
 export function sendMobile(mobile,type='LOGIN') {
   return http.request({
-    url: `${api.common}/common/sms/${type}/${mobile}`,
+    url: `${api.buyer}/common/sms/${type}/${mobile}`,
     method: "GET",
   });
 }

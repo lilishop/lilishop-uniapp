@@ -15,11 +15,11 @@ import { http, Method } from "@/utils/request.js";
 }
 
 /**
- * 从ES中获取相关商品品牌名称，分类名称及属性
+ * 获取商品搜索筛选条件
  */
 export function getGoodsRelated(params) {
   return http.request({
-    url: `/goods/goods/es/related`,
+    url: `/goods/goods/search/related`,
     method: Method.GET,
     params,
   });
@@ -56,7 +56,7 @@ export function getGoodsRelated(params) {
  */
 export function getGoodsList(params) {
   return http.request({
-    url: "/goods/goods/es",
+    url: "/goods/goods/search",
     method: Method.GET,
     params,
   });
