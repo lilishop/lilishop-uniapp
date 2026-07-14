@@ -194,7 +194,7 @@ function getCode() {
     storage.setUuid(uuid.v1())
   }
   uni.request({
-    url: api.common + '/common/slider/' + props.business,
+    url: api.buyer + '/common/slider/' + props.business,
     header: {
       uuid: storage.getUuid()
     },
@@ -229,7 +229,7 @@ function end() {
   uni.request({
     method: 'POST',
     url:
-      api.common +
+      api.buyer +
       '/common/slider/' +
       props.business +
       '?xPos=' +
