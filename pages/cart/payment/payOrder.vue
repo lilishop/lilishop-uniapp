@@ -194,7 +194,7 @@ function awaitPay(payment: string) {
 }
 
 function padTime(val: number) {
-  return String(val ?? 0).padStart(2, '0')
+  return String(val != null ? val : 0).padStart(2, '0')
 }
 
 function onPayTimeout() {

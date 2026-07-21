@@ -1,5 +1,9 @@
 {
   "setting": {
-    "minifyWXML": true
+    "minifyWXML": true,
+    "es6": true,
+    "minified": true,
+    "postcss": true,
+    "enhance": true
   }
 }

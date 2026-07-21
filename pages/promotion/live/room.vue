@@ -898,7 +898,9 @@ function normalizeMqttLiveStatus(status: string | number) {
     2: LIVE_STATUS.ENDED,
     3: LIVE_STATUS.PAUSED,
   }
-  return numMap[status as number] ?? roomInfo.value.liveStatus
+  return numMap[status as number] != null
+    ? numMap[status as number]
+    : roomInfo.value.liveStatus
 }
 
 function handleMqttLiveMessage(message: string) {

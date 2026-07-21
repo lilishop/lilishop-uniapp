@@ -199,8 +199,9 @@
         "setting" : {
             "urlCheck" : false,
             "minified" : true,
-            "postcss" : false,
-            "es6" : true
+            "postcss" : true,
+            "es6" : true,
+            "enhance" : true
         },
         "permission" : {
             "scope.userLocation" : {

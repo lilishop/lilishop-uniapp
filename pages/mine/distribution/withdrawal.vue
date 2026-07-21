@@ -59,7 +59,7 @@ function fetchDistributionInfo() {
 }
 
 function submitWithdraw() {
-  const amount = String(price.value ?? '')
+  const amount = String(price.value != null ? price.value : '')
   if (proxy.$u.test.amount(parseInt(amount))) {
     cash({ price: amount }).then((res) => {
       if (res.data.success) {
@@ -75,7 +75,10 @@ function submitWithdraw() {
 }
 
 function fillAllAmount() {
-  price.value = distributionData.value.canRebate ?? ''
+  price.value =
+    distributionData.value.canRebate != null
+      ? distributionData.value.canRebate
+      : ''
 }
 </script>
 

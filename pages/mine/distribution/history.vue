@@ -74,7 +74,7 @@ const withdrawParams = ref({ pageNumber: 1, pageSize: 10 })
 const achievementParams = ref({ pageNumber: 1, pageSize: 10 })
 
 onLoad((option) => {
-  const type = Number(option.type ?? 0)
+  const type = Number(option.type != null ? option.type : 0)
   listType.value = type
   routeQuery.value = option || {}
   uni.setNavigationBarTitle({

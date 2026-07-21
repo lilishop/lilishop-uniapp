@@ -317,7 +317,7 @@ function initPageData() {
     num: storeId.value,
   })
     .then((res) => {
-      const payload = res?.data ?? res
+      const payload = res?.data != null ? res.data : res
       const result = payload?.result
       const pageDataStr = result?.pageData
       if (!isPageDataSuccess(payload) || !pageDataStr) {

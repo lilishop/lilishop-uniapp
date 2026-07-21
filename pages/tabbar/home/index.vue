@@ -124,7 +124,7 @@ function init() {
   loading.value = true
   getFloorData()
     .then((res) => {
-      const payload = res?.data ?? res
+      const payload = res?.data != null ? res.data : res
       const pageDataStr = payload?.result?.pageData
       const isSuccess = payload?.success === true || payload?.code === 200
       if (!isSuccess || !pageDataStr) return

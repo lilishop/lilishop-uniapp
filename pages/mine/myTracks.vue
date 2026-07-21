@@ -188,7 +188,7 @@ function fetchTrackList() {
 }
 
 function deleteTracks(e: any, ids?: any) {
-	const index = typeof e === 'object' ? (e.name ?? e.index) : e
+	const index = typeof e === 'object' ? (e.name != null ? e.name : e.index) : e
 	const goodsId = ids || trackList.value[index]?.goodsId
 	if (!goodsId) return
 	deleteHistoryListId(goodsId).then((res) => {
