@@ -4,7 +4,7 @@
     <div
       class="address-box"
       @click="clickToAddress()"
-      v-if="shippingText == 'LOGISTICS' && orderMessage.cartTypeEnum != 'VIRTUAL'"
+      v-if="shippingText == 'LOGISTICS' && !hidePhysicalCheckout"
     >
       <div class="user-box flex">
         <div class="flex-8">
@@ -45,7 +45,7 @@
       <div class="bar"></div>
     </div>
     <!-- 选择自提点 -->
-    <div class="address-box" v-if="shippingText == 'SELF_PICK_UP'">
+    <div class="address-box" v-if="shippingText == 'SELF_PICK_UP' && !isECouponCheckout">
       <div @click="clickToStoreAddress()">
         <div class="user-box flex">
           <div class="flex-8">
@@ -201,14 +201,14 @@
         </u-row>
         <u-row>
           <u-col
-            v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
+            v-if="!hidePhysicalCheckout"
             :offset="0"
             :span="9"
             @click="shippingFlag = true"
             >配送
           </u-col>
           <u-col
-            v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
+            v-if="!hidePhysicalCheckout"
             :span="3"
             textAlign="right"
             @click="shippingFlag = true"
@@ -262,11 +262,11 @@
       </div>
       <div>
         <u-row v-if="shippingText == 'LOGISTICS'">
-          <u-col v-if="orderMessage.cartTypeEnum != 'VIRTUAL'" :span="7"
+          <u-col v-if="!hidePhysicalCheckout" :span="7"
             >运费</u-col
           >
           <u-col
-            v-if="orderMessage.cartTypeEnum != 'VIRTUAL'"
+            v-if="!hidePhysicalCheckout"
             :span="5"
             class="tr tipsColor"
             textAlign="right"
@@ -283,6 +283,7 @@
       </div>
       <u-row
         v-if="
+          !isECouponCheckout &&
           orderMessage.priceDetailDTO.goodsPrice != 0 &&
           orderMessage.priceDetailDTO.goodsPrice != null
         "
@@ -309,7 +310,7 @@
           </view>
         </u-col>
       </u-row>
-      <div>
+      <div v-if="!isECouponCheckout">
         <u-row>
           <u-col :span="9">优惠金额</u-col>
           <u-col
@@ -324,7 +325,7 @@
           <u-col :span="3" textAlign="right" v-else>0.00</u-col>
         </u-row>
       </div>
-      <div>
+      <div v-if="!isECouponCheckout">
         <u-row>
           <u-col :span="6">活动优惠</u-col>
           <u-col :span="6" class="tr tipsColor" textAlign="right">
@@ -400,6 +401,7 @@ import {
   secrecyMobile,
   isLogin,
 } from '@/utils/filters.js'
+import { hasECouponInCheckout } from '@/utils/goodsType.js'
 
 const store = useStore()
 const { proxy } = getCurrentInstance()!
@@ -424,8 +426,6 @@ const shippingText = ref('LOGISTICS')
 const shippingFlag = ref(false)
 const shippingMethod = ref<ShippingOption[]>([])
 const isAssemble = ref(false)
-const remarkFlag = ref(false)
-const selectAddressId = ref('')
 const routerVal = ref<Record<string, any>>({})
 const params = ref<Record<string, any>>({})
 const couponList = ref('')
@@ -444,6 +444,13 @@ const notSupportFreight = ref<any[]>([])
 const notSupportFreightNoticeText = ref('')
 const storeAddress = ref<any>('')
 const originOrderData = ref<any>('')
+
+// E_COUPON 结算：免地址、无运费/优惠券/促销（O-11）；与 VIRTUAL 共用 hidePhysicalCheckout
+const isECouponCheckout = computed(() => hasECouponInCheckout(orderMessage.value))
+const isVirtualCheckout = computed(() => orderMessage.value?.cartTypeEnum === 'VIRTUAL')
+const hidePhysicalCheckout = computed(
+  () => isVirtualCheckout.value || isECouponCheckout.value
+)
 
 watch(
   remarkVal,
@@ -477,15 +484,15 @@ onBackPress((e) => {
 })
 
 onShow(async () => {
-  if (remark.value && remark.value.length > 0) {
-    remarkFlag.value = true
-  }
   uni.showLoading({
     mask: true,
   })
   try {
     await getOrderList()
-    await getDistribution()
+    // E_COUPON 不需要配送方式
+    if (!isECouponCheckout.value) {
+      await getDistribution()
+    }
     if (routerVal.value.way == 'PINTUAN') {
       isAssemble.value = true
       routerVal.value.parentOrder = JSON.parse(
@@ -507,17 +514,16 @@ function getShippingLabel() {
 
 async function callbackInvoice(val: any) {
   invoiceFlag.value = false
+  if (!val) return
   receiptList.value = val
-  if (val) {
-    const submit = {
-      way: routerVal.value.way,
-      ...receiptList.value,
-    }
-    const receipt = await API_Order.getReceipt(submit)
-    if (receipt.data.success) {
-      shippingFlag.value = false
-      getOrderList()
-    }
+  const submit = {
+    way: routerVal.value.way,
+    ...receiptList.value,
+  }
+  const receipt = await API_Order.getReceipt(submit)
+  if (receipt.data.success) {
+    shippingFlag.value = false
+    getOrderList()
   }
 }
 
@@ -614,7 +620,7 @@ function createTradeFun() {
       }
     } else if (
       shippingText.value === 'LOGISTICS' &&
-      orderMessage.value.cartTypeEnum !== 'VIRTUAL'
+      !hidePhysicalCheckout.value
     ) {
       if (!address.value.id) {
         uni.showToast({
@@ -737,6 +743,22 @@ async function confirmDistribution(val: any) {
   }
 }
 
+function getSavedRemark(storeId: string, index: number, fallback = '') {
+  const localAtIndex = remarkVal.value[index]
+  if (localAtIndex?.storeId === storeId) {
+    return localAtIndex.remark ?? ''
+  }
+  const localByStore = remarkVal.value.find((r) => r?.storeId === storeId)
+  if (localByStore) {
+    return localByStore.remark ?? ''
+  }
+  const fromStore = (remark.value || []).find((r: any) => r.storeId === storeId)
+  if (fromStore) {
+    return fromStore.remark ?? ''
+  }
+  return fallback ?? ''
+}
+
 function getOrderList() {
   notSupportFreight.value = []
   notSupportFreightNoticeText.value = ''
@@ -766,11 +788,7 @@ function getOrderList() {
     let repeatData
     res.data.result.cartList.forEach((item: any, index: number) => {
       repeatData = {
-        remark: remarkFlag.value
-          ? remark.value[index].storeId == item.storeId
-            ? remark.value[index].remark
-            : item.remark
-          : item.remark,
+        remark: getSavedRemark(item.storeId, index, item.remark),
         storeId: item.storeId,
       }
 
@@ -781,12 +799,15 @@ function getOrderList() {
     ;(store.state as any).canUseCoupons = res.data.result.canUseCoupons
     ;(store.state as any).cantUseCoupons = res.data.result.cantUseCoupons
 
-    if (!res.data.result.memberAddress) {
-      getUserAddress()
-    } else {
-      address.value = res.data.result.memberAddress
-      res.data.result.memberAddress.consigneeAddressPath =
-        res.data.result.memberAddress.consigneeAddressPath.split(',')
+    // E_COUPON 免地址，不自动回填 memberAddress
+    if (!hasECouponInCheckout(res.data.result)) {
+      if (!res.data.result.memberAddress) {
+        getUserAddress()
+      } else {
+        address.value = res.data.result.memberAddress
+        res.data.result.memberAddress.consigneeAddressPath =
+          res.data.result.memberAddress.consigneeAddressPath.split(',')
+      }
     }
     if (res.data.result.storeAddress) {
       storeAddress.value = res.data.result.storeAddress

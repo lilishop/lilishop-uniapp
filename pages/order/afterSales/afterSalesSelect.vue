@@ -63,6 +63,8 @@ import { onLoad } from '@dcloudio/uni-app'
 import { unitPrice, parseGoodsImageUrl } from '@/utils/filters.js'
 import { getAfterSaleInfo } from '@/api/after-sale'
 import storage from '@/utils/storage'
+// 深链进入时拦截 E_COUPON，后端 apply/save 亦会拒绝
+import { isECouponOrder } from '@/utils/goodsType.js'
 
 const sn = ref('')
 const sku = ref<any>({})
@@ -71,6 +73,16 @@ const applyInfo = ref<any>({})
 onLoad((options) => {
   sn.value = options?.sn || ''
   sku.value = storage.getAfterSaleData()
+  if (isECouponOrder(sku.value?.orderType)) {
+    uni.showToast({
+      title: '电子卡券订单不支持售后',
+      icon: 'none',
+    })
+    setTimeout(() => {
+      uni.navigateBack()
+    }, 1500)
+    return
+  }
   init()
 })
 

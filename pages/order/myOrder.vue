@@ -67,11 +67,11 @@
 									</view>
 									<!-- 等待收货 -->
 									<view ripple shape="circle" class="pay-btn" size="mini"
-										v-if="order.allowOperationVO.rog" @click="onRog(order.sn)">
+										v-if="order.allowOperationVO.rog && !isECouponOrder(order.orderType)" @click="onRog(order.sn)">
 										确认收货
 									</view>
 									<view ripple shape="circle" class="cancel-btn" size="mini"
-										v-if="order.groupAfterSaleStatus && ( order.groupAfterSaleStatus.includes('NOT_APPLIED') || order.groupAfterSaleStatus.includes('PART_AFTER_SALE'))"
+										v-if="!isECouponOrder(order.orderType) && order.groupAfterSaleStatus && ( order.groupAfterSaleStatus.includes('NOT_APPLIED') || order.groupAfterSaleStatus.includes('PART_AFTER_SALE'))"
 										@click="applyService(order)">
 										退款/售后
 									</view> 
@@ -122,6 +122,8 @@ import {
 	tipsToLogin,
 	orderStatusList,
 } from '@/utils/filters.js'
+// E_COUPON 订单不展示确认收货、退款/售后（FR-B-04）
+import { isECouponOrder } from '@/utils/goodsType.js'
 
 const store = useStore()
 const { proxy } = getCurrentInstance()!

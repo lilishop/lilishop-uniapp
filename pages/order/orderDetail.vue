@@ -8,11 +8,21 @@
       </div>
 
     </div>
-    <!-- 物流信息 -->
+    <!-- 物流信息 / 卡密入口 -->
     <view class="info-view logistics-view">
-
       <view class="logistics-List">
-        <view class="verificationCode" v-if="order.verificationCode">
+        <view v-if="isECouponOrder" class="card-key-entry">
+          <view v-if="ecouponCardKeyDelivered" class="card-key-entry__btn" @click="goCardKeyDetail">
+            查看卡密
+          </view>
+          <view v-else-if="order.orderStatus === 'COMPLETED'" class="card-key-entry__tip">
+            卡密尚未发放，请稍后刷新
+          </view>
+          <view v-else-if="order.orderStatus === 'CANCELLED'" class="card-key-entry__tip">
+            订单已关闭
+          </view>
+        </view>
+        <view class="verificationCode" v-else-if="order.verificationCode">
           券码： {{ order.orderStatus == 'CANCELLED' ?  '已失效' : order.verificationCode }}
         </view>
 		<view @click="handleClickDeliver()" class="info-view logi-view"  v-else-if="orderPackage && orderPackage.length">
@@ -23,14 +33,13 @@
 		      点击此处查看
 		  </div>
 		</view>
-        <view v-else class="logistics-List-title">
+        <view v-else-if="!isECouponOrder" class="logistics-List-title">
           {{ '暂无物流信息' }}
         </view>
       </view>
-
     </view>
     <!-- 地址 -->
-    <view class="info-view" v-if="order.deliveryMethod === 'LOGISTICS' && order.orderType !== 'VIRTUAL'">
+    <view class="info-view" v-if="order.deliveryMethod === 'LOGISTICS' && !isNonPhysicalOrder">
       <view class="address-view">
         <view>
           <view class="address-title">
@@ -83,7 +92,7 @@
                 <view class="goods-price">
                   ￥{{unitPrice(sku.goodsPrice) }}
                   <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
-				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="sku.isRefund && sku.isRefund !== 'NO_REFUND'">
+				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="!isECouponOrder && sku.isRefund && sku.isRefund !== 'NO_REFUND'">
 				  {{refundPriceList(sku.isRefund)}} ({{unitPrice(sku.refundPrice, "￥") }})
 				   </span>
                 </view>
@@ -103,15 +112,15 @@
           <view class="title">商品总价：</view>
           <view class="value">￥{{unitPrice(order.goodsPrice) }}</view>
         </view>
-        <view class="order-info-view" v-if="order.freightPrice">
+        <view class="order-info-view" v-if="order.freightPrice && !isECouponOrder">
           <view class="title">运费：</view>
           <view class="value">￥{{unitPrice(order.freightPrice) }}</view>
         </view>
-        <view class="order-info-view" v-if="order.priceDetailDTO">
+        <view class="order-info-view" v-if="!isECouponOrder && order.priceDetailDTO">
           <view class="title">优惠券：</view>
           <view class="value main-color">-￥{{unitPrice(order.priceDetailDTO.couponPrice) }}</view>
         </view>
-        <view class="order-info-view">
+        <view class="order-info-view" v-if="!isECouponOrder">
           <view class="title">活动优惠：</view>
           <view class="value main-color">-￥{{unitPrice(order.discountPrice) }}</view>
         </view>
@@ -131,7 +140,7 @@
           <view class="customer-service"
             v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true"
             @click="onCancel(order.sn)">取消订单</view>
-          <view class="customer-service" v-if="order.orderStatus == 'DELIVERED'" @click="onLogistics(order)">查看物流</view>
+          <view class="customer-service" v-if="order.orderStatus == 'DELIVERED' && !isECouponOrder" @click="onLogistics(order)">查看物流</view>
           <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderPromotionType == 'PINTUAN'"
             @click="ByUserMessage(order)">查看拼团信息</view>
             <view class="customer-service"
@@ -206,7 +215,7 @@
           >立即付款</view>
           <view
             class="pay-btn"
-            v-if="order.orderStatus == 'DELIVERED'"
+            v-if="order.orderStatus == 'DELIVERED' && !isECouponOrder"
             @click="onRog(order.sn)"
           >确认收货</view>
           <view
@@ -262,6 +271,11 @@ import {
 	talkIm,
 	callPhone,
 } from '@/utils/filters.js'
+import {
+	isECouponOrder as checkECouponOrder,
+	isNonPhysicalOrder as checkNonPhysicalOrder,
+	isCardKeyDelivered,
+} from '@/utils/goodsType.js'
 
 const store = useStore()
 const lightColor = computed(() => store.getters.lightColor)
@@ -291,6 +305,11 @@ const cancelList = ref<any[]>([])
 const rogShow = ref(false)
 const reason = ref('')
 const orderPackage = ref<any>('')
+
+// orderType=E_COUPON：无物流/核销码，卡密见 cardKeyDetail（API-B-01 orderItems[].cardKeys）
+const isECouponOrder = computed(() => checkECouponOrder(order.value?.orderType))
+const isNonPhysicalOrder = computed(() => checkNonPhysicalOrder(order.value?.orderType))
+const ecouponCardKeyDelivered = computed(() => isCardKeyDelivered(orderGoodsList.value))
 
 function hideLoadingIfNeeded() {
 	if (store.state.isShowToast) uni.hideLoading()
@@ -376,11 +395,24 @@ function loadData(orderSnParam: string) {
 		order.value = result.order
 		orderGoodsList.value = result.orderItems
 		orderDetail.value = result
-		if (order.value.deliveryMethod === 'LOGISTICS') {
+		if (
+			result.order.deliveryMethod === 'LOGISTICS' &&
+			!checkECouponOrder(result.order.orderType) &&
+			result.order.orderType !== 'VIRTUAL'
+		) {
+			// E_COUPON 无物流信息
 			loadLogistics(orderSnParam)
 			getOrderPackage()
 		}
 		hideLoadingIfNeeded()
+	})
+}
+
+function goCardKeyDetail() {
+	// 仅传 orderSn，卡密在二级页重新请求订单详情，不经路由/Vuex 传递明文
+	if (!sn.value) return
+	uni.navigateTo({
+		url: `/pages/order/cardKey/cardKeyDetail?sn=${sn.value}`,
 	})
 }
 
@@ -714,6 +746,26 @@ page,
 .verificationCode {
   font-weight: bold;
   letter-spacing: 2rpx;
+}
+
+.card-key-entry {
+  width: 100%;
+  text-align: center;
+}
+
+.card-key-entry__btn {
+  display: inline-block;
+  padding: 20rpx 80rpx;
+  border: 2rpx solid $main-color;
+  border-radius: 12rpx;
+  color: $main-color;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.card-key-entry__tip {
+  font-size: 26rpx;
+  color: #666;
 }
 
 .bottom_view {

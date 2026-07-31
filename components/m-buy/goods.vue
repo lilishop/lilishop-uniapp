@@ -27,8 +27,8 @@
 						</view>
 						<!-- 正常商品的价格 -->
 						<view v-else>
-							<!-- 批发价格 -->
-							<div class="price-row flex" v-if="goodsDetail.salesModel === 'WHOLESALE'">
+							<!-- 批发阶梯价（E_COUPON 仅零售价） -->
+							<div class="price-row flex" v-if="goodsDetail.salesModel === 'WHOLESALE' && !isECoupon(goodsDetail.goodsType)">
 								<div class="goods-price" v-for="(item, index) in wholesaleList" :key="index">
 									<span>
 										￥
@@ -56,7 +56,7 @@
 						<view class="goods-check-skus">
 							库存
 							<span class="goods-check-skus-name">
-								<span>{{ goodsDetail.quantity }}</span>
+								<span>{{ availableStock }}</span>
 							</span>
 						</view>
 					</view>
@@ -93,18 +93,18 @@
 							</template>
 						</view>
 					</view>
-					<div class="soldout" v-if="goodsDetail.quantity === 0">
+					<div class="soldout" v-if="availableStock === 0">
 						<u-alert type="warning" title="商品已售罄" :description="'当前商品库存为0'"></u-alert>
 					</div>
 					<!-- 数量 -->
-					<view v-if="goodsDetail.quantity !== 0" class="goods-skus-number flex flex-a-c flex-j-sb">
+					<view v-if="availableStock !== 0" class="goods-skus-number flex flex-a-c flex-j-sb">
 						<view class="view-class-title">数量</view>
-						<uni-number-box class="uNumber" :min="1" :max="999" :disabled="goodsDetail.quantity === 0"  v-model="num"></uni-number-box>
+						<uni-number-box class="uNumber" :min="1" :max="maxBuyNum" :disabled="availableStock === 0"  v-model="num"></uni-number-box>
 					</view>
 				</scroll-view>
 				<!-- 按钮 -->
-				<view class="btns" v-if="goodsDetail.quantity !== 0">
-					<view class="box-btn card" v-if="buyType != 'PINTUAN' && goodsDetail.goodsType != 'VIRTUAL_GOODS'" @click="addToCartOrBuy('cart')">加入购物车</view>
+				<view class="btns" v-if="availableStock !== 0">
+					<view class="box-btn card" v-if="showAddToCart" @click="addToCartOrBuy('cart')">加入购物车</view>
 					<view class="box-btn buy" @click="addToCartOrBuy('buy')">立即购买</view>
 				</view>
 			</view>
@@ -113,11 +113,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import * as API_trade from '@/api/trade.js'
 import setup from './popup.js'
 import uniNumberBox from '@/components/uni-number-box.vue'
 import { goodsFormatPrice } from '@/utils/filters.js'
+import {
+	isECoupon,
+	isVirtualGoods,
+	getECouponStock,
+	getECouponMaxBuyNum,
+} from '@/utils/goodsType.js'
 
 const props = withDefaults(defineProps<{
 	wholesaleList?: any[] | boolean
@@ -152,13 +158,34 @@ const formatList = ref<any[]>([])
 const currentSelected = ref<string[]>([])
 const skuList = ref('')
 
+// E_COUPON 库存来自卡池 poolStock，上限 min(poolStock, 999)
+const availableStock = computed(() => {
+	if (isECoupon(props.goodsDetail?.goodsType)) {
+		return getECouponStock(props.goodsDetail)
+	}
+	return Number(props.goodsDetail?.quantity) || 0
+})
+
+const maxBuyNum = computed(() => {
+	if (isECoupon(props.goodsDetail?.goodsType)) {
+		return getECouponMaxBuyNum(props.goodsDetail)
+	}
+	return 999
+})
+
+// 电子卡券禁止加购（后端 CARD_KEY_E_COUPON_CART_FORBIDDEN）
+const showAddToCart = computed(() => {
+	return (
+		buyType.value != 'PINTUAN' &&
+		!isVirtualGoods(props.goodsDetail?.goodsType) &&
+		!isECoupon(props.goodsDetail?.goodsType)
+	)
+})
+
 watch(num, (val) => {
 	val == 0 ? num.value = 1 : ''
-	if (val) {
-		//超过库存后修改回库存
-		if (val > props.goodsDetail.quantity) {
-			num.value = props.goodsDetail.quantity
-		}
+	if (val && val > maxBuyNum.value) {
+		num.value = maxBuyNum.value
 	}
 })
 
@@ -172,16 +199,21 @@ watch(selectSkuList, (_val) => {
 	emit('changed', selectSkuList.value)
 }, { deep: true })
 
-watch(() => props.goodsDetail?.quantity, (val) => {
-	if (val == 0) {
-		uni.showToast({
-			title: '商品已售罄',
-			duration: 2000,
-			icon: 'none'
-		})
-		num.value = 1
+watch(
+	() => availableStock.value,
+	(val) => {
+		if (val == 0) {
+			uni.showToast({
+				title: '商品已售罄',
+				duration: 2000,
+				icon: 'none',
+			})
+			num.value = 1
+		} else if (num.value > maxBuyNum.value) {
+			num.value = maxBuyNum.value
+		}
 	}
-})
+)
 
 const numCheck = (val: number) => {
 	if (Array.isArray(props.wholesaleList) && props.wholesaleList.length > 0) {
@@ -270,31 +302,32 @@ const addToCartOrBuy = (val: string) => {
 	}
 
 	if (val == 'cart') {
-		API_trade.addToCart(data).then(res => {
-			if (res.data.code == 200) {
+		API_trade.addToCart(data).then((res) => {
+			if (res.data.success) {
 				uni.showToast({
 					title: '商品已添加到购物车',
-					icon: 'none'
+					icon: 'none',
 				})
-
 				emit('queryCart')
 				closeMask()
 			}
 		})
 	} else {
-		// 判断是否拼团商品
 		if (buyType.value) {
 			data.cartType = 'PINTUAN'
-		} else if (props.goodsDetail.goodsType == 'VIRTUAL_GOODS') {
+		} else if (isECoupon(props.goodsDetail.goodsType)) {
+			// 与 VIRTUAL 核销区分：E_COUPON 必须 BUY_NOW，支付后 COMPLETED + cardKeys
+			data.cartType = 'BUY_NOW'
+		} else if (isVirtualGoods(props.goodsDetail.goodsType)) {
 			data.cartType = 'VIRTUAL'
 		} else {
 			data.cartType = 'BUY_NOW'
 		}
 
-		API_trade.addToCart(data).then(res => {
-			if (res.data.code == 200) {
+		API_trade.addToCart(data).then((res) => {
+			if (res.data.success) {
 				uni.navigateTo({
-					url: `/pages/order/fillorder?way=${data.cartType}&addr=${props.addr?.id || ''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value))}`
+					url: `/pages/order/fillorder?way=${data.cartType}&addr=${props.addr?.id || ''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value))}`,
 				})
 			}
 		})

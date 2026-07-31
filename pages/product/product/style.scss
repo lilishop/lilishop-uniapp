@@ -62,6 +62,10 @@ page {
         border-radius: 214px;
         padding: 0;
     }
+    > .to-buy--full {
+        flex: 1;
+        margin: 0;
+    }
     > .pt-buy {
         line-height: 1.2;
         display: flex;

@@ -772,6 +772,13 @@
 					}
 				},
 				{
+					"path": "cardKey/cardKeyDetail",
+					"style": {
+						"navigationBarTitleText": "查看卡密",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
 					"path": "deliverDetail",
 					"style": {
 						"navigationBarTitleText": "物流详情"

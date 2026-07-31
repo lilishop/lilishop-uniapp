@@ -119,7 +119,7 @@
           <view class="btn-view">
             <!-- 售后申请  -->
 
-            <div class="sale" v-if="current === 0 && sku.afterSaleStatus">
+            <div class="sale" v-if="current === 0 && sku.afterSaleStatus && !isECouponOrder(order.orderType)">
               <div
                 v-if="
 									order.flowPrice != 0 &&
@@ -199,6 +199,8 @@ import { ref, reactive, computed } from 'vue'
 import { onLoad, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { unitPrice, serviceStatusList, parseGoodsImageUrl } from '@/utils/filters.js'
+// E_COUPON 订单列表不展示「申请售后」入口（FR-B-04）
+import { isECouponOrder } from '@/utils/goodsType.js'
 import { getAfterSaleList, cancelAfterSale } from '@/api/after-sale.js'
 import { getOrderList } from '@/api/order.js'
 import storage from '@/utils/storage'

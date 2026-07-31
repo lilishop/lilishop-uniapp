@@ -1,5 +1,5 @@
 <template>
-  <u-popup closeable border-radius="28" @close="close" mode="bottom" height="80%" v-model:show="show">
+  <u-popup closeable border-radius="28" @close="onPopupClose" mode="bottom" height="80%" v-model:show="show">
 
     <div class="wrapper">
       <!-- 发票类型 -->
@@ -143,6 +143,7 @@ const submitData = reactive<SubmitData>({
   receiptEmail: '',
 })
 const show = ref(true)
+const confirmed = ref(false)
 const title = ref('')
 const tips =
   '电子发票即电子增值税发票，是税局认可的有效凭证，其法律效力、基本用途及使用规定同纸质发票。'
@@ -341,8 +342,10 @@ function handleClickHeader(
   val.active = true
 }
 
-function close(val: SubmitData | boolean) {
-  emit('callbackInvoice', val)
+function onPopupClose() {
+  if (confirmed.value) return
+  show.value = false
+  emit('callbackInvoice', false)
 }
 
 function submitInvoice() {
@@ -438,8 +441,9 @@ function submitInvoice() {
     return false
   }
 
+  confirmed.value = true
   show.value = false
-  close(submitData)
+  emit('callbackInvoice', { ...submitData })
 }
 </script>
 <style scoped lang="scss">
