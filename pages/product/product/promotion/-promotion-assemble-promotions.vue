@@ -5,6 +5,7 @@
         class="showBox"
         v-if="
           promotion.__key == 'SECKILL' ||
+          promotion.__key == 'FLASH_DISCOUNT' ||
           promotion.__key == 'GROUPBUY' ||
           promotion.__key == 'PINTUAN'
         "
@@ -33,6 +34,29 @@
                       }}</span
                     >
                     <view class="promotion">限时抢购</view>
+                  </view>
+                </view>
+
+                <!-- 限时直降 -->
+                <view class="u-group-flex-left" v-if="promotion.__key == 'FLASH_DISCOUNT'">
+                  <span
+                    class="u-group-flex-left-span"
+                    v-if="detail.promotionPrice != undefined"
+                  >
+                    ￥
+                    <span class="flex-price">
+                      {{ goodsFormatPrice(detail.promotionPrice)[0] }}.{{
+                        goodsFormatPrice(detail.promotionPrice)[1]
+                      }}</span
+                    >
+                  </span>
+                  <view class="u-group-flex" v-if="detail.price != undefined">
+                    <span class="old-price"
+                      >￥{{ goodsFormatPrice(detail.price)[0] }}.{{
+                        goodsFormatPrice(detail.price)[1]
+                      }}</span
+                    >
+                    <view class="promotion">限时直降</view>
                   </view>
                 </view>
 

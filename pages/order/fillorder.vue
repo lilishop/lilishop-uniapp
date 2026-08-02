@@ -45,7 +45,7 @@
       <div class="bar"></div>
     </div>
     <!-- 选择自提点 -->
-    <div class="address-box" v-if="shippingText == 'SELF_PICK_UP' && !isECouponCheckout">
+    <div class="address-box" v-if="shippingText == 'SELF_PICK_UP' && !hidePhysicalCheckout">
       <div @click="clickToStoreAddress()">
         <div class="user-box flex">
           <div class="flex-8">
@@ -283,7 +283,6 @@
       </div>
       <u-row
         v-if="
-          !isECouponCheckout &&
           orderMessage.priceDetailDTO.goodsPrice != 0 &&
           orderMessage.priceDetailDTO.goodsPrice != null
         "
@@ -310,7 +309,7 @@
           </view>
         </u-col>
       </u-row>
-      <div v-if="!isECouponCheckout">
+      <div>
         <u-row>
           <u-col :span="9">优惠金额</u-col>
           <u-col
@@ -325,7 +324,7 @@
           <u-col :span="3" textAlign="right" v-else>0.00</u-col>
         </u-row>
       </div>
-      <div v-if="!isECouponCheckout">
+      <div>
         <u-row>
           <u-col :span="6">活动优惠</u-col>
           <u-col :span="6" class="tr tipsColor" textAlign="right">
@@ -336,6 +335,34 @@
             <span v-else>0.00</span>
           </u-col>
         </u-row>
+      </div>
+      <div v-if="giftCardList.length || giftCardDeductAmount > 0">
+        <u-row>
+          <u-col :span="6">礼品卡</u-col>
+          <u-col :span="6" class="tr tipsColor" textAlign="right">
+            <span v-if="giftCardDeductAmount > 0" class="main-color"
+              >-￥{{ unitPrice(giftCardDeductAmount) }}</span
+            >
+            <span v-else @click="giftCardExpanded = !giftCardExpanded"
+              >{{ giftCardList.length }} 张可用</span
+            >
+          </u-col>
+        </u-row>
+        <view v-if="giftCardExpanded && giftCardList.length" class="gift-card-list">
+          <view
+            class="gift-card-item"
+            :class="{ 'gift-card-item--selected': isGiftCardSelected(item) }"
+            v-for="item in giftCardList"
+            :key="item.id"
+            @click="toggleGiftCard(item)"
+          >
+            <view class="gift-card-item__name">{{ item.giftCardName || '礼品卡' }}</view>
+            <view class="gift-card-item__meta">
+              <text>余额 ￥{{ unitPrice(item.balance) }}</text>
+              <text class="gift-card-item__no">{{ item.cardNo }}</text>
+            </view>
+          </view>
+        </view>
       </div>
     </div>
 
@@ -445,12 +472,24 @@ const notSupportFreightNoticeText = ref('')
 const storeAddress = ref<any>('')
 const originOrderData = ref<any>('')
 
-// E_COUPON 结算：免地址、无运费/优惠券/促销（O-11）；与 VIRTUAL 共用 hidePhysicalCheckout
+// E_COUPON 结算：免地址/免配送（hidePhysicalCheckout）；优惠券/活动/礼品卡可用（M-02）
 const isECouponCheckout = computed(() => hasECouponInCheckout(orderMessage.value))
 const isVirtualCheckout = computed(() => orderMessage.value?.cartTypeEnum === 'VIRTUAL')
 const hidePhysicalCheckout = computed(
   () => isVirtualCheckout.value || isECouponCheckout.value
 )
+
+const giftCardList = computed(() => orderMessage.value?.canUseGiftCards || [])
+const giftCardDeductAmount = computed(() => {
+  const dto = orderMessage.value?.priceDetailDTO
+  if (!dto) return 0
+  if (orderMessage.value?.giftCardDeductTotal != null) {
+    return Number(orderMessage.value.giftCardDeductTotal) || 0
+  }
+  return Number(dto.giftCardPrice) || 0
+})
+const selectedGiftCardIds = computed(() => orderMessage.value?.selectedGiftCardIds || [])
+const giftCardExpanded = ref(false)
 
 watch(
   remarkVal,
@@ -564,6 +603,29 @@ function pintuanWay() {
 
 function invoice() {
   invoiceFlag.value = true
+}
+
+function isGiftCardSelected(item: any) {
+  if (!item?.id) return false
+  return (selectedGiftCardIds.value || []).map(String).includes(String(item.id))
+}
+
+function toggleGiftCard(item: any) {
+  if (!item?.id) return
+  API_Trade.selectGiftCard({
+    way: routerVal.value.way,
+    credentialId: String(item.id),
+    used: !isGiftCardSelected(item),
+  }).then((res) => {
+    if (res.data.success) {
+      getOrderList()
+    } else {
+      uni.showToast({
+        title: res.data.message || '礼品卡选择失败',
+        icon: 'none',
+      })
+    }
+  })
 }
 
 function GET_Discount() {
@@ -1186,5 +1248,41 @@ page {
 
 .goods-item {
   margin: 20rpx 0;
+}
+
+.gift-card-list {
+  margin-top: 16rpx;
+  padding: 0 8rpx 8rpx;
+}
+
+.gift-card-item {
+  border: 1rpx solid #eceef2;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 16rpx;
+  background: #fff;
+
+  &--selected {
+    border-color: $main-color;
+    background: rgba($main-color, 0.04);
+  }
+}
+
+.gift-card-item__name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.gift-card-item__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.gift-card-item__no {
+  color: #999;
 }
 </style>

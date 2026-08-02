@@ -40,6 +40,26 @@
         </view>
       </view>
 
+      <view v-if="getPromType(prom) == 'FLASH_DISCOUNT'">
+        <view class="res_prom_item">
+          <view class="deg_tag">限时直降</view>
+          <text class="pro-text">{{ props.res[prom].promotionName || props.res[prom].title || '限时直降活动' }}</text>
+        </view>
+      </view>
+
+      <view v-if="getPromType(prom) == 'NTH_ITEM_DISCOUNT'">
+        <view class="res_prom_item">
+          <view class="deg_tag">第N件优惠</view>
+          <text class="pro-text">
+            第{{ props.res[prom].nthNum || 'N' }}件
+            <text v-if="props.res[prom].discountType === 'FREE'">免费</text>
+            <text v-else-if="props.res[prom].discountType === 'HALF'">半价</text>
+            <text v-else-if="props.res[prom].discountValue">享{{ props.res[prom].discountValue }}折</text>
+            <text v-else>优惠</text>
+          </text>
+        </view>
+      </view>
+
       <view v-if="getPromType(prom) == 'POINTS_GOODS'">
         <view class="res_prom_item">
           <view class="deg_tag">积分活动</view>

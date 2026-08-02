@@ -170,6 +170,20 @@ export function setAddressId(addressId,way) {
 
 
 /**
+ * 选择礼品卡
+ * @param way 购物车购买：CART/立即购买：BUY_NOW/拼团：PINTUAN / 积分：POINTS / 砍价：KANJIA
+ * @param credentialId 礼品卡凭证 id；used=false 且不传则清空全部
+ */
+export function selectGiftCard(params) {
+  return http.request({
+    url: `/trade/carts/select/giftCard`,
+    method: Method.GET,
+    needToken: true,
+    params,
+  });
+}
+
+/**
  * 创建交易
  */
 export function createTrade(params) {

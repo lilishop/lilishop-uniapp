@@ -158,7 +158,7 @@ const formatList = ref<any[]>([])
 const currentSelected = ref<string[]>([])
 const skuList = ref('')
 
-// E_COUPON 库存来自卡池 poolStock，上限 min(poolStock, 999)
+// E_COUPON 库存读 SKU quantity，上限 min(quantity, 999)
 const availableStock = computed(() => {
 	if (isECoupon(props.goodsDetail?.goodsType)) {
 		return getECouponStock(props.goodsDetail)
@@ -189,9 +189,9 @@ watch(num, (val) => {
 	}
 })
 
-watch(() => props.buyType, (val) => {
+watch(() => props.isGroup, (val) => {
 	if (val) {
-		buyType.value = val as string
+		buyType.value = 'PINTUAN'
 	}
 }, { immediate: true })
 
@@ -273,16 +273,34 @@ const handleClickSpec = (val: any, index: number, specValue: any) => {
 }
 
 /**
- * 直接购买
+ * 活动页/父组件直接调用购买（POINTS / KANJIA 等显式 cartType）
  */
 const buy = (data: any) => {
-	API_trade.addToCart(data).then(res => {
+	uni.hideLoading()
+	API_trade.addToCart(data).then((res) => {
 		if (res.data.success) {
+			const way = data.cartType || 'BUY_NOW'
 			uni.navigateTo({
-				url: `/pages/order/fillorder?way=${data.cartType}&addr=${''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value))}`
+				url: `/pages/order/fillorder?way=${way}&addr=${''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value || ''))}`,
+			})
+		} else {
+			uni.showToast({
+				title: res.data.message || '购买失败',
+				icon: 'none',
 			})
 		}
 	})
+}
+
+/** 解析 cartType：拼团 PINTUAN；核销 VIRTUAL；其余含 E_COUPON 为 BUY_NOW */
+function resolveCartType() {
+	if (buyType.value === 'PINTUAN') {
+		return 'PINTUAN'
+	}
+	if (isVirtualGoods(props.goodsDetail?.goodsType)) {
+		return 'VIRTUAL'
+	}
+	return 'BUY_NOW'
 }
 
 /**
@@ -292,13 +310,13 @@ const addToCartOrBuy = (val: string) => {
 	if (!selectSkuList.value) {
 		uni.showToast({
 			title: '请选择规格商品',
-			icon: 'none'
+			icon: 'none',
 		})
 		return
 	}
-	let data = {
+	const data: Record<string, any> = {
 		skuId: props.goodsDetail.id,
-		num: num.value
+		num: num.value,
 	}
 
 	if (val == 'cart') {
@@ -310,24 +328,24 @@ const addToCartOrBuy = (val: string) => {
 				})
 				emit('queryCart')
 				closeMask()
+			} else {
+				uni.showToast({
+					title: res.data.message || '加购失败',
+					icon: 'none',
+				})
 			}
 		})
 	} else {
-		if (buyType.value) {
-			data.cartType = 'PINTUAN'
-		} else if (isECoupon(props.goodsDetail.goodsType)) {
-			// 与 VIRTUAL 核销区分：E_COUPON 必须 BUY_NOW，支付后 COMPLETED + cardKeys
-			data.cartType = 'BUY_NOW'
-		} else if (isVirtualGoods(props.goodsDetail.goodsType)) {
-			data.cartType = 'VIRTUAL'
-		} else {
-			data.cartType = 'BUY_NOW'
-		}
-
+		data.cartType = resolveCartType()
 		API_trade.addToCart(data).then((res) => {
 			if (res.data.success) {
 				uni.navigateTo({
-					url: `/pages/order/fillorder?way=${data.cartType}&addr=${props.addr?.id || ''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value))}`,
+					url: `/pages/order/fillorder?way=${data.cartType}&addr=${props.addr?.id || ''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value || ''))}`,
+				})
+			} else {
+				uni.showToast({
+					title: res.data.message || '购买失败',
+					icon: 'none',
 				})
 			}
 		})
@@ -404,6 +422,12 @@ const formatSku = (list: any[]) => {
 
 onMounted(() => {
 	formatSku(props.goodsSpec)
+})
+
+defineExpose({
+	buy,
+	buyType,
+	parentOrder,
 })
 </script>
 

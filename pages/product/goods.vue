@@ -90,8 +90,8 @@
          
           <GoodsSwiper id="main1" :res="imgList" :video="goodsDetail.goodsVideo" />
 
-          <!-- 促销活动条（E_COUPON 不参与促销 M-01） -->
-          <PromotionAssembleLayout v-if="PromotionList && !isECouponGoods" :detail="goodsDetail" :res="PromotionList" />
+          <!-- 促销活动条（秒杀/限时直降/拼团等，M-02 含 E_COUPON） -->
+          <PromotionAssembleLayout v-if="PromotionList" :detail="goodsDetail" :res="PromotionList" />
 
           <view class="card-box top-radius-0" id="main2">
             <!-- 活动不显示价钱 -->
@@ -172,8 +172,8 @@
             </view>
           </view>
 
-          <!-- 促销/领券入口（E_COUPON 隐藏） -->
-          <view class="card-box" v-if="!isECouponGoods">
+          <!-- 促销/领券入口 -->
+          <view class="card-box">
             <view class="card-flex" @click="shutMask(1)">
               <view class="card-title"> 促销 </view>
               <view class="card-content">
@@ -187,7 +187,7 @@
           </view>
 
           <!-- 拼团用户列表 -->
-          <PromotionAssembleListLayout v-if="isGroup && !isECouponGoods" @to-assemble-buy-now="toAssembleBuyNow" :res="PromotionList" />
+          <PromotionAssembleListLayout v-if="isGroup" @to-assemble-buy-now="toAssembleBuyNow" :res="PromotionList" />
 
           <!-- 实物配送地址；E_COUPON / VIRTUAL_GOODS 均不展示 -->
           <view class="card-box" v-if="!isNonPhysicalGoodsType">
@@ -262,7 +262,7 @@
         <view class="detail-btn" v-if="!isGroup && !takeDownFromSale">
           <view class="to-store-car to-store-btn" v-if="showAddToCart" @click="shutMask(4)">
             加入购物车</view>
-          <view class="to-buy to-store-btn" :class="{ 'to-buy--full': isECouponGoods }" @click="shutMask(4, 'buy')">立即购买</view>
+          <view class="to-buy to-store-btn" @click="shutMask(4, 'buy')">立即购买</view>
           <view class="to-store-car to-store-btn" v-if="startTimer">暂未开始</view>
         </view>
         <!-- 拼团结算 -->
@@ -329,7 +329,7 @@ import storage from '@/utils/storage.js'
 /************工具函数***************/
 import { useStore } from '@/store'
 import { unitPrice, goodsFormatPrice, isLogin, parseGoodsImageUrl, clearStrComma, talkIm } from '@/utils/filters.js'
-import { isECoupon, isNonPhysicalGoods } from '@/utils/goodsType.js'
+import { isNonPhysicalGoods } from '@/utils/goodsType.js'
 
 /************组件***************/
 import PromotionLayout from './product/promotion/-promotion'
@@ -430,11 +430,10 @@ const IM = computed(() => {
   return IMLink.value + storeDetail.value.merchantEuid
 })
 
-// E_COUPON：仅立即购买，隐藏促销/地址/加购（FR-B-01 / P-08）
-const isECouponGoods = computed(() => isECoupon(goodsDetail.value?.goodsType))
+// E_COUPON：禁加购、免地址；促销展示与 VIRTUAL 对齐（M-02）
 const isNonPhysicalGoodsType = computed(() => isNonPhysicalGoods(goodsDetail.value?.goodsType))
 const showAddToCart = computed(() => {
-  return !isNonPhysicalGoodsType.value && !isECouponGoods.value
+  return !isNonPhysicalGoodsType.value
 })
 
 // watch
@@ -547,10 +546,6 @@ async function init(id: any, goodsId: any, distributionId = "") {
 
   PromotionList.value &&
     Object.keys(PromotionList.value).forEach((item: string) => {
-      // E_COUPON 不参与拼团/秒杀（M-01），避免底部出现拼团双按钮
-      if (isECoupon(goodsDetail.value?.goodsType)) {
-        return
-      }
       if (item.indexOf("PINTUAN") == 0) {
         isGroup.value = true
       }

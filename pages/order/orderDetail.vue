@@ -116,13 +116,17 @@
           <view class="title">运费：</view>
           <view class="value">￥{{unitPrice(order.freightPrice) }}</view>
         </view>
-        <view class="order-info-view" v-if="!isECouponOrder && order.priceDetailDTO">
+        <view class="order-info-view" v-if="order.priceDetailDTO && Number(order.priceDetailDTO.couponPrice) > 0">
           <view class="title">优惠券：</view>
           <view class="value main-color">-￥{{unitPrice(order.priceDetailDTO.couponPrice) }}</view>
         </view>
-        <view class="order-info-view" v-if="!isECouponOrder">
+        <view class="order-info-view" v-if="Number(order.discountPrice) > 0">
           <view class="title">活动优惠：</view>
           <view class="value main-color">-￥{{unitPrice(order.discountPrice) }}</view>
+        </view>
+        <view class="order-info-view" v-if="order.priceDetailDTO && Number(order.priceDetailDTO.giftCardPrice) > 0">
+          <view class="title">礼品卡抵扣：</view>
+          <view class="value main-color">-￥{{unitPrice(order.priceDetailDTO.giftCardPrice) }}</view>
         </view>
         <!-- <view class="order-info-view" v-if="order.use_point">
 					<view class="title">使用积分：</view>

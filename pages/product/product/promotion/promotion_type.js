@@ -8,20 +8,16 @@ const promotion = [
     value: "KANJIA",
   },
   {
-    title: "单品立减",
-    value: "MINUS",
+    title: "限时直降",
+    value: "FLASH_DISCOUNT",
+  },
+  {
+    title: "第N件优惠",
+    value: "NTH_ITEM_DISCOUNT",
   },
   {
     title: "团购",
     value: "GROUPBUY",
-  },
-  {
-    title: "积分换购",
-    value: "EXCHANGE",
-  },
-  {
-    title: "第二件半价",
-    value: "HALF_PRICE",
   },
   {
     title: "满减优惠",
