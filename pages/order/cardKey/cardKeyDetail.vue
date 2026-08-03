@@ -1,6 +1,6 @@
 <!--
   @Author Mike
-  @Date 2026-07-31
+  @Date 2026-08-03
 -->
 <template>
   <view class="card-key-page">
@@ -11,21 +11,34 @@
     </view>
     <view v-else>
       <view
-        class="card-key-item"
-        v-for="(row, index) in cardKeyRows"
-        :key="`${row.cardNo || index}-${index}`"
+        v-for="(line, lineIndex) in cardKeyFulfillLines"
+        :key="line.key || lineIndex"
+        class="card-key-fulfill-block"
       >
-        <view class="card-key-item__title">卡密 {{ index + 1 }}</view>
-        <view class="card-key-item__row">
-          <text class="card-key-item__label">卡号：</text>
-          <text class="card-key-item__value">{{ row.cardNo || '-' }}</text>
+        <view v-if="cardKeyFulfillLines.length > 1" class="card-key-fulfill-title">
+          {{ line.goodsName || (line.isGift ? '满赠电子卡券' : '电子卡券') }}
         </view>
-        <view class="card-key-item__row">
-          <text class="card-key-item__label">卡密：</text>
-          <text class="card-key-item__value">{{ row.cardSecret || '-' }}</text>
-        </view>
-        <view class="card-key-item__actions">
-          <view class="card-key-item__copy" @click="copyCardKey(row)">复制</view>
+        <view
+          class="card-key-item"
+          v-for="(row, index) in line.cardKeys"
+          :key="`${line.key}-${row.cardNo || index}-${index}`"
+        >
+          <view class="card-key-item__title">卡密 {{ index + 1 }}</view>
+          <view class="card-key-item__row">
+            <text class="card-key-item__label">卡号：</text>
+            <text class="card-key-item__value card-key-item__value--plain" selectable>{{
+              row.cardNo || '-'
+            }}</text>
+          </view>
+          <view class="card-key-item__row">
+            <text class="card-key-item__label">卡密：</text>
+            <text class="card-key-item__value card-key-item__value--plain" selectable>{{
+              row.cardSecret || '-'
+            }}</text>
+          </view>
+          <view class="card-key-item__actions">
+            <view class="card-key-item__copy" @click="copyCardKey(row)">复制</view>
+          </view>
         </view>
       </view>
       <view class="card-key-page__footer">
@@ -37,12 +50,8 @@
 
 <script setup lang="ts">
 /**
- * @Author Mike
- * @Date 2026-07-31
- *
  * 电子卡券卡密二级页（原型 P-09）。
- * 数据来源：GET /buyer/order/order/{orderSn} → orderItems[].cardKeys；
- * 不展示过期时间；未发卡/非 E_COUPON 订单不泄露 cardSecret。
+ * 数据来源：GET /buyer/order/order/{orderSn} → orderItems[].cardKeys（明文 cardSecret）。
  */
 import { ref, computed } from 'vue'
 import { onLoad, onPullDownRefresh } from '@dcloudio/uni-app'
@@ -50,21 +59,39 @@ import { getOrderDetail } from '@/api/order.js'
 import { setClipboard } from '@/utils/filters.js'
 import {
   isECouponOrder,
+  collectCardKeyFulfillLines,
   flattenOrderCardKeys,
-  isCardKeyDelivered,
+  resolveCardKeyFulfillMessage,
+  CARD_KEY_FULFILL_STATUS,
 } from '@/utils/goodsType.js'
 
 const orderSn = ref('')
 const loading = ref(true)
 const errorMessage = ref('')
 const orderItems = ref<any[]>([])
+const giftECouponOrders = ref<any[]>([])
 const orderStatus = ref('')
 
-const cardKeyRows = computed(() => flattenOrderCardKeys(orderItems.value))
+const cardKeyFulfillLines = computed(() =>
+  collectCardKeyFulfillLines(orderItems.value, giftECouponOrders.value).filter(
+    (line) => line.status === CARD_KEY_FULFILL_STATUS.DELIVERED && line.cardKeys.length
+  )
+)
+
+const cardKeyRows = computed(() =>
+  flattenOrderCardKeys(orderItems.value, false, giftECouponOrders.value)
+)
 
 const emptyMessage = computed(() => {
   if (orderStatus.value === 'CANCELLED') {
     return '订单已关闭，暂无卡密信息'
+  }
+  const pending = collectCardKeyFulfillLines(
+    orderItems.value,
+    giftECouponOrders.value
+  ).find((line) => line.status !== CARD_KEY_FULFILL_STATUS.DELIVERED)
+  if (pending) {
+    return resolveCardKeyFulfillMessage(pending)
   }
   if (orderStatus.value === 'COMPLETED') {
     return '卡密尚未发放，请稍后刷新'
@@ -99,16 +126,16 @@ function loadData(fromPullDown = false) {
         return
       }
       const result = res.data.result
-      if (!isECouponOrder(result?.order?.orderType)) {
-        errorMessage.value = '该订单不是电子卡券订单'
+      const isEcoupon = isECouponOrder(result?.order?.orderType)
+      const hasGiftEcoupon =
+        Array.isArray(result?.giftECouponOrders) && result.giftECouponOrders.length > 0
+      if (!isEcoupon && !hasGiftEcoupon) {
+        errorMessage.value = '该订单没有电子卡券卡密'
         return
       }
       orderItems.value = result.orderItems || []
+      giftECouponOrders.value = result.giftECouponOrders || []
       orderStatus.value = result.order?.orderStatus || ''
-      // 未 cardKeyDelivered 时不展示卡密（UNPAID/PAID 发卡中或发卡失败）
-      if (!isCardKeyDelivered(orderItems.value)) {
-        orderItems.value = []
-      }
     })
     .catch(() => {
       errorMessage.value = '加载失败，请稍后重试'
@@ -154,6 +181,12 @@ function copyAllCardKeys() {
   font-size: 28rpx;
 }
 
+.card-key-fulfill-title {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
 .card-key-item {
   background: #fff;
   border-radius: 20rpx;
@@ -184,6 +217,11 @@ function copyAllCardKeys() {
 .card-key-item__value {
   color: #333;
   word-break: break-all;
+}
+
+.card-key-item__value--plain {
+  font-family: monospace;
+  flex: 1;
 }
 
 .card-key-item__actions {

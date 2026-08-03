@@ -15,11 +15,11 @@
           <view v-if="ecouponCardKeyDelivered" class="card-key-entry__btn" @click="goCardKeyDetail">
             查看卡密
           </view>
-          <view v-else-if="order.orderStatus === 'COMPLETED'" class="card-key-entry__tip">
-            卡密尚未发放，请稍后刷新
-          </view>
           <view v-else-if="order.orderStatus === 'CANCELLED'" class="card-key-entry__tip">
             订单已关闭
+          </view>
+          <view v-else class="card-key-entry__tip">
+            {{ ecouponPendingMessage || '卡密尚未发放，请稍后刷新' }}
           </view>
         </view>
         <view class="verificationCode" v-else-if="order.verificationCode">
@@ -278,7 +278,10 @@ import {
 import {
 	isECouponOrder as checkECouponOrder,
 	isNonPhysicalOrder as checkNonPhysicalOrder,
-	isCardKeyDelivered,
+	orderHasCardKeyContent,
+	collectCardKeyFulfillLines,
+	resolveCardKeyFulfillMessage,
+	CARD_KEY_FULFILL_STATUS,
 } from '@/utils/goodsType.js'
 
 const store = useStore()
@@ -309,11 +312,21 @@ const cancelList = ref<any[]>([])
 const rogShow = ref(false)
 const reason = ref('')
 const orderPackage = ref<any>('')
+const giftECouponOrders = ref<any[]>([])
 
 // orderType=E_COUPON：无物流/核销码，卡密见 cardKeyDetail（API-B-01 orderItems[].cardKeys）
 const isECouponOrder = computed(() => checkECouponOrder(order.value?.orderType))
 const isNonPhysicalOrder = computed(() => checkNonPhysicalOrder(order.value?.orderType))
-const ecouponCardKeyDelivered = computed(() => isCardKeyDelivered(orderGoodsList.value))
+const ecouponCardKeyDelivered = computed(() =>
+	orderHasCardKeyContent(orderGoodsList.value, giftECouponOrders.value)
+)
+const ecouponPendingMessage = computed(() => {
+	const pending = collectCardKeyFulfillLines(
+		orderGoodsList.value,
+		giftECouponOrders.value
+	).find((line) => line.status !== CARD_KEY_FULFILL_STATUS.DELIVERED)
+	return pending ? resolveCardKeyFulfillMessage(pending) : ''
+})
 
 function hideLoadingIfNeeded() {
 	if (store.state.isShowToast) uni.hideLoading()
@@ -399,6 +412,7 @@ function loadData(orderSnParam: string) {
 		order.value = result.order
 		orderGoodsList.value = result.orderItems
 		orderDetail.value = result
+		giftECouponOrders.value = result.giftECouponOrders || []
 		if (
 			result.order.deliveryMethod === 'LOGISTICS' &&
 			!checkECouponOrder(result.order.orderType) &&
