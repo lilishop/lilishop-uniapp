@@ -312,19 +312,16 @@ const cancelList = ref<any[]>([])
 const rogShow = ref(false)
 const reason = ref('')
 const orderPackage = ref<any>('')
-const giftECouponOrders = ref<any[]>([])
-
-// orderType=E_COUPON：无物流/核销码，卡密见 cardKeyDetail（API-B-01 orderItems[].cardKeys）
+// orderType=E_COUPON：无物流/核销码；卡密见 cardKeyDetail（仅本单 orderItems，不含满赠子单）
 const isECouponOrder = computed(() => checkECouponOrder(order.value?.orderType))
 const isNonPhysicalOrder = computed(() => checkNonPhysicalOrder(order.value?.orderType))
 const ecouponCardKeyDelivered = computed(() =>
-	orderHasCardKeyContent(orderGoodsList.value, giftECouponOrders.value)
+	orderHasCardKeyContent(orderGoodsList.value)
 )
 const ecouponPendingMessage = computed(() => {
-	const pending = collectCardKeyFulfillLines(
-		orderGoodsList.value,
-		giftECouponOrders.value
-	).find((line) => line.status !== CARD_KEY_FULFILL_STATUS.DELIVERED)
+	const pending = collectCardKeyFulfillLines(orderGoodsList.value).find(
+		(line) => line.status !== CARD_KEY_FULFILL_STATUS.DELIVERED
+	)
 	return pending ? resolveCardKeyFulfillMessage(pending) : ''
 })
 
@@ -412,7 +409,6 @@ function loadData(orderSnParam: string) {
 		order.value = result.order
 		orderGoodsList.value = result.orderItems
 		orderDetail.value = result
-		giftECouponOrders.value = result.giftECouponOrders || []
 		if (
 			result.order.deliveryMethod === 'LOGISTICS' &&
 			!checkECouponOrder(result.order.orderType) &&

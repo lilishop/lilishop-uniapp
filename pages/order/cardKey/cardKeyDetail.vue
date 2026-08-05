@@ -16,7 +16,7 @@
         class="card-key-fulfill-block"
       >
         <view v-if="cardKeyFulfillLines.length > 1" class="card-key-fulfill-title">
-          {{ line.goodsName || (line.isGift ? '满赠电子卡券' : '电子卡券') }}
+          {{ line.goodsName || '电子卡券' }}
         </view>
         <view
           class="card-key-item"
@@ -51,7 +51,7 @@
 <script setup lang="ts">
 /**
  * 电子卡券卡密二级页（原型 P-09）。
- * 数据来源：GET /buyer/order/order/{orderSn} → orderItems[].cardKeys（明文 cardSecret）。
+ * 仅展示当前 orderSn 对应订单的 orderItems[].cardKeys；满赠赠品请进赠品订单查看。
  */
 import { ref, computed } from 'vue'
 import { onLoad, onPullDownRefresh } from '@dcloudio/uni-app'
@@ -69,27 +69,23 @@ const orderSn = ref('')
 const loading = ref(true)
 const errorMessage = ref('')
 const orderItems = ref<any[]>([])
-const giftECouponOrders = ref<any[]>([])
 const orderStatus = ref('')
 
 const cardKeyFulfillLines = computed(() =>
-  collectCardKeyFulfillLines(orderItems.value, giftECouponOrders.value).filter(
+  collectCardKeyFulfillLines(orderItems.value).filter(
     (line) => line.status === CARD_KEY_FULFILL_STATUS.DELIVERED && line.cardKeys.length
   )
 )
 
-const cardKeyRows = computed(() =>
-  flattenOrderCardKeys(orderItems.value, false, giftECouponOrders.value)
-)
+const cardKeyRows = computed(() => flattenOrderCardKeys(orderItems.value))
 
 const emptyMessage = computed(() => {
   if (orderStatus.value === 'CANCELLED') {
     return '订单已关闭，暂无卡密信息'
   }
-  const pending = collectCardKeyFulfillLines(
-    orderItems.value,
-    giftECouponOrders.value
-  ).find((line) => line.status !== CARD_KEY_FULFILL_STATUS.DELIVERED)
+  const pending = collectCardKeyFulfillLines(orderItems.value).find(
+    (line) => line.status !== CARD_KEY_FULFILL_STATUS.DELIVERED
+  )
   if (pending) {
     return resolveCardKeyFulfillMessage(pending)
   }
@@ -126,15 +122,11 @@ function loadData(fromPullDown = false) {
         return
       }
       const result = res.data.result
-      const isEcoupon = isECouponOrder(result?.order?.orderType)
-      const hasGiftEcoupon =
-        Array.isArray(result?.giftECouponOrders) && result.giftECouponOrders.length > 0
-      if (!isEcoupon && !hasGiftEcoupon) {
+      if (!isECouponOrder(result?.order?.orderType)) {
         errorMessage.value = '该订单没有电子卡券卡密'
         return
       }
       orderItems.value = result.orderItems || []
-      giftECouponOrders.value = result.giftECouponOrders || []
       orderStatus.value = result.order?.orderStatus || ''
     })
     .catch(() => {

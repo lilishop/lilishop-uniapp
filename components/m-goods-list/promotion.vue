@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div v-for="(item, index) in res" :key="index" class="goods-row" @click="navigateToDetailPage(item)">
+		<div v-for="(item, index) in res" :key="index" class="goods-row" @click="onItemClick(item)">
 			<div class="flex goods-col">
 				<div class="goods-img">
 					<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.goodsImage || item.thumbnail">
@@ -44,10 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { useGoodsListCommon } from './common'
 import { goodsFormatPrice } from '@/utils/filters.js'
-
-const { navigateToDetailPage } = useGoodsListCommon()
 
 const props = withDefaults(defineProps<{
 	res?: any[]
@@ -57,17 +54,17 @@ const props = withDefaults(defineProps<{
 	type: ''
 })
 
-// 跳转到商品详情（覆盖公共方法，增加砍价跳转）
-const navigateToDetailPageOverride = (item: any) => {
-	if(props.type == 'kanJia'){
-		 uni.navigateTo({
+// 促销列表跳转：拼团/秒杀 PromotionGoods 用 skuId；砍价走活动详情
+function onItemClick(item: any) {
+	if (props.type == 'kanJia') {
+		uni.navigateTo({
 			url: `/pages/promotion/bargain/detail?id=${item.id}`,
 		})
 		return
 	}
-	navigateToDetailPage({
-		id: item.skuId,
-		goodsId: item.goodsId,
+	const skuId = item.skuId || item.id
+	uni.navigateTo({
+		url: `/pages/product/goods?id=${skuId}&goodsId=${item.goodsId}`,
 	})
 }
 </script>
