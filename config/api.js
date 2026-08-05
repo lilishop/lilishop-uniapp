@@ -3,13 +3,13 @@
  */
 // 开发环境
 const dev = {
-  buyer: "https://buyer-api.pickmall.cn",
+  buyer: "http://127.0.0.1:8888",
   im: "https://im-api.pickmall.cn",
   mqtt: "wss://lilishop-mqtt-pull.dllll.xyz/mqtt",
 };
 // 生产环境
 const prod = {
-  buyer: "https://buyer-api.pickmall.cn",
+  buyer: "http://127.0.0.1:8888",
   im: "https://im-api.pickmall.cn",
   mqtt: "wss://lilishop-mqtt-pull.dllll.xyz/mqtt",
 };

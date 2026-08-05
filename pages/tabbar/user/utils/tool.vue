@@ -132,7 +132,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { distribution as fetchDistribution } from '@/api/goods'
+import { distribution as fetchDistribution } from '@/api/distribution'
 import configs from '@/config/config'
 import storage from '@/utils/storage'
 import { tipsToLogin, setClipboard } from '@/utils/filters.js'
@@ -184,7 +184,16 @@ function linkMsgDetail() {
   }
 }
 
+function goRecruitJoin() {
+  uni.navigateTo({
+    url: '/pages/mine/distribution/join',
+  })
+}
+
 function distribution() {
+  if (!tipsToLogin('normal')) {
+    return
+  }
   fetchDistribution().then((res) => {
     if (res.data.result) {
       const type = res.data.result.distributionStatus
@@ -193,9 +202,7 @@ function distribution() {
           url: '/pages/mine/distribution/home',
         })
       } else if (type == 'REFUSE') {
-        uni.navigateTo({
-          url: '/pages/mine/distribution/auth',
-        })
+        goRecruitJoin()
       } else if (type == 'RETREAT') {
         uni.showToast({
           title: '您的分销资格已被清退。请联系管理员！',
@@ -216,9 +223,7 @@ function distribution() {
         icon: 'none',
       })
     } else {
-      uni.navigateTo({
-        url: '/pages/mine/distribution/auth',
-      })
+      goRecruitJoin()
     }
   })
 }

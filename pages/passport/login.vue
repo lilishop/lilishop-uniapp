@@ -1,8 +1,8 @@
 <template>
 	<div class="wrapper">
 		<div v-if="!wechatLogin" class="login-body">
-			<u-navbar :auto-back="showBack" :border="false"></u-navbar>
-			<div>
+			<u-navbar :auto-back="showBack" :border="false" :fixed="true" :placeholder="true"></u-navbar>
+			<div class="login-header">
 				<div class="title">{{ loginTitleWay[current].title }}</div>
 				<div :class="current == 1 ? 'desc-light' : 'desc'">
 					{{ loginTitleWay[current].desc
@@ -10,7 +10,7 @@
 				</div>
 			</div>
 			<!-- 手机号 -->
-			<div v-show="!enableUserPwdBox">
+			<div v-show="!enableUserPwdBox" class="login-form-block">
 				<div v-show="current == 0">
 					<u-input
 						border="none"
@@ -51,7 +51,8 @@
 				</div>
 			</div>
 
-			<!-- 帐号密码登录 -->
+			<!-- 帐号密码登录（小程序不展示） -->
+			<!-- #ifndef MP-WEIXIN -->
 			<div v-show="enableUserPwdBox">
 				<u-input
 					border="none"
@@ -81,6 +82,7 @@
 					帐号密码登录
 				</div>
 			</div>
+			<!-- #endif -->
 
 			<div class="privacy-row" v-show="current != 1">
 				<u-checkbox
@@ -99,11 +101,14 @@
 				</div>
 			</div>
 
+			<!-- #ifndef MP-WEIXIN -->
 			<div v-if="current != 1" class="user-password-tips" @click="enableUserPwdBox = !enableUserPwdBox">
 				{{ !enableUserPwdBox ? "帐号密码" : "手机号" }}登录
 			</div>
+			<!-- #endif -->
 
-			<!-- 循环出当前可使用的第三方登录模式 -->
+			<!-- 第三方登录（小程序不展示微信登录入口） -->
+			<!-- #ifndef MP-WEIXIN -->
 			<div class="flex login-list">
 				<template v-for="(item, index) in loginList" :key="index">
 				<div v-if="item.code" :style="{ background: item.color }" class="login-item">
@@ -115,6 +120,7 @@
 				</div>
 				</template>
 			</div>
+			<!-- #endif -->
 			<myVerification v-if="codeFlag" @send="handleVerification" class="verification" ref="verification"
 				business="LOGIN" />
 		</div>
@@ -182,7 +188,6 @@ const inputStyle = {
 const placeholderStyle = 'font-size: 32rpx;line-height: 32rpx;color: #999999;'
 const loginList = ref<LoginListItem[]>([
 	{ icon: 'weixin-fill', color: '#00a327', title: '微信', code: 'WECHAT' },
-	{ icon: 'qq-fill', color: '#38ace9', title: 'QQ', code: 'QQ' },
 	{ icon: 'apple-fill', color: '#000000', title: 'Apple', code: 'APPLE' },
 ])
 const clientType = ref('')
@@ -212,20 +217,18 @@ onShow(() => {
 })
 
 onMounted(() => {
-	// #ifndef APP-PLUS
-	//判断是否微信浏览器
+	// #ifdef H5
+	// 判断是否微信浏览器（仅 H5 有 window.navigator）
 	const ua = window.navigator.userAgent.toLowerCase()
 	if (ua.match(/MicroMessenger/i) == 'micromessenger') {
 		wechatLogin.value = true
 		return
 	}
+	clientType.value = 'H5'
 	// #endif
 	/**
 	 * 条件编译判断当前客户端类型
 	 */
-	//#ifdef H5
-	clientType.value = 'H5'
-	//#endif
 
 	//#ifdef APP-PLUS
 	clientType.value = 'APP'
@@ -233,39 +236,35 @@ onMounted(() => {
 	uni.getProvider({
 		service: 'oauth',
 		success: (result) => {
-			loginList.value = result.provider.map((value) => {
-				let title = ''
-				let codeVal = ''
-				let color = '#8b8b8b'
-				let icon = ''
-				switch (value) {
-					case 'weixin':
-						icon = 'weixin-circle-fill'
-						color = '#00a327'
-						title = '微信'
-						codeVal = 'WECHAT'
-						break
-					case 'qq':
-						icon = 'qq-circle-fill'
-						color = '#38ace9'
-						title = 'QQ'
-						codeVal = 'QQ'
-						break
-					case 'apple':
-						icon = 'apple-fill'
-						color = '#000000'
-						title = 'Apple'
-						codeVal = 'APPLE'
-						break
-				}
-				return {
-					title,
-					code: codeVal,
-					color,
-					icon,
-					appcode: value,
-				}
-			})
+			loginList.value = result.provider
+				.filter((value) => value === 'weixin' || value === 'apple')
+				.map((value) => {
+					let title = ''
+					let codeVal = ''
+					let color = '#8b8b8b'
+					let icon = ''
+					switch (value) {
+						case 'weixin':
+							icon = 'weixin-circle-fill'
+							color = '#00a327'
+							title = '微信'
+							codeVal = 'WECHAT'
+							break
+						case 'apple':
+							icon = 'apple-fill'
+							color = '#000000'
+							title = 'Apple'
+							codeVal = 'APPLE'
+							break
+					}
+					return {
+						title,
+						code: codeVal,
+						color,
+						icon,
+						appcode: value,
+					}
+				})
 		},
 		fail: (error) => {
 			uni.showToast({
@@ -277,14 +276,11 @@ onMounted(() => {
 	})
 	//#endif
 
-	//特殊平台，登录方式需要过滤
-	// #ifdef H5
-	methodFilter(['QQ'])
-	// #endif
-
-	//微信小程序，只支持微信登录
+	//微信小程序：仅手机号登录，不展示账号密码/微信第三方入口
 	// #ifdef MP-WEIXIN
-	methodFilter(['WECHAT'])
+	clientType.value = 'WECHAT_MP'
+	enableUserPwdBox.value = false
+	loginList.value = []
 	// #endif
 })
 
@@ -711,10 +707,20 @@ declare function miniProgramLogin(code: string | undefined): Promise<{ data: any
 		box-sizing: border-box;
 	}
 
+	.login-header {
+		padding-top: 64rpx;
+	}
+
+	/* #ifdef MP-WEIXIN */
+	.login-header {
+		padding-top: 96rpx;
+	}
+	/* #endif */
+
 	.title {
-		padding-top: calc(104rpx);
+		padding-top: 0;
 		font-style: normal;
-		line-height: 1;
+		line-height: 1.2;
 		font-weight: 500;
 		font-size: 56rpx;
 		color: #333;
@@ -727,9 +733,9 @@ declare function miniProgramLogin(code: string | undefined): Promise<{ data: any
 	.desc,
 	.desc-light {
 		font-size: 32rpx;
-		line-height: 32rpx;
+		line-height: 44rpx;
 		color: #333333;
-		margin-top: 40rpx;
+		margin-top: 24rpx;
 	}
 
 	.desc {
@@ -745,8 +751,12 @@ declare function miniProgramLogin(code: string | undefined): Promise<{ data: any
 		}
 	}
 
+	.login-form-block {
+		margin-top: 96rpx;
+	}
+
 	.mobile {
-		margin-top: 80rpx;
+		margin-top: 0;
 	}
 
 	.disable {

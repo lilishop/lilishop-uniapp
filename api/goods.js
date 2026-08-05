@@ -38,18 +38,6 @@ export function getGoodsRelated(params) {
 }
 
 /**
- * 获取商品分销
- * @param distributionId 商品分销ID
- */
- export function getGoodsDistribution(distributionId) {
-  return http.request({
-    url: `/distribution/distribution/bindingDistribution/${distributionId}`,
-    method: Method.GET,
-  });
-}
-
-
-/**
  * 获取商品列表
  * @param params
  * @returns {AxiosPromise}
@@ -115,85 +103,6 @@ export function getCategoryList(id) {
     url: `/goods/category/get/${id}`,
     method: Method.GET,
     loading: false,
-  });
-}
-
-
-
-
-/**
- * 获取当前会员的分销商信息 可根据分销商信息查询待提现金额以及冻结金额等信息
- */
-export function distribution() {
-  return http.request({
-    url: `/distribution/distribution`,
-    method: Method.GET,
-  });
-}
-
-/**
- * 申请分销商
- */
-export function applyDistribution(params) {
-  return http.request({
-    url: `/distribution/distribution`,
-    method: Method.POST,
-    params,
-  });
-}
-
-/**
- * 分销商提现
- */
-export function cash(params) {
-  return http.request({
-    url: `/distribution/cash`,
-    method: Method.POST,
-    params,
-  });
-}
-
-/**
- * 分销商提现历史
- */
-export function cashLog(params) {
-  return http.request({
-    url: `/distribution/cash`,
-    method: Method.GET,
-    params
-
-  });
-}
-
-/**
- * 获取分销商分页订单列表
- */
-export function distributionOrderList(params) {
-  return http.request({
-    url: `/distribution/distribution/distributionOrder`,
-    method: Method.GET,
-    params
-  });
-}
-
-/**
- * 获取分销商商品列表
- */
-export function distributionGoods(params) {
-  return http.request({
-    url: `/distribution/goods`,
-    method: Method.GET,
-    params,
-  });
-}
-/**
- * 选择分销商品 分销商品id
- */
-export function checkedDistributionGoods(params) {
-  return http.request({
-    url: `/distribution/goods/checked/${params.id}`,
-    method: Method.GET,
-    params
   });
 }
 

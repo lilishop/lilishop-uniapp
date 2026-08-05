@@ -529,6 +529,48 @@ export function serviceStatusList (val) {
 }
 
 /**
+ * 格式化商品规格展示（兼容 SKU JSON 与纯文本）
+ */
+export function formatGoodsSpecs(specs) {
+  if (specs === null || specs === undefined) {
+    return '默认'
+  }
+  const trimmed = String(specs).trim()
+  if (!trimmed) {
+    return '默认'
+  }
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+    return trimmed
+  }
+  try {
+    const data = JSON.parse(trimmed)
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return trimmed
+    }
+    const parts = []
+    Object.keys(data).forEach((key) => {
+      if (key === 'images') {
+        return
+      }
+      const value = data[key]
+      if (value === null || value === undefined || value === '') {
+        return
+      }
+      if (typeof value === 'object') {
+        return
+      }
+      const text = String(value).trim()
+      if (text) {
+        parts.push(text)
+      }
+    })
+    return parts.length ? parts.join(' ') : '默认'
+  } catch (e) {
+    return '默认'
+  }
+}
+
+/**
  * 订单状态列表
  */
 export function orderStatusList (val) {
