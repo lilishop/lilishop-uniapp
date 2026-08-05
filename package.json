@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "migrate:vue3": "node scripts/migrate-vue3.js && node scripts/migrate-filters-usage.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && node scripts/patch-mqtt-abort.js",
+    "test:mqtt-app-runtime": "node scripts/test-mqtt-app-runtime.js"
   },
   "repository": {
     "type": "git",
@@ -15,9 +16,9 @@
   "dependencies": {
     "@tencentcloud/chat": "^3.5.5",
     "hls.js": "^1.6.16",
-    "mqtt": "^5.15.0",
+    "mqtt": "5.15.1",
     "sass": "^1.89.2",
-    "uview-plus": "^3.4.72",
+    "uview-plus": "3.8.42",
     "vuex": "^4.1.0"
   },
   "devDependencies": {
