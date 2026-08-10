@@ -105,7 +105,7 @@
 				</view>
 				<view class="nav-item" @click="sortGoods">筛选</view>
 			</view>
-			<!-- #ifdef H5 -->
+			<!-- #ifdef H5 || APP-PLUS -->
 			<view v-if="!empty && isSWitch" class="goods-list-wrap">
 				<goodsList :res="goodsListData" type="oneColumns" :keyword="keyword" :tab-bar-gap="false" />
 				<uni-load-more :status="loadingType" @clickLoadMore="loadmore"></uni-load-more>
@@ -115,12 +115,11 @@
 				<uni-load-more :status="loadingType" @clickLoadMore="loadmore"></uni-load-more>
 			</view>
 			<!-- #endif -->
-			<!-- #ifndef H5 -->
+			<!-- #ifdef MP -->
 			<!-- 一行一个商品展示 -->
 			<scroll-view
 				v-if="!empty && isSWitch"
 				class="goods-scroll"
-				:style="goodsScrollStyle"
 				enableBackToTop="true"
 				lower-threshold="250"
 				@scrolltolower="loadmore()"
@@ -134,7 +133,6 @@
 			<scroll-view
 				v-if="!empty && !isSWitch && goodsListData.length"
 				class="goods-scroll"
-				:style="goodsScrollStyle"
 				scroll-anchoring
 				enableBackToTop="true"
 				@scrolltolower="loadmore()"
@@ -249,14 +247,10 @@ import {
 	computed,
 	watch,
 	nextTick,
-	getCurrentInstance,
-	onMounted,
-	onBeforeUnmount,
 } from 'vue'
 import {
 	onLoad,
 	onReady,
-	onShow,
 	onReachBottom,
 	onPageScroll,
 } from '@dcloudio/uni-app'
@@ -268,7 +262,6 @@ import mSearch from '@/components/m-search-revision/m-search-revision.vue'
 import storage from '@/utils/storage'
 
 const store = useStore()
-const { proxy } = getCurrentInstance()!
 
 const mSearchRef = ref<any>(null)
 
@@ -328,7 +321,6 @@ const sortParams = ref<any>({
 const routerVal = ref<any>('')
 const capsuleInsetRight = ref(0)
 const searchNavbarWidth = ref(0)
-const goodsScrollHeight = ref(0)
 
 const searchNavbarStyle = computed(() => {
 	if (searchNavbarWidth.value) {
@@ -341,17 +333,7 @@ const searchNavbarStyle = computed(() => {
 	}
 })
 
-const goodsScrollStyle = computed(() => {
-	if (goodsScrollHeight.value > 0) {
-		return {
-			height: `${goodsScrollHeight.value}px`,
-		}
-	}
-	return {}
-})
-
 onPageScroll((e) => {
-	console.log(e)
 	scrollTop.value = e.scrollTop
 })
 
@@ -390,23 +372,6 @@ onLoad((val) => {
 
 onReady(() => {
 	setSearchNavbarWidth()
-	calcGoodsScrollHeight()
-})
-
-onShow(() => {
-	calcGoodsScrollHeight()
-})
-
-onMounted(() => {
-	// #ifdef H5
-	window.addEventListener('resize', calcGoodsScrollHeight)
-	// #endif
-})
-
-onBeforeUnmount(() => {
-	// #ifdef H5
-	window.removeEventListener('resize', calcGoodsScrollHeight)
-	// #endif
 })
 
 watch(keyword, (val) => {
@@ -427,49 +392,14 @@ watch(sortPopup, (val) => {
 	}
 })
 
-watch(isShowSeachGoods, (val) => {
-	if (val) {
-		nextTick(() => {
-			calcGoodsScrollHeight()
-		})
-	}
-})
-
-watch(isSWitch, () => {
-	nextTick(() => {
-		calcGoodsScrollHeight()
-	})
-})
-
 onReachBottom(() => {
-	// #ifdef H5
+	// #ifdef H5 || APP-PLUS
 	if (!isShowSeachGoods.value || loadingType.value !== 'more') {
 		return
 	}
 	loadmore()
 	// #endif
 })
-
-function calcGoodsScrollHeight() {
-	nextTick(() => {
-		const query = uni.createSelectorQuery().in(proxy)
-		query.select('.goods-content').boundingClientRect()
-		query.select('.goods-content .navbar').boundingClientRect()
-		query.exec((res) => {
-			const contentRect = res[0]
-			const navbarRect = res[1]
-			if (!contentRect) {
-				return
-			}
-			const sortBarHeight = navbarRect ? navbarRect.height : uni.upx2px(80)
-			const { windowHeight } = uni.getWindowInfo()
-			const height =
-				Math.max(contentRect.height, windowHeight - contentRect.top) -
-				sortBarHeight
-			goodsScrollHeight.value = Math.max(height, 0)
-		})
-	})
-}
 
 function setSearchNavbarWidth() {
 	// #ifdef MP-WEIXIN
@@ -738,9 +668,6 @@ async function loadData(type?: string, _loading?: number) {
 	empty.value = goodsListData.value.length === 0
 
 	initSortGoods()
-	nextTick(() => {
-		calcGoodsScrollHeight()
-	})
 	if (store.state.isShowToast) {
 		uni.hideLoading()
 	}
@@ -849,7 +776,7 @@ function saveKeyword(saveKey: string) {
 @import './search.scss';
 </style>
 <style lang="scss">
-/* #ifdef H5 */
+/* #ifdef H5 || APP-PLUS */
 page {
   height: auto;
   min-height: 100vh;
