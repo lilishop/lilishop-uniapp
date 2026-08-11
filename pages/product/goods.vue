@@ -319,6 +319,7 @@ import { ref, reactive, computed, watch, nextTick, getCurrentInstance } from 'vu
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getGoods, getGoodsList, getMpScene } from '@/api/goods.js'
 import { recordDistributionGoodsVisit } from '@/api/distribution.js'
+import { tryBindDistribution } from '@/utils/distributionBind.js'
 import * as API_trade from '@/api/trade.js'
 import * as API_Members from '@/api/members.js'
 import * as API_store from '@/api/store.js'
@@ -518,7 +519,10 @@ async function init(id: any, goodsId: any, distributionId = "", shareId = "") {
   }
 
   const distId = distributionId || store.state.distributionId
-  if (distId && goodsId && id) {
+  if (distId) {
+    await tryBindDistribution(distId)
+  }
+  if (distId && goodsId && id && storage.getAccessToken()) {
     recordDistributionGoodsVisit({
       skuId: id,
       goodsId,

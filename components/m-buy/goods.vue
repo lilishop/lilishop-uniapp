@@ -250,6 +250,8 @@ const buy = (data: any) => {
 				url: `/pages/order/fillorder?way=${data.cartType}&addr=${''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value))}`
 			})
 		}
+	}).finally(() => {
+		uni.hideLoading()
 	})
 }
 

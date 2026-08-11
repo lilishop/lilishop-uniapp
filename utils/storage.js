@@ -84,6 +84,14 @@ export default {
   // 写入登录
   setHasLogin(val) {
     uni.setStorageSync(HAS_LOGIN, val);
+    if (val) {
+      try {
+        const { flushPendingBind } = require("@/utils/distributionBind.js");
+        flushPendingBind();
+      } catch (e) {
+        // ignore
+      }
+    }
   },
   // 获取是否登录
   getHasLogin() {

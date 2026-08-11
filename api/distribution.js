@@ -189,6 +189,15 @@ export function getRecruitPage() {
   })
 }
 
+/** 招募页邀请人信息（无需登录） */
+export function getRecruitInviter(distributionId) {
+  return http.request({
+    url: `/distribution/distribution/recruit/inviter`,
+    method: Method.GET,
+    params: { distributionId },
+  })
+}
+
 /** 提交招募申请 */
 export function submitRecruitApplication(data) {
   return http.request({

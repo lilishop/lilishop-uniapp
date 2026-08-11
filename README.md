@@ -1,34 +1,15 @@
 # Lilishop(PickMall) 开源商城系统
 
-[![GitHub Stars](https://img.shields.io/github/stars/hongyehuicheng/lilishop.svg?style=social&logo=github)](https://github.com/hongyehuicheng/lilishop)
+[![GitHub Stars](https://img.shields.io/github/stars/lilishop/lilishop.svg?style=social&logo=github)](https://github.com/lilishop/lilishop)
 [![Gitee Stars](https://gitee.com/beijing_hongye_huicheng/lilishop/badge/star.svg?theme=dark)](https://gitee.com/beijing_hongye_huicheng/lilishop)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](./LICENSE)
+[![Vue](https://img.shields.io/badge/Vue-3-brightgreen.svg)](https://vuejs.org/)
+[![uni-app](https://img.shields.io/badge/uni--app-Vue3-blue.svg)](https://uniapp.dcloud.net.cn/)
+
 <p align="right">
   简体中文 | <a href="./README.en.md">English</a>
 </p>
 
-## All-In-One 一键启动
-
-如果只是想快速体验完整商城，不需要分别部署后端、PC、商家端、运营端、IM Web、H5、MySQL 和 Redis。安装 Docker Desktop 后，可以直接下载 `docker` 仓库 `allinone-lite-mysql-redis` 分支的一键安装脚本，按提示输入 IP/域名、端口、密码和数据目录，即可启动单镜像单容器体验环境。
-
-macOS / Linux:
-
-```bash
-curl -fsSL https://gitee.com/beijing_hongye_huicheng/docker/raw/allinone-lite-mysql-redis/install/install-lilishop.sh -o install-lilishop.sh
-chmod +x install-lilishop.sh
-./install-lilishop.sh
-```
-
-Windows PowerShell:
-
-```powershell
-Invoke-WebRequest -Uri "https://gitee.com/beijing_hongye_huicheng/docker/raw/allinone-lite-mysql-redis/install/install-lilishop.ps1" -OutFile "install-lilishop.ps1"
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\install-lilishop.ps1
-```
-
-默认镜像：`ccr.ccs.tencentyun.com/lilishop/lilishop-all-in-one:lite`。启动后可访问买家 PC、商家端、运营端、IM Web 会话/消息页、uniapp H5 和后端 API。更多说明见 [docker/all-in-one 文档](https://gitee.com/beijing_hongye_huicheng/docker/tree/allinone-lite-mysql-redis/all-in-one)。
-
-All-In-One `lite` 是本地体验和演示形态：一个容器内包含应用、前端资源、H5、MariaDB、Redis 和本地文件存储。它不是生产高可用架构，也不内置 Elasticsearch、RocketMQ、XXL-Job、Kibana、Logstash 或 RocketMQ Dashboard；搜索、消息和定时任务逻辑在 lite 环境中使用 MySQL / Redis / 本地调度兼容实现。
 
 LILISHOP 是基于 Spring Boot / Spring Cloud / Vue / Uniapp 开发的 Java 开源商城系统，支持 B2B2C 多商户商城、小程序商城、微服务商城、直播电商、分销返佣、秒杀活动、Docker 私有化部署。
 
@@ -36,7 +17,7 @@ LILISHOP 是基于 Spring Boot / Spring Cloud / Vue / Uniapp 开发的 Java 开�
 
 - Java商城系统
 - 开源商城系统
-- SpringBoot商城系统
+- Spring Boot 4商城系统
 - SpringCloud微服务商城
 - B2B2C商城源码
 - 多商户商城系统
@@ -58,14 +39,15 @@ LILISHOP 是基于 Spring Boot / Spring Cloud / Vue / Uniapp 开发的 Java 开�
 ### 1. 项目简介
 
 **Lilishop** 是一款功能完善的B2B2C多商户商城系统，采用前后端分离架构，全端代码开源。
-后端基于 **SpringBoot4** 构建，具备高内聚、低耦合的特性，支持分布式部署。
+后端基于 **Spring Boot 4**（Java 21）构建，具备高内聚、低耦合的特性，支持分布式部署。
 前端覆盖PC、H5、小程序和APP，基于 **Vue** 和 **uni-app** 开发。
 
 -   **官方网站**: <https://pickmall.cn>
 -   **官方文档**: <https://docs.pickmall.cn>
--   **Gitee 仓库**: <https://gitee.com/beijing_hongye_huicheng/lilishop>
+-   **Gitee 仓库**: <https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp>
 -   **GitHub 仓库**: <https://github.com/lilishop/lilishop>
 
+本仓库为买家端 **H5 / 小程序 / APP** 源码（`lilishop-uniapp`）。
 
 ---
 
@@ -103,7 +85,7 @@ LILISHOP 是基于 Spring Boot / Spring Cloud / Vue / Uniapp 开发的 Java 开�
 [**部署文档 -> 环境准备**](https://docs.pickmall.cn/deply/deply.html)
 
 #### 数据库初始化
--   **推荐方式**: 使用项目提供的 `docker-compose` 配置，可自动完成数据库（MySQL, Redis, Elasticsearch等）的部署与初始化。
+-   **推荐方式**: 使用项目提供的 `docker-compose` 配置，可自动完成数据库（MySQL、Redis 等）的部署与初始化。
 -   **手动方式**: 如果您选择手动部署，SQL脚本位于以下地址。请确保获取与您代码版本一致的SQL文件。
     [**数据库脚本 (Gitee)**](https://gitee.com/beijing_hongye_huicheng/docker/tree/master/init/mysql)
 
@@ -120,15 +102,13 @@ LILISHOP 是基于 Spring Boot / Spring Cloud / Vue / Uniapp 开发的 Java 开�
 - H5 / 小程序 / APP：`lilishop-uniapp`
 - 部署、SQL、镜像与启动脚本：`docker`
 
-All-In-One 仅用于本地体验、演示或验证，不代表生产高可用部署架构。生产部署应按实际访问量、稳定性、监控、备份和扩缩容要求拆分数据库、缓存、搜索、消息、任务调度、前端静态资源和后端服务。
+---
 
 ### 6. 功能列表
 
 [功能清单](https://bdwx2tfwwt.feishu.cn/sheets/FFQKscQKDhUx60to1k9cbMngnYb?from=from_copylink)
 
-
-
-
+---
 
 ### 7. 开源与授权
 
@@ -145,6 +125,34 @@ All-In-One 仅用于本地体验、演示或验证，不代表生产高可用部
 我们欢迎任何形式的交流与贡献。在提问前，请先查阅 [官方文档](https://docs.pickmall.cn/) ，并参考 [《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/master/README-zh_CN.md) 以便高效沟通。
 
 -   **[在线客服](https://work.weixin.qq.com/kfid/kfc4d8dc24a73c15f44)**
--   **微信交流1群（已满）**
--   **微信交流2群**:
+-   **微信交流群**:
     ![微信群](https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/wechat.jpg)
+
+---
+
+### 9. 升级计划
+
+以下功能将陆续在后续版本中发布：✅ 已完成 · 🔜 规划中
+
+- ✅ 商品定时上下架
+- ✅ 商品分组
+- ✅ 会员分组
+- ✅ 商品虚拟销量
+- ✅ 专用发票（发票上传）
+- ✅ 置顶评论
+- ✅ 客户等级
+- ✅ 购物卡
+- ✅ 腾讯云-云直播
+- ✅ 统计：营业概况、商品概况、会员概况、积分分析、储值分析、营销概况、分销统计
+- ✅ 经营报表（店铺业绩报表、商品同比环比报表、销售订单明细报表、商品销售汇总报表）
+- ✅ 卡密商品
+- ✅ 二级分销
+- ✅ 定时任务管理
+- 🔜 主题色管理
+- 🔜 店铺结算汇总
+- 🔜 支付方式汇总
+- 🔜 结算台账
+- 🔜 钱包流水
+- 🔜 财务汇总
+- 🔜 微信小店对接
+- 🔜 抖店对接

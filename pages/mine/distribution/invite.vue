@@ -9,74 +9,81 @@
       <view class="retry-btn" @click="loadInviteCardSetting">重新加载</view>
     </view>
 
-    <view v-else class="card" :class="{ 'card--has-bg': hasBackground }">
-      <image
-        v-if="hasBackground"
-        class="card-bg"
-        :src="backgroundUrl"
-        mode="aspectFill"
-      />
-      <view class="card-content">
-        <view v-if="showMemberInfo" class="member-info">
-          <image
-            v-if="inviteContext.memberAvatar"
-            class="member-avatar"
-            :src="avatarUrl"
-            mode="aspectFill"
-          />
-          <view class="member-name" :style="textStyle">{{ inviteContext.memberName || '分销员' }}</view>
-        </view>
-
-        <view v-if="inviteContext.slogan" class="slogan" :style="textStyle">{{ inviteContext.slogan }}</view>
-
-        <view class="qr-wrap" @click="previewQrCode">
-          <view v-if="qrLoading" class="qr-state">
-            <text class="qr-state-text">{{ qrLoadingText }}</text>
-          </view>
-          <view v-else-if="qrError" class="qr-state">
-            <text class="qr-state-text">{{ qrError }}</text>
-            <view class="retry-btn small" @click.stop="loadQrCode">重新生成</view>
-          </view>
-          <image
-            v-else-if="qrImage"
-            class="qr-image"
-            :src="qrImage"
-            mode="aspectFit"
-            show-menu-by-longpress
-            @error="onQrImageError"
-          />
-        </view>
+    <template v-else>
+      <view v-if="qrLoading || posterComposing" class="card state-card">
+        <text class="state-text">{{ posterComposing ? '邀请卡合成中...' : qrLoadingText }}</text>
       </view>
-    </view>
 
-    <view v-if="!pageLoading && !pageError" class="footer-actions">
+      <view v-else-if="qrError || composeError" class="card state-card">
+        <text class="state-text">{{ composeError || qrError }}</text>
+        <view class="retry-btn" @click="retryGenerate">重新生成</view>
+      </view>
+
+      <image
+        v-else-if="posterImage"
+        class="poster-image"
+        :src="posterImage"
+        mode="widthFix"
+        show-menu-by-longpress
+        @click="previewPoster"
+      />
+    </template>
+
+    <view v-if="posterImage" class="footer-actions">
       <!-- #ifdef MP-WEIXIN -->
-      <button class="btn primary share-btn" open-type="share" :disabled="!qrImage">
+      <button class="btn primary share-btn" open-type="share">
         <text class="btn-text">微信分享</text>
       </button>
       <!-- #endif -->
-      <view class="hint-text">长按图片保存海报</view>
+      <view class="save-btn" @click="savePoster">保存海报</view>
+      <view class="hint-text">点击预览，长按或保存到相册</view>
     </view>
 
-    <canvas canvas-id="inviteQrCanvas" class="qr-canvas" />
+    <view class="canvas-hide">
+      <!-- #ifdef MP-WEIXIN -->
+      <canvas type="2d" id="inviteQrCanvas" class="qr-canvas" />
+      <canvas type="2d" id="inviteComposeCanvas" :style="composeCanvasStyle" />
+      <!-- #endif -->
+      <!-- #ifndef MP-WEIXIN -->
+      <canvas canvas-id="inviteQrCanvas" class="qr-canvas" />
+      <canvas canvas-id="inviteComposeCanvas" id="inviteComposeCanvas" :style="composeCanvasStyle" />
+      <!-- #endif -->
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, getCurrentInstance } from 'vue'
-import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
+import { onLoad, onReady, onShareAppMessage } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { getInviteCard } from '@/api/distribution'
 import { getMpCode } from '@/api/goods'
 import { parseGoodsImageUrl } from '@/utils/filters.js'
+import {
+  POSTER_WIDTH,
+  POSTER_HEIGHT,
+  composeDistributionPoster,
+  savePosterToAlbum,
+} from '@/utils/distributionPosterCanvas'
 
 const DEFAULT_JOIN_PAGE = 'pages/mine/distribution/join'
 const QR_CANVAS_SIZE = 280
+const COMPOSE_CANVAS_SELECTOR = 'inviteComposeCanvas'
+
+function getCanvasPixelRatio() {
+  return wx.getWindowInfo?.().pixelRatio || wx.getDeviceInfo?.().pixelRatio || 2
+}
 
 const instance = getCurrentInstance()
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
+const composeCanvasStyle = {
+  width: `${POSTER_WIDTH}px`,
+  height: `${POSTER_HEIGHT}px`,
+}
+
+let canvas2dNode: any = null
 
 const pageLoading = ref(true)
 const pageLoadingText = ref('加载邀请卡设置...')
@@ -85,18 +92,22 @@ const qrLoading = ref(false)
 const qrLoadingText = ref('葵花码生成中...')
 const qrError = ref('')
 const qrImage = ref('')
+const posterImage = ref('')
+const posterComposing = ref(false)
+const composeError = ref('')
 const inviteContext = ref<Record<string, any>>({})
 
-const showMemberInfo = computed(() => inviteContext.value.memberInfoVisible !== false)
-const textStyle = computed(() => ({
-  color: inviteContext.value.textColor || '#1f2a44',
-}))
 const avatarUrl = computed(() => parseGoodsImageUrl(inviteContext.value.memberAvatar))
 const backgroundUrl = computed(() => parseGoodsImageUrl(inviteContext.value.backgroundImage))
-const hasBackground = computed(() => !!backgroundUrl.value)
 
 onLoad(() => {
   loadInviteCardSetting()
+})
+
+onReady(() => {
+  // #ifdef MP-WEIXIN
+  initCanvas2d()
+  // #endif
 })
 
 onShareAppMessage(() => {
@@ -106,7 +117,7 @@ onShareAppMessage(() => {
   return {
     title: ctx.slogan || '邀请您成为我的下级分销员',
     path: `/${sharePage}${query}`,
-    imageUrl: qrImage.value || '',
+    imageUrl: posterImage.value || qrImage.value || '',
   }
 })
 
@@ -134,7 +145,65 @@ function writeBase64ToTemp(base64: string): Promise<string> {
   })
 }
 
-function exportQrByCanvas(qrPath: string): Promise<string> {
+function initCanvas2d() {
+  return new Promise<void>((resolve, reject) => {
+    if (canvas2dNode) {
+      resolve()
+      return
+    }
+    uni
+      .createSelectorQuery()
+      .in(instance?.proxy)
+      .select('#inviteQrCanvas')
+      .fields({ node: true, size: true })
+      .exec((res: any[]) => {
+        const node = res?.[0]?.node
+        if (!node) {
+          reject(new Error('canvas 节点获取失败'))
+          return
+        }
+        canvas2dNode = node
+        const dpr = getCanvasPixelRatio()
+        node.width = QR_CANVAS_SIZE * dpr
+        node.height = QR_CANVAS_SIZE * dpr
+        resolve()
+      })
+  })
+}
+
+function exportQrByCanvas2d(qrPath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const canvas = canvas2dNode
+    const ctx = canvas.getContext('2d')
+    const dpr = getCanvasPixelRatio()
+    ctx.scale(dpr, dpr)
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0, 0, QR_CANVAS_SIZE, QR_CANVAS_SIZE)
+
+    const img = canvas.createImage()
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, QR_CANVAS_SIZE, QR_CANVAS_SIZE)
+      setTimeout(() => {
+        uni.canvasToTempFilePath(
+          {
+            canvas,
+            width: QR_CANVAS_SIZE,
+            height: QR_CANVAS_SIZE,
+            destWidth: QR_CANVAS_SIZE,
+            destHeight: QR_CANVAS_SIZE,
+            success: (file: any) => resolve(file.tempFilePath),
+            fail: () => reject(new Error('葵花码导出失败')),
+          },
+          instance?.proxy
+        )
+      }, 300)
+    }
+    img.onerror = () => reject(new Error('葵花码图片加载失败'))
+    img.src = qrPath
+  })
+}
+
+function exportQrByCanvasLegacy(qrPath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const ctx = uni.createCanvasContext('inviteQrCanvas', instance?.proxy)
     ctx.setFillStyle('#ffffff')
@@ -159,9 +228,49 @@ function exportQrByCanvas(qrPath: string): Promise<string> {
   })
 }
 
+async function exportQrByCanvas(qrPath: string): Promise<string> {
+  // #ifdef MP-WEIXIN
+  await initCanvas2d()
+  return exportQrByCanvas2d(qrPath)
+  // #endif
+  // #ifndef MP-WEIXIN
+  return exportQrByCanvasLegacy(qrPath)
+  // #endif
+}
+
 async function resolveQrDisplay(result: string) {
   const tempPath = await writeBase64ToTemp(result)
   qrImage.value = await exportQrByCanvas(tempPath)
+}
+
+async function composePoster() {
+  if (!qrImage.value) return
+
+  posterComposing.value = true
+  composeError.value = ''
+  posterImage.value = ''
+
+  try {
+    const ctx = inviteContext.value
+    posterImage.value = await composeDistributionPoster(
+      COMPOSE_CANVAS_SELECTOR,
+      instance?.proxy || instance,
+      {
+        backgroundImage: backgroundUrl.value,
+        memberAvatar: avatarUrl.value,
+        memberName: ctx.memberName || '分销员',
+        slogan: ctx.slogan || '',
+        qrImage: qrImage.value,
+        textColor: ctx.textColor || '#1f2a44',
+        showMemberInfo: ctx.memberInfoVisible !== false,
+      }
+    )
+  } catch (error: any) {
+    console.error('compose invite card failed', error)
+    composeError.value = error?.message || '邀请卡合成失败，请稍后重试'
+  } finally {
+    posterComposing.value = false
+  }
 }
 
 async function loadInviteCardSetting() {
@@ -169,7 +278,9 @@ async function loadInviteCardSetting() {
   pageLoadingText.value = '加载邀请卡设置...'
   pageError.value = ''
   qrImage.value = ''
+  posterImage.value = ''
   qrError.value = ''
+  composeError.value = ''
 
   try {
     const res = await getInviteCard()
@@ -210,6 +321,8 @@ async function loadQrCode() {
   qrLoadingText.value = '葵花码生成中...'
   qrError.value = ''
   qrImage.value = ''
+  posterImage.value = ''
+  composeError.value = ''
 
   try {
     const ctx = inviteContext.value
@@ -222,6 +335,7 @@ async function loadQrCode() {
     }
 
     await resolveQrDisplay(codeRes.data.result)
+    await composePoster()
   } catch (error: any) {
     console.error('load invite qr code failed', error)
     qrError.value = error?.message || '葵花码生成失败，请稍后重试'
@@ -230,17 +344,24 @@ async function loadQrCode() {
   }
 }
 
-function onQrImageError() {
-  qrError.value = '葵花码图片加载失败'
-  qrImage.value = ''
+function retryGenerate() {
+  if (qrImage.value && composeError.value) {
+    composePoster()
+    return
+  }
+  loadQrCode()
 }
 
-function previewQrCode() {
-  if (!qrImage.value) return
+function previewPoster() {
+  if (!posterImage.value) return
   uni.previewImage({
-    current: qrImage.value,
-    urls: [qrImage.value],
+    current: posterImage.value,
+    urls: [posterImage.value],
   })
+}
+
+function savePoster() {
+  savePosterToAlbum(posterImage.value)
 }
 </script>
 
@@ -262,7 +383,8 @@ function previewQrCode() {
   font-size: 28rpx;
 }
 
-.retry-btn {
+.retry-btn,
+.save-btn {
   display: inline-block;
   margin-top: 24rpx;
   padding: 12rpx 40rpx;
@@ -272,107 +394,24 @@ function previewQrCode() {
   font-size: 26rpx;
 }
 
-.retry-btn.small {
-  margin-top: 16rpx;
-  padding: 8rpx 28rpx;
-  font-size: 24rpx;
-}
-
 .card {
   position: relative;
   background: #fff;
   border-radius: 16rpx;
   overflow: hidden;
-  min-height: 720rpx;
+  aspect-ratio: 630 / 1000;
 }
 
-.card--has-bg {
-  background: transparent;
+.state-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.card-bg {
-  position: absolute;
-  left: 0;
-  top: 0;
+.poster-image {
   width: 100%;
-  height: 100%;
-  z-index: 0;
-}
-
-.card-content {
-  position: relative;
-  z-index: 1;
-  padding: 32rpx 24rpx;
-  text-align: center;
-}
-
-.card--has-bg .card-content {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.member-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.member-avatar {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 50%;
-  margin-bottom: 16rpx;
-  border: 2rpx solid rgba(255, 255, 255, 0.8);
-}
-
-.member-name {
-  font-size: 34rpx;
-  font-weight: bold;
-}
-
-.slogan {
-  margin-top: 12rpx;
-  font-size: 26rpx;
-  line-height: 1.6;
-  padding: 0 16rpx;
-}
-
-.qr-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 32rpx;
-}
-
-.qr-state {
-  width: 420rpx;
-  height: 420rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.92);
   border-radius: 16rpx;
-}
-
-.qr-state-text {
-  color: #999;
-  font-size: 26rpx;
-  padding: 0 24rpx;
-  text-align: center;
-}
-
-.qr-image {
-  width: 420rpx;
-  height: 420rpx;
-  background: #fff;
-  border-radius: 16rpx;
-}
-
-.qr-canvas {
-  position: fixed;
-  left: -9999px;
-  top: -9999px;
-  width: 280px;
-  height: 280px;
+  display: block;
 }
 
 .footer-actions {
@@ -416,10 +455,31 @@ function previewQrCode() {
   font-size: 28rpx;
 }
 
+.save-btn {
+  display: block;
+  width: 100%;
+  margin-top: 24rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+
 .hint-text {
   margin-top: 24rpx;
   color: #b3b3b3;
   font-size: 24rpx;
   text-align: center;
+}
+
+.canvas-hide {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.qr-canvas {
+  width: 280px;
+  height: 280px;
 }
 </style>

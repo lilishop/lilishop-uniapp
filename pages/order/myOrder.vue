@@ -292,18 +292,9 @@ function waitPay(val: any) {
 
 function pay(val: any) {
 	if (val.sn) {
-		// #ifdef MP-WEIXIN
-		new LiLiWXPay({
-			sn: val.sn,
-			price: val.flowPrice,
-			orderType: 'ORDER',
-		}).pay()
-		// #endif
-		// #ifndef MP-WEIXIN
 		uni.navigateTo({
 			url: '/pages/cart/payment/payOrder?order_sn=' + val.sn,
 		})
-		// #endif
 	}
 }
 

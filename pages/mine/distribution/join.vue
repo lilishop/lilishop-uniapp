@@ -4,7 +4,16 @@
     <view v-else-if="!plan">
       <view class="empty">暂未开放线上招募</view>
     </view>
-    <view v-else class="page-body" :class="{ 'with-footer': showManualApply || isApplyPending }">
+    <view v-else class="page-body" :class="{ 'with-footer': showLoginFooter || showManualApply || isApplyPending }">
+      <!-- 邀请人信息（来自图文邀请卡） -->
+      <view class="inviter-header" v-if="showInviterHeader">
+        <image class="inviter-avatar" :src="inviterAvatar" mode="aspectFill" />
+        <view class="inviter-meta">
+          <view class="inviter-label">邀请您加入</view>
+          <view class="inviter-name">{{ inviterName }}</view>
+        </view>
+      </view>
+
       <!-- 招募海报 -->
       <view class="section poster-section" v-if="showPoster">
         <image
@@ -22,7 +31,9 @@
       <!-- 加入条件 -->
       <view class="section" v-if="hasJoinCondition">
         <view class="title">加入条件</view>
-        <view class="condition-tip">满足以下条件后可申请成为分销员</view>
+        <view class="condition-tip">
+          {{ isUserLoggedIn ? '满足以下条件后可申请成为分销员' : '登录后可查看您的达标进度并申请成为分销员' }}
+        </view>
 
         <view class="condition-item" v-if="plan.requireSelfPurchaseAmount">
           <view class="condition-head">
@@ -87,7 +98,14 @@
       </view>
     </view>
 
-    <view class="apply-footer-fixed" v-if="showManualApply || isApplyPending">
+    <view class="apply-footer-fixed" v-if="showLoginFooter">
+      <view class="apply-footer-card">
+        <view class="login-tip">登录后即可查看加入条件并申请成为分销员</view>
+        <view class="submit" @click="goLogin">立即登录</view>
+      </view>
+    </view>
+
+    <view class="apply-footer-fixed" v-else-if="showManualApply || isApplyPending">
       <view class="apply-footer-card">
         <view class="agree" v-if="showManualApply" @click="agreed = !agreed">
           <checkbox :checked="agreed" @click.stop="agreed = !agreed" />
@@ -148,8 +166,13 @@ import { ref, reactive, computed } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
-import { getRecruitPage, getRecruitProgress, submitRecruitApplication } from '@/api/distribution'
-import { tipsToLogin } from '@/utils/filters.js'
+import storage from '@/utils/storage.js'
+import config from '@/config/config'
+import { parseGoodsImageUrl, tipsToLogin } from '@/utils/filters.js'
+import { resolveRecruitDistributionIdFromScene } from '@/utils/distributionBind.js'
+import { getRecruitPage, getRecruitProgress, getRecruitInviter, submitRecruitApplication } from '@/api/distribution'
+
+const defaultAvatar = config.defaultUserPhoto
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -166,6 +189,9 @@ const agreementVisible = ref(false)
 const applyFormVisible = ref(false)
 const formInfoCompleted = ref(false)
 const fieldErrors = reactive<Record<string, string>>({})
+const inviterInfo = ref<any>(null)
+
+const isUserLoggedIn = computed(() => !!storage.getAccessToken())
 
 const plan = computed(() => pageInfo.value.plan || null)
 const fields = computed(() => pageInfo.value.fields || [])
@@ -219,12 +245,25 @@ const isManualApply = computed(() => {
   return (plan.value?.applyMode || 'MANUAL') === 'MANUAL'
 })
 
+const showLoginFooter = computed(() => {
+  return !!plan.value && !isUserLoggedIn.value && !loading.value
+})
+
+const showInviterHeader = computed(() => {
+  if (!recruitToken.value) return false
+  const info = inviterInfo.value
+  return !!(info?.memberName || info?.memberAvatar)
+})
+
+const inviterName = computed(() => inviterInfo.value?.memberName || '分销员')
+const inviterAvatar = computed(() => parseGoodsImageUrl(inviterInfo.value?.memberAvatar) || defaultAvatar)
+
 const showManualApply = computed(() => {
-  return !showApplyResult.value && conditionsMet.value && isManualApply.value
+  return isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && isManualApply.value
 })
 
 const showAutoApplyTip = computed(() => {
-  return !showApplyResult.value && conditionsMet.value && plan.value?.applyMode === 'AUTO'
+  return isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && plan.value?.applyMode === 'AUTO'
 })
 
 const showApplyForm = computed(() => {
@@ -250,9 +289,47 @@ const consumeCountOk = computed(() => {
 })
 
 
-onLoad((query) => {
-  recruitToken.value = query?.token || query?.distributionId || ''
+onLoad(async (query) => {
+  let token = query?.token || query?.distributionId || ''
+  if (!token && query?.scene) {
+    token = await resolveRecruitDistributionIdFromScene(query.scene)
+  }
+  recruitToken.value = token ? String(token) : ''
+  if (recruitToken.value) {
+    loadInviterInfo(recruitToken.value)
+  }
 })
+
+function loadInviterInfo(distributionId: string) {
+  getRecruitInviter(distributionId).then((res) => {
+    if (res.data?.success) {
+      inviterInfo.value = res.data.result || null
+    }
+  })
+}
+
+function emptyProgress() {
+  return {
+    satisfied: false,
+    currentSelfPurchaseAmount: 0,
+    currentConsumeCount: 0,
+    purchaseGoodsSatisfied: false,
+  }
+}
+
+function hasConditionalJoin(planData: any) {
+  if (!planData || planData.joinConditionType !== 'CONDITIONAL') return false
+  return !!(planData.requireSelfPurchaseAmount || planData.requireConsumeCount || planData.requirePurchaseGoods)
+}
+
+function goLogin() {
+  // #ifdef MP-WEIXIN
+  uni.navigateTo({ url: '/pages/passport/wechatMPLogin' })
+  // #endif
+  // #ifndef MP-WEIXIN
+  uni.navigateTo({ url: '/pages/passport/login' })
+  // #endif
+}
 
 onShow(() => {
   loadPageData()
@@ -265,10 +342,20 @@ function loadPageData() {
   submitApplicationStatus.value = ''
   formInfoCompleted.value = false
   Object.keys(fieldErrors).forEach((key) => delete fieldErrors[key])
-  Promise.all([getRecruitPage(), getRecruitProgress()])
-    .then(([pageRes, progressRes]) => {
-      pageInfo.value = pageRes.data?.result || {}
-      progress.value = progressRes.data?.result || null
+  const tasks: Promise<any>[] = [getRecruitPage()]
+  if (isUserLoggedIn.value) {
+    tasks.push(getRecruitProgress())
+  }
+  Promise.all(tasks)
+    .then((results) => {
+      const pageRes = results[0]
+      const pageResult = pageRes.data?.result || {}
+      pageInfo.value = pageResult
+      if (results.length > 1) {
+        progress.value = results[1].data?.result || emptyProgress()
+      } else {
+        progress.value = hasConditionalJoin(pageResult.plan) ? emptyProgress() : { satisfied: true }
+      }
     })
     .finally(() => {
       loading.value = false
@@ -399,6 +486,50 @@ function submit() {
   color: #999;
   padding: 80rpx 0;
   font-size: 28rpx;
+}
+
+.inviter-header {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+}
+
+.inviter-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #f5f5f5;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.inviter-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.inviter-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.inviter-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.4;
+}
+
+.login-tip {
+  font-size: 26rpx;
+  color: #666;
+  text-align: center;
+  margin-bottom: 24rpx;
+  line-height: 1.5;
 }
 
 .section {

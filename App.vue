@@ -12,6 +12,7 @@ import {
 } from '@/utils/theme'
 import { onLaunch, onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
+import { handleAppLaunchScene } from '@/utils/distributionBind.js'
 
 const store = useStore()
 
@@ -21,6 +22,7 @@ wx.onAppRoute(() => {})
 
 onLaunch((val) => {
   initTheme()
+  handleAppLaunchScene(val)
   if (val?.query?.inviter) {
     storage.setInviter(val.query.inviter)
   }
