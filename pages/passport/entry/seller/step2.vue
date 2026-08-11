@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper" :style="themeStyle">
-    <up-form label-position="top" :model="form" ref="uForm">
+    <up-form label-position="top" :model="form" :rules="rules" ref="uForm">
       <div class="column">
         <div class="flag-title light-color">基础信息</div>
         <up-form-item
@@ -48,8 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
-import { onReady } from '@dcloudio/uni-app'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useStore } from '@/store'
 import { applySecond } from '@/api/entry'
 import { getThemeStyle } from '@/utils/theme'
@@ -96,24 +95,25 @@ watch(
   { deep: true, immediate: true }
 )
 
-onReady(() => {
+onMounted(() => {
   uForm.value?.setRules(rules)
 })
 
-function validatorStep2Form() {
-  uForm.value?.validate(async (valid: boolean) => {
-    if (valid) {
-      const params = { ...form }
-      const res = await applySecond(params)
-      if (res.data.success) {
-        uni.showToast({
-          title: '提交成功!',
-          icon: 'none',
-        })
-        emit('callback')
-      }
-    }
-  })
+async function validatorStep2Form() {
+  try {
+    await uForm.value?.validate()
+  } catch {
+    return
+  }
+  const params = { ...form }
+  const res = await applySecond(params)
+  if (res.data.success) {
+    uni.showToast({
+      title: '提交成功!',
+      icon: 'none',
+    })
+    emit('callback')
+  }
 }
 </script>
 <style lang="scss">

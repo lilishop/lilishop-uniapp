@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper" :style="themeStyle">
-    <up-form label-position="top" :model="form" ref="uForm">
+    <up-form label-position="top" :model="form" :rules="rules" ref="uForm">
       <div class="column">
         <div class="flag-title light-color">基础信息</div>
         <up-form-item
@@ -109,11 +109,14 @@
     >
     </m-city>
 
-    <u-select
+    <u-picker
       v-model:show="enableCategory"
+      :columns="[categoryList]"
+      keyName="label"
+      valueName="value"
+      title="店铺经营类目"
       @confirm="confirmCategory"
-      :list="categoryList"
-    ></u-select>
+    ></u-picker>
 
     <uniMap v-if="mapFlag" @close="closeMap" @callback="callBackAddress" />
   </div>
@@ -121,7 +124,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { onReady } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { applyThird } from '@/api/entry'
 import { getCategoryList } from '@/api/goods'
@@ -197,11 +199,8 @@ watch(
   { deep: true, immediate: true }
 )
 
-onReady(() => {
-  uForm.value?.setRules(rules)
-})
-
 onMounted(() => {
+  uForm.value?.setRules(rules)
   fetchCategoryList()
 })
 
@@ -266,9 +265,13 @@ async function requestAndroidPermission(permisionID: string) {
   }
 }
 
-function confirmCategory(val: any[]) {
-  form.goodsManagementCategory = val[0].value
-  goodsManagementCategory.value = val[0].label
+function confirmCategory(val: any) {
+  const selected = val?.value?.[0] || val?.[0]
+  if (!selected) {
+    return
+  }
+  form.goodsManagementCategory = selected.value
+  goodsManagementCategory.value = selected.label
 }
 
 async function fetchCategoryList() {
@@ -324,22 +327,23 @@ function showCategory() {
   enableCategory.value = true
 }
 
-function validatorStep3Form() {
-  uForm.value?.validate(async (valid: boolean) => {
-    if (valid) {
-      const params = { ...form }
-      params.storeLogo = params.storeLogo.toString()
-      params.storeAddressIdPath = params.storeAddressIdPath.toString()
-      const res = await applyThird(params)
-      if (res.data.success) {
-        uni.showToast({
-          title: '提交成功!',
-          icon: 'none',
-        })
-        emit('callback')
-      }
-    }
-  })
+async function validatorStep3Form() {
+  try {
+    await uForm.value?.validate()
+  } catch {
+    return
+  }
+  const params = { ...form }
+  params.storeLogo = params.storeLogo.toString()
+  params.storeAddressIdPath = params.storeAddressIdPath.toString()
+  const res = await applyThird(params)
+  if (res.data.success) {
+    uni.showToast({
+      title: '提交成功!',
+      icon: 'none',
+    })
+    emit('callback')
+  }
 }
 </script>
 <style lang="scss">

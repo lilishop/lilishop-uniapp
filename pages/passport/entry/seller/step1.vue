@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper" :style="themeStyle">
-    <up-form label-position="top" :model="form" ref="uForm">
+    <up-form label-position="top" :model="form" :rules="rules" ref="uForm">
       <div class="column">
         <div class="flag-title light-color">基础信息</div>
         <up-form-item
@@ -124,6 +124,7 @@
               :auto-upload="false"
               width="200"
               @afterRead="onUploadAfterRead($event, 'licencePhoto', 'licencePhotoFileList')"
+              @delete="onUploadDelete($event, 'licencePhoto', 'licencePhotoFileList')"
               :max-count="1"
             ></u-upload>
 
@@ -161,6 +162,7 @@
               :auto-upload="false"
               width="200"
               @afterRead="onUploadAfterRead($event, 'legalPhoto', 'legalPhotoFileList')"
+              @delete="onUploadDelete($event, 'legalPhoto', 'legalPhotoFileList')"
               :max-count="1"
             ></u-upload>
             <u-upload
@@ -168,6 +170,7 @@
               :auto-upload="false"
               width="200"
               @afterRead="onUploadAfterRead($event, 'legalPhoto', 'legalPhotoBackFileList')"
+              @delete="onUploadDelete($event, 'legalPhoto', 'legalPhotoBackFileList')"
               :max-count="1"
             ></u-upload>
           </div>
@@ -187,8 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, getCurrentInstance } from 'vue'
-import { onReady } from '@dcloudio/uni-app'
+import { ref, reactive, computed, watch, getCurrentInstance, onMounted } from 'vue'
 import { useStore } from '@/store'
 import { applyFirst } from '@/api/entry'
 import MCity from '@/components/m-city/m-city.vue'
@@ -278,8 +280,10 @@ const rules = {
   legalPhoto: [
     { required: true, message: '请上传法人身份证照片' },
     {
-      validator: (_rule: unknown, value: string | string[]) =>
-        Array.isArray(value) ? value.length === 2 : false,
+      validator: (_rule: unknown, value: string | string[]) => {
+        const urls = normalizePhotoUrls(value)
+        return urls.length === 2
+      },
       message: '请上传法人身份证正反照片',
       trigger: ['change', 'blur'],
     },
@@ -297,24 +301,53 @@ watch(
   (val) => {
     if (val) {
       Object.assign(form, val)
-      const judgeDeepPhoto = ['legalPhoto', 'licencePhoto'] as const
-      const fileListMap = {
-        legalPhoto: legalPhotoFileList,
-        licencePhoto: licencePhotoFileList,
-      }
-      judgeDeepPhoto.forEach((key) => {
-        if (form[key]) {
-          form[key].split(',').forEach((item: string) => {
-            fileListMap[key].value.push({ url: item })
-          })
-        }
-      })
+      restorePhotoFields(val)
     }
   },
   { deep: true }
 )
 
-onReady(() => {
+function normalizePhotoUrls(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean)
+  }
+  if (typeof value === 'string' && value) {
+    return value.split(',').map((item) => item.trim()).filter(Boolean)
+  }
+  return []
+}
+
+function createUploadedFileItem(url: string) {
+  return {
+    url,
+    status: 'success',
+  }
+}
+
+function restorePhotoFields(data: Record<string, any>) {
+  licencePhotoFileList.value = []
+  legalPhotoFileList.value = []
+  legalPhotoBackFileList.value = []
+
+  const licenceUrls = normalizePhotoUrls(data.licencePhoto)
+  if (licenceUrls.length) {
+    licencePhotoFileList.value = licenceUrls.map(createUploadedFileItem)
+    form.licencePhoto = licenceUrls
+  }
+
+  const legalUrls = normalizePhotoUrls(data.legalPhoto)
+  if (legalUrls.length) {
+    legalPhotoFileList.value = legalUrls[0]
+      ? [createUploadedFileItem(legalUrls[0])]
+      : []
+    legalPhotoBackFileList.value = legalUrls[1]
+      ? [createUploadedFileItem(legalUrls[1])]
+      : []
+    form.legalPhoto = legalUrls
+  }
+}
+
+onMounted(() => {
   uForm.value?.setRules(rules)
 })
 
@@ -334,15 +367,38 @@ function onUploadAfterRead(
   }
 
   handleUploadAfterRead(event, fileListMap[fileListKey].value, () => {
-    if (key === 'legalPhoto') {
-      form[key] = [
-        ...getUploadedUrls(legalPhotoFileList.value),
-        ...getUploadedUrls(legalPhotoBackFileList.value),
-      ]
-    } else {
-      form[key] = getUploadedUrls(fileListMap[fileListKey].value)
-    }
+    syncUploadFormValue(key)
   })
+}
+
+function onUploadDelete(
+  event: { index: number },
+  key: string,
+  fileListKey: 'licencePhotoFileList' | 'legalPhotoFileList' | 'legalPhotoBackFileList'
+) {
+  const fileListMap = {
+    licencePhotoFileList,
+    legalPhotoFileList,
+    legalPhotoBackFileList,
+  }
+  const list = fileListMap[fileListKey].value
+  if (event.index >= 0 && event.index < list.length) {
+    list.splice(event.index, 1)
+  }
+  syncUploadFormValue(key)
+}
+
+function syncUploadFormValue(key: string) {
+  if (key === 'legalPhoto') {
+    form[key] = [
+      ...getUploadedUrls(legalPhotoFileList.value),
+      ...getUploadedUrls(legalPhotoBackFileList.value),
+    ]
+    return
+  }
+  if (key === 'licencePhoto') {
+    form[key] = getUploadedUrls(licencePhotoFileList.value)
+  }
 }
 
 function getPickerParentValue(e: any[]) {
@@ -366,26 +422,28 @@ function showPicker() {
   cityPicker.value?.show()
 }
 
-function validatorStep1Form() {
-  uForm.value?.validate(async (valid: boolean) => {
-    if (valid) {
-      const params = { ...form }
+async function validatorStep1Form() {
+  try {
+    await uForm.value?.validate()
+  } catch {
+    return
+  }
 
-      params.legalPhoto = params.legalPhoto.toString()
-      params.licencePhoto = params.licencePhoto.toString()
-      params.companyAddressIdPath = params.companyAddressIdPath.toString()
-      delete params.complexAddress
+  const params = { ...form }
 
-      const res = await applyFirst(params)
-      if (res.data.success) {
-        uni.showToast({
-          title: '提交成功!',
-          icon: 'none',
-        })
-        emit('callback')
-      }
-    }
-  })
+  params.legalPhoto = params.legalPhoto.toString()
+  params.licencePhoto = params.licencePhoto.toString()
+  params.companyAddressIdPath = params.companyAddressIdPath.toString()
+  delete params.complexAddress
+
+  const res = await applyFirst(params)
+  if (res.data.success) {
+    uni.showToast({
+      title: '提交成功!',
+      icon: 'none',
+    })
+    emit('callback')
+  }
 }
 </script>
 <style lang="scss">
@@ -399,6 +457,21 @@ page {
 
 .wrapper {
   @include seller-entry-form;
+
+  :deep(.u-upload__deletable) {
+    width: 24rpx;
+    height: 24rpx;
+    border-bottom-left-radius: 24rpx;
+  }
+
+  :deep(.u-upload__deletable__icon) {
+    transform: scale(1);
+  }
+
+  :deep(.u-upload__deletable .u-icon__icon) {
+    font-size: 16rpx !important;
+    line-height: 16rpx !important;
+  }
 }
 
 .submit {
