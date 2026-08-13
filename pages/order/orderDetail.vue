@@ -8,26 +8,24 @@
       </div>
 
     </div>
-    <!-- 物流信息 -->
-    <view class="info-view logistics-view">
-
+    <!-- 物流/配送信息 -->
+    <view class="info-view logistics-view" v-if="showDeliveryInfoBlock">
       <view class="logistics-List">
         <view class="verificationCode" v-if="order.verificationCode">
           券码： {{ order.orderStatus == 'CANCELLED' ?  '已失效' : order.verificationCode }}
         </view>
-		<view @click="handleClickDeliver()" class="info-view logi-view"  v-else-if="orderPackage && orderPackage.length">
-		  <view class="verificationCode">
-		      当前订单有 {{ orderPackage.length }} 个包裹快递
-		  </view>
-		  <div>
-		      点击此处查看
-		  </div>
-		</view>
-        <view v-else class="logistics-List-title">
-          {{ '暂无物流信息' }}
+        <view
+          v-else-if="allowOperation.showLogistics"
+          @click="handleClickDeliver()"
+          class="info-view logi-view"
+        >
+          <view class="verificationCode">{{ deliveryEntryText }}</view>
+          <div>点击此处查看</div>
+        </view>
+        <view v-else-if="order.orderStatus === 'UNDELIVERED'" class="logistics-List-title">
+          等待商家发货
         </view>
       </view>
-
     </view>
     <!-- 地址 -->
     <view class="info-view" v-if="order.deliveryMethod === 'LOGISTICS' && order.orderType !== 'VIRTUAL'">
@@ -131,7 +129,7 @@
           <view class="customer-service"
             v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true"
             @click="onCancel(order.sn)">取消订单</view>
-          <view class="customer-service" v-if="order.orderStatus == 'DELIVERED'" @click="onLogistics(order)">查看物流</view>
+          <view class="customer-service" v-if="allowOperation.showLogistics" @click="handleClickDeliver()">查看物流</view>
           <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderPromotionType == 'PINTUAN'"
             @click="ByUserMessage(order)">查看拼团信息</view>
             <view class="customer-service"
@@ -206,7 +204,7 @@
           >立即付款</view>
           <view
             class="pay-btn"
-            v-if="order.orderStatus == 'DELIVERED'"
+            v-if="allowOperation.rog"
             @click="onRog(order.sn)"
           >确认收货</view>
           <view
@@ -262,6 +260,11 @@ import {
 	talkIm,
 	callPhone,
 } from '@/utils/filters.js'
+import {
+	shouldLoadDelivery,
+	getDeliveryEntryText,
+	getOrderAllowOperation,
+} from '@/utils/orderDelivery.js'
 
 const store = useStore()
 const lightColor = computed(() => store.getters.lightColor)
@@ -279,7 +282,6 @@ const orderStatusMap: Record<string, { title: string; value?: string }> = {
 	TAKE: { title: '待核验' },
 }
 
-const logisticsList = ref<any>('')
 const shareFlag = ref(false)
 const order = ref<Record<string, any>>({})
 const cancelShow = ref(false)
@@ -290,7 +292,28 @@ const sn = ref('')
 const cancelList = ref<any[]>([])
 const rogShow = ref(false)
 const reason = ref('')
-const orderPackage = ref<any>('')
+const orderPackage = ref<any[]>([])
+const legacyTraces = ref<any>(null)
+
+const allowOperation = computed(() =>
+	getOrderAllowOperation(order.value, orderDetail.value)
+)
+
+const showDeliveryInfoBlock = computed(() => {
+	if (order.value.orderType === 'VIRTUAL') return false
+	if (order.value.deliveryMethod === 'SELF_PICK_UP') return false
+	if (order.value.verificationCode) return true
+	if (order.value.deliveryMethod === 'LOGISTICS') return true
+	return false
+})
+
+const deliveryEntryText = computed(() =>
+	getDeliveryEntryText(
+		orderPackage.value,
+		order.value.orderStatus,
+		legacyTraces.value
+	)
+)
 
 function hideLoadingIfNeeded() {
 	if (store.state.isShowToast) uni.hideLoading()
@@ -302,12 +325,27 @@ onLoad((options) => {
 	loadData(orderSnParam)
 })
 
-function getOrderPackage() {
-	getPackage(order.value.sn).then((res) => {
-		if (res.data.success) {
-			orderPackage.value = res.data.result
+async function loadDelivery(orderData: Record<string, any>) {
+	orderPackage.value = []
+	legacyTraces.value = null
+
+	if (!shouldLoadDelivery(orderData)) {
+		return
+	}
+
+	try {
+		const packageResponse = await getPackage(orderData.sn)
+		const packages = packageResponse?.data?.result || []
+		if (packages.length) {
+			orderPackage.value = packages
+			return
 		}
-	})
+
+		const traceResponse = await getExpress(orderData.sn)
+		legacyTraces.value = traceResponse?.data?.result || null
+	} catch {
+		// 配送信息加载失败时不阻断订单详情展示
+	}
 }
 
 function handleClickDeliver() {
@@ -347,12 +385,6 @@ function goToShopPage(val: any) {
 	})
 }
 
-function loadLogistics(orderSnParam: string) {
-	getExpress(orderSnParam).then((res) => {
-		logisticsList.value = res.data.result
-	})
-}
-
 function inviteGroup() {
 	shareFlag.value = true
 }
@@ -371,15 +403,15 @@ function ByUserMessage(orderItem: any) {
 
 function loadData(orderSnParam: string) {
 	uni.showLoading({ title: '加载中' })
-	getOrderDetail(orderSnParam).then((res) => {
+	getOrderDetail(orderSnParam).then(async (res) => {
 		const result = res.data.result
 		order.value = result.order
 		orderGoodsList.value = result.orderItems
 		orderDetail.value = result
-		if (order.value.deliveryMethod === 'LOGISTICS') {
-			loadLogistics(orderSnParam)
-			getOrderPackage()
+		if (!order.value.allowOperationVO && result.allowOperationVO) {
+			order.value.allowOperationVO = result.allowOperationVO
 		}
+		await loadDelivery(order.value)
 		hideLoadingIfNeeded()
 	})
 }
@@ -479,18 +511,6 @@ function confirmRog() {
 function onComment(_orderSnText: string) {
 	uni.navigateTo({
 		url: './evaluate/myEvaluate',
-	})
-}
-
-function onLogistics(orderItem: any) {
-	uni.navigateTo({
-		url:
-			'/pages/mine/msgTips/packageMsg/logisticsDetail?logi_id=' +
-			orderItem.logi_id +
-			'&ship_no=' +
-			orderItem.ship_no +
-			'&order_sn=' +
-			orderItem.sn,
 	})
 }
 
