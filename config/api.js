@@ -3,7 +3,7 @@
  */
 // 开发环境
 const dev = {
-  buyer: "http://127.0.0.1:8888",
+  buyer: "https://buyer-api.pickmall.cn",
   im: "https://im-api.pickmall.cn",
   mqtt: "wss://lilishop-mqtt-pull.dllll.xyz/mqtt",
 };
