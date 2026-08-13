@@ -289,6 +289,8 @@ const buy = (data: any) => {
 				icon: 'none',
 			})
 		}
+	}).finally(() => {
+		uni.hideLoading()
 	})
 }
 

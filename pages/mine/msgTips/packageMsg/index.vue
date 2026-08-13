@@ -6,7 +6,7 @@
           <div class="bagbar">{{ formatSendTime(row.send_time) }}</div>
         </div>
         <u-card
-          @click="navigateToLogisticsDetail(row.sn, row.logi_id, row.ship_no)"
+          @click="navigateToLogisticsDetail(row.sn)"
           :title="pageTitle"
           title-color="#666666"
           title-size="24"
@@ -69,9 +69,9 @@ function extractRecords(res: any) {
   return []
 }
 
-function navigateToLogisticsDetail(sn: string, logiId: string, shipNo: string) {
+function navigateToLogisticsDetail(sn: string) {
   uni.navigateTo({
-    url: `/pages/mine/msgTips/packageMsg/logisticsDetail?order_sn=${sn}&logi_id=${logiId}&ship_no=${shipNo}`,
+    url: `/pages/order/deliverDetail?order_sn=${sn}`,
   })
 }
 

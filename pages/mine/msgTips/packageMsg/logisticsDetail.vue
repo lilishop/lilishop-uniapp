@@ -1,90 +1,52 @@
 <template>
-  <view class="logistics-detail">
-    <view class="card">
-      <view class="card-title">
-        <span>{{ logisticsInfo.shipper }}</span>快递 <span>{{ logisticsInfo.logisticCode }}</span>
-      </view>
-      <view class="time-line">
-        <u-time-line v-if="logisticsInfo.traces && logisticsInfo.traces.length != 0">
-          <u-time-line-item nodeTop="2" v-for="(item, index) in logisticsInfo.traces" :key="index">
-            <template #node>
-              <view
-                v-if="index == logisticsInfo.traces.length - 1"
-                class="u-node"
-                :style="{ background: lightColor }"
-                style="padding: 0 4px"
-              >
-                <u-icon name="pushpin-fill" color="#fff" :size="24"></u-icon>
-              </view>
-            </template>
-            <template #content>
-              <view>
-                <view class="u-order-desc">{{ item.AcceptStation }}</view>
-                <view class="u-order-time">{{ item.AcceptTime }}</view>
-              </view>
-            </template>
-          </u-time-line-item>
-        </u-time-line>
-        <u-empty class="empty" v-else text="目前没有物流订单" mode="list"></u-empty>
-      </view>
-    </view>
+  <view class="redirect-wrap">
+    <u-loading mode="circle" />
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { useStore } from '@/store'
-import { getExpress } from '@/api/trade.js'
+import { getPackage, getExpress } from '@/api/trade.js'
 
-const store = useStore()
+onLoad(async (option) => {
+  const orderSn = option?.order_sn
+  if (!orderSn) {
+    uni.showToast({ title: '订单号缺失', icon: 'none' })
+    return
+  }
 
-const lightColor = computed(() => store.getters.lightColor)
-const logisticsInfo = ref<Record<string, any>>({})
+  try {
+    const packageRes = await getPackage(orderSn)
+    const packages = packageRes?.data?.result || []
+    if (packages.length) {
+      uni.redirectTo({
+        url: `/pages/order/deliverDetail?order_sn=${orderSn}`,
+      })
+      return
+    }
 
-onLoad((option) => {
-  fetchLogistics(option.order_sn)
-})
+    const traceRes = await getExpress(orderSn)
+    if (traceRes?.data?.result) {
+      uni.redirectTo({
+        url: `/pages/order/deliverDetail?order_sn=${orderSn}`,
+      })
+      return
+    }
+  } catch {
+    // 降级跳转，由 deliverDetail 统一处理展示
+  }
 
-function fetchLogistics(orderSn: string) {
-  getExpress(orderSn).then((res) => {
-    logisticsInfo.value = res.data.result || {}
+  uni.redirectTo({
+    url: `/pages/order/deliverDetail?order_sn=${orderSn}`,
   })
-}
+})
 </script>
 
 <style lang="scss">
-.card-title {
-  background: #f2f2f2;
-}
-.logistics-detail {
-  margin-top: 20rpx;
-  padding: 0 16rpx;
-}
-.card {
-  background: #fff;
-  border-radius: 20rpx;
-  width: 100%;
-  > .card-title {
-    font-size: 24rpx;
-    border-top-left-radius: 20rpx;
-    border-top-right-radius: 20rpx;
-    padding: 16rpx;
-  }
-  > .time-line {
-    padding: 16rpx 32rpx;
-  }
-}
-.u-order-desc {
-  font-size: 26rpx;
-  color: #666;
-  margin: 10rpx 0;
-}
-.u-order-time {
-  font-size: 24rpx;
-  color: #999;
-}
-.empty {
-  padding: 40rpx 0;
+.redirect-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 </style>

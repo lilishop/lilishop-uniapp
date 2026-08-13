@@ -45,6 +45,7 @@
           maxlength="100"
           height="150"
           border="none"
+          input-align="right"
           placeholder="街道楼牌号等"
         />
       </up-form-item>
@@ -348,8 +349,18 @@ page {
   }
 
   :deep(.u-form-item__body__right__content__slot) {
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: flex-start;
+  }
+
+  :deep(.u-textarea__field),
+  :deep(.u-input__content__field-wrapper__field) {
+    text-align: right !important;
+  }
+
+  :deep(.uni-textarea-placeholder),
+  :deep(.input-placeholder) {
+    text-align: right;
   }
 }
 

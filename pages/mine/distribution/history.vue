@@ -32,11 +32,10 @@
       <view class="log-item">
         <view class="log-item-view">
           <view class="title">{{ item.goodsName }}</view>
-          <view class="price">提成金额：+{{ unitPrice(item.rebate) }}</view>
+          <view class="price">提成金额：+{{ unitPrice(item.commissionAmount) }}</view>
         </view>
         <view class="log-item-view">
           <view>创建时间：{{ item.createTime }}</view>
-          <view>店铺：{{ item.storeName }}</view>
         </view>
         <view class="log-item-footer">
           <view>会员名称：{{ item.memberName }}</view>
@@ -57,7 +56,7 @@
 import { ref } from 'vue'
 import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
-import { cashLog, distributionOrderList } from '@/api/goods'
+import { cashLog, getDistributionOrders } from '@/api/distribution'
 import { unitPrice } from '@/utils/filters.js'
 
 const store = useStore()
@@ -71,7 +70,7 @@ const listType = ref(0)
 const routeQuery = ref<Record<string, string>>({})
 
 const withdrawParams = ref({ pageNumber: 1, pageSize: 10 })
-const achievementParams = ref({ pageNumber: 1, pageSize: 10 })
+const achievementParams = ref({ pageNumber: 1, pageSize: 10, orderType: 'PROMOTION' })
 
 onLoad((option) => {
   const type = Number(option.type != null ? option.type : 0)
@@ -100,12 +99,16 @@ function hideLoadingIfNeeded() {
 
 function fetchAchievementList() {
   uni.showLoading({ title: '加载中' })
-  distributionOrderList(achievementParams.value).then((res) => {
-    if (res.data.success && res.data.result.records.length >= 1) {
-      achievementList.value.push(...res.data.result.records)
+  getDistributionOrders(achievementParams.value).then((res) => {
+    const records = res.data.success ? res.data.result?.records || [] : []
+    if (records.length) {
+      achievementList.value.push(...records)
+      if (records.length < achievementParams.value.pageSize) {
+        loadStatus.value = 'nomore'
+      }
     } else {
       loadStatus.value = 'nomore'
-      isEmpty.value = true
+      isEmpty.value = achievementList.value.length === 0
     }
     hideLoadingIfNeeded()
   })

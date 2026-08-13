@@ -22,7 +22,7 @@
 				<view class="btns">
 					<button type="primary" :disabled="logingFlag" bindtap="getUserProfile" @click="getUserProfile()"
 						class="btn-auth">登录</button>
-					<div @click="backToHome" class="btn-callback">暂不登录</div>
+					<div @click="goMobileLogin" class="btn-callback">手机号登录</div>
 				</view>
 				<view class="privacy">
 					<view class="privacy-row">
@@ -86,9 +86,9 @@ function back() {
   whetherNavigate('wx')
 }
 
-function backToHome() {
-  uni.switchTab({
-    url: '/pages/tabbar/home/index',
+function goMobileLogin() {
+  uni.navigateTo({
+    url: '/pages/passport/login',
   })
 }
 

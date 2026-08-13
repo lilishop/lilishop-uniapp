@@ -37,7 +37,9 @@ export const handleBuildOpts = (options) => {
     }
     const oldSelector = defaultOpts.selector;
     if (PLATFORM === 'mp-weixin' && defaultOpts.type2d) {
-        defaultOpts.selector = '#' + defaultOpts.selector;
+        defaultOpts.selector = oldSelector.startsWith('#')
+            ? oldSelector
+            : '#' + oldSelector;
     }
     if (!PLATFORM) {
         console.error('注意! draw-poster未开启uni条件编译! 当环境是微信小程序将不会动态切换为type2d模式');

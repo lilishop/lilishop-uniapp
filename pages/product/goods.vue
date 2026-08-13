@@ -318,7 +318,9 @@
 /************接口API***************/
 import { ref, reactive, computed, watch, nextTick, getCurrentInstance } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { getGoods, getGoodsList, getMpScene, getGoodsDistribution } from '@/api/goods.js'
+import { getGoods, getGoodsList, getMpScene } from '@/api/goods.js'
+import { recordDistributionGoodsVisit } from '@/api/distribution.js'
+import { tryBindDistribution } from '@/utils/distributionBind.js'
 import * as API_trade from '@/api/trade.js'
 import * as API_Members from '@/api/members.js'
 import * as API_store from '@/api/store.js'
@@ -469,10 +471,15 @@ onShow(async () => {
     const res = await getMpScene(routerVal.value.scene)
     if (res.data.success) {
       let data = res.data.result.split(",")
-      init(data[0], data[1], data[2])
+      init(data[0], data[1], data[2], data[3] || '')
     }
   } else {
-    init(routerVal.value.id, routerVal.value.goodsId, routerVal.value.distributionId)
+    init(
+      routerVal.value.id,
+      routerVal.value.goodsId,
+      routerVal.value.distributionId,
+      routerVal.value.shareId || ''
+    )
   }
 })
 
@@ -502,7 +509,7 @@ function selectSku(idObj: any) {
   init(idObj.skuId, idObj.goodsId)
 }
 
-async function init(id: any, goodsId: any, distributionId = "") {
+async function init(id: any, goodsId: any, distributionId = "", shareId = "") {
   isGroup.value = false
   productId.value = id
 
@@ -519,11 +526,21 @@ async function init(id: any, goodsId: any, distributionId = "") {
     return
   }
 
-  if ((distributionId || store.state.distributionId) && isLogin("auth")) {
-    let disResult = await getGoodsDistribution(distributionId)
-    if (!disResult?.data?.success || disResult.statusCode == 403) {
-      store.state.distributionId = distributionId
-    }
+  const distId = distributionId || store.state.distributionId
+  if (distId) {
+    await tryBindDistribution(distId)
+  }
+  if (distId && goodsId && id && storage.getAccessToken()) {
+    recordDistributionGoodsVisit({
+      skuId: id,
+      goodsId,
+      distributionId: distId,
+      shareId: shareId || undefined,
+    }).then((res) => {
+      if (res?.data?.success) {
+        store.state.distributionId = distId
+      }
+    }).catch(() => {})
   }
 
   const resultData = response.data.result?.data

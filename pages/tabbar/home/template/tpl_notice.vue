@@ -1,7 +1,12 @@
 <template>
-  <div class="layout">
+  <div class="layout" v-if="list.length">
     <div class="background">
-      <u-notice-bar mode="vertical" :bg-color="res.list[0].bk_color" :color="res.list[0].color" :list="list"></u-notice-bar>
+      <u-notice-bar
+        direction="column"
+        :bg-color="noticeStyle.bk_color"
+        :color="noticeStyle.color"
+        :text="list"
+      ></u-notice-bar>
     </div>
   </div>
 </template>
@@ -11,9 +16,15 @@ import { computed } from "vue";
 
 const props = defineProps<{ res: any }>();
 
-const list = computed(() =>
-  props.res.list[0].title.map((i: { context: string }) => i.context)
-);
+const noticeStyle = computed(() => props.res?.list?.[0] || {});
+
+const list = computed(() => {
+  const titles = props.res?.list?.[0]?.title;
+  if (!Array.isArray(titles)) return [];
+  return titles
+    .map((item: { context?: string }) => (item?.context == null ? "" : String(item.context)))
+    .filter((text: string) => text.length > 0);
+});
 </script>
 <style lang="scss" scoped>
   @import "./tpl.scss";

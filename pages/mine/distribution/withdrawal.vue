@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 import { useStore } from '@/store'
-import { distribution, cash } from '@/api/goods'
+import { distribution, cash } from '@/api/distribution'
 import { unitPrice } from '@/utils/filters.js'
 import { getThemeStyle } from '@/utils/theme'
 
