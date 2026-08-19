@@ -1,7 +1,7 @@
 <template>
 	<div class="wrapper">
 		<div v-if="!wechatLogin" class="login-body">
-			<u-navbar :auto-back="showBack" :border="false" :fixed="true" :placeholder="true"></u-navbar>
+			<u-navbar :auto-back="false" :border="false" :fixed="true" :placeholder="true" @leftClick="back"></u-navbar>
 			<div class="login-header">
 				<div class="title">{{ loginTitleWay[current].title }}</div>
 				<div :class="current == 1 ? 'desc-light' : 'desc'">
@@ -173,7 +173,6 @@ const loginTitleWay = [
 	{ title: '请输入验证码', desc: '已经发送验证码至' },
 ]
 const userData = reactive({ username: '', password: '' })
-const showBack = ref(false)
 const enableFetchCode = ref(false)
 const enableUserBtnColor = ref(false)
 const enablePrivacy = ref(false)
@@ -282,10 +281,6 @@ onMounted(() => {
 	enableUserPwdBox.value = false
 	loginList.value = []
 	// #endif
-})
-
-watch(current, (val) => {
-	showBack.value = val ? true : false
 })
 
 watch(
@@ -575,6 +570,22 @@ function getUserInfoMethods(res: any) {
 
 function handleVerification(val: string) {
 	flage.value = val == store.state.verificationKey ? true : false
+}
+
+function back() {
+	if (current.value === 1) {
+		current.value = 0
+		code.value = ''
+		return
+	}
+	const pages = getCurrentPages()
+	if (pages.length > 1) {
+		uni.navigateBack({ delta: 1 })
+		return
+	}
+	uni.switchTab({
+		url: '/pages/tabbar/home/index',
+	})
 }
 
 function navigateToPrivacy(val: string) {
