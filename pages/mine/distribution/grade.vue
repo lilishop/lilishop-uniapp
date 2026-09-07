@@ -199,7 +199,10 @@ function formatMoney(val: number | string) {
 
 function formatRate(val: number | string | undefined) {
   const num = Number(val || 0)
-  return Number.isFinite(num) ? num.toFixed(2).replace(/\.?0+$/, '') || '0' : '0'
+  if (!Number.isFinite(num)) {
+    return '0'
+  }
+  return (num * 100).toFixed(2).replace(/\.?0+$/, '') || '0'
 }
 
 function buildGradeRule(grade: any) {
