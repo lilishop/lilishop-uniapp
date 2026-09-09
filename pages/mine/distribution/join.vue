@@ -8,10 +8,25 @@
         <view class="result-desc">{{ DISTRIBUTION_RETREAT_MESSAGE }}</view>
       </view>
     </view>
+    <view v-else-if="isApplyApproved" class="page-body">
+      <view class="section result-section">
+        <view class="result-icon approved">✓</view>
+        <view class="result-title">已成为分销员</view>
+        <view class="result-desc">恭喜您已通过审核，可进入分销员中心开始推广</view>
+        <view class="submit" @click="goDistributionHome">进入分销员中心</view>
+      </view>
+    </view>
+    <view v-else-if="isApplyPending" class="page-body">
+      <view class="section result-section">
+        <view class="result-icon pending">!</view>
+        <view class="result-title">等待审核</view>
+        <view class="result-desc">{{ DISTRIBUTION_APPLY_MESSAGE }}</view>
+      </view>
+    </view>
     <view v-else-if="!plan">
       <view class="empty">暂未开放线上招募</view>
     </view>
-    <view v-else class="page-body" :class="{ 'with-footer': showLoginFooter || showManualApply || isApplyPending }">
+    <view v-else class="page-body" :class="{ 'with-footer': showLoginFooter || showManualApply }">
       <!-- 邀请人信息（来自图文邀请卡） -->
       <view class="inviter-header" v-if="showInviterHeader">
         <image class="inviter-avatar" :src="inviterAvatar" mode="aspectFill" />
@@ -91,16 +106,8 @@
         </view>
       </view>
 
-      <!-- 申请通过 -->
-      <view class="section result-section" v-if="isApplyApproved">
-        <view class="result-icon approved">✓</view>
-        <view class="result-title">已成为分销员</view>
-        <view class="result-desc">恭喜您已通过审核，可进入分销员中心开始推广</view>
-        <view class="submit" @click="goDistributionHome">进入分销员中心</view>
-      </view>
-
       <!-- 自动申请提示 -->
-      <view class="section auto-tip" v-else-if="showAutoApplyTip">
+      <view class="section auto-tip" v-if="showAutoApplyTip">
         <view class="auto-tip-text">您已满足加入条件，系统将自动为您申请成为分销员</view>
       </view>
     </view>
@@ -112,19 +119,19 @@
       </view>
     </view>
 
-    <view class="apply-footer-fixed" v-else-if="showManualApply || isApplyPending">
+    <view class="apply-footer-fixed" v-else-if="showManualApply">
       <view class="apply-footer-card">
-        <view class="agree" v-if="showManualApply" @click="agreed = !agreed">
+        <view class="agree" v-if="conditionsMet" @click="agreed = !agreed">
           <checkbox :checked="agreed" @click.stop="agreed = !agreed" />
           <text>我已阅读并同意</text>
           <text class="agreement-link" @click.stop="openAgreement">《分销员推广服务协议》</text>
         </view>
         <view
           class="submit"
-          :class="{ disabled: isApplyPending || !canApply }"
+          :class="{ disabled: !canApply }"
           @click="submit"
         >
-          {{ isApplyPending ? '等待审核' : '申请成为分销员' }}
+          申请成为分销员
         </view>
       </view>
     </view>
@@ -178,7 +185,7 @@ import config from '@/config/config'
 import { parseGoodsImageUrl, tipsToLogin } from '@/utils/filters.js'
 import { resolveRecruitDistributionIdFromScene } from '@/utils/distributionBind.js'
 import { getRecruitPage, getRecruitProgress, getRecruitInviter, submitRecruitApplication } from '@/api/distribution'
-import { DISTRIBUTION_RETREAT_MESSAGE, DISTRIBUTION_STATUS } from '@/utils/distributionStatus'
+import { DISTRIBUTION_APPLY_MESSAGE, DISTRIBUTION_RETREAT_MESSAGE, DISTRIBUTION_STATUS } from '@/utils/distributionStatus'
 
 const defaultAvatar = config.defaultUserPhoto
 
@@ -277,7 +284,7 @@ const inviterName = computed(() => inviterInfo.value?.memberName || '分销员')
 const inviterAvatar = computed(() => parseGoodsImageUrl(inviterInfo.value?.memberAvatar) || defaultAvatar)
 
 const showManualApply = computed(() => {
-  return !isRetreated.value && isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && isManualApply.value
+  return !isRetreated.value && isUserLoggedIn.value && !showApplyResult.value && isManualApply.value
 })
 
 const showAutoApplyTip = computed(() => {
@@ -289,7 +296,7 @@ const showApplyForm = computed(() => {
 })
 
 const canApply = computed(() => {
-  return showManualApply.value && agreed.value
+  return showManualApply.value && conditionsMet.value && agreed.value
 })
 
 const selfPurchaseOk = computed(() => {
@@ -481,6 +488,10 @@ function submit() {
     return
   }
   if (!showManualApply.value) {
+    return
+  }
+  if (!conditionsMet.value) {
+    uni.showToast({ title: '请先满足加入条件', icon: 'none' })
     return
   }
   if (!agreed.value) {
