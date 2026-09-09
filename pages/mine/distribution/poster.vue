@@ -50,6 +50,7 @@ import { onLoad, onReady, onShareAppMessage } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { getPromotionPoster } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 import { getMpCode } from '@/api/goods'
 import { parseGoodsImageUrl } from '@/utils/filters.js'
 import {
@@ -268,6 +269,11 @@ async function loadPosterSetting() {
   posterImage.value = ''
   qrError.value = ''
   composeError.value = ''
+
+  const distributor = await assertActiveDistributor()
+  if (!distributor) {
+    return
+  }
 
   try {
     const res = await getPromotionPoster()

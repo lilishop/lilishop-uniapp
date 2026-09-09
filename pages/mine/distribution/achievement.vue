@@ -1,5 +1,9 @@
 <template>
   <view class="page" :style="themeStyle">
+    <view v-if="!pageReady" class="state-wrap">
+      <text class="state-text">加载中...</text>
+    </view>
+    <template v-else>
     <view class="filter-bar">
       <scroll-view scroll-x class="filter-scroll" :show-scrollbar="false">
         <view class="filter-tabs">
@@ -126,6 +130,7 @@
         <view class="guide-btn" @click="showGuide = false">知道了</view>
       </view>
     </u-popup>
+    </template>
   </view>
 </template>
 
@@ -135,6 +140,7 @@ import { onShow, onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { getDistributionPerformance } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -146,6 +152,7 @@ const rangeTabs = [
   { label: '近七日', value: 'LAST_7_DAYS' },
 ]
 
+const pageReady = ref(false)
 const activeRange = ref('ALL')
 const loading = ref(false)
 const customVisible = ref(false)
@@ -176,7 +183,13 @@ onLoad((options: Record<string, string>) => {
 })
 
 onShow(() => {
-  loadPerformance()
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    pageReady.value = true
+    loadPerformance()
+  })
 })
 
 function formatMoney(val: number | string) {

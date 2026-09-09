@@ -1,5 +1,9 @@
 <template>
   <view class="wrapper" :style="themeStyle">
+    <view v-if="!pageReady" class="state-wrap">
+      <text class="state-text">加载中...</text>
+    </view>
+    <template v-else>
     <view class="feedBack-box">
       <view class="box-title">提现金额</view>
       <view class="amount-row">
@@ -23,13 +27,15 @@
     </view>
 
     <view class="submit" @click="submitWithdraw">提现</view>
+    </template>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 import { useStore } from '@/store'
-import { distribution, cash } from '@/api/distribution'
+import { cash } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 import { unitPrice } from '@/utils/filters.js'
 import { getThemeStyle } from '@/utils/theme'
 
@@ -38,23 +44,20 @@ const { proxy } = getCurrentInstance()!
 
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const price = ref('')
+const pageReady = ref(false)
 const distributionData = ref<Record<string, any>>({})
 
 onMounted(() => {
   fetchDistributionInfo()
 })
 
-function hideLoadingIfNeeded() {
-  if (store.state.isShowToast) uni.hideLoading()
-}
-
 function fetchDistributionInfo() {
-  uni.showLoading({ title: '加载中' })
-  distribution().then((res) => {
-    if (res.data.result) {
-      distributionData.value = res.data.result
+  assertActiveDistributor().then((result) => {
+    if (!result) {
+      return
     }
-    hideLoadingIfNeeded()
+    distributionData.value = result
+    pageReady.value = true
   })
 }
 
@@ -96,6 +99,16 @@ page {
   min-height: 100vh;
   padding: 20rpx 24rpx 40rpx;
   background: #f8f8f8;
+}
+
+.state-wrap {
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.state-text {
+  color: #999;
+  font-size: 26rpx;
 }
 
 .feedBack-box {

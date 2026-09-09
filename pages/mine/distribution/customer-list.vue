@@ -19,7 +19,10 @@
       </view>
     </view>
 
-    <template v-if="detailId">
+    <view v-if="!pageReady" class="state-wrap">
+      <text class="state-text">加载中...</text>
+    </view>
+    <template v-else-if="detailId">
       <view v-if="detailLoading" class="state-wrap">
         <text class="state-text">加载中...</text>
       </view>
@@ -62,7 +65,7 @@
       </view>
     </template>
 
-    <template v-else>
+    <template v-else-if="pageReady">
       <view class="main-tabs">
         <view
           v-for="item in mainTabs"
@@ -184,6 +187,7 @@ import {
   updateDistributionCustomerStarred,
 } from '@/api/distribution'
 import { parseGoodsImageUrl } from '@/utils/filters.js'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -207,6 +211,7 @@ const rangeTabs = [
 const activeFilter = ref('ALL')
 const activeRange = ref('ALL')
 const keyword = ref('')
+const pageReady = ref(false)
 const loading = ref(false)
 const loadingMore = ref(false)
 const finished = ref(false)
@@ -245,9 +250,15 @@ onShow(() => {
   if (current?.options) {
     applyRouteOptions(current.options)
   }
-  if (!detailId.value) {
-    resetAndLoad()
-  }
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    pageReady.value = true
+    if (!detailId.value) {
+      resetAndLoad()
+    }
+  })
 })
 
 onReachBottom(() => {

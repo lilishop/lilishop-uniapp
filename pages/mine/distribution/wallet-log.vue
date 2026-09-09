@@ -32,6 +32,7 @@ import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { getWalletLog } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -39,13 +40,18 @@ const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const walletList        = ref<any[]>([])
 const walletPage        = ref(1)
 const walletTotal       = ref(0)
-const walletLoading     = ref(false)
+const walletLoading     = ref(true)
 const walletLoadingMore = ref(false)
 const walletFinished    = ref(false)
 const PAGE_SIZE = 15
 
 onLoad(() => {
-  loadWalletLog(true)
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    loadWalletLog(true)
+  })
 })
 
 onReachBottom(() => {

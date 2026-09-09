@@ -33,6 +33,7 @@ import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { cashLog } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -40,13 +41,18 @@ const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const cashList        = ref<any[]>([])
 const cashPage        = ref(1)
 const cashTotal       = ref(0)
-const cashLoading     = ref(false)
+const cashLoading     = ref(true)
 const cashLoadingMore = ref(false)
 const cashFinished    = ref(false)
 const PAGE_SIZE = 15
 
 onLoad(() => {
-  loadCashHistory(true)
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    loadCashHistory(true)
+  })
 })
 
 onReachBottom(() => {

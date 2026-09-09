@@ -1,5 +1,9 @@
 <template>
   <view class="page" :style="themeStyle">
+    <view v-if="!pageReady" class="state-wrap">
+      <text class="state-text">加载中...</text>
+    </view>
+    <template v-else>
     <view class="filter-bar">
       <scroll-view scroll-x class="filter-scroll" :show-scrollbar="false">
         <view class="filter-tabs">
@@ -80,6 +84,7 @@
         </view>
       </view>
     </u-popup>
+    </template>
   </view>
 </template>
 
@@ -91,6 +96,7 @@ import config from '@/config/config'
 import { getThemeStyle } from '@/utils/theme'
 import { getDistributionInvitees } from '@/api/distribution'
 import { parseGoodsImageUrl } from '@/utils/filters.js'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -104,6 +110,7 @@ const rangeTabs = [
 ]
 
 const activeRange = ref('ALL')
+const pageReady = ref(false)
 const loading = ref(false)
 const loadingMore = ref(false)
 const finished = ref(false)
@@ -138,7 +145,13 @@ onShow(() => {
   if (current?.options) {
     applyRouteOptions(current.options)
   }
-  resetAndLoad()
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    pageReady.value = true
+    resetAndLoad()
+  })
 })
 
 onReachBottom(() => {

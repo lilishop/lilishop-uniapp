@@ -136,6 +136,7 @@ import { distribution as fetchDistribution } from '@/api/distribution'
 import configs from '@/config/config'
 import storage from '@/utils/storage'
 import { tipsToLogin, setClipboard } from '@/utils/filters.js'
+import { DISTRIBUTION_RETREAT_MESSAGE, DISTRIBUTION_STATUS } from '@/utils/distributionStatus'
 
 const sharingShow = ref(false)
 const sharingLink = ref('')
@@ -194,18 +195,19 @@ function distribution() {
   if (!tipsToLogin('normal')) {
     return
   }
+  // 入口按 distributionStatus 路由：有对象 ≠ 有效分销员。清退停住，不进 join / home。
   fetchDistribution().then((res) => {
     if (res.data.result) {
       const type = res.data.result.distributionStatus
-      if (type == 'PASS') {
+      if (type == DISTRIBUTION_STATUS.PASS) {
         uni.navigateTo({
           url: '/pages/mine/distribution/home',
         })
-      } else if (type == 'REFUSE') {
+      } else if (type == DISTRIBUTION_STATUS.REFUSE) {
         goRecruitJoin()
-      } else if (type == 'RETREAT') {
+      } else if (type == DISTRIBUTION_STATUS.RETREAT) {
         uni.showToast({
-          title: '您的分销资格已被清退。请联系管理员！',
+          title: DISTRIBUTION_RETREAT_MESSAGE,
           duration: 2000,
           icon: 'none',
         })

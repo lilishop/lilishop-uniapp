@@ -58,6 +58,7 @@ import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { cashLog, getDistributionOrders } from '@/api/distribution'
 import { unitPrice } from '@/utils/filters.js'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 
@@ -79,7 +80,12 @@ onLoad((option) => {
   uni.setNavigationBarTitle({
     title: type === 0 ? '分销业绩' : '提现记录',
   })
-  type === 0 ? fetchAchievementList() : fetchWithdrawLog()
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    type === 0 ? fetchAchievementList() : fetchWithdrawLog()
+  })
 })
 
 onReachBottom(() => {

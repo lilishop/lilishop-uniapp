@@ -119,7 +119,8 @@ import { onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import config from '@/config/config'
-import { distribution, getDistributionGrades } from '@/api/distribution'
+import { getDistributionGrades } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 import { getUserInfo } from '@/api/members'
 
 const store = useStore()
@@ -166,18 +167,21 @@ function refreshUserInfo() {
 
 function loadPageData() {
   loading.value = true
-  Promise.all([fetchGrades(), fetchDistribution()]).finally(() => {
-    loading.value = false
-  })
-}
-
-function fetchDistribution() {
-  return distribution().then((res) => {
-    if (!res.data?.result) {
-      return
-    }
-    distributionData.value = res.data.result
-  })
+  let allowed = false
+  assertActiveDistributor()
+    .then((result) => {
+      if (!result) {
+        return
+      }
+      allowed = true
+      distributionData.value = result
+      return fetchGrades()
+    })
+    .finally(() => {
+      if (allowed) {
+        loading.value = false
+      }
+    })
 }
 
 function fetchGrades() {

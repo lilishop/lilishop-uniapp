@@ -9,7 +9,7 @@
       <view class="nav-placeholder"></view>
     </view>
 
-    <view class="hero">
+    <view v-if="!loading && detail.orderItemSn" class="hero">
       <view class="hero-status">{{ detail.settlementStatusText || '待结算' }}</view>
       <view class="hero-sub">分销订单详情</view>
     </view>
@@ -109,11 +109,12 @@ import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { getDistributionOrderDetail } from '@/api/distribution'
 import { parseGoodsImageUrl, formatGoodsSpecs } from '@/utils/filters.js'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const statusBarHeight = ref(20)
-const loading = ref(false)
+const loading = ref(true)
 const detail = ref<Record<string, any>>({})
 const orderItemSn = ref('')
 const orderType = ref('PROMOTION')
@@ -122,7 +123,12 @@ onLoad((options) => {
   statusBarHeight.value = uni.getWindowInfo?.()?.statusBarHeight || 20
   orderItemSn.value = options?.orderItemSn || ''
   orderType.value = options?.orderType || 'PROMOTION'
-  loadDetail()
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    loadDetail()
+  })
 })
 
 const totalGoodsNum = computed(() => Number(detail.value.totalGoodsNum || detail.value.num || 0))

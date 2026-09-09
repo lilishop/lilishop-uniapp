@@ -1,5 +1,9 @@
 <template>
   <view class="page" :style="themeStyle">
+    <view v-if="!pageReady" class="state-wrap">
+      <text class="state-text">加载中...</text>
+    </view>
+    <template v-else>
     <view class="search-bar">
       <view class="search-inner">
         <u-icon name="search" color="#bbb" size="18" />
@@ -132,6 +136,7 @@
         </view>
       </view>
     </u-popup>
+    </template>
   </view>
 </template>
 
@@ -142,6 +147,7 @@ import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { getDistributionOrders } from '@/api/distribution'
 import { parseGoodsImageUrl, formatGoodsSpecs } from '@/utils/filters.js'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -161,6 +167,7 @@ const rangeTabs = [
 const activeTab = ref('PROMOTION')
 const activeRange = ref('ALL')
 const keyword = ref('')
+const pageReady = ref(false)
 const loading = ref(false)
 const loadingMore = ref(false)
 const finished = ref(false)
@@ -202,7 +209,13 @@ onShow(() => {
   if (current?.options) {
     applyRouteOptions(current.options)
   }
-  resetAndLoad()
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    pageReady.value = true
+    resetAndLoad()
+  })
 })
 
 onReachBottom(() => {

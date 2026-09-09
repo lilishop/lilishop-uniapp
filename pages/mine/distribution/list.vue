@@ -1,5 +1,9 @@
 <template>
   <view class="page">
+    <view v-if="!pageReady" class="state-wrap">
+      <text class="state-text">加载中...</text>
+    </view>
+    <template v-else>
     <view class="search-bar">
       <view class="search-inner">
         <u-icon name="search" color="#bbb" size="18" />
@@ -81,6 +85,7 @@
         <text>{{ finished ? '没有更多了' : (loadingMore ? '加载中...' : '上拉加载更多') }}</text>
       </view>
     </scroll-view>
+    </template>
   </view>
 </template>
 
@@ -88,6 +93,7 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { distributionGoods, getDistributionGoodsSetting } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const DEFAULT_SORT_MAP: Record<string, { field: string; order: string }> = {
   HIGHEST_COMMISSION: { field: 'COMMISSION', order: 'DESC' },
@@ -103,6 +109,7 @@ const sortTabs = [
   { field: 'PRICE', label: '价格' },
 ]
 
+const pageReady = ref(false)
 const routeQuery = ref<Record<string, string>>({})
 const keyword = ref('')
 const sortField = ref('COMMISSION')
@@ -128,6 +135,11 @@ onLoad((options) => {
 })
 
 async function initPage() {
+  const distributor = await assertActiveDistributor()
+  if (!distributor) {
+    return
+  }
+  pageReady.value = true
   await loadGoodsSetting()
   resetAndFetch()
 }

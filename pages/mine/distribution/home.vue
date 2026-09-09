@@ -10,6 +10,8 @@
       <view class="nav-placeholder"></view>
     </view>
 
+    <view v-if="checking" class="center-pending">加载中...</view>
+    <template v-else-if="centerReady">
     <!-- 顶部用户信息 -->
     <view class="header">
       <view class="user-row" @click="goGrade">
@@ -199,6 +201,7 @@
         </view>
       </view>
     </view>
+    </template>
   </view>
 </template>
 
@@ -209,7 +212,6 @@ import { useStore } from '@/store'
 import config from '@/config/config'
 import { getThemeStyle } from '@/utils/theme'
 import {
-  distribution,
   getDistributionFeaturedGoods,
   getDistributionGrades,
   getDistributionCustomers,
@@ -218,6 +220,7 @@ import {
   getDistributionPerformance,
 } from '@/api/distribution'
 import { getUserInfo } from '@/api/members'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -226,6 +229,8 @@ const statusBarHeight = ref(20)
 const expanded = ref(false)
 
 const distributionData = ref<Record<string, any>>({})
+const checking = ref(true)
+const centerReady = ref(false)
 const gradeList = ref<any[]>([])
 const featuredGoods = ref<any[]>([])
 const todayOrderCount = ref(0)
@@ -288,25 +293,38 @@ function refreshUserInfo() {
 }
 
 function loadPageData() {
-  Promise.all([
-    fetchDistribution(),
-    fetchGrades(),
-    fetchTodayOrders(),
-    fetchTodayEarnings(),
-    fetchTodayCustomers(),
-    fetchTodayInvites(),
-    fetchFeaturedGoods(),
-  ])
+  checking.value = true
+  centerReady.value = false
+  distributionData.value = {}
+  fetchDistribution()
+    .then((active) => {
+      if (!active) {
+        return
+      }
+      centerReady.value = true
+      Promise.all([
+        fetchGrades(),
+        fetchTodayOrders(),
+        fetchTodayEarnings(),
+        fetchTodayCustomers(),
+        fetchTodayInvites(),
+        fetchFeaturedGoods(),
+      ])
+    })
+    .finally(() => {
+      if (centerReady.value) {
+        checking.value = false
+      }
+    })
 }
 
 function fetchDistribution() {
-  return distribution().then((res) => {
-    if (!res.data?.result) {
-      uni.showToast({ title: '您还不是分销员', icon: 'none' })
-      setTimeout(() => goBack(), 1500)
-      return
+  return assertActiveDistributor().then((result) => {
+    if (!result) {
+      return false
     }
-    distributionData.value = res.data.result
+    distributionData.value = result
+    return true
   })
 }
 
@@ -495,6 +513,13 @@ function goOrder() {
 
 .nav-placeholder {
   width: 72rpx;
+}
+
+.center-pending {
+  padding: 120rpx 0;
+  color: #999;
+  font-size: 28rpx;
+  text-align: center;
 }
 
 .header {

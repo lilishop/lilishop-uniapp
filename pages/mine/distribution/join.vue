@@ -1,6 +1,13 @@
 <template>
   <view class="wrapper" :style="themeStyle">
     <view v-if="loading" class="loading">加载中...</view>
+    <view v-else-if="isRetreated" class="page-body">
+      <view class="section result-section">
+        <view class="result-icon retreated">!</view>
+        <view class="result-title">分销资格已清退</view>
+        <view class="result-desc">{{ DISTRIBUTION_RETREAT_MESSAGE }}</view>
+      </view>
+    </view>
     <view v-else-if="!plan">
       <view class="empty">暂未开放线上招募</view>
     </view>
@@ -171,6 +178,7 @@ import config from '@/config/config'
 import { parseGoodsImageUrl, tipsToLogin } from '@/utils/filters.js'
 import { resolveRecruitDistributionIdFromScene } from '@/utils/distributionBind.js'
 import { getRecruitPage, getRecruitProgress, getRecruitInviter, submitRecruitApplication } from '@/api/distribution'
+import { DISTRIBUTION_RETREAT_MESSAGE, DISTRIBUTION_STATUS } from '@/utils/distributionStatus'
 
 const defaultAvatar = config.defaultUserPhoto
 
@@ -198,7 +206,12 @@ const fields = computed(() => pageInfo.value.fields || [])
 const recruitGoods = computed(() => plan.value?.recruitGoods || [])
 const agreementContent = computed(() => plan.value?.agreementContent || '')
 
+const distributionStatus = computed(() => pageInfo.value.distributionStatus || '')
+const currentApplication = computed(() => pageInfo.value.currentApplication || null)
+const isRetreated = computed(() => distributionStatus.value === DISTRIBUTION_STATUS.RETREAT)
+
 const showPoster = computed(() => {
+  if (isRetreated.value) return false
   const p = plan.value
   if (!p) return false
   if (p.posterEnabled === false) return false
@@ -211,45 +224,50 @@ const posterRuleText = computed(() => plan.value?.posterRuleText || '')
 const posterContact = computed(() => plan.value?.posterContact || '')
 
 const hasJoinCondition = computed(() => {
+  if (isRetreated.value) return false
   const p = plan.value
   if (!p || p.joinConditionType !== 'CONDITIONAL') return false
   return !!(p.requireSelfPurchaseAmount || p.requireConsumeCount || p.requirePurchaseGoods)
 })
 
 const conditionsMet = computed(() => {
+  if (isRetreated.value) return false
   if (!hasJoinCondition.value) return true
   return !!progress.value?.satisfied
 })
 
-const distributionStatus = computed(() => pageInfo.value.distributionStatus || '')
-const currentApplication = computed(() => pageInfo.value.currentApplication || null)
-
 const isApplyApproved = computed(() => {
-  if (distributionStatus.value === 'PASS') return true
+  if (isRetreated.value) return false
+  if (distributionStatus.value === DISTRIBUTION_STATUS.PASS) return true
   if (submitApplicationStatus.value === 'APPROVED') return true
   if (applySubmitted.value && submitAuditMode.value === 'AUTO_PASS') return true
-  return currentApplication.value?.applicationStatus === 'APPROVED'
+  return false
 })
 
 const isApplyPending = computed(() => {
+  if (isRetreated.value) return false
   if (isApplyApproved.value) return false
-  if (distributionStatus.value === 'APPLY') return true
+  if (distributionStatus.value === DISTRIBUTION_STATUS.APPLY) return true
   if (submitApplicationStatus.value === 'PENDING') return true
   if (applySubmitted.value && submitAuditMode.value === 'MANUAL') return true
   return currentApplication.value?.applicationStatus === 'PENDING'
 })
 
-const showApplyResult = computed(() => isApplyApproved.value || isApplyPending.value)
+const showApplyResult = computed(() => {
+  if (isRetreated.value) return false
+  return isApplyApproved.value || isApplyPending.value
+})
 
 const isManualApply = computed(() => {
   return (plan.value?.applyMode || 'MANUAL') === 'MANUAL'
 })
 
 const showLoginFooter = computed(() => {
-  return !!plan.value && !isUserLoggedIn.value && !loading.value
+  return !isRetreated.value && !!plan.value && !isUserLoggedIn.value && !loading.value
 })
 
 const showInviterHeader = computed(() => {
+  if (isRetreated.value) return false
   if (!recruitToken.value) return false
   const info = inviterInfo.value
   return !!(info?.memberName || info?.memberAvatar)
@@ -259,15 +277,15 @@ const inviterName = computed(() => inviterInfo.value?.memberName || '分销员')
 const inviterAvatar = computed(() => parseGoodsImageUrl(inviterInfo.value?.memberAvatar) || defaultAvatar)
 
 const showManualApply = computed(() => {
-  return isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && isManualApply.value
+  return !isRetreated.value && isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && isManualApply.value
 })
 
 const showAutoApplyTip = computed(() => {
-  return isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && plan.value?.applyMode === 'AUTO'
+  return !isRetreated.value && isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && plan.value?.applyMode === 'AUTO'
 })
 
 const showApplyForm = computed(() => {
-  return !!plan.value?.requireApplyInfo && fields.value.length > 0
+  return !isRetreated.value && !!plan.value?.requireApplyInfo && fields.value.length > 0
 })
 
 const canApply = computed(() => {
@@ -445,7 +463,7 @@ function handleApplySuccess(application: any) {
   submitAuditMode.value = auditMode
   submitApplicationStatus.value = status
   if (auditMode === 'AUTO_PASS' || status === 'APPROVED') {
-    pageInfo.value.distributionStatus = 'PASS'
+    pageInfo.value.distributionStatus = DISTRIBUTION_STATUS.PASS
     if (pageInfo.value.currentApplication) {
       pageInfo.value.currentApplication.applicationStatus = 'APPROVED'
     }
@@ -456,6 +474,10 @@ function handleApplySuccess(application: any) {
 
 function submit() {
   if (!tipsToLogin('normal')) {
+    return
+  }
+  if (isRetreated.value) {
+    uni.showToast({ title: DISTRIBUTION_RETREAT_MESSAGE, icon: 'none' })
     return
   }
   if (!showManualApply.value) {
@@ -736,6 +758,11 @@ function submit() {
 .result-icon.pending {
   background: #fff7e6;
   color: #fa8c16;
+}
+
+.result-icon.retreated {
+  background: #fff2f0;
+  color: #ff4d4f;
 }
 
 .result-title {

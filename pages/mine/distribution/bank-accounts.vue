@@ -7,7 +7,7 @@
       </view>
 
       <!-- 账户列表 -->
-      <view v-else-if="accounts.length" class="account-list">
+      <view v-else-if="pageReady && accounts.length" class="account-list">
         <view
           class="account-item"
           v-for="item in accounts"
@@ -39,12 +39,12 @@
       </view>
 
       <!-- 空状态 -->
-      <view v-else class="empty-wrap">
+      <view v-else-if="pageReady" class="empty-wrap">
         <text class="empty-text">暂无银行卡，请添加</text>
       </view>
 
       <!-- 添加账户按钮 -->
-      <view class="add-btn-wrap">
+      <view v-if="pageReady" class="add-btn-wrap">
         <view class="add-btn" @click="openAddPopup">+ 添加账户</view>
       </view>
     </view>
@@ -102,6 +102,7 @@ import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { getBankCards, addBankCard, deleteBankCard, setDefaultBankCard } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -113,7 +114,8 @@ const isSelectMode = ref(false)
 
 const accounts = ref<any[]>([])
 const selectedId = ref('')
-const loading = ref(false)
+const pageReady = ref(false)
+const loading = ref(true)
 const addPopupVisible = ref(false)
 const saveLoading = ref(false)
 const form = ref({ holderName: '', bankName: '', cardNo: '' })
@@ -127,7 +129,14 @@ onLoad((options: any) => {
 })
 
 onShow(() => {
-  loadAccounts()
+  loading.value = true
+  assertActiveDistributor().then((d) => {
+    if (!d) {
+      return
+    }
+    pageReady.value = true
+    loadAccounts()
+  })
 })
 
 function loadAccounts() {

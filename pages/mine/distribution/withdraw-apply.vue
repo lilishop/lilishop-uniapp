@@ -1,6 +1,9 @@
 <template>
   <view class="page" :style="themeStyle">
-    <view class="content">
+    <view v-if="!pageReady" class="state-wrap">
+      <text class="state-text">加载中...</text>
+    </view>
+    <view v-else class="content">
       <!-- 到账账户 -->
       <view class="section-card">
         <view class="account-row" @click="openAccountDrawer">
@@ -139,11 +142,13 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
-import { distribution, cash, getBankCards, addBankCard } from '@/api/distribution'
+import { cash, getBankCards, addBankCard } from '@/api/distribution'
+import { assertActiveDistributor } from '@/utils/distributionStatus'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
+const pageReady = ref(false)
 const canRebate = ref(0)
 const amount = ref('')
 const submitLoading = ref(false)
@@ -161,14 +166,17 @@ const saveLoading = ref(false)
 const form = ref({ holderName: '', bankName: '', cardNo: '' })
 
 function loadInfo() {
-  distribution().then((res: any) => {
-    const d = res?.data?.result || {}
+  return assertActiveDistributor().then((d) => {
+    if (!d) {
+      return null
+    }
     canRebate.value = Number(d.canRebate || 0)
     if (!inited.value) {
       const prefill = Math.min(canRebate.value, 9999)
       amount.value = prefill > 0 ? prefill.toFixed(2) : ''
       inited.value = true
     }
+    return d
   })
 }
 
@@ -188,8 +196,13 @@ function loadCards() {
 }
 
 onLoad(() => {
-  loadInfo()
-  loadCards()
+  loadInfo().then((d) => {
+    if (!d) {
+      return
+    }
+    pageReady.value = true
+    loadCards()
+  })
 })
 
 function openAccountDrawer() {
@@ -303,6 +316,16 @@ function maskCard(cardNo: string) {
 }
 
 .content { padding: 24rpx; }
+
+.state-wrap {
+  padding: 120rpx 0;
+  text-align: center;
+}
+
+.state-text {
+  color: #999;
+  font-size: 26rpx;
+}
 
 .section-card {
   background: #fff;
