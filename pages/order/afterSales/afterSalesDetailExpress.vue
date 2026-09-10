@@ -62,7 +62,13 @@
     </up-form>
     <u-select mode="single-column" :list="companyList" v-model:show="companySelectShow"
               @confirm="companySelectConfirm"></u-select>
-    <u-calendar v-model:show="timeshow" :mode="'date'" @change="onTimeChange"></u-calendar>
+    <u-calendar
+      :show="timeshow"
+      mode="single"
+      :closeOnClickOverlay="true"
+      @confirm="onTimeConfirm"
+      @close="timeshow = false"
+    />
     <u-toast ref="uToast"/>
   </view>
 </template>
@@ -119,8 +125,10 @@ function fetchLogisticsList() {
   })
 }
 
-function onTimeChange(e: { result: string }) {
-  form.mDeliverTime = e.result
+function onTimeConfirm(e: string[] | { date?: string } | string) {
+  const first = Array.isArray(e) ? e[0] : e
+  form.mDeliverTime = typeof first === 'string' ? first : (first?.date || '')
+  timeshow.value = false
 }
 
 function onSubmit() {
