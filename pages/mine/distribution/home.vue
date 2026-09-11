@@ -25,6 +25,9 @@
         </view>
         <u-icon name="arrow-right" color="rgba(255,255,255,0.7)" size="16"></u-icon>
       </view>
+      <view class="parent-row" v-if="parentDistributorVisible === true">
+        <text class="parent-text">上级：{{ parentLabel }}</text>
+      </view>
     </view>
 
     <!-- 等级升级条 -->
@@ -217,6 +220,7 @@ import {
   getDistributionCustomers,
   getDistributionInvitees,
   getDistributionOrders,
+  getDistributionParent,
   getDistributionPerformance,
 } from '@/api/distribution'
 import { getUserInfo } from '@/api/members'
@@ -237,6 +241,8 @@ const todayOrderCount = ref(0)
 const todayEarnings = ref(0)
 const todayCustomerCount = ref(0)
 const todayInviteCount = ref(0)
+const parentDistributorVisible = ref<boolean | undefined>(undefined)
+const parentNickname = ref('')
 
 const userInfo = computed(() => store.state.userInfo || {})
 const displayName = computed(() => userInfo.value.nickName || distributionData.value.memberName || '分销员')
@@ -265,6 +271,11 @@ const nextGrade = computed(() => {
 
 const gradeVisible = computed(() => gradeList.value.length > 0)
 
+const parentLabel = computed(() => {
+  const name = (parentNickname.value || '').trim()
+  return name || '暂无'
+})
+
 const upgradeTip = computed(() => {
   if (!nextGrade.value) {
     return '当前已是最高等级，继续保持优秀业绩'
@@ -292,10 +303,16 @@ function refreshUserInfo() {
   })
 }
 
+function resetParentState() {
+  parentDistributorVisible.value = undefined
+  parentNickname.value = ''
+}
+
 function loadPageData() {
   checking.value = true
   centerReady.value = false
   distributionData.value = {}
+  resetParentState()
   fetchDistribution()
     .then((active) => {
       if (!active) {
@@ -309,6 +326,7 @@ function loadPageData() {
         fetchTodayCustomers(),
         fetchTodayInvites(),
         fetchFeaturedGoods(),
+        fetchParent(),
       ])
     })
     .finally(() => {
@@ -379,6 +397,19 @@ function fetchFeaturedGoods() {
     const result = res.data?.result
     featuredGoods.value = Array.isArray(result) ? result : []
   })
+}
+
+function fetchParent() {
+  resetParentState()
+  return getDistributionParent()
+    .then((res) => {
+      const result = res.data?.result
+      parentDistributorVisible.value = result?.parentDistributorVisible
+      parentNickname.value = result?.parentNickname || ''
+    })
+    .catch(() => {
+      resetParentState()
+    })
 }
 
 function formatMoney(val: number | string) {
@@ -575,6 +606,16 @@ function goOrder() {
 }
 
 .user-sub {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.parent-row {
+  margin-top: 16rpx;
+}
+
+.parent-text {
   color: rgba(255, 255, 255, 0.72);
   font-size: 24rpx;
   line-height: 1.6;
