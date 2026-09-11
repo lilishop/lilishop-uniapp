@@ -85,7 +85,7 @@ export function updateDistributionCustomerStarred(id, starred) {
   })
 }
 
-/** 分销等级列表（买家端可见时） */
+/** 分销等级列表（包装 VO：upgradeConditionVisible + grades） */
 export function getDistributionGrades() {
   return http.request({
     url: `/distribution/distribution/grades`,

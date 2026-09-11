@@ -83,7 +83,7 @@
       </view>
 
       <!-- 等级规则 -->
-      <view class="card rules-card">
+      <view class="card rules-card" v-if="upgradeConditionVisible !== false">
         <view class="rules-title">等级规则</view>
         <view class="rules-timeline">
           <view
@@ -129,6 +129,7 @@ const defaultAvatar = config.defaultUserPhoto
 const loading = ref(true)
 const distributionData = ref<Record<string, any>>({})
 const gradeList = ref<any[]>([])
+const upgradeConditionVisible = ref<boolean | undefined>(true)
 
 const userInfo = computed(() => store.state.userInfo || {})
 
@@ -188,7 +189,9 @@ function fetchGrades() {
   return getDistributionGrades()
     .then((res) => {
       const result = res.data?.result
-      gradeList.value = (Array.isArray(result) ? result : []).sort(
+      upgradeConditionVisible.value = result?.upgradeConditionVisible
+      const grades = result?.grades
+      gradeList.value = (Array.isArray(grades) ? grades : []).sort(
         (a: any, b: any) => Number(a.sortOrder) - Number(b.sortOrder)
       )
     })

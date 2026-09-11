@@ -330,7 +330,8 @@ function fetchDistribution() {
 
 function fetchGrades() {
   return getDistributionGrades().then((res) => {
-    gradeList.value = res.data?.result || []
+    const grades = res.data?.result?.grades
+    gradeList.value = Array.isArray(grades) ? grades : []
   })
 }
 
