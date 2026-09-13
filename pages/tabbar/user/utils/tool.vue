@@ -136,7 +136,13 @@ import { distribution as fetchDistribution } from '@/api/distribution'
 import configs from '@/config/config'
 import storage from '@/utils/storage'
 import { tipsToLogin, setClipboard } from '@/utils/filters.js'
-import { DISTRIBUTION_RETREAT_MESSAGE, DISTRIBUTION_STATUS } from '@/utils/distributionStatus'
+import {
+  checkSelfRecruitEntry,
+  DISTRIBUTION_CLOSE_MESSAGE,
+  DISTRIBUTION_ONLINE_ENTRY_CLOSED_MESSAGE,
+  DISTRIBUTION_RETREAT_MESSAGE,
+  DISTRIBUTION_STATUS,
+} from '@/utils/distributionStatus'
 
 const sharingShow = ref(false)
 const sharingLink = ref('')
@@ -191,6 +197,28 @@ function goRecruitJoin() {
   })
 }
 
+function enterSelfRecruitOrToast() {
+  checkSelfRecruitEntry().then((gate) => {
+    if (gate === 'distribution_closed') {
+      uni.showToast({
+        title: DISTRIBUTION_CLOSE_MESSAGE,
+        duration: 2000,
+        icon: 'none',
+      })
+      return
+    }
+    if (gate === 'entry_closed') {
+      uni.showToast({
+        title: DISTRIBUTION_ONLINE_ENTRY_CLOSED_MESSAGE,
+        duration: 2000,
+        icon: 'none',
+      })
+      return
+    }
+    goRecruitJoin()
+  })
+}
+
 function distribution() {
   if (!tipsToLogin('normal')) {
     return
@@ -204,7 +232,7 @@ function distribution() {
           url: '/pages/mine/distribution/home',
         })
       } else if (type == DISTRIBUTION_STATUS.REFUSE) {
-        goRecruitJoin()
+        enterSelfRecruitOrToast()
       } else if (type == DISTRIBUTION_STATUS.RETREAT) {
         uni.showToast({
           title: DISTRIBUTION_RETREAT_MESSAGE,
@@ -225,7 +253,7 @@ function distribution() {
         icon: 'none',
       })
     } else {
-      goRecruitJoin()
+      enterSelfRecruitOrToast()
     }
   })
 }

@@ -1,6 +1,7 @@
 <template>
   <view class="wrapper" :style="themeStyle">
     <view v-if="loading" class="loading">加载中...</view>
+    <view v-else-if="isDistributionClosed" class="empty">{{ DISTRIBUTION_CLOSE_MESSAGE }}</view>
     <view v-else-if="isRetreated" class="page-body">
       <view class="section result-section">
         <view class="result-icon retreated">!</view>
@@ -23,8 +24,8 @@
         <view class="result-desc">{{ DISTRIBUTION_APPLY_MESSAGE }}</view>
       </view>
     </view>
-    <view v-else-if="!plan">
-      <view class="empty">暂未开放线上招募</view>
+    <view v-else-if="onlineEntryClosed || !plan">
+      <view class="empty">{{ DISTRIBUTION_ONLINE_ENTRY_CLOSED_MESSAGE }}</view>
     </view>
     <view v-else class="page-body" :class="{ 'with-footer': showLoginFooter || showManualApply }">
       <!-- 邀请人信息（来自图文邀请卡） -->
@@ -185,13 +186,20 @@ import config from '@/config/config'
 import { parseGoodsImageUrl, tipsToLogin } from '@/utils/filters.js'
 import { resolveRecruitDistributionIdFromScene } from '@/utils/distributionBind.js'
 import { getRecruitPage, getRecruitProgress, getRecruitInviter, submitRecruitApplication } from '@/api/distribution'
-import { DISTRIBUTION_APPLY_MESSAGE, DISTRIBUTION_RETREAT_MESSAGE, DISTRIBUTION_STATUS } from '@/utils/distributionStatus'
+import {
+  DISTRIBUTION_APPLY_MESSAGE,
+  DISTRIBUTION_CLOSE_MESSAGE,
+  DISTRIBUTION_ONLINE_ENTRY_CLOSED_MESSAGE,
+  DISTRIBUTION_RETREAT_MESSAGE,
+  DISTRIBUTION_STATUS,
+} from '@/utils/distributionStatus'
 
 const defaultAvatar = config.defaultUserPhoto
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const loading = ref(true)
+const isDistributionClosed = ref(false)
 const pageInfo = ref<any>({})
 const progress = ref<any>(null)
 const formItems = reactive<Record<string, string>>({})
@@ -216,6 +224,11 @@ const agreementContent = computed(() => plan.value?.agreementContent || '')
 const distributionStatus = computed(() => pageInfo.value.distributionStatus || '')
 const currentApplication = computed(() => pageInfo.value.currentApplication || null)
 const isRetreated = computed(() => distributionStatus.value === DISTRIBUTION_STATUS.RETREAT)
+
+const hasRecruitToken = computed(() => !!recruitToken.value)
+const onlineEntryClosed = computed(() =>
+  pageInfo.value.onlineEntryVisible !== true && !hasRecruitToken.value
+)
 
 const showPoster = computed(() => {
   if (isRetreated.value) return false
@@ -270,7 +283,7 @@ const isManualApply = computed(() => {
 })
 
 const showLoginFooter = computed(() => {
-  return !isRetreated.value && !!plan.value && !isUserLoggedIn.value && !loading.value
+  return !isDistributionClosed.value && !onlineEntryClosed.value && !isRetreated.value && !!plan.value && !isUserLoggedIn.value && !loading.value
 })
 
 const showInviterHeader = computed(() => {
@@ -284,15 +297,15 @@ const inviterName = computed(() => inviterInfo.value?.memberName || '分销员')
 const inviterAvatar = computed(() => parseGoodsImageUrl(inviterInfo.value?.memberAvatar) || defaultAvatar)
 
 const showManualApply = computed(() => {
-  return !isRetreated.value && isUserLoggedIn.value && !showApplyResult.value && isManualApply.value
+  return !isDistributionClosed.value && !onlineEntryClosed.value && !isRetreated.value && isUserLoggedIn.value && !showApplyResult.value && isManualApply.value
 })
 
 const showAutoApplyTip = computed(() => {
-  return !isRetreated.value && isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && plan.value?.applyMode === 'AUTO'
+  return !isDistributionClosed.value && !onlineEntryClosed.value && !isRetreated.value && isUserLoggedIn.value && !showApplyResult.value && conditionsMet.value && plan.value?.applyMode === 'AUTO'
 })
 
 const showApplyForm = computed(() => {
-  return !isRetreated.value && !!plan.value?.requireApplyInfo && fields.value.length > 0
+  return !isDistributionClosed.value && !onlineEntryClosed.value && !isRetreated.value && !!plan.value?.requireApplyInfo && fields.value.length > 0
 })
 
 const canApply = computed(() => {
@@ -362,6 +375,7 @@ onShow(() => {
 
 function loadPageData() {
   loading.value = true
+  isDistributionClosed.value = false
   applySubmitted.value = false
   submitAuditMode.value = ''
   submitApplicationStatus.value = ''
@@ -374,7 +388,14 @@ function loadPageData() {
   Promise.all(tasks)
     .then((results) => {
       const pageRes = results[0]
-      const pageResult = pageRes.data?.result || {}
+      const pageData = pageRes.data || {}
+      if (pageData.code == 22000) {
+        isDistributionClosed.value = true
+        pageInfo.value = {}
+        progress.value = emptyProgress()
+        return
+      }
+      const pageResult = pageData.result || {}
       pageInfo.value = pageResult
       if (results.length > 1) {
         progress.value = results[1].data?.result || emptyProgress()
