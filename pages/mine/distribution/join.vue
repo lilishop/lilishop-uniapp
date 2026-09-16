@@ -206,7 +206,7 @@ const formInfoCompleted = ref(false)
 const fieldErrors = reactive<Record<string, string>>({})
 const inviterInfo = ref<any>(null)
 
-const isUserLoggedIn = computed(() => !!storage.getAccessToken())
+const isUserLoggedIn = ref(!!storage.getAccessToken())
 
 const plan = computed(() => pageInfo.value.plan || null)
 const fields = computed(() => pageInfo.value.fields || [])
@@ -360,7 +360,12 @@ onShow(() => {
   loadPageData()
 })
 
+function syncLoginState() {
+  isUserLoggedIn.value = !!storage.getAccessToken()
+}
+
 function loadPageData() {
+  syncLoginState()
   loading.value = true
   applySubmitted.value = false
   submitAuditMode.value = ''
