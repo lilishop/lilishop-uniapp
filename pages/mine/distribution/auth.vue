@@ -13,12 +13,27 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useStore } from '@/store'
+import {
+  checkSelfRecruitEntry,
+  DISTRIBUTION_CLOSE_MESSAGE,
+  DISTRIBUTION_ONLINE_ENTRY_CLOSED_MESSAGE,
+} from '@/utils/distributionStatus'
 
 const store = useStore()
 const lightColor = computed(() => store.getters.lightColor)
 
 function goJoin() {
-  uni.redirectTo({ url: '/pages/mine/distribution/join' })
+  checkSelfRecruitEntry().then((gate) => {
+    if (gate === 'distribution_closed') {
+      uni.showToast({ title: DISTRIBUTION_CLOSE_MESSAGE, icon: 'none' })
+      return
+    }
+    if (gate === 'entry_closed') {
+      uni.showToast({ title: DISTRIBUTION_ONLINE_ENTRY_CLOSED_MESSAGE, icon: 'none' })
+      return
+    }
+    uni.redirectTo({ url: '/pages/mine/distribution/join' })
+  })
 }
 </script>
 
