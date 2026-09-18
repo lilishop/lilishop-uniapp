@@ -185,7 +185,7 @@ import storage from '@/utils/storage.js'
 import config from '@/config/config'
 import { parseGoodsImageUrl, tipsToLogin } from '@/utils/filters.js'
 import { resolveRecruitDistributionIdFromScene } from '@/utils/distributionBind.js'
-import { getRecruitPage, getRecruitProgress, getRecruitInviter, submitRecruitApplication } from '@/api/distribution'
+import { getRecruitPage, getRecruitProgress, getRecruitInviter, submitRecruitApplication, savePendingRecruitToken } from '@/api/distribution'
 import {
   DISTRIBUTION_APPLY_MESSAGE,
   DISTRIBUTION_CLOSE_MESSAGE,
@@ -386,28 +386,40 @@ function loadPageData() {
   submitApplicationStatus.value = ''
   formInfoCompleted.value = false
   Object.keys(fieldErrors).forEach((key) => delete fieldErrors[key])
-  const tasks: Promise<any>[] = [getRecruitPage()]
-  if (isUserLoggedIn.value) {
-    tasks.push(getRecruitProgress())
-  }
-  Promise.all(tasks)
-    .then((results) => {
-      const pageRes = results[0]
-      const pageData = pageRes.data || {}
-      if (pageData.code == 22000) {
-        isDistributionClosed.value = true
-        pageInfo.value = {}
+
+  const load = async () => {
+    if (isUserLoggedIn.value) {
+      if (recruitToken.value) {
+        try {
+          await savePendingRecruitToken(recruitToken.value)
+        } catch (e) {
+          // 上报失败不阻断加入页
+        }
+      }
+      try {
+        const progressRes = await getRecruitProgress()
+        progress.value = progressRes.data?.result || emptyProgress()
+      } catch (e) {
         progress.value = emptyProgress()
-        return
       }
-      const pageResult = pageData.result || {}
-      pageInfo.value = pageResult
-      if (results.length > 1) {
-        progress.value = results[1].data?.result || emptyProgress()
-      } else {
-        progress.value = hasConditionalJoin(pageResult.plan) ? emptyProgress() : { satisfied: true }
-      }
-    })
+    }
+    const pageRes = await getRecruitPage()
+    const pageData = pageRes.data || {}
+    if (pageData.code == 22000) {
+      isDistributionClosed.value = true
+      pageInfo.value = {}
+      progress.value = emptyProgress()
+      return
+    }
+    const pageResult = pageData.result || {}
+    pageInfo.value = pageResult
+    if (!isUserLoggedIn.value) {
+      progress.value = hasConditionalJoin(pageResult.plan) ? emptyProgress() : { satisfied: true }
+    }
+  }
+
+  Promise.resolve(load())
+    .catch(() => {})
     .finally(() => {
       loading.value = false
     })
