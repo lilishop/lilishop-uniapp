@@ -772,6 +772,12 @@
 					}
 				},
 				{
+					"path": "gift-card/myGiftCards",
+					"style": {
+						"navigationBarTitleText": "我的礼品卡"
+					}
+				},
+				{
 					"path": "payment/payOrder",
 					"style": {
 						"navigationBarTitleText": "支付订单",
@@ -865,6 +871,18 @@
 					"style": {
 						"navigationBarTitleText": "查看卡密",
 						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "appointment/appointmentCheckout",
+					"style": {
+						"navigationBarTitleText": "预约信息"
+					}
+				},
+				{
+					"path": "appointment/appointmentReschedule",
+					"style": {
+						"navigationBarTitleText": "申请改期"
 					}
 				},
 				{

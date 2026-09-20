@@ -62,7 +62,7 @@
 										v-if="order.allowOperationVO.pay" @click="waitPay(order)">立即付款</view>
 									<!-- 取消订单 -->
 									<view ripple class="cancel-btn" shape="circle" size="mini"
-										v-if="order.allowOperationVO.cancel" @click="onCancel(order.sn)">
+										v-if="showOrderCancel(order)" @click="onCancel(order.sn)">
 										取消订单
 									</view>
 									<!-- 等待收货 -->
@@ -71,7 +71,7 @@
 										确认收货
 									</view>
 									<view ripple shape="circle" class="cancel-btn" size="mini"
-										v-if="!isECouponOrder(order.orderType) && order.groupAfterSaleStatus && ( order.groupAfterSaleStatus.includes('NOT_APPLIED') || order.groupAfterSaleStatus.includes('PART_AFTER_SALE'))"
+										v-if="showOrderAfterSale(order)"
 										@click="applyService(order)">
 										退款/售后
 									</view> 
@@ -123,7 +123,8 @@ import {
 	orderStatusList,
 } from '@/utils/filters.js'
 // E_COUPON 订单不展示确认收货、退款/售后（FR-B-04）
-import { isECouponOrder } from '@/utils/goodsType.js'
+import { isECouponOrder, isAppointmentOrder } from '@/utils/goodsType.js'
+import { getAppointmentAllowOperation } from '@/utils/appointmentGoods.js'
 
 const store = useStore()
 const { proxy } = getCurrentInstance()!
@@ -369,6 +370,23 @@ function orderStateExp(state: number) {
 			break
 	}
 	return { stateTip, stateTipColor }
+}
+
+function showOrderCancel(order: any) {
+	if (isAppointmentOrder(order?.orderType)) {
+		return !!getAppointmentAllowOperation(order)?.cancel
+	}
+	return !!order?.allowOperationVO?.cancel
+}
+
+function showOrderAfterSale(order: any) {
+	if (isECouponOrder(order?.orderType)) return false
+	if (isAppointmentOrder(order?.orderType)) {
+		const allow = getAppointmentAllowOperation(order)
+		if (!allow?.afterSale) return false
+	}
+	const status = order?.groupAfterSaleStatus
+	return status && (status.includes('NOT_APPLIED') || status.includes('PART_AFTER_SALE'))
 }
 
 function navigateToOrderDetail(sn: string) {

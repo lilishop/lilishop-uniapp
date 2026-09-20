@@ -68,6 +68,11 @@
       </div>
     </div>
 
+    <view class="address-box appointment-summary" v-if="isAppointmentCheckout && appointmentCheckoutSummary">
+      <view class="appointment-summary__title">预约信息</view>
+      <view class="appointment-summary__text">{{ appointmentCheckoutSummary }}</view>
+    </view>
+
     <!-- 开团信息 -->
     <view class="group-box" v-if="isAssemble">
       <view class="group-title">
@@ -336,19 +341,23 @@
           </u-col>
         </u-row>
       </div>
-      <div v-if="giftCardList.length || giftCardDeductAmount > 0">
+      <div class="gift-card-module">
         <u-row>
-          <u-col :span="6">礼品卡</u-col>
+          <u-col :span="6">
+            <view class="gift-card-title-row">
+              <text>使用礼品卡</text>
+              <text class="gift-card-help" @click.stop="showGiftCardNotice">使用说明</text>
+            </view>
+          </u-col>
           <u-col :span="6" class="tr tipsColor" textAlign="right">
             <span v-if="giftCardDeductAmount > 0" class="main-color"
-              >-￥{{ unitPrice(giftCardDeductAmount) }}</span
+              >已抵扣 -￥{{ unitPrice(giftCardDeductAmount) }}</span
             >
-            <span v-else @click="giftCardExpanded = !giftCardExpanded"
-              >{{ giftCardList.length }} 张可用</span
-            >
+            <span v-else>{{ giftCardList.length }} 张可用</span>
           </u-col>
         </u-row>
-        <view v-if="giftCardExpanded && giftCardList.length" class="gift-card-list">
+        <view v-if="!giftCardList.length" class="gift-card-empty">暂无可用礼品卡</view>
+        <view v-else class="gift-card-list">
           <view
             class="gift-card-item"
             :class="{ 'gift-card-item--selected': isGiftCardSelected(item) }"
@@ -356,11 +365,27 @@
             :key="item.id"
             @click="toggleGiftCard(item)"
           >
-            <view class="gift-card-item__name">{{ item.giftCardName || '礼品卡' }}</view>
-            <view class="gift-card-item__meta">
-              <text>余额 ￥{{ unitPrice(item.balance) }}</text>
-              <text class="gift-card-item__no">{{ item.cardNo }}</text>
+            <view class="gift-card-item__header">
+              <view class="gift-card-item__pattern" />
+              <view class="gift-card-item__inner">
+                <view>
+                  <view class="gift-card-item__name">{{ item.giftCardName || '礼品卡' }}</view>
+                  <view class="gift-card-item__face">面值{{ item.faceText }}元</view>
+                </view>
+                <view class="gift-card-item__right">
+                  <view class="gift-card-item__type">现金卡</view>
+                  <view class="gift-card-item__expire">{{ item.expireText }}</view>
+                </view>
+              </view>
             </view>
+            <view class="gift-card-item__body">
+              <view class="gift-card-item__balance">
+                <text class="gift-card-item__amt">¥{{ unitPrice(item.balance) }}</text>
+                <text>余额</text>
+              </view>
+              <view class="gift-card-item__no">{{ item.cardNo }}</view>
+            </view>
+            <view v-if="isGiftCardSelected(item)" class="gift-card-item__check">已选</view>
           </view>
         </view>
       </div>
@@ -428,7 +453,10 @@ import {
   secrecyMobile,
   isLogin,
 } from '@/utils/filters.js'
-import { hasECouponInCheckout } from '@/utils/goodsType.js'
+import { hasECouponInCheckout, hasAppointmentInCheckout } from '@/utils/goodsType.js'
+import { SERVICE_MODE_LABEL, formatDate } from '@/utils/appointmentGoods.js'
+import { bindCheckout } from '@/api/appointment.js'
+import { decorateGiftCard, GIFT_CARD_PAY_NOTICE } from '@/utils/giftCard.js'
 
 const store = useStore()
 const { proxy } = getCurrentInstance()!
@@ -474,12 +502,32 @@ const originOrderData = ref<any>('')
 
 // E_COUPON 结算：免地址/免配送（hidePhysicalCheckout）；优惠券/活动/礼品卡可用（M-02）
 const isECouponCheckout = computed(() => hasECouponInCheckout(orderMessage.value))
+const isAppointmentCheckout = computed(() => hasAppointmentInCheckout(orderMessage.value))
 const isVirtualCheckout = computed(() => orderMessage.value?.cartTypeEnum === 'VIRTUAL')
 const hidePhysicalCheckout = computed(
-  () => isVirtualCheckout.value || isECouponCheckout.value
+  () => isVirtualCheckout.value || isECouponCheckout.value || isAppointmentCheckout.value
 )
+const appointmentCheckoutContext = ref<any>(null)
 
-const giftCardList = computed(() => orderMessage.value?.canUseGiftCards || [])
+const appointmentCheckoutSummary = computed(() => {
+  const ctx =
+    appointmentCheckoutContext.value ||
+    orderMessage.value?.appointmentCheckout ||
+    orderMessage.value?.appointmentContext
+  if (!ctx) return ''
+  const date = formatDate(ctx.slotDate)
+  const mode = SERVICE_MODE_LABEL[ctx.serviceMode] || ctx.serviceMode || ''
+  const slot = ctx.slotStartTime && ctx.slotEndTime ? `${ctx.slotStartTime}-${ctx.slotEndTime}` : ''
+  const contact = ctx.contactName ? `${ctx.contactName} ${ctx.contactPhone || ''}` : ''
+  return [date, slot, mode, contact].filter(Boolean).join(' · ')
+})
+
+const selectedGiftCardIds = computed(() => orderMessage.value?.selectedGiftCardIds || [])
+const giftCardList = computed(() =>
+  (orderMessage.value?.canUseGiftCards || []).map((item: any) =>
+    decorateGiftCard(item, selectedGiftCardIds.value)
+  )
+)
 const giftCardDeductAmount = computed(() => {
   const dto = orderMessage.value?.priceDetailDTO
   if (!dto) return 0
@@ -488,8 +536,6 @@ const giftCardDeductAmount = computed(() => {
   }
   return Number(dto.giftCardPrice) || 0
 })
-const selectedGiftCardIds = computed(() => orderMessage.value?.selectedGiftCardIds || [])
-const giftCardExpanded = ref(false)
 
 watch(
   remarkVal,
@@ -527,9 +573,10 @@ onShow(async () => {
     mask: true,
   })
   try {
+    appointmentCheckoutContext.value = uni.getStorageSync('appointment_checkout_context') || null
     await getOrderList()
-    // E_COUPON 不需要配送方式
-    if (!isECouponCheckout.value) {
+    // E_COUPON / 预约商品不需要配送方式
+    if (!isECouponCheckout.value && !isAppointmentCheckout.value) {
       await getDistribution()
     }
     if (routerVal.value.way == 'PINTUAN') {
@@ -603,6 +650,15 @@ function pintuanWay() {
 
 function invoice() {
   invoiceFlag.value = true
+}
+
+function showGiftCardNotice() {
+  uni.showModal({
+    title: '礼品卡使用说明',
+    content: GIFT_CARD_PAY_NOTICE,
+    showCancel: false,
+    confirmText: '我知道了',
+  })
 }
 
 function isGiftCardSelected(item: any) {
@@ -717,36 +773,62 @@ function createTradeFun() {
       delete submit.parentOrderSn
     }
 
-    API_Trade.createTrade(submit).then((res) => {
-      if (res.data.success) {
-        uni.showToast({
-          title: '创建订单成功!',
-          duration: 2000,
-          icon: 'none',
-        })
-        if (orderMessage.value.priceDetailDTO.billPrice == 0) {
-          uni.navigateTo({
-            url: '/pages/order/myOrder?status=0',
+    const runCreate = () =>
+      API_Trade.createTrade(submit).then((res) => {
+        if (res.data.success) {
+          uni.removeStorageSync('appointment_checkout_context')
+          uni.showToast({
+            title: '创建订单成功!',
+            duration: 2000,
+            icon: 'none',
           })
-        } else {
-          // #ifdef MP-WEIXIN
-          pay(res.data.result.sn)
-          // #endif
+          if (orderMessage.value.priceDetailDTO.billPrice == 0) {
+            uni.navigateTo({
+              url: '/pages/order/myOrder?status=0',
+            })
+          } else {
+            // #ifdef MP-WEIXIN
+            pay(res.data.result.sn)
+            // #endif
 
-          // #ifndef MP-WEIXIN
-          navigateTo(
-            `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
-          )
-          // #endif
+            // #ifndef MP-WEIXIN
+            navigateTo(
+              `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
+            )
+            // #endif
+          }
+        } else {
+          uni.showToast({
+            title: res.data.message,
+            duration: 2000,
+            icon: 'none',
+          })
         }
-      } else {
+      })
+
+    if (isAppointmentCheckout.value) {
+      const ctx =
+        appointmentCheckoutContext.value ||
+        uni.getStorageSync('appointment_checkout_context')
+      if (!ctx) {
         uni.showToast({
-          title: res.data.message,
-          duration: 2000,
+          title: '预约信息不完整，请返回重选时段',
           icon: 'none',
         })
+        return
       }
-    })
+      bindCheckout(ctx)
+        .then(runCreate)
+        .catch((e: any) => {
+          uni.showToast({
+            title: e?.data?.message || e?.message || '预约信息提交失败',
+            icon: 'none',
+          })
+        })
+      return
+    }
+
+    runCreate()
   }, 3000)
 }
 
@@ -861,8 +943,8 @@ function getOrderList() {
     ;(store.state as any).canUseCoupons = res.data.result.canUseCoupons
     ;(store.state as any).cantUseCoupons = res.data.result.cantUseCoupons
 
-    // E_COUPON 免地址，不自动回填 memberAddress
-    if (!hasECouponInCheckout(res.data.result)) {
+    // E_COUPON / 预约商品免地址，不自动回填 memberAddress
+    if (!hasECouponInCheckout(res.data.result) && !hasAppointmentInCheckout(res.data.result)) {
       if (!res.data.result.memberAddress) {
         getUserAddress()
       } else {
@@ -894,6 +976,22 @@ page {
 }
 </style>
 <style scoped lang="scss">
+.appointment-summary {
+  padding: 24rpx 32rpx;
+  background: #fff;
+  margin-bottom: 20rpx;
+}
+.appointment-summary__title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+.appointment-summary__text {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
 .flex-8 {
   flex: 8;
 }
@@ -1250,39 +1348,129 @@ page {
   margin: 20rpx 0;
 }
 
+.gift-card-module {
+  margin-top: 8rpx;
+}
+
+.gift-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.gift-card-help {
+  font-size: 22rpx;
+  color: #909399;
+}
+
+.gift-card-empty {
+  margin-top: 16rpx;
+  padding: 24rpx;
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  background: #fafafa;
+  border-radius: 12rpx;
+}
+
 .gift-card-list {
   margin-top: 16rpx;
-  padding: 0 8rpx 8rpx;
 }
 
 .gift-card-item {
-  border: 1rpx solid #eceef2;
+  position: relative;
   border-radius: 16rpx;
-  padding: 20rpx 24rpx;
+  overflow: hidden;
   margin-bottom: 16rpx;
+  border: 2rpx solid transparent;
   background: #fff;
 
   &--selected {
     border-color: $main-color;
-    background: rgba($main-color, 0.04);
   }
+}
+
+.gift-card-item__header {
+  position: relative;
+  background: linear-gradient(125deg, #ff9a4a 0%, #ff7729 42%, #ff8f3d 100%);
+}
+
+.gift-card-item__pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    -36deg,
+    transparent,
+    transparent 10rpx,
+    rgba(255, 255, 255, 0.45) 10rpx,
+    rgba(255, 255, 255, 0.45) 12rpx
+  );
+}
+
+.gift-card-item__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 24rpx 16rpx;
+  color: #fff;
 }
 
 .gift-card-item__name {
   font-size: 28rpx;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
 }
 
-.gift-card-item__meta {
-  display: flex;
-  justify-content: space-between;
+.gift-card-item__face,
+.gift-card-item__expire {
   margin-top: 8rpx;
-  font-size: 24rpx;
-  color: #666;
+  font-size: 22rpx;
+  opacity: 0.92;
+}
+
+.gift-card-item__right {
+  text-align: right;
+}
+
+.gift-card-item__type {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.gift-card-item__body {
+  padding: 16rpx 24rpx 20rpx;
+}
+
+.gift-card-item__balance {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  font-size: 22rpx;
+  color: #999;
+}
+
+.gift-card-item__amt {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ff6b22;
 }
 
 .gift-card-item__no {
+  margin-top: 8rpx;
+  font-size: 22rpx;
   color: #999;
+}
+
+.gift-card-item__check {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 4rpx 14rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: $main-color;
+  border-top-left-radius: 12rpx;
 }
 </style>

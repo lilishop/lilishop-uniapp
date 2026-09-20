@@ -202,4 +202,40 @@ export function getMineBargainLog(params) {
   });
 }
 
+/**
+ * 分页查询当前客户礼品卡
+ */
+export function getGiftCardCashMemberCardPage(params) {
+  return http.request({
+    url: '/promotion/giftCardCash/memberCard',
+    method: Method.GET,
+    needToken: true,
+    params,
+  })
+}
+
+/**
+ * 绑定礼品卡（卡号 + 兑换码/卡密）
+ */
+export function bindGiftCardCashMemberCard(data) {
+  return http.request({
+    url: '/promotion/giftCardCash/memberCard/bind',
+    method: Method.POST,
+    needToken: true,
+    header: { 'content-type': 'application/json' },
+    data,
+  })
+}
+
+/**
+ * 激活礼品卡
+ */
+export function activateGiftCardCashMemberCard(memberCardId) {
+  return http.request({
+    url: `/promotion/giftCardCash/memberCard/${memberCardId}/activate`,
+    method: Method.POST,
+    needToken: true,
+  })
+}
+
 

@@ -121,6 +121,7 @@ import { goodsFormatPrice } from '@/utils/filters.js'
 import {
 	isECoupon,
 	isVirtualGoods,
+	isAppointmentGoods,
 	getECouponStock,
 	getECouponMaxBuyNum,
 } from '@/utils/goodsType.js'
@@ -173,12 +174,13 @@ const maxBuyNum = computed(() => {
 	return 999
 })
 
-// 电子卡券禁止加购（后端 CARD_KEY_E_COUPON_CART_FORBIDDEN）
+// 电子卡券/预约商品禁止加购
 const showAddToCart = computed(() => {
 	return (
 		buyType.value != 'PINTUAN' &&
 		!isVirtualGoods(props.goodsDetail?.goodsType) &&
-		!isECoupon(props.goodsDetail?.goodsType)
+		!isECoupon(props.goodsDetail?.goodsType) &&
+		!isAppointmentGoods(props.goodsDetail?.goodsType)
 	)
 })
 
@@ -341,6 +343,14 @@ const addToCartOrBuy = (val: string) => {
 		data.cartType = resolveCartType()
 		API_trade.addToCart(data).then((res) => {
 			if (res.data.success) {
+				if (isAppointmentGoods(props.goodsDetail?.goodsType)) {
+					const goodsId = props.goodsDetail.goodsId || ''
+					uni.navigateTo({
+						url: `/pages/order/appointment/appointmentCheckout?skuId=${props.goodsDetail.id}&goodsId=${goodsId}&num=${num.value}`,
+					})
+					closeMask()
+					return
+				}
 				uni.navigateTo({
 					url: `/pages/order/fillorder?way=${data.cartType}&addr=${props.addr?.id || ''}&parentOrder=${encodeURIComponent(JSON.stringify(parentOrder.value || ''))}`,
 				})

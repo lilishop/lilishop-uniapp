@@ -31,7 +31,7 @@
             <view class="goods-info">
               <view class="goods-title">{{ getGoodsName(item) }}</view>
               <view class="goods-price">
-                <text>￥{{ unitPrice(applyInfo.applyRefundPrice) }}</text>
+                <text>￥{{ unitPrice(displayRefundPrice) }}</text>
                 <text class="num">购买数量: {{ item.num }}</text>
               </view>
             </view>
@@ -164,11 +164,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, getCurrentInstance } from 'vue'
+import { ref, reactive, computed, getCurrentInstance, watch } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { unitPrice, parseGoodsImageUrl } from '@/utils/filters.js'
 import { getAfterSaleReason, applyReturn, getAfterSaleInfo } from '@/api/after-sale'
+import { isAppointmentOrder } from '@/utils/goodsType.js'
+import { computePartialRefundPrice } from '@/utils/appointmentGoods.js'
 import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
 import storage from '@/utils/storage.js'
 
@@ -185,6 +187,23 @@ const reasonSelectShow = ref(false)
 const reasonList = ref<any[]>([])
 const applyInfo = ref<any>({})
 const uToast = ref<any>(null)
+const isAppointmentAfterSale = ref(false)
+
+const displayRefundPrice = computed(() => {
+  if (!isAppointmentAfterSale.value) return applyInfo.value?.applyRefundPrice
+  return computePartialRefundPrice(applyInfo.value, form.num)
+})
+
+watch(
+  () => form.num,
+  () => {
+    if (!isAppointmentAfterSale.value) return
+    applyInfo.value = {
+      ...applyInfo.value,
+      displayRefundPrice: displayRefundPrice.value,
+    }
+  }
+)
 
 const form = reactive({
   orderItemSn: '',
@@ -221,6 +240,7 @@ onLoad((options) => {
   uni.setNavigationBarTitle({ title: navTitle })
   sn.value = options?.sn || ''
   sku.value = storage.getAfterSaleData()
+  isAppointmentAfterSale.value = isAppointmentOrder(sku.value?.orderType)
   form.orderItemSn = options?.sn || ''
   form.skuId = sku.value.skuId
   form.num = sku.value.num
@@ -271,8 +291,12 @@ function init(orderItemSn: string) {
         icon: 'none',
       })
     } else {
-      applyInfo.value = response.data.result
-      form.accountType = response.data.result.accountType
+      const result = response.data.result
+      applyInfo.value = {
+        ...result,
+        totalNum: result.orderItemNum || sku.value?.num,
+      }
+      form.accountType = result.accountType
     }
   })
 }
@@ -294,6 +318,12 @@ function reasonSelectConfirm(val: any) {
 
 function valChange(e: { value: number }) {
   form.num = e.value
+  if (isAppointmentAfterSale.value) {
+    applyInfo.value = {
+      ...applyInfo.value,
+      applyRefundPrice: computePartialRefundPrice(applyInfo.value, form.num),
+    }
+  }
 }
 
 function onUploadAfterRead(event: any) {
@@ -320,7 +350,9 @@ function onSubmit() {
   uni.showLoading({ title: '加载中' })
   form.accountType = applyInfo.value.accountType
   form.refundWay = applyInfo.value.refundWay
-  form.applyRefundPrice = applyInfo.value.applyRefundPrice
+  form.applyRefundPrice = isAppointmentAfterSale.value
+    ? computePartialRefundPrice(applyInfo.value, form.num)
+    : applyInfo.value.applyRefundPrice
 
   applyReturn(sn.value, form).then((resp) => {
     hideLoadingIfNeeded()

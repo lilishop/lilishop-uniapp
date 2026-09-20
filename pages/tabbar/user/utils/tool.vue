@@ -53,6 +53,10 @@
 			  <image class="interact-item-icon" src="/static/mine/mycoupon.png" mode=""></image>
 			  <view>优惠券</view>
 			</view>
+			<view class="interact-item" @click="navigateTo('/pages/cart/gift-card/myGiftCards')">
+			  <image class="interact-item-icon" src="/static/mine/pointgift.png" mode=""></image>
+			  <view>礼品卡</view>
+			</view>
 			
 		
 			        

@@ -11,7 +11,55 @@
     <!-- 物流/配送信息 / 卡密入口 -->
     <view class="info-view logistics-view" v-if="showDeliveryInfoBlock">
       <view class="logistics-List">
-        <view v-if="isECouponOrder" class="card-key-entry">
+        <view v-if="isAppointmentOrderFlag" class="appointment-entry">
+          <view class="appointment-entry__row">
+            <text class="label">预约时间</text>
+            <text>{{ appointmentSlotText }}</text>
+          </view>
+          <view class="appointment-entry__row" v-if="appointmentDetail.serviceMode">
+            <text class="label">服务方式</text>
+            <text>{{ serviceModeLabel }}</text>
+          </view>
+          <view class="appointment-entry__row" v-if="appointmentDetail.contactName">
+            <text class="label">联系人</text>
+            <text>{{ appointmentDetail.contactName }} {{ appointmentDetail.contactPhone }}</text>
+          </view>
+          <view class="appointment-entry__row" v-if="appointmentDetail.serviceAddressSnapshot">
+            <text class="label">服务地址</text>
+            <text>{{ appointmentDetail.serviceAddressSnapshot }}</text>
+          </view>
+          <view
+            v-for="(rows, gi) in appointmentFormGroups"
+            :key="gi"
+            class="appointment-entry__row appointment-form-block"
+          >
+            <text class="label">{{ appointmentFormGroups.length > 1 ? `补充信息${gi + 1}` : '补充信息' }}</text>
+            <view class="form-answers">
+              <view v-for="row in rows" :key="row.fieldKey" class="form-answer-row">
+                {{ row.fieldLabel }}：{{ row.value }}
+              </view>
+            </view>
+          </view>
+          <view v-if="appointmentCodes.length" class="appointment-codes">
+            <view class="appointment-codes__title">核销码（{{ appointmentCodes.length }}）</view>
+            <view
+              v-for="code in appointmentCodes"
+              :key="code.id || code.code"
+              class="verificationCode appointment-code-item"
+            >
+              {{ code.seqNo ? '#' + code.seqNo + ' ' : '' }}{{ code.code }}
+              <text class="code-status">（{{ verificationStatusText(code.status) }}）</text>
+            </view>
+          </view>
+          <view
+            v-if="appointmentAllow.reschedule"
+            class="card-key-entry__btn reschedule-stub"
+            @click="onRescheduleStub"
+          >
+            申请改期
+          </view>
+        </view>
+        <view v-else-if="isECouponOrder" class="card-key-entry">
           <view v-if="ecouponCardKeyDelivered" class="card-key-entry__btn" @click="goCardKeyDetail">
             查看卡密
           </view>
@@ -92,7 +140,7 @@
                 <view class="goods-price">
                   ￥{{unitPrice(sku.goodsPrice) }}
                   <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
-				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="!isECouponOrder && sku.isRefund && sku.isRefund !== 'NO_REFUND'">
+				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="!isECouponOrder && !isAppointmentOrderFlag && sku.isRefund && sku.isRefund !== 'NO_REFUND'">
 				  {{refundPriceList(sku.isRefund)}} ({{unitPrice(sku.refundPrice, "￥") }})
 				   </span>
                 </view>
@@ -112,7 +160,7 @@
           <view class="title">商品总价：</view>
           <view class="value">￥{{unitPrice(order.goodsPrice) }}</view>
         </view>
-        <view class="order-info-view" v-if="order.freightPrice && !isECouponOrder">
+        <view class="order-info-view" v-if="order.freightPrice && !isECouponOrder && !isAppointmentOrderFlag">
           <view class="title">运费：</view>
           <view class="value">￥{{unitPrice(order.freightPrice) }}</view>
         </view>
@@ -142,7 +190,7 @@
         </view>
         <view class="customer-list">
           <view class="customer-service"
-            v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true"
+            v-if="showCancelBtn"
             @click="onCancel(order.sn)">取消订单</view>
           <view class="customer-service" v-if="allowOperation.showLogistics" @click="handleClickDeliver()">查看物流</view>
           <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderPromotionType == 'PINTUAN'"
@@ -282,12 +330,21 @@ import {
 } from '@/utils/orderDelivery.js'
 import {
 	isECouponOrder as checkECouponOrder,
+	isAppointmentOrder as checkAppointmentOrder,
 	isNonPhysicalOrder as checkNonPhysicalOrder,
 	orderHasCardKeyContent,
 	collectCardKeyFulfillLines,
 	resolveCardKeyFulfillMessage,
 	CARD_KEY_FULFILL_STATUS,
 } from '@/utils/goodsType.js'
+import { getAppointmentOrderDetail } from '@/api/appointment.js'
+import {
+	SERVICE_MODE_LABEL,
+	VERIFICATION_CODE_STATUS_TEXT,
+	getAppointmentAllowOperation,
+	formatDate,
+	parseFormAnswerGroups,
+} from '@/utils/appointmentGoods.js'
 
 const store = useStore()
 const lightColor = computed(() => store.getters.lightColor)
@@ -319,7 +376,30 @@ const orderPackage = ref<any[]>([])
 const legacyTraces = ref<any>(null)
 
 const isECouponOrder = computed(() => checkECouponOrder(order.value?.orderType))
+const isAppointmentOrderFlag = computed(() => checkAppointmentOrder(order.value?.orderType))
 const isNonPhysicalOrder = computed(() => checkNonPhysicalOrder(order.value?.orderType))
+const appointmentDetail = ref<Record<string, any>>({})
+const appointmentAllow = computed(() =>
+	getAppointmentAllowOperation(order.value) || { cancel: false, afterSale: false, reschedule: false }
+)
+const showCancelBtn = computed(() => {
+	if (isAppointmentOrderFlag.value) return appointmentAllow.value.cancel
+	return orderDetail.value.allowOperationVO?.cancel === true
+})
+const appointmentCodes = computed(() => appointmentDetail.value?.codes || [])
+const serviceModeLabel = computed(
+	() => SERVICE_MODE_LABEL[appointmentDetail.value?.serviceMode] || appointmentDetail.value?.serviceMode || ''
+)
+const appointmentSlotText = computed(() => {
+	const d = appointmentDetail.value
+	if (!d?.slotDate) return '—'
+	const date = formatDate(d.slotDate)
+	const slot = d.slotStartTime && d.slotEndTime ? `${d.slotStartTime}-${d.slotEndTime}` : ''
+	return [date, slot].filter(Boolean).join(' ')
+})
+const appointmentFormGroups = computed(() =>
+	parseFormAnswerGroups(appointmentDetail.value?.formAnswerJson)
+)
 const ecouponCardKeyDelivered = computed(() =>
 	orderHasCardKeyContent(orderGoodsList.value)
 )
@@ -335,6 +415,7 @@ const allowOperation = computed(() =>
 )
 
 const showDeliveryInfoBlock = computed(() => {
+	if (isAppointmentOrderFlag.value) return true
 	if (isECouponOrder.value) return true
 	if (order.value.orderType === 'VIRTUAL') return false
 	if (order.value.deliveryMethod === 'SELF_PICK_UP') return false
@@ -444,6 +525,29 @@ function ByUserMessage(orderItem: any) {
 	})
 }
 
+function verificationStatusText(status: string) {
+	return VERIFICATION_CODE_STATUS_TEXT[status] || status || '—'
+}
+
+async function loadAppointmentDetail(orderSnParam: string) {
+	if (!checkAppointmentOrder(order.value?.orderType)) {
+		appointmentDetail.value = {}
+		return
+	}
+	try {
+		const res = await getAppointmentOrderDetail(orderSnParam)
+		appointmentDetail.value = res.data?.result || {}
+	} catch {
+		appointmentDetail.value = {}
+	}
+}
+
+function onRescheduleStub() {
+	uni.navigateTo({
+		url: `/pages/order/appointment/appointmentReschedule?orderSn=${order.value.sn}`,
+	})
+}
+
 function loadData(orderSnParam: string) {
 	uni.showLoading({ title: '加载中' })
 	getOrderDetail(orderSnParam).then(async (res) => {
@@ -454,6 +558,7 @@ function loadData(orderSnParam: string) {
 		if (!order.value.allowOperationVO && result.allowOperationVO) {
 			order.value.allowOperationVO = result.allowOperationVO
 		}
+		await loadAppointmentDetail(orderSnParam)
 		await loadDelivery(order.value)
 		hideLoadingIfNeeded()
 	})
@@ -772,6 +877,39 @@ page,
       color: $font-color-light;
     }
   }
+}
+
+.appointment-entry__row {
+  display: flex;
+  font-size: 26rpx;
+  margin-bottom: 12rpx;
+  line-height: 1.5;
+}
+.appointment-entry__row .label {
+  color: #999;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+.form-answers {
+  flex: 1;
+}
+.form-answer-row {
+  margin-bottom: 4rpx;
+}
+.appointment-codes__title {
+  font-size: 26rpx;
+  font-weight: 600;
+  margin: 16rpx 0 8rpx;
+}
+.appointment-code-item {
+  margin-bottom: 8rpx;
+}
+.code-status {
+  color: #999;
+  font-size: 22rpx;
+}
+.reschedule-stub {
+  margin-top: 16rpx;
 }
 
 .verificationCode {
