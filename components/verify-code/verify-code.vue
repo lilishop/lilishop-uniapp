@@ -167,7 +167,8 @@ function getCodeCursorLeft() {
 
 // 输入框输入变化的回调
 function handleInput(e: any) {
-	const value = e.detail.value
+	const inputValue = e?.detail?.value ?? e?.target?.value ?? ''
+	const value = String(inputValue).replace(/\D/g, '').slice(0, props.size)
 	code.value = value
 	cursorVisible.value = value.length !== props.size
 	emit('update:modelValue', value)
@@ -270,12 +271,29 @@ function codeFormat(val: string | undefined, isPassword: boolean): string {
 				position: absolute;
 				top: 50%;
 				left: 50%;
-				font-size:52rpx;
+				z-index: 1;
+				color: #333;
+				font-size: 52rpx;
 				transform: translate(-50%, -50%);
 			}
 		}
 	}
 }
+
+/* #ifdef APP-PLUS */
+/* APP 中让自绘验证码位于透明输入框上方；点击仍由 input-ground 触发聚焦。 */
+.xt__input {
+	z-index: 1;
+}
+
+.xt__input-ground {
+	z-index: 2;
+}
+
+.xt__cursor {
+	z-index: 3;
+}
+/* #endif */
 
 @keyframes cursor {
 	0% {
