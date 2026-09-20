@@ -215,6 +215,15 @@ export function getRecruitProgress() {
   })
 }
 
+/** 上报招募邀请 token（登录后供自动申请使用） */
+export function savePendingRecruitToken(recruitToken) {
+  return http.request({
+    url: `/distribution/distribution/recruit/pending-token`,
+    method: Method.PUT,
+    params: { recruitToken },
+  })
+}
+
 /** 上级分销员信息 */
 export function getDistributionParent() {
   return http.request({
