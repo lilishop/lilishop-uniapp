@@ -41,13 +41,11 @@
 						cursorColor="#D8D8D8"
 					/>
 
-					<div class="fetch-btn">
-						<u-code change-text="验证码已发送（x）" end-text="重新获取验证码" unique-key="page-login"
-							:seconds="seconds" @end="end" @start="start" ref="uCode" @change="codeChange">
-						</u-code>
-						<span @tap="fetchCode" :style="{ color: codeColor }">
-							{{ tips }}</span>
-					</div>
+					<view class="fetch-btn" style="display: flex; align-items: center; justify-content: center; width: 370rpx; height: 80rpx; border-radius: 100rpx; background-color: #ff6a00">
+						<text @tap="fetchCode" style="color: #fff; font-size: 28rpx; line-height: 80rpx">
+							{{ displayCodeTip }}
+						</text>
+					</view>
 				</div>
 			</div>
 
@@ -131,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, nextTick, getCurrentInstance, onMounted } from 'vue'
+import { ref, reactive, computed, watch, getCurrentInstance, onMounted, onBeforeUnmount } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { openIdLogin, loginCallback, webConnect } from '@/api/connect.js'
@@ -166,8 +164,14 @@ const codeFlag = ref(true)
 const tips = ref('')
 const enableUserPwdBox = ref(false)
 const current = ref(0)
-const codeColor = ref('#999')
-const seconds = ref(60)
+const isCodeCountingDown = ref(false)
+const seconds = 60
+const remainingCodeSeconds = ref(60)
+let codeCountdownTimer: ReturnType<typeof setInterval> | null = null
+const displayCodeTip = computed(() => {
+	if (isCodeCountingDown.value) return `验证码已发送（${remainingCodeSeconds.value}）`
+	return tips.value || '获取验证码'
+})
 const loginTitleWay = [
 	{ title: '欢迎登录', desc: '登录后更精彩，美好生活即将开始' },
 	{ title: '请输入验证码', desc: '已经发送验证码至' },
@@ -192,7 +196,13 @@ const loginList = ref<LoginListItem[]>([
 const clientType = ref('')
 
 const verification = ref<any>(null)
-const uCode = ref<any>(null)
+
+onBeforeUnmount(() => {
+	if (codeCountdownTimer) {
+		clearInterval(codeCountdownTimer)
+		codeCountdownTimer = null
+	}
+})
 
 onShow(() => {
 	// 只要是app登录的全部清除内容
@@ -304,32 +314,30 @@ watch(flage, async (val) => {
 			return
 		}
 
-		// 首次发送时 uCode 尚未挂载；重新获取时才检查倒计时
-		const canSendCode = current.value === 0 || uCode.value?.canGetCode
+		const canSendCode = current.value === 0 || !isCodeCountingDown.value
 		if (!canSendCode) {
 			proxy.$u.toast('请倒计时结束后再发送')
 			return
 		}
 
 		uni.showLoading({})
-		const res = await sendMobile(mobile.value)
-		if (store.state.isShowToast) {
+		try {
+			const res = await sendMobile(mobile.value)
+			if (res.data.success) {
+				code.value = ''
+				current.value = 1
+				startCodeCountdown()
+			} else {
+				uni.showToast({
+					title: res.data.message,
+					duration: 2000,
+					icon: 'none',
+				})
+				flage.value = false
+				verification.value?.getCode()
+			}
+		} finally {
 			uni.hideLoading()
-		}
-		if (res.data.success) {
-			code.value = ''
-			current.value = 1
-			nextTick(() => {
-				uCode.value?.start()
-			})
-		} else {
-			uni.showToast({
-				title: res.data.message,
-				duration: 2000,
-				icon: 'none',
-			})
-			flage.value = false
-			verification.value?.getCode()
 		}
 	} else {
 		verification.value?.hide()
@@ -594,22 +602,27 @@ function navigateToPrivacy(val: string) {
 	})
 }
 
-function start() {
-	codeColor.value = '#999'
+function startCodeCountdown() {
+	if (codeCountdownTimer) clearInterval(codeCountdownTimer)
+	isCodeCountingDown.value = true
+	remainingCodeSeconds.value = seconds
+	tips.value = `验证码已发送（${seconds}）`
+	codeCountdownTimer = setInterval(() => {
+		if (remainingCodeSeconds.value > 1) {
+			remainingCodeSeconds.value -= 1
+			return
+		}
+		clearInterval(codeCountdownTimer!)
+		codeCountdownTimer = null
+		isCodeCountingDown.value = false
+		remainingCodeSeconds.value = 0
+		tips.value = '重新获取验证码'
+		codeFlag.value = true
+	}, 1000)
 	proxy.$u.toast('验证码已发送')
 	flage.value = false
 	codeFlag.value = false
 	verification.value?.hide()
-}
-
-function codeChange(text: string) {
-	tips.value = text
-}
-
-function end() {
-	codeColor.value = lightColor.value
-	codeFlag.value = true
-	console.log(codeColor.value)
 }
 
 function passwordLogin() {
@@ -675,20 +688,6 @@ function fetchCode() {
 			icon: 'none',
 		})
 		return false
-	}
-	if (tips.value == '重新获取验证码') {
-		uni.showLoading({ title: '加载中' })
-		if (!codeFlag.value) {
-			const timer = setInterval(() => {
-				if (verification.value) {
-					verification.value.error()
-				}
-				clearInterval(timer)
-			}, 100)
-		}
-		if (store.state.isShowToast) {
-			uni.hideLoading()
-		}
 	}
 	if (!flage.value) {
 		verification.value?.error()
@@ -817,14 +816,18 @@ declare function miniProgramLogin(code: string | undefined): Promise<{ data: any
 	}
 
 	.fetch-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		width: 370rpx;
 		height: 80rpx;
 		line-height: 80rpx;
 		text-align: center;
-		background: #f2f2f2;
+		background-color: #ff6a00;
+		background: linear-gradient(57.72deg, #ff8a19 18.14%, #ff5e00 98.44%);
 		border-radius: 100rpx;
 		font-size: 28rpx;
-		color: #999;
+		color: #fff;
 
 		margin: 71rpx auto 0 auto;
 	}

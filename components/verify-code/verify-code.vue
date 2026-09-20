@@ -281,8 +281,18 @@ function codeFormat(val: string | undefined, isPassword: boolean): string {
 }
 
 /* #ifdef APP-PLUS */
-/* APP 中让自绘验证码位于透明输入框上方；点击仍由 input-ground 触发聚焦。 */
+/*
+ * App 的原生 input 如果覆盖在验证码格上，部分 Android 设备会出现
+ * 原生光标/输入绘制层与自绘数字冲突。沿用 u-code-input 的隐藏输入方式，
+ * 将输入内容和原生光标移出可视区域，验证码格只负责展示响应式状态。
+ */
+.xt__verify-code {
+	overflow: hidden;
+}
+
 .xt__input {
+	left: -750rpx;
+	width: 1500rpx;
 	z-index: 1;
 }
 

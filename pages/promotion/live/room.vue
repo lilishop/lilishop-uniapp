@@ -488,8 +488,34 @@ import {
 import config from '@/config/config'
 import { useStore } from '@/store'
 import { isLogin, navigateToLogin, unitPrice } from '@/utils/filters.js'
+// #ifndef APP-PLUS
 import { LiveChatService } from './utils/liveChat.js'
 import { LiveMqttService } from './utils/liveMqtt.js'
+// #endif
+// #ifdef APP-PLUS
+class LiveChatService {
+  userInfo: any = {}
+  constructor(_options: any = {}) {}
+  setGroupID(_id: string) {}
+  async initTencentIm(_viewLiveResult?: any) {}
+  cleanup() {}
+}
+class LiveMqttService {
+  userId: any = null
+  mqttClient: any = null
+  constructor(_liveId: any, userId: any) {
+    this.userId = userId
+  }
+  setMessageHandlers(_handlers: any) {}
+  isConnected() {
+    return false
+  }
+  initMqtt() {}
+  cleanup() {
+    this.mqttClient = null
+  }
+}
+// #endif
 import { findRecommendPayload, parseRecommendMessageArray } from './utils/liveRecommend.js'
 import { seedLiveSetting } from './utils/liveSetting.js'
 // #ifdef H5
