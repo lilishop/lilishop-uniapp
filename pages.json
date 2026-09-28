@@ -778,6 +778,12 @@
 					}
 				},
 				{
+					"path": "gift-card/index",
+					"style": {
+						"navigationBarTitleText": "礼品卡"
+					}
+				},
+				{
 					"path": "payment/payOrder",
 					"style": {
 						"navigationBarTitleText": "支付订单",
@@ -876,13 +882,7 @@
 				{
 					"path": "appointment/appointmentCheckout",
 					"style": {
-						"navigationBarTitleText": "预约信息"
-					}
-				},
-				{
-					"path": "appointment/appointmentReschedule",
-					"style": {
-						"navigationBarTitleText": "申请改期"
+						"navigationBarTitleText": "立即预约"
 					}
 				},
 				{

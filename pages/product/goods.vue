@@ -1,5 +1,5 @@
 <template>
-  <div class="main-page">
+  <div class="main-page" :style="themeStyle">
     <!-- #ifdef APP-PLUS -->
     <view class="status_bar"></view>
     <!-- #endif -->
@@ -13,8 +13,6 @@
       routerVal.goodsId
     " :thumbnail="goodsDetail.thumbnail" :goodsName="goodsDetail.goodsName" type="goods"
       @close="enableShare = false" />
-    <popups v-model="popupsSwitch" @tapPopup="handleNavbarList" :popData="navbarListData" :x="navbarListX"
-      :y="navbarListY" placement="top-start" />
     <view class="index">
       <!-- topBar -->
       <u-navbar
@@ -25,17 +23,8 @@
         :bg-color="navbar.background"
         :auto-back="false"
         :class="headerFlag ? 'header' : 'header bg-none scroll-hide'"
+        @leftClick="back"
       >
-        <template #left>
-          <view class="backs" @tap.stop>
-            <view class="nav-action" @tap.stop="back()">
-              <u-icon name="arrow-left" class="icon-back"></u-icon>
-            </view>
-            <view class="nav-action" @tap.stop="popupsSwitch = !popupsSwitch">
-              <u-icon name="list" class="icon-list"></u-icon>
-            </view>
-          </view>
-        </template>
         <template #center>
           <view class="headerList" :class="headerFlag ? 'tab-bar' : 'tab-bar scroll-hide'">
             <view class="headerRow headerRow--tabs">
@@ -62,17 +51,8 @@
         class="header-only-back"
         :bg-color="navbarOnlyBack.background"
         :auto-back="false"
+        @leftClick="back"
       >
-        <template #left>
-          <view class="bg-back" @tap.stop>
-            <view class="nav-action" @tap.stop="back()">
-              <u-icon size="20" name="arrow-left" class="icon-back"></u-icon>
-            </view>
-            <view class="nav-action" @tap.stop="popupsSwitch = !popupsSwitch">
-              <u-icon size="20" name="list" class="icon-list"></u-icon>
-            </view>
-          </view>
-        </template>
       </u-navbar>
     </view>
 
@@ -262,7 +242,13 @@
         <view class="detail-btn" v-if="!isGroup && !takeDownFromSale">
           <view class="to-store-car to-store-btn" v-if="showAddToCart" @click="shutMask(4)">
             加入购物车</view>
-          <view class="to-buy to-store-btn" @click="shutMask(4, 'buy')">立即购买</view>
+          <view
+            class="to-buy to-store-btn"
+            :class="{ 'to-buy-theme': isAppointmentGoodsType }"
+            @click="handleBuyClick"
+          >
+            {{ isAppointmentGoodsType ? '立即预约' : '立即购买' }}
+          </view>
           <view class="to-store-car to-store-btn" v-if="startTimer">暂未开始</view>
         </view>
         <!-- 拼团结算 -->
@@ -325,13 +311,13 @@ import * as API_trade from '@/api/trade.js'
 import * as API_Members from '@/api/members.js'
 import * as API_store from '@/api/store.js'
 import { getIMDetail } from '@/api/common'
-import { modelNavigateTo } from '@/pages/tabbar/home/template/tpl.js'
 /************请求存储***************/
 import storage from '@/utils/storage.js'
 /************工具函数***************/
 import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
 import { unitPrice, goodsFormatPrice, isLogin, parseGoodsImageUrl, clearStrComma, talkIm } from '@/utils/filters.js'
-import { isNonPhysicalGoods } from '@/utils/goodsType.js'
+import { isNonPhysicalGoods, isAppointmentGoods } from '@/utils/goodsType.js'
 
 /************组件***************/
 import PromotionLayout from './product/promotion/-promotion'
@@ -347,36 +333,17 @@ import GoodsSwiper from './product/goods/-goods-swiper'
 import popupGoods from '@/components/m-buy/goods'
 import popupAddress from './product/popup/address'
 import shares from '@/components/m-share/index'
-import popups from '@/components/popups/popups'
 import takeDownFormSaleGoods from '@/components/m-take-down-sale-goods/index'
 import setup from './product/popup/popup'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const instance = getCurrentInstance()
 const popupGoodsRef = ref()
 const takeDownSaleRef = ref()
 
 // 响应式数据
 const promotionShow = ref(false)
-let navbarListX: any
-let navbarListY: any
-// #ifdef H5
-navbarListX = ref(110)
-navbarListY = ref(80)
-// #endif
-// #ifdef MP-WEIXIN || APP-PLUS
-// #ifndef H5
-navbarListX = ref(120)
-navbarListY = ref(170)
-// #endif
-// #endif
-const navbarListData = [
-  { title: "首页", icon: "home-fill", ___type: "other" },
-  { title: "购物车", icon: "bag-fill", ___type: "other" },
-  { title: "搜索", icon: "search", ___type: "category" },
-  { title: "个人中心", icon: "account-fill", ___type: "other" },
-]
-const popupsSwitch = ref(false)
 const enableShare = ref(false)
 const selectedGoods = ref<any>("")
 const isGroup = ref(false)
@@ -437,6 +404,7 @@ const isNonPhysicalGoodsType = computed(() => isNonPhysicalGoods(goodsDetail.val
 const showAddToCart = computed(() => {
   return !isNonPhysicalGoodsType.value
 })
+const isAppointmentGoodsType = computed(() => isAppointmentGoods(goodsDetail.value?.goodsType))
 
 // watch
 watch(isGroup, (val) => {
@@ -492,10 +460,6 @@ function reStartTakeDownSale() {
 
 function share() {
   return `/pages/product/goods?id=${routerVal.value.id}&goodsId=${routerVal.value.goodsId}`
-}
-
-function handleNavbarList(val: any) {
-  modelNavigateTo({ url: val })
 }
 
 function emptyPromotion(): boolean {
@@ -637,13 +601,11 @@ function cartCount() {
 }
 
 function back() {
-  if (getCurrentPages().length == 1) {
-    uni.switchTab({
-      url: "/pages/tabbar/home/index",
-    })
-  } else {
-    uni.navigateBack()
-  }
+  uni.navigateBack({
+    fail() {
+      uni.switchTab({ url: '/pages/tabbar/home/index' })
+    },
+  })
 }
 
 function getStoreBaseInfoFun(id: any) {
@@ -722,6 +684,26 @@ function navigateToStore(store_id: any) {
 
 function getCoupon(item: any) {
   receiveCouponsFun(item.id)
+}
+
+function goAppointmentCheckout(num = 1) {
+  const sku = goodsDetail.value?.id
+  const gid = goodsDetail.value?.goodsId || routerVal.value.goodsId
+  if (!sku || !gid) {
+    uni.showToast({ title: '商品信息异常', icon: 'none' })
+    return
+  }
+  uni.navigateTo({
+    url: `/pages/order/appointment/appointmentCheckout?skuId=${sku}&goodsId=${gid}&num=${num}`,
+  })
+}
+
+function handleBuyClick() {
+  if (isAppointmentGoodsType.value) {
+    goAppointmentCheckout()
+    return
+  }
+  shutMask(4, 'buy')
 }
 
 function shutMask(flag: any, buyFlag?: any, type?: any) {

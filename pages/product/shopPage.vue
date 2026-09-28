@@ -234,7 +234,7 @@ import {
   getStoreIsCollect,
 } from '@/api/members.js'
 import config from '@/config/config'
-import { getGoodsList } from '@/api/goods.js'
+import { getGoodsList, getMpScene } from '@/api/goods.js'
 import { getAllCoupons } from '@/api/promotions.js'
 import { getFloorStoreData } from '@/api/home'
 import {
@@ -347,6 +347,33 @@ function fallbackToBasePage() {
   pageData.value = { list: [] }
   getGoodsData()
   getCategoryData()
+}
+
+function applyStoreId(id) {
+  storeId.value = id || ''
+  goodsParams.storeId = storeId.value
+  couponParams.storeId = storeId.value
+}
+
+function parseStoreIdFromParams(params) {
+  const text = String(params || '').trim()
+  if (!text) return ''
+  if (text.indexOf('id=') === 0) return text.slice(3)
+  const match = /(?:^|&)id=([^&]+)/.exec(text)
+  return match ? decodeURIComponent(match[1]) : ''
+}
+
+async function resolveStoreIdFromScene(scene) {
+  const raw = decodeURIComponent(String(scene || '')).trim()
+  if (!raw) return ''
+  const direct = parseStoreIdFromParams(raw)
+  if (direct) return direct
+  try {
+    const res = await getMpScene(raw)
+    return parseStoreIdFromParams(res?.data?.result)
+  } catch {
+    return ''
+  }
 }
 
 function getStoreLicencePhoto() {
@@ -505,11 +532,15 @@ function getCoupon(item: any) {
 }
 
 onLoad((options: any) => {
-  storeId.value = options.id
-  console.log(storeId.value, 'this.storeId')
-
-  goodsParams.storeId = options.id
-  couponParams.storeId = options.id
+  applyStoreId(options?.id)
+  if (!storeId.value && options?.scene) {
+    resolveStoreIdFromScene(options.scene).then((id) => {
+      if (!storeId.value && id) {
+        applyStoreId(id)
+        init()
+      }
+    })
+  }
 })
 
 onPageScroll((e) => {
@@ -531,7 +562,7 @@ onMounted(() => {
     withShareTicket: true,
   })
   // #endif
-  init()
+  if (storeId.value) init()
 })
 </script>
 

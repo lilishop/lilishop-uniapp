@@ -32,37 +32,46 @@
           <view class="point-value">{{ footNum || 0 }}</view>
         </view>
       </view>
-      <!-- 我的订单，代付款 -->
+      <!-- 我的订单 -->
       <view class="order">
-        <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=1')">
-          <view class="bag bag2">
-            <u-icon name="bag-fill" size="22" color="#fff"></u-icon>
+        <view class="order-head">
+          <text class="order-head-title">我的订单</text>
+          <view class="order-head-all" @click="navigateTo('/pages/order/myOrder?status=0')">
+            <text>全部</text>
+            <u-icon name="arrow-right" size="12" color="#999"></u-icon>
           </view>
-          <view class="order-item-label">待付款</view>
         </view>
-        <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=3')">
-          <view class="bag bag3">
-            <u-icon name="car-fill" size="22" color="#fff"></u-icon>
+        <view class="order-row">
+          <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=1')">
+            <view class="bag bag2">
+              <u-icon name="bag-fill" size="22" color="#fff"></u-icon>
+            </view>
+            <view class="order-item-label">待支付</view>
           </view>
-          <view class="order-item-label">待收货</view>
-        </view>
-        <view class="order-item" @click="navigateTo('/pages/order/evaluate/myEvaluate')">
-          <view class="bag bag4">
-            <u-icon name="star-fill" size="22" color="#fff"></u-icon>
+          <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=2')">
+            <view class="bag bag1">
+              <u-icon name="gift-fill" size="22" color="#fff"></u-icon>
+            </view>
+            <view class="order-item-label">待发货</view>
           </view>
-          <view class="order-item-label">待评价</view>
-        </view>
-        <view class="order-item" @click="navigateTo('/pages/order/afterSales/afterSales')">
-          <view class="bag bag5">
-            <u-icon name="server-fill" size="22" color="#fff"></u-icon>
+          <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=3')">
+            <view class="bag bag3">
+              <u-icon name="car-fill" size="22" color="#fff"></u-icon>
+            </view>
+            <view class="order-item-label">待收货</view>
           </view>
-          <view class="order-item-label">售后</view>
-        </view>
-        <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=0')">
-          <view class="bag bag1">
-            <u-icon name="order" size="22" color="#fff"></u-icon>
+          <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=4')">
+            <view class="bag bag4">
+              <u-icon name="star-fill" size="22" color="#fff"></u-icon>
+            </view>
+            <view class="order-item-label">待评价</view>
           </view>
-          <view class="order-item-label">我的订单</view>
+          <view class="order-item" @click="navigateTo('/pages/order/myOrder?status=5')">
+            <view class="bag bag5">
+              <u-icon name="server-fill" size="22" color="#fff"></u-icon>
+            </view>
+            <view class="order-item-label">售后</view>
+          </view>
         </view>
       </view>
     </div>
@@ -257,12 +266,34 @@ body {
   }
 
   .order {
-    height: 140rpx;
-    font-size: $font-sm;
-    display: flex;
-    align-items: center;
-    padding: 0 3%;
-    color: #999;
+    padding: 8rpx 16rpx 24rpx;
+    color: #333;
+
+    .order-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8rpx 12rpx 20rpx;
+    }
+
+    .order-head-title {
+      font-size: 26rpx;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .order-head-all {
+      display: flex;
+      align-items: center;
+      gap: 4rpx;
+      font-size: 24rpx;
+      color: #999;
+    }
+
+    .order-row {
+      display: flex;
+      align-items: center;
+    }
 
     .order-item {
       flex: 1;
@@ -274,9 +305,10 @@ body {
     }
 
     .order-item-label {
-      margin-top: 10rpx;
+      margin-top: 12rpx;
       line-height: 1.4;
-      font-size: $font-sm;
+      font-size: 24rpx;
+      color: #333;
     }
   }
 }

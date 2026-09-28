@@ -1,17 +1,48 @@
 <template>
 	<view class="content">
-		<view class="navbar">
-			<view v-for="(item, index) in navList" :key="index" class="nav-item"
-				:class="{ current: tabCurrentIndex === index }" @click="tabClick(index)">{{ item.text }}</view>
-		</view>
+		<scroll-view class="navbar" scroll-x :show-scrollbar="false">
+			<view class="navbar-inner">
+				<view v-for="(item, index) in navList" :key="index" class="nav-item"
+					:class="{ current: tabCurrentIndex === index }" @click="tabClick(index)">{{ item.text }}</view>
+			</view>
+		</scroll-view>
 		<swiper :current="tabCurrentIndex" class="swiper-box" duration="300" @change="changeTab">
 			<swiper-item class="tab-content" v-for="(tabItem, tabIndex) in navList" :key="tabIndex">
 				<scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData(tabIndex)">
 					<!-- 空白页 -->
-					<u-empty text="暂无订单" mode="list"
+					<u-empty :text="tabItem.kind === 'afterSale' ? '暂无售后记录' : '暂无订单'" mode="list"
 						v-if="tabItem.loaded === true && tabItem.orderList.length === 0"></u-empty>
 					<!-- 订单列表 -->
 					<view class="seller-view" :key="orderIndex" v-for="(order, orderIndex) in tabItem.orderList">
+						<template v-if="order.isAfterSale">
+							<view class="seller-info u-flex u-row-between">
+								<view class="seller-name wes">
+									<view class="name">{{ order.storeName }}</view>
+								</view>
+								<view class="order-sn">{{ orderCardStatus(order) }}</view>
+							</view>
+							<view class="after-sale-sn">售后单号：{{ order.serviceSn }}</view>
+							<view class="goods-item-view" @click="openOrder(order)">
+								<view class="goods-img">
+									<u-image border-radius="6" width="131rpx" height="131rpx" mode="aspectFill"
+										:src="getOrderItemImage(order.orderItems[0], order, 0)"></u-image>
+								</view>
+								<view class="goods-info">
+									<view class="goods-title u-line-2">{{ order.groupName }}</view>
+									<view class="goods-price">申请退款 ￥{{ unitPrice(order.applyRefundPrice) }}</view>
+								</view>
+								<view class="goods-num">
+									<view>x{{ order.groupNum }}</view>
+								</view>
+							</view>
+							<view class="btn-view u-flex u-row-between">
+								<view class="description">{{ afterSaleTypeText(order.serviceType) }}</view>
+								<view class="goods-btn flex flex-a-c">
+									<view class="pay-btn" @click="openOrder(order)">售后详情</view>
+								</view>
+							</view>
+						</template>
+						<template v-else>
 						<!-- 店铺名称 -->
 						<view class="seller-info u-flex u-row-between">
 							<view class="seller-name wes" @click="navigateToStore(order)">
@@ -26,12 +57,11 @@
 								</view>
 
 							</view>
-							<view class="order-sn">{{orderStatusList(order.orderStatus)
-							  }}</view>
+							<view class="order-sn">{{ orderCardStatus(order) }}</view>
 						</view>
 						<view>
 							<view>
-								<view class="goods-item-view" @click="navigateToOrderDetail(order.sn)">
+								<view class="goods-item-view" @click="openOrder(order)">
 									<view class="goods-img" v-for="(goods, goodsIndex) in order.orderItems"
 										:key="goodsIndex">
 										<u-image border-radius="6" width="131rpx" height="131rpx" mode="aspectFill"
@@ -70,16 +100,12 @@
 										v-if="order.allowOperationVO.rog && !isECouponOrder(order.orderType)" @click="onRog(order.sn)">
 										确认收货
 									</view>
-									<view ripple shape="circle" class="cancel-btn" size="mini"
-										v-if="showOrderAfterSale(order)"
-										@click="applyService(order)">
-										退款/售后
-									</view> 
 								</view>
 							</view>
 						</view>
+						</template>
 					</view>
-					<uni-load-more :status="tabItem.loadStatus"></uni-load-more>
+					<uni-load-more v-if="tabItem.orderList.length > 0" :status="tabItem.loadStatus"></uni-load-more>
 				</scroll-view>
 			</swiper-item>
 		</swiper>
@@ -114,7 +140,7 @@ import { onLoad, onShow, onPullDownRefresh, onBackPress } from '@dcloudio/uni-ap
 import { useStore } from '@/store'
 import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue'
 import { getOrderList, cancelOrder, confirmReceipt } from '@/api/order.js'
-import { getClearReason } from '@/api/after-sale.js'
+import { getClearReason, getAfterSaleList } from '@/api/after-sale.js'
 import LiLiWXPay from '@/js_sdk/lili-pay/wx-pay.js'
 import {
 	unitPrice,
@@ -124,7 +150,7 @@ import {
 } from '@/utils/filters.js'
 // E_COUPON 订单不展示确认收货、退款/售后（FR-B-04）
 import { isECouponOrder, isAppointmentOrder } from '@/utils/goodsType.js'
-import { getAppointmentAllowOperation } from '@/utils/appointmentGoods.js'
+import { appointmentOrderStatusText, getAppointmentAllowOperation } from '@/utils/appointmentGoods.js'
 
 const store = useStore()
 const { proxy } = getCurrentInstance()!
@@ -134,6 +160,9 @@ const mainColor = computed(() => store.getters.mainColor)
 interface NavTabItem {
 	state: number
 	text: string
+	tag: string
+	commentStatus?: string
+	kind?: 'order' | 'afterSale'
 	loadStatus: string
 	orderList: any[]
 	pageNumber: number
@@ -142,30 +171,27 @@ interface NavTabItem {
 
 const tabCurrentIndex = ref(0)
 const navList = reactive<NavTabItem[]>([
-	{ state: 0, text: '全部', loadStatus: 'more', orderList: [], pageNumber: 1 },
-	{ state: 1, text: '待付款', loadStatus: 'more', orderList: [], pageNumber: 1 },
-	{ state: 2, text: '待发货', loadStatus: 'more', orderList: [], pageNumber: 1 },
-	{ state: 3, text: '待收货', loadStatus: 'more', orderList: [], pageNumber: 1 },
-	{ state: 4, text: '已完成', loadStatus: 'more', orderList: [], pageNumber: 1 },
-	{ state: 5, text: '已取消', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 0, text: '全部', tag: 'ALL', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 1, text: '待支付', tag: 'WAIT_PAY', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 2, text: '待发货', tag: 'WAIT_SHIP', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 3, text: '待收货/使用', tag: 'WAIT_USE', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 4, text: '评价', tag: 'ALL', commentStatus: 'UNFINISHED', loadStatus: 'more', orderList: [], pageNumber: 1 },
+	{ state: 5, text: '售后', tag: 'ALL', kind: 'afterSale', loadStatus: 'more', orderList: [], pageNumber: 1 },
 ])
 
 const status = ref<number>(0)
-const params = reactive({
-	pageNumber: 1,
-	pageSize: 10,
-	tag: 'ALL',
-})
 
-const orderStatus = [
-	{ orderStatus: 'ALL' },
-	{ orderStatus: 'WAIT_PAY' },
-	{ orderStatus: 'WAIT_SHIP' },
-	{ orderStatus: 'WAIT_ROG' },
-	{ orderStatus: 'COMPLETE' },
-	{ orderStatus: 'CANCELLED' },
-	{ orderStatus: 'STAY_PICKED_UP' },
-]
+const afterSaleStatusText: Record<string, string> = {
+	APPLY: '申请中',
+	PASS: '已通过',
+	REFUSE: '已拒绝',
+	BUYER_RETURN: '待卖家收货',
+	SELLER_CONFIRM: '卖家确认收货',
+	SELLER_TERMINATION: '卖家终止售后',
+	BUYER_CANCEL: '买家取消售后',
+	WAIT_REFUND: '等待平台退款',
+	COMPLETE: '完成',
+}
 
 const cancelShow = ref(false)
 const orderSn = ref('')
@@ -208,20 +234,14 @@ onLoad((options) => {
 })
 
 watch(tabCurrentIndex, (val) => {
-	params.tag = orderStatus[val].orderStatus
 	navList.forEach((res) => {
 		res.pageNumber = 1
 		res.loadStatus = 'more'
 		res.orderList = []
+		res.loaded = false
 	})
 	loadData(val)
 })
-
-function applyService(order: any) {
-	uni.navigateTo({
-		url: `/pages/order/afterSales/afterSales?orderSn=${order.sn}`,
-	})
-}
 
 function navigateToStore(val: any) {
 	uni.navigateTo({
@@ -286,6 +306,7 @@ function initData(index: number) {
 	navList[index].pageNumber = 1
 	navList[index].loadStatus = 'more'
 	navList[index].orderList = []
+	navList[index].loaded = false
 	loadData(index)
 }
 
@@ -302,24 +323,97 @@ function pay(val: any) {
 }
 
 function loadData(index: number) {
-	params.pageNumber = navList[index].pageNumber
-	getOrderList(params).then((res) => {
+	const tab = navList[index]
+	if (!tab || tab.loadStatus === 'noMore') {
+		return
+	}
+	const pageNumber = tab.pageNumber
+	const request = tab.kind === 'afterSale'
+		? getAfterSaleList({
+			pageNumber,
+			pageSize: 10,
+			sort: 'createTime',
+			order: 'desc',
+		})
+		: getOrderList({
+			pageNumber,
+			pageSize: 10,
+			tag: tab.tag,
+			...(tab.commentStatus ? { commentStatus: tab.commentStatus } : {}),
+		})
+	request.then((res) => {
 		uni.stopPullDownRefresh()
+		tab.loaded = true
 		if (!res.data.success) {
-			navList[index].loadStatus = 'noMore'
+			tab.loadStatus = 'noMore'
 			return false
 		}
-		const records = res.data.result.records
-		if (records.length == 0) {
-			navList[index].loadStatus = 'noMore'
-		} else if (records.length < 10) {
-			navList[index].loadStatus = 'noMore'
+		let records = res.data.result.records || []
+		if (tab.kind === 'afterSale') {
+			records = records.map(mapAfterSaleOrder)
+		}
+		if (records.length < 10) {
+			tab.loadStatus = 'noMore'
 		}
 		if (records.length > 0) {
-			navList[index].orderList = navList[index].orderList.concat(records)
-			navList[index].pageNumber += 1
+			tab.orderList = tab.orderList.concat(records)
+			tab.pageNumber += 1
 		}
 	})
+}
+
+const afterSaleTypeTextMap: Record<string, string> = {
+	RETURN_MONEY: '仅退款',
+	RETURN_GOODS: '退货退款',
+	EXCHANGE_GOODS: '换货',
+	SUPPLY_AGAIN_GOODS: '补发商品',
+	CANCEL: '取消订单',
+}
+
+function afterSaleTypeText(type: string) {
+	return afterSaleTypeTextMap[type] || '售后'
+}
+
+function mapAfterSaleOrder(item: any) {
+	return {
+		...item,
+		isAfterSale: true,
+		serviceSn: item.sn,
+		sn: item.orderSn,
+		orderStatus: item.serviceStatus,
+		groupName: item.goodsName,
+		groupNum: item.num,
+		groupImages: item.goodsImage,
+		applyRefundPrice: item.applyRefundPrice,
+		orderItems: [
+			{
+				image: item.goodsImage,
+				name: item.goodsName,
+				num: item.num,
+			},
+		],
+		allowOperationVO: {},
+	}
+}
+
+function orderCardStatus(order: any) {
+	if (order?.isAfterSale) {
+		return afterSaleStatusText[order.serviceStatus] || '售后'
+	}
+	if (isAppointmentOrder(order?.orderType)) {
+		return appointmentOrderStatusText(order.orderStatus)
+	}
+	return orderStatusList(order.orderStatus)
+}
+
+function openOrder(order: any) {
+	if (order?.isAfterSale) {
+		uni.navigateTo({
+			url: './afterSales/applyDetail?sn=' + order.serviceSn,
+		})
+		return
+	}
+	navigateToOrderDetail(order.sn)
 }
 
 function changeTab(e: any) {
@@ -377,16 +471,6 @@ function showOrderCancel(order: any) {
 		return !!getAppointmentAllowOperation(order)?.cancel
 	}
 	return !!order?.allowOperationVO?.cancel
-}
-
-function showOrderAfterSale(order: any) {
-	if (isECouponOrder(order?.orderType)) return false
-	if (isAppointmentOrder(order?.orderType)) {
-		const allow = getAppointmentAllowOperation(order)
-		if (!allow?.afterSale) return false
-	}
-	const status = order?.groupAfterSaleStatus
-	return status && (status.includes('NOT_APPLIED') || status.includes('PART_AFTER_SALE'))
 }
 
 function navigateToOrderDetail(sn: string) {
@@ -474,23 +558,31 @@ function reBuy(order: any) {
 	}
 
 	.navbar {
-		display: flex;
 		height: 40px;
-		padding: 0 5px;
 		background: #fff;
 		box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
 		position: relative;
 		z-index: 10;
+		white-space: nowrap;
+
+		.navbar-inner {
+			display: inline-flex;
+			align-items: stretch;
+			height: 40px;
+			min-width: 100%;
+		}
 
 		.nav-item {
-			flex: 1;
-			display: flex;
+			flex: none;
+			display: inline-flex;
 			justify-content: center;
 			align-items: center;
 			height: 100%;
+			padding: 0 24rpx;
 			font-size: 26rpx;
 			color: $font-color-light;
 			position: relative;
+			white-space: nowrap;
 
 			&.current {
 				color: $main-color;
@@ -541,6 +633,12 @@ function reBuy(order: any) {
 				color: $aider-light-color;
 				font-size: 26rpx;
 			}
+		}
+
+		.after-sale-sn {
+			padding: 0 32rpx 8rpx;
+			font-size: 24rpx;
+			color: #999;
 		}
 
 		.goods-item-view {

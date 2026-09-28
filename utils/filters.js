@@ -73,12 +73,20 @@ export function setClipboard (val) {
   // #endif
 
   // #ifndef H5
-  uni.setClipboardData({
-    data: val,
+  const text = val == null ? "" : String(val);
+  const clipboard = typeof wx !== "undefined" && wx.setClipboardData ? wx : uni;
+  clipboard.setClipboardData({
+    data: text,
     success: function () {
       uni.showToast({
-        title: "复制成功!",
+        title: "复制成功",
         duration: 2000,
+        icon: "none",
+      });
+    },
+    fail: function () {
+      uni.showToast({
+        title: "复制失败，请重试",
         icon: "none",
       });
     },

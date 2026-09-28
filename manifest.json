@@ -210,7 +210,7 @@
         },
         "plugins" : {},
         "libVersion" : "3.5.8",
-        "__usePrivacyCheck__" : true,
+        "__usePrivacyCheck__" : false,
         "requiredPrivateInfos" : [ "chooseLocation", "getLocation" ]
     },
     "h5" : {

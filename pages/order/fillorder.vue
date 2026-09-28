@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" :style="themeStyle">
     <!-- 选择地址 -->
     <div
       class="address-box"
@@ -68,9 +68,24 @@
       </div>
     </div>
 
-    <view class="address-box appointment-summary" v-if="isAppointmentCheckout && appointmentCheckoutSummary">
-      <view class="appointment-summary__title">预约信息</view>
-      <view class="appointment-summary__text">{{ appointmentCheckoutSummary }}</view>
+    <view class="appointment-card" v-if="isAppointmentCheckout && appointmentCheckoutView">
+      <view class="appointment-card__title">预约信息</view>
+      <view class="appointment-hero">
+        <view class="appointment-hero__time">{{ appointmentCheckoutView.time }}</view>
+        <view class="appointment-hero__meta">
+          <text>{{ appointmentCheckoutView.dateText }} {{ appointmentCheckoutView.week }}</text>
+          <text v-if="appointmentCheckoutView.mode" class="appointment-tag">{{ appointmentCheckoutView.mode }}</text>
+        </view>
+      </view>
+      <view class="appointment-form" v-if="appointmentCheckoutView.formRows.length">
+        <template v-for="(row, index) in appointmentCheckoutView.formRows" :key="index">
+          <view v-if="row.type === 'group'" class="appointment-group">{{ row.label }}</view>
+          <view v-else class="appointment-row">
+            <text class="appointment-row__label">{{ row.label }}</text>
+            <text class="appointment-row__value">{{ row.value }}</text>
+          </view>
+        </template>
+      </view>
     </view>
 
     <!-- 开团信息 -->
@@ -341,54 +356,24 @@
           </u-col>
         </u-row>
       </div>
-      <div class="gift-card-module">
-        <u-row>
-          <u-col :span="6">
-            <view class="gift-card-title-row">
-              <text>使用礼品卡</text>
-              <text class="gift-card-help" @click.stop="showGiftCardNotice">使用说明</text>
-            </view>
-          </u-col>
-          <u-col :span="6" class="tr tipsColor" textAlign="right">
-            <span v-if="giftCardDeductAmount > 0" class="main-color"
-              >已抵扣 -￥{{ unitPrice(giftCardDeductAmount) }}</span
-            >
-            <span v-else>{{ giftCardList.length }} 张可用</span>
-          </u-col>
-        </u-row>
-        <view v-if="!giftCardList.length" class="gift-card-empty">暂无可用礼品卡</view>
-        <view v-else class="gift-card-list">
-          <view
-            class="gift-card-item"
-            :class="{ 'gift-card-item--selected': isGiftCardSelected(item) }"
-            v-for="item in giftCardList"
-            :key="item.id"
-            @click="toggleGiftCard(item)"
-          >
-            <view class="gift-card-item__header">
-              <view class="gift-card-item__pattern" />
-              <view class="gift-card-item__inner">
-                <view>
-                  <view class="gift-card-item__name">{{ item.giftCardName || '礼品卡' }}</view>
-                  <view class="gift-card-item__face">面值{{ item.faceText }}元</view>
-                </view>
-                <view class="gift-card-item__right">
-                  <view class="gift-card-item__type">现金卡</view>
-                  <view class="gift-card-item__expire">{{ item.expireText }}</view>
-                </view>
-              </view>
-            </view>
-            <view class="gift-card-item__body">
-              <view class="gift-card-item__balance">
-                <text class="gift-card-item__amt">¥{{ unitPrice(item.balance) }}</text>
-                <text>余额</text>
-              </view>
-              <view class="gift-card-item__no">{{ item.cardNo }}</view>
-            </view>
-            <view v-if="isGiftCardSelected(item)" class="gift-card-item__check">已选</view>
+      <u-row>
+        <u-col :span="8" @click="openGiftCards()">使用礼品卡</u-col>
+        <u-col
+          :span="4"
+          textAlign="right"
+          class="coupon-col"
+          @click="openGiftCards()"
+        >
+          <view class="coupon-col__content" v-if="giftCardDeductAmount > 0">
+            <text class="main-color">-￥{{ unitPrice(giftCardDeductAmount) }}</text>
+            <u-icon name="arrow-right" size="14" color="#909399"></u-icon>
           </view>
-        </view>
-      </div>
+          <view class="coupon-col__content" v-else>
+            <text>{{ giftCardList.length }} 张可用</text>
+            <u-icon name="arrow-right" size="14" color="#909399"></u-icon>
+          </view>
+        </u-col>
+      </u-row>
     </div>
 
     <!-- 配送地区没有提示 -->
@@ -441,11 +426,11 @@
 import { ref, computed, watch, getCurrentInstance } from 'vue'
 import { onLoad, onShow, onBackPress } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
 import * as API_Address from '@/api/address'
 import * as API_Order from '@/api/order'
 import * as API_Trade from '@/api/trade'
 import configs from '@/config/config'
-import LiLiWXPay from '@/js_sdk/lili-pay/wx-pay.js'
 import invoices from '@/pages/order/invoice/setInvoice'
 import {
   unitPrice,
@@ -456,9 +441,9 @@ import {
 import { hasECouponInCheckout, hasAppointmentInCheckout } from '@/utils/goodsType.js'
 import { SERVICE_MODE_LABEL, formatDate } from '@/utils/appointmentGoods.js'
 import { bindCheckout } from '@/api/appointment.js'
-import { decorateGiftCard, GIFT_CARD_PAY_NOTICE } from '@/utils/giftCard.js'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const { proxy } = getCurrentInstance()!
 const lightColor = computed(() => store.getters.lightColor)
 const mainColor = computed(() => store.getters.mainColor)
@@ -509,25 +494,66 @@ const hidePhysicalCheckout = computed(
 )
 const appointmentCheckoutContext = ref<any>(null)
 
-const appointmentCheckoutSummary = computed(() => {
+const APPOINTMENT_WEEK_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+function presentAppointmentFormRows(rows: any[]) {
+  const result: any[] = []
+  let lastGroup = ''
+  rows.forEach((row) => {
+    if (row?.type === 'group') {
+      result.push(row)
+      lastGroup = row.label || ''
+      return
+    }
+    const matched = String(row?.label || '').match(/^(.*?)(?:\s*[（(](\d+)[）)])$/)
+    if (!matched) {
+      result.push(row)
+      return
+    }
+    const group = `第${matched[2]}位`
+    if (group !== lastGroup) {
+      result.push({ type: 'group', label: group })
+      lastGroup = group
+    }
+    result.push({ label: matched[1], value: row.value })
+  })
+  return result
+}
+
+const appointmentCheckoutView = computed(() => {
   const ctx =
     appointmentCheckoutContext.value ||
     orderMessage.value?.appointmentCheckout ||
     orderMessage.value?.appointmentContext
-  if (!ctx) return ''
+  if (!ctx) return null
   const date = formatDate(ctx.slotDate)
+  let dateText = ''
+  let week = ''
+  if (date) {
+    const [year, month, day] = date.split('-').map(Number)
+    const current = new Date(year, month - 1, day)
+    dateText = `${month}月${day}日`
+    week = APPOINTMENT_WEEK_LABELS[current.getDay()] || ''
+  }
+  const time =
+    ctx.slotStartTime && ctx.slotEndTime ? `${ctx.slotStartTime} - ${ctx.slotEndTime}` : dateText
   const mode = SERVICE_MODE_LABEL[ctx.serviceMode] || ctx.serviceMode || ''
-  const slot = ctx.slotStartTime && ctx.slotEndTime ? `${ctx.slotStartTime}-${ctx.slotEndTime}` : ''
-  const contact = ctx.contactName ? `${ctx.contactName} ${ctx.contactPhone || ''}` : ''
-  return [date, slot, mode, contact].filter(Boolean).join(' · ')
+  const formRows = []
+  if (ctx.serviceAddressSnapshot) {
+    formRows.push({ label: '服务地址', value: ctx.serviceAddressSnapshot })
+  }
+  const savedRows = Array.isArray(ctx.formRows) ? ctx.formRows : []
+  if (savedRows.length) {
+    formRows.push(...presentAppointmentFormRows(savedRows))
+  } else {
+    if (ctx.contactName) formRows.push({ label: '联系人', value: ctx.contactName })
+    if (ctx.contactPhone) formRows.push({ label: '联系方式', value: ctx.contactPhone })
+  }
+  if (!time && !formRows.length) return null
+  return { dateText, week, time, mode, formRows }
 })
 
-const selectedGiftCardIds = computed(() => orderMessage.value?.selectedGiftCardIds || [])
-const giftCardList = computed(() =>
-  (orderMessage.value?.canUseGiftCards || []).map((item: any) =>
-    decorateGiftCard(item, selectedGiftCardIds.value)
-  )
-)
+const giftCardList = computed(() => orderMessage.value?.canUseGiftCards || [])
 const giftCardDeductAmount = computed(() => {
   const dto = orderMessage.value?.priceDetailDTO
   if (!dto) return 0
@@ -652,36 +678,10 @@ function invoice() {
   invoiceFlag.value = true
 }
 
-function showGiftCardNotice() {
-  uni.showModal({
-    title: '礼品卡使用说明',
-    content: GIFT_CARD_PAY_NOTICE,
-    showCancel: false,
-    confirmText: '我知道了',
-  })
-}
-
-function isGiftCardSelected(item: any) {
-  if (!item?.id) return false
-  return (selectedGiftCardIds.value || []).map(String).includes(String(item.id))
-}
-
-function toggleGiftCard(item: any) {
-  if (!item?.id) return
-  API_Trade.selectGiftCard({
-    way: routerVal.value.way,
-    credentialId: String(item.id),
-    used: !isGiftCardSelected(item),
-  }).then((res) => {
-    if (res.data.success) {
-      getOrderList()
-    } else {
-      uni.showToast({
-        title: res.data.message || '礼品卡选择失败',
-        icon: 'none',
-      })
-    }
-  })
+function openGiftCards() {
+  ;(store.state as any).canUseGiftCards = giftCardList.value
+  ;(store.state as any).selectedGiftCardIds = orderMessage.value?.selectedGiftCardIds || []
+  navigateTo(`/pages/cart/gift-card/index?way=${routerVal.value.way}`)
 }
 
 function GET_Discount() {
@@ -787,15 +787,9 @@ function createTradeFun() {
               url: '/pages/order/myOrder?status=0',
             })
           } else {
-            // #ifdef MP-WEIXIN
-            pay(res.data.result.sn)
-            // #endif
-
-            // #ifndef MP-WEIXIN
             navigateTo(
               `/pages/cart/payment/payOrder?trade_sn=${res.data.result.sn}`
             )
-            // #endif
           }
         } else {
           uni.showToast({
@@ -830,13 +824,6 @@ function createTradeFun() {
 
     runCreate()
   }, 3000)
-}
-
-async function pay(sn: string) {
-  new LiLiWXPay({
-    sn,
-    price: orderMessage.value.priceDetailDTO.billPrice,
-  }).pay()
 }
 
 function getUserAddress() {
@@ -942,6 +929,8 @@ function getOrderList() {
     orderMessage.value = res.data.result
     ;(store.state as any).canUseCoupons = res.data.result.canUseCoupons
     ;(store.state as any).cantUseCoupons = res.data.result.cantUseCoupons
+    ;(store.state as any).canUseGiftCards = res.data.result.canUseGiftCards || []
+    ;(store.state as any).selectedGiftCardIds = res.data.result.selectedGiftCardIds || []
 
     // E_COUPON / 预约商品免地址，不自动回填 memberAddress
     if (!hasECouponInCheckout(res.data.result) && !hasAppointmentInCheckout(res.data.result)) {
@@ -976,20 +965,87 @@ page {
 }
 </style>
 <style scoped lang="scss">
-.appointment-summary {
-  padding: 24rpx 32rpx;
-  background: #fff;
+.appointment-card {
   margin-bottom: 20rpx;
+  padding: 28rpx 32rpx 12rpx;
+  background: #fff;
+  border-radius: 40rpx;
 }
-.appointment-summary__title {
-  font-size: 28rpx;
+.appointment-card__title {
+  font-size: 26rpx;
+  color: #999;
+  line-height: 1.4;
+}
+.appointment-hero {
+  margin-top: 12rpx;
+}
+.appointment-hero__time {
+  font-size: 44rpx;
   font-weight: 600;
-  margin-bottom: 12rpx;
+  color: #222;
+  line-height: 1.2;
+  letter-spacing: 1rpx;
 }
-.appointment-summary__text {
-  font-size: 24rpx;
+.appointment-hero__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 14rpx;
+  font-size: 26rpx;
   color: #666;
+  line-height: 1.4;
+}
+.appointment-tag {
+  padding: 2rpx 14rpx;
+  border-radius: 8rpx;
+  background: var(--theme-primary-10, rgba(255, 60, 42, 0.1));
+  color: var(--theme-primary, #ff3c2a);
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+.appointment-form {
+  margin-top: 20rpx;
+  border-top: 1rpx solid #f2f2f2;
+}
+.appointment-group {
+  padding-top: 20rpx;
+  font-size: 24rpx;
+  color: var(--theme-primary, #ff3c2a);
+  line-height: 1.4;
+}
+.appointment-row + .appointment-group {
+  margin-top: 8rpx;
+  border-top: 1rpx solid #f5f5f5;
+}
+.appointment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 22rpx 0;
+}
+.appointment-row + .appointment-row {
+  border-top: 1rpx solid #f5f5f5;
+}
+.appointment-group + .appointment-row {
+  padding-top: 12rpx;
+}
+.appointment-row__label {
+  flex: none;
+  font-size: 26rpx;
+  color: #999;
   line-height: 1.5;
+  white-space: nowrap;
+}
+.appointment-row__value {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 .flex-8 {
@@ -1159,6 +1215,7 @@ page {
 
 .box6 {
   position: fixed;
+  z-index: 20;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -1170,6 +1227,7 @@ page {
   color: #333;
   display: flex;
   justify-content: space-between;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
 }
 
 .tabbar-right {
@@ -1260,7 +1318,8 @@ page {
 .wrapper {
   height: auto;
   background: #f7f7f7;
-  padding-bottom: 200rpx;
+  padding-bottom: calc(240rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(240rpx + env(safe-area-inset-bottom));
   overflow: auto !important;
 }
 
@@ -1348,129 +1407,4 @@ page {
   margin: 20rpx 0;
 }
 
-.gift-card-module {
-  margin-top: 8rpx;
-}
-
-.gift-card-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.gift-card-help {
-  font-size: 22rpx;
-  color: #909399;
-}
-
-.gift-card-empty {
-  margin-top: 16rpx;
-  padding: 24rpx;
-  font-size: 24rpx;
-  color: #999;
-  text-align: center;
-  background: #fafafa;
-  border-radius: 12rpx;
-}
-
-.gift-card-list {
-  margin-top: 16rpx;
-}
-
-.gift-card-item {
-  position: relative;
-  border-radius: 16rpx;
-  overflow: hidden;
-  margin-bottom: 16rpx;
-  border: 2rpx solid transparent;
-  background: #fff;
-
-  &--selected {
-    border-color: $main-color;
-  }
-}
-
-.gift-card-item__header {
-  position: relative;
-  background: linear-gradient(125deg, #ff9a4a 0%, #ff7729 42%, #ff8f3d 100%);
-}
-
-.gift-card-item__pattern {
-  position: absolute;
-  inset: 0;
-  opacity: 0.22;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    -36deg,
-    transparent,
-    transparent 10rpx,
-    rgba(255, 255, 255, 0.45) 10rpx,
-    rgba(255, 255, 255, 0.45) 12rpx
-  );
-}
-
-.gift-card-item__inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: space-between;
-  padding: 20rpx 24rpx 16rpx;
-  color: #fff;
-}
-
-.gift-card-item__name {
-  font-size: 28rpx;
-  font-weight: 700;
-}
-
-.gift-card-item__face,
-.gift-card-item__expire {
-  margin-top: 8rpx;
-  font-size: 22rpx;
-  opacity: 0.92;
-}
-
-.gift-card-item__right {
-  text-align: right;
-}
-
-.gift-card-item__type {
-  font-size: 28rpx;
-  font-weight: 700;
-}
-
-.gift-card-item__body {
-  padding: 16rpx 24rpx 20rpx;
-}
-
-.gift-card-item__balance {
-  display: flex;
-  align-items: baseline;
-  gap: 8rpx;
-  font-size: 22rpx;
-  color: #999;
-}
-
-.gift-card-item__amt {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #ff6b22;
-}
-
-.gift-card-item__no {
-  margin-top: 8rpx;
-  font-size: 22rpx;
-  color: #999;
-}
-
-.gift-card-item__check {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  padding: 4rpx 14rpx;
-  font-size: 20rpx;
-  color: #fff;
-  background: $main-color;
-  border-top-left-radius: 12rpx;
-}
 </style>

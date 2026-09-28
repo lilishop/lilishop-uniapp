@@ -19,6 +19,8 @@ import {
   isAppointmentGoods,
   isAppointmentOrder,
   hasAppointmentInCheckout,
+  getAppointmentStock,
+  getAppointmentMaxBuyNum,
 } from './appointmentGoods.js'
 
 export {
@@ -27,6 +29,8 @@ export {
   isAppointmentGoods,
   isAppointmentOrder,
   hasAppointmentInCheckout,
+  getAppointmentStock,
+  getAppointmentMaxBuyNum,
 }
 
 /** 单次购买数量上限（O-09 默认：min(quantity, 999)） */
