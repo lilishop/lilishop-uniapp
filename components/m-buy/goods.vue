@@ -53,7 +53,11 @@
 								<span>，{{ num }}个</span>
 							</span>
 						</view>
-						<view class="goods-check-skus">
+						<view class="goods-check-skus" v-if="isAppointmentGoods(goodsDetail?.goodsType)">
+							可预约
+							<span class="goods-check-skus-name">按时段选择</span>
+						</view>
+						<view class="goods-check-skus" v-else>
 							库存
 							<span class="goods-check-skus-name">
 								<span>{{ availableStock }}</span>
@@ -105,7 +109,9 @@
 				<!-- 按钮 -->
 				<view class="btns" v-if="availableStock !== 0">
 					<view class="box-btn card" v-if="showAddToCart" @click="addToCartOrBuy('cart')">加入购物车</view>
-					<view class="box-btn buy" @click="addToCartOrBuy('buy')">立即购买</view>
+					<view class="box-btn buy" @click="addToCartOrBuy('buy')">
+						{{ isAppointmentGoods(goodsDetail?.goodsType) ? '立即预约' : '立即购买' }}
+					</view>
 				</view>
 			</view>
 		</u-popup>
@@ -121,8 +127,11 @@ import { goodsFormatPrice } from '@/utils/filters.js'
 import {
 	isECoupon,
 	isVirtualGoods,
+	isAppointmentGoods,
 	getECouponStock,
 	getECouponMaxBuyNum,
+	getAppointmentStock,
+	getAppointmentMaxBuyNum,
 } from '@/utils/goodsType.js'
 
 const props = withDefaults(defineProps<{
@@ -158,10 +167,13 @@ const formatList = ref<any[]>([])
 const currentSelected = ref<string[]>([])
 const skuList = ref('')
 
-// E_COUPON 库存读 SKU quantity，上限 min(quantity, 999)
+// E_COUPON 读 SKU quantity；预约商品 quantity 固定 0，库存走时段
 const availableStock = computed(() => {
 	if (isECoupon(props.goodsDetail?.goodsType)) {
 		return getECouponStock(props.goodsDetail)
+	}
+	if (isAppointmentGoods(props.goodsDetail?.goodsType)) {
+		return getAppointmentStock(props.goodsDetail)
 	}
 	return Number(props.goodsDetail?.quantity) || 0
 })
@@ -170,15 +182,19 @@ const maxBuyNum = computed(() => {
 	if (isECoupon(props.goodsDetail?.goodsType)) {
 		return getECouponMaxBuyNum(props.goodsDetail)
 	}
+	if (isAppointmentGoods(props.goodsDetail?.goodsType)) {
+		return getAppointmentMaxBuyNum(props.goodsDetail)
+	}
 	return 999
 })
 
-// 电子卡券禁止加购（后端 CARD_KEY_E_COUPON_CART_FORBIDDEN）
+// 电子卡券/预约商品禁止加购
 const showAddToCart = computed(() => {
 	return (
 		buyType.value != 'PINTUAN' &&
 		!isVirtualGoods(props.goodsDetail?.goodsType) &&
-		!isECoupon(props.goodsDetail?.goodsType)
+		!isECoupon(props.goodsDetail?.goodsType) &&
+		!isAppointmentGoods(props.goodsDetail?.goodsType)
 	)
 })
 
@@ -338,6 +354,14 @@ const addToCartOrBuy = (val: string) => {
 			}
 		})
 	} else {
+		if (isAppointmentGoods(props.goodsDetail?.goodsType)) {
+			const goodsId = props.goodsDetail.goodsId || ''
+			uni.navigateTo({
+				url: `/pages/order/appointment/appointmentCheckout?skuId=${props.goodsDetail.id}&goodsId=${goodsId}&num=${num.value}`,
+			})
+			closeMask()
+			return
+		}
 		data.cartType = resolveCartType()
 		API_trade.addToCart(data).then((res) => {
 			if (res.data.success) {

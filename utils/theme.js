@@ -67,15 +67,20 @@ export function getThemeStyle(theme = DEFAULT_THEME) {
   const safeTheme = theme || DEFAULT_THEME;
   const primary = safeTheme.mainColor || DEFAULT_THEME.mainColor;
   const light = safeTheme.lightColor || DEFAULT_THEME.lightColor;
+  const primarySoft = hexToRgba(primary, 0.1);
   return {
     "--theme-primary": primary,
     "--theme-light": light,
     "--theme-aider": safeTheme.aiderLightColor || DEFAULT_THEME.aiderLightColor,
-    "--theme-primary-10": hexToRgba(primary, 0.1),
+    "--theme-primary-10": primarySoft,
     "--theme-primary-20": hexToRgba(primary, 0.2),
     "--theme-primary-30": hexToRgba(primary, 0.3),
     "--theme-primary-70": hexToRgba(primary, 0.7),
     "--theme-light-10": hexToRgba(light, 0.1),
     "--theme-light-80": hexToRgba(light, 0.8),
+    "--u-primary": primary,
+    "--up-primary": primary,
+    "--u-primary-light": primarySoft,
+    "--up-primary-light": primarySoft,
   };
 }

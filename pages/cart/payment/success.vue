@@ -60,9 +60,11 @@ function checkOrder() {
     uni.reLaunch({
       url: '/pages/mine/deposit/operation',
     })
-  } else {
-    navigateTo('/pages/order/myOrder?status=0')
+    return
   }
+  uni.reLaunch({
+    url: '/pages/order/myOrder?status=0',
+  })
 }
 
 function navigateTo(url: string, type?: string) {

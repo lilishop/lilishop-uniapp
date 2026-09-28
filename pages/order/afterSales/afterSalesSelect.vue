@@ -10,7 +10,7 @@
       </view>
       <view>
         <template v-for="(item,index) in sku.orderItems" :key="index">
-        <view class="goods-item-view" v-if="item.sn == sn" @click="navigateToGoodsDetail(sku.skuId)">
+        <view class="goods-item-view" v-if="item && item.sn == sn" @click="navigateToGoodsDetail(sku.skuId)">
           <view class="goods-img">
             <u-image
               border-radius="6"
@@ -23,8 +23,8 @@
           <view class="goods-info">
             <view class="goods-title">{{ getGoodsName(item) }}</view>
             <view class="goods-price">
-              <text v-if="sku.orderItems.length <= 1">￥{{ unitPrice(sku.flowPrice) }}</text>
-              <text class="num">购买数量: {{ item.num }}</text>
+              <text v-if="!sku.orderItems || sku.orderItems.length <= 1">￥{{ unitPrice(sku.flowPrice) }}</text>
+              <text class="num">购买数量: {{ item.num || 0 }}</text>
             </view>
           </view>
         </view>
@@ -72,7 +72,9 @@ const applyInfo = ref<any>({})
 
 onLoad((options) => {
   sn.value = options?.sn || ''
-  sku.value = storage.getAfterSaleData()
+  const cached = storage.getAfterSaleData()
+  sku.value = cached && typeof cached === 'object' ? cached : { orderItems: [] }
+  if (!Array.isArray(sku.value.orderItems)) sku.value.orderItems = []
   if (isECouponOrder(sku.value?.orderType)) {
     uni.showToast({
       title: '电子卡券订单不支持售后',

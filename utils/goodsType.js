@@ -13,6 +13,26 @@ export const E_COUPON_ORDER_TYPE = 'E_COUPON'
 export const VIRTUAL_GOODS_TYPE = 'VIRTUAL_GOODS'
 export const VIRTUAL_ORDER_TYPE = 'VIRTUAL'
 
+import {
+  APPOINTMENT_GOODS_TYPE,
+  APPOINTMENT_ORDER_TYPE,
+  isAppointmentGoods,
+  isAppointmentOrder,
+  hasAppointmentInCheckout,
+  getAppointmentStock,
+  getAppointmentMaxBuyNum,
+} from './appointmentGoods.js'
+
+export {
+  APPOINTMENT_GOODS_TYPE,
+  APPOINTMENT_ORDER_TYPE,
+  isAppointmentGoods,
+  isAppointmentOrder,
+  hasAppointmentInCheckout,
+  getAppointmentStock,
+  getAppointmentMaxBuyNum,
+}
+
 /** 单次购买数量上限（O-09 默认：min(quantity, 999)） */
 export const E_COUPON_MAX_BUY_NUM = 999
 
@@ -32,13 +52,13 @@ export function isVirtualOrder(orderType) {
   return orderType === VIRTUAL_ORDER_TYPE
 }
 
-/** 非实物：含 E_COUPON 与核销型 VIRTUAL_GOODS（详情页隐藏「送至」等） */
+/** 非实物：含 E_COUPON、预约商品与核销型 VIRTUAL_GOODS（详情页隐藏「送至」等） */
 export function isNonPhysicalGoods(goodsType) {
-  return isECoupon(goodsType) || isVirtualGoods(goodsType)
+  return isECoupon(goodsType) || isVirtualGoods(goodsType) || isAppointmentGoods(goodsType)
 }
 
 export function isNonPhysicalOrder(orderType) {
-  return isECouponOrder(orderType) || isVirtualOrder(orderType)
+  return isECouponOrder(orderType) || isVirtualOrder(orderType) || isAppointmentOrder(orderType)
 }
 
 /** 可售库存：E_COUPON 读 SKU quantity（由卡池 syncSkuStock 同步） */

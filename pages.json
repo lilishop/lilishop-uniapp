@@ -772,6 +772,18 @@
 					}
 				},
 				{
+					"path": "gift-card/myGiftCards",
+					"style": {
+						"navigationBarTitleText": "我的礼品卡"
+					}
+				},
+				{
+					"path": "gift-card/index",
+					"style": {
+						"navigationBarTitleText": "礼品卡"
+					}
+				},
+				{
 					"path": "payment/payOrder",
 					"style": {
 						"navigationBarTitleText": "支付订单",
@@ -865,6 +877,12 @@
 					"style": {
 						"navigationBarTitleText": "查看卡密",
 						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "appointment/appointmentCheckout",
+					"style": {
+						"navigationBarTitleText": "立即预约"
 					}
 				},
 				{

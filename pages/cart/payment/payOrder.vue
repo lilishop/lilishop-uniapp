@@ -124,7 +124,7 @@ function hideLoadingIfNeeded() {
 }
 
 function callback(paymentMethod: string) {
-  uni.navigateTo({
+  uni.redirectTo({
     url:
       '/pages/cart/payment/success?paymentMethod=' +
       paymentMethod +

@@ -37,7 +37,7 @@
 				</block>
 			</scroll-view>
 			<div class="keyword-box" v-show="!isShowKeywordList">
-				<view class="keyword-block add1">
+				<view class="keyword-block add1" v-if="hotKeywordList.length">
 					<view class="keyword-list-header">
 						<view class="u-tips">热门搜索</view>
 					</view>
@@ -624,31 +624,43 @@ function loadOldKeyword(index: number) {
 	})
 }
 
+function getHistoryKeywords(limit = 10) {
+	try {
+		const raw = uni.getStorageSync('OldKeys')
+		const list = raw ? JSON.parse(raw) : []
+		return Array.isArray(list) ? list.filter(Boolean).slice(0, limit) : []
+	} catch {
+		return []
+	}
+}
+
 async function loadHotKeyword() {
-	hotKeywordList.value = []
-	if (
-		!storage.getHotWords().time ||
-		storage.getHotWords().time <= new Date().getTime() / 1000
-	) {
-		const res = await getHotKeywords(10)
-		const keywords = res.data.result
+	const cached = storage.getHotWords() || {}
+	const now = Date.now() / 1000
+	let keywords: string[] = []
 
-		keywords.forEach((item: string) => {
-			hotKeywordList.value.push(item)
-		})
-
-		const hotData = {
-			time: new Date().getTime() / 1000 + 30 * 5,
-			keywords: keywords,
-		}
-		storage.setHotWords(hotData)
+	if (cached.time && cached.time > now && Array.isArray(cached.keywords) && cached.keywords.length) {
+		keywords = cached.keywords
 	} else {
-		const keywords = storage.getHotWords().keywords
-
-		keywords.forEach((item: string) => {
-			hotKeywordList.value.push(item)
+		try {
+			const res = await getHotKeywords(10)
+			if (res?.data?.success && Array.isArray(res.data.result)) {
+				keywords = res.data.result.filter(Boolean)
+			}
+		} catch {
+			keywords = []
+		}
+		storage.setHotWords({
+			time: now + 30 * 5,
+			keywords,
 		})
 	}
+
+	if (!keywords.length) {
+		keywords = getHistoryKeywords(10)
+	}
+
+	hotKeywordList.value = keywords
 	loadDefaultKeyword()
 }
 

@@ -17,7 +17,7 @@
         </view>
         <view>
           <template v-for="(item,index) in sku.orderItems" :key="index">
-          <view class="goods-item-view" v-if="item.sn == sn"
+          <view class="goods-item-view" v-if="item && item.sn == sn"
             @click="gotoGoodsDetail(sku.goodsId || sku.goods_id)">
             <view class="goods-img">
               <u-image
@@ -31,8 +31,8 @@
             <view class="goods-info">
               <view class="goods-title">{{ getGoodsName(item) }}</view>
               <view class="goods-price">
-                <text>￥{{ unitPrice(applyInfo.applyRefundPrice) }}</text>
-                <text class="num">购买数量: {{ item.num }}</text>
+                <text>￥{{ unitPrice(displayRefundPrice) }}</text>
+                <text class="num">购买数量: {{ item.num || 0 }}</text>
               </view>
             </view>
           </view>
@@ -41,10 +41,10 @@
         <view class="after-num">
           <text class="after-num-label">申请数量</text>
           <u-number-box
-            :value="parseInt(form.num)"
+            :value="applyNum"
             disabled-input
             :min="1"
-            :max="parseInt(sku.num)"
+            :max="maxApplyNum"
             bg-color="#fff"
             @change="valChange"
           ></u-number-box>
@@ -169,6 +169,8 @@ import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { unitPrice, parseGoodsImageUrl } from '@/utils/filters.js'
 import { getAfterSaleReason, applyReturn, getAfterSaleInfo } from '@/api/after-sale'
+import { isAppointmentOrder } from '@/utils/goodsType.js'
+import { computePartialRefundPrice } from '@/utils/appointmentGoods.js'
 import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
 import storage from '@/utils/storage.js'
 
@@ -185,6 +187,7 @@ const reasonSelectShow = ref(false)
 const reasonList = ref<any[]>([])
 const applyInfo = ref<any>({})
 const uToast = ref<any>(null)
+const isAppointmentAfterSale = ref(false)
 
 const form = reactive({
   orderItemSn: '',
@@ -201,6 +204,21 @@ const form = reactive({
   bankDepositName: '',
   bankAccountName: '',
   bankAccountNumber: '',
+})
+
+const displayRefundPrice = computed(() => {
+  if (!isAppointmentAfterSale.value) return applyInfo.value?.applyRefundPrice
+  return computePartialRefundPrice(applyInfo.value, form.num)
+})
+
+const maxApplyNum = computed(() => {
+  const value = Number(sku.value?.num)
+  return value > 0 ? value : 1
+})
+
+const applyNum = computed(() => {
+  const value = Number(form.num)
+  return value > 0 ? value : 1
 })
 
 onLoad((options) => {
@@ -220,11 +238,14 @@ onLoad((options) => {
   }
   uni.setNavigationBarTitle({ title: navTitle })
   sn.value = options?.sn || ''
-  sku.value = storage.getAfterSaleData()
+  const cached = storage.getAfterSaleData()
+  sku.value = cached && typeof cached === 'object' ? cached : { orderItems: [] }
+  if (!Array.isArray(sku.value.orderItems)) sku.value.orderItems = []
+  isAppointmentAfterSale.value = isAppointmentOrder(sku.value?.orderType)
   form.orderItemSn = options?.sn || ''
-  form.skuId = sku.value.skuId
-  form.num = sku.value.num
-  form.goodsId = sku.value.goodsId
+  form.skuId = sku.value.skuId || ''
+  form.num = Number(sku.value.num) > 0 ? Number(sku.value.num) : 1
+  form.goodsId = sku.value.goodsId || ''
   fetchReasonActions(form.serviceType)
   init(options?.sn || '')
 })
@@ -271,8 +292,12 @@ function init(orderItemSn: string) {
         icon: 'none',
       })
     } else {
-      applyInfo.value = response.data.result
-      form.accountType = response.data.result.accountType
+      const result = response.data.result
+      applyInfo.value = {
+        ...result,
+        totalNum: result.orderItemNum || sku.value?.num,
+      }
+      form.accountType = result.accountType
     }
   })
 }
@@ -294,6 +319,12 @@ function reasonSelectConfirm(val: any) {
 
 function valChange(e: { value: number }) {
   form.num = e.value
+  if (isAppointmentAfterSale.value) {
+    applyInfo.value = {
+      ...applyInfo.value,
+      applyRefundPrice: computePartialRefundPrice(applyInfo.value, form.num),
+    }
+  }
 }
 
 function onUploadAfterRead(event: any) {
@@ -320,7 +351,9 @@ function onSubmit() {
   uni.showLoading({ title: '加载中' })
   form.accountType = applyInfo.value.accountType
   form.refundWay = applyInfo.value.refundWay
-  form.applyRefundPrice = applyInfo.value.applyRefundPrice
+  form.applyRefundPrice = isAppointmentAfterSale.value
+    ? computePartialRefundPrice(applyInfo.value, form.num)
+    : applyInfo.value.applyRefundPrice
 
   applyReturn(sn.value, form).then((resp) => {
     hideLoadingIfNeeded()

@@ -1,17 +1,39 @@
 <template>
-  <view>
+  <view :style="themeStyle">
     <!-- 订单状态 -->
     <div class="info-view order-view">
-      <div class="order-status" v-if="orderStatusMap[order.orderStatus]">
-        <view class="order-status-title">{{ orderStatusMap[order.orderStatus].title }}</view>
-        <view class="order-status-desc">{{ orderStatusMap[order.orderStatus].value }}</view>
+      <div class="order-status" v-if="displayOrderStatus">
+        <view class="order-status-title">{{ displayOrderStatus.title }}</view>
+        <view class="order-status-desc" v-if="displayOrderStatus.value">{{ displayOrderStatus.value }}</view>
       </div>
 
     </div>
     <!-- 物流/配送信息 / 卡密入口 -->
     <view class="info-view logistics-view" v-if="showDeliveryInfoBlock">
       <view class="logistics-List">
-        <view v-if="isECouponOrder" class="card-key-entry">
+        <view v-if="isAppointmentOrderFlag" class="appointment-entry">
+          <view class="appointment-entry__row">
+            <text class="label">预约时间</text>
+            <text class="value">{{ appointmentSlotText }}</text>
+          </view>
+          <view class="appointment-entry__row" v-if="appointmentDetail.serviceMode">
+            <text class="label">服务方式</text>
+            <text class="value">{{ serviceModeLabel }}</text>
+          </view>
+          <view class="appointment-entry__row" v-if="appointmentDetail.serviceAddressSnapshot">
+            <text class="label">服务地址</text>
+            <text class="value">{{ appointmentDetail.serviceAddressSnapshot }}</text>
+          </view>
+          <template v-for="(row, index) in appointmentFormRows" :key="index">
+            <view v-if="row.type === 'group'" class="appointment-group">{{ row.label }}</view>
+            <view v-else class="appointment-entry__row">
+              <text class="label">{{ row.label }}</text>
+              <text class="value">{{ row.value }}</text>
+            </view>
+          </template>
+          <verification-codes :items="verificationCodeItems" />
+        </view>
+        <view v-else-if="isECouponOrder" class="card-key-entry">
           <view v-if="ecouponCardKeyDelivered" class="card-key-entry__btn" @click="goCardKeyDetail">
             查看卡密
           </view>
@@ -22,9 +44,7 @@
             {{ ecouponPendingMessage || '卡密尚未发放，请稍后刷新' }}
           </view>
         </view>
-        <view class="verificationCode" v-else-if="order.verificationCode">
-          券码： {{ order.orderStatus == 'CANCELLED' ?  '已失效' : order.verificationCode }}
-        </view>
+        <verification-codes v-else-if="verificationCodeItems.length" :items="verificationCodeItems" />
         <view
           v-else-if="allowOperation.showLogistics"
           @click="handleClickDeliver()"
@@ -76,8 +96,7 @@
         <view class="seller-info u-flex u-row-between">
           <view class="seller-name" @click="goToShopPage(order)">
             <view class="name">{{ order.storeName }}</view>
-            <view class="status" v-if="orderStatusMap[order.orderStatus]"> {{ orderStatusMap[order.orderStatus].title
-            }}</view>
+            <view class="status" v-if="displayOrderStatus"> {{ displayOrderStatus.title }}</view>
           </view>
           <view class="order-sn"></view>
         </view>
@@ -87,18 +106,23 @@
               <view class="goods-img" @click="gotoGoodsDetail(sku)">
                 <u-image border-radius="6" width="131rpx" height="131rpx" :src="sku.image"></u-image>
               </view>
-              <view class="goods-info" @click="gotoGoodsDetail(sku)">
-                <view class="goods-title u-line-2">{{ sku.goodsName }}</view>
-                <view class="goods-price">
-                  ￥{{unitPrice(sku.goodsPrice) }}
-                  <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
-				  <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="!isECouponOrder && sku.isRefund && sku.isRefund !== 'NO_REFUND'">
-				  {{refundPriceList(sku.isRefund)}} ({{unitPrice(sku.refundPrice, "￥") }})
-				   </span>
+              <view class="goods-body">
+                <view class="goods-info" @click="gotoGoodsDetail(sku)">
+                  <view class="goods-title u-line-2">{{ sku.goodsName }}</view>
+                  <view class="goods-price">
+                    ￥{{unitPrice(sku.goodsPrice) }}
+                    <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
+                    <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="!isECouponOrder && !isAppointmentOrderFlag && sku.isRefund && sku.isRefund !== 'NO_REFUND'">
+                    {{refundPriceList(sku.isRefund)}} ({{unitPrice(sku.refundPrice, "￥") }})
+                     </span>
+                  </view>
                 </view>
-              </view>
-              <view class="goods-num">
-                <view>x{{ sku.num }}</view>
+                <view class="goods-side" :class="{ 'has-action': canShowSkuAfterSale(sku) }">
+                  <view class="goods-num">
+                    <view>x{{ sku.num }}</view>
+                  </view>
+                  <view class="after-sale-btn" v-if="canShowSkuAfterSale(sku)" @click.stop="onSkuAfterSale(sku)">退款/售后</view>
+                </view>
               </view>
             </view>
 
@@ -112,7 +136,7 @@
           <view class="title">商品总价：</view>
           <view class="value">￥{{unitPrice(order.goodsPrice) }}</view>
         </view>
-        <view class="order-info-view" v-if="order.freightPrice && !isECouponOrder">
+        <view class="order-info-view" v-if="order.freightPrice && !isECouponOrder && !isAppointmentOrderFlag">
           <view class="title">运费：</view>
           <view class="value">￥{{unitPrice(order.freightPrice) }}</view>
         </view>
@@ -142,7 +166,7 @@
         </view>
         <view class="customer-list">
           <view class="customer-service"
-            v-if="orderDetail.allowOperationVO && orderDetail.allowOperationVO.cancel == true"
+            v-if="showCancelBtn"
             @click="onCancel(order.sn)">取消订单</view>
           <view class="customer-service" v-if="allowOperation.showLogistics" @click="handleClickDeliver()">查看物流</view>
           <view class="customer-service" v-if="order.orderStatus != 'UNPAID' && order.orderPromotionType == 'PINTUAN'"
@@ -158,8 +182,8 @@
           <view class="title">订单编号：</view>
           <view class="value order-sn-value">
             <text class="order-sn-text">{{ order.sn }}</text>
-            <view class="copy" @click.stop="onCopy(order.sn)">
-              <u-tag text="复制" type="info" plain size="mini" />
+            <view class="copy" @tap.stop="onCopy(order.sn)">
+              <view class="copy-icon"></view>
             </view>
           </view>
         </view>
@@ -264,10 +288,12 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
 import { getExpress, getPackage } from '@/api/trade.js'
 import { cancelOrder, confirmReceipt, getOrderDetail } from '@/api/order.js'
 import shares from '@/components/m-share/index'
 import { getClearReason } from '@/api/after-sale.js'
+import storage from '@/utils/storage'
 import {
 	unitPrice,
 	secrecyMobile,
@@ -282,14 +308,26 @@ import {
 } from '@/utils/orderDelivery.js'
 import {
 	isECouponOrder as checkECouponOrder,
+	isAppointmentOrder as checkAppointmentOrder,
 	isNonPhysicalOrder as checkNonPhysicalOrder,
 	orderHasCardKeyContent,
 	collectCardKeyFulfillLines,
 	resolveCardKeyFulfillMessage,
 	CARD_KEY_FULFILL_STATUS,
 } from '@/utils/goodsType.js'
+import { getAppointmentOrderDetail } from '@/api/appointment.js'
+import VerificationCodes from './components/verificationCodes.vue'
+import {
+	SERVICE_MODE_LABEL,
+	appointmentOrderStatusText,
+	getAppointmentAllowOperation,
+	formatDate,
+	parseFormAnswerGroups,
+	formatFormAnswerValue,
+} from '@/utils/appointmentGoods.js'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
 const mainColor = computed(() => store.getters.mainColor)
 
@@ -318,8 +356,70 @@ const reason = ref('')
 const orderPackage = ref<any[]>([])
 const legacyTraces = ref<any>(null)
 
+const displayOrderStatus = computed(() => {
+	if (isAppointmentOrderFlag.value) {
+		const status = order.value?.orderStatus
+		const title = appointmentOrderStatusText(status)
+		if (status === 'UNPAID') return { title, value: '请尽快完成支付' }
+		if (status === 'CANCELLED') return { title, value: '订单已取消' }
+		if (status === 'COMPLETED' || status === 'COMPLETE') return { title, value: '服务已完成' }
+		const onSite = appointmentDetail.value?.serviceMode === 'ON_SITE'
+		return {
+			title,
+			value: onSite ? '请等待上门服务' : '请按时到店使用',
+		}
+	}
+	return orderStatusMap[order.value?.orderStatus]
+})
 const isECouponOrder = computed(() => checkECouponOrder(order.value?.orderType))
+const isAppointmentOrderFlag = computed(() => checkAppointmentOrder(order.value?.orderType))
 const isNonPhysicalOrder = computed(() => checkNonPhysicalOrder(order.value?.orderType))
+const appointmentDetail = ref<Record<string, any>>({})
+const appointmentAllow = computed(() =>
+	getAppointmentAllowOperation(order.value) || { cancel: false, afterSale: false }
+)
+const showCancelBtn = computed(() => {
+	if (isAppointmentOrderFlag.value) return appointmentAllow.value.cancel
+	return orderDetail.value.allowOperationVO?.cancel === true
+})
+const appointmentCodes = computed(() => appointmentDetail.value?.codes || [])
+const serviceModeLabel = computed(
+	() => SERVICE_MODE_LABEL[appointmentDetail.value?.serviceMode] || appointmentDetail.value?.serviceMode || ''
+)
+const appointmentSlotText = computed(() => {
+	const d = appointmentDetail.value
+	if (!d?.slotDate) return '—'
+	const date = formatDate(d.slotDate)
+	const slot = d.slotStartTime && d.slotEndTime ? `${d.slotStartTime}-${d.slotEndTime}` : ''
+	return [date, slot].filter(Boolean).join(' ')
+})
+const appointmentFormGroups = computed(() =>
+	parseFormAnswerGroups(appointmentDetail.value?.formAnswerJson)
+)
+const appointmentFormRows = computed(() => {
+	const groups = appointmentFormGroups.value
+	const rows = []
+	if (groups.length) {
+		groups.forEach((group, index) => {
+			if (groups.length > 1) {
+				rows.push({ type: 'group', label: `第${index + 1}位` })
+			}
+			group.forEach((field) => {
+				const value = formatFormAnswerValue(field.value)
+				if (!value) return
+				rows.push({ label: field.fieldLabel || '补充信息', value })
+			})
+		})
+		return rows
+	}
+	if (appointmentDetail.value?.contactName) {
+		rows.push({ label: '联系人', value: appointmentDetail.value.contactName })
+	}
+	if (appointmentDetail.value?.contactPhone) {
+		rows.push({ label: '联系方式', value: appointmentDetail.value.contactPhone })
+	}
+	return rows
+})
 const ecouponCardKeyDelivered = computed(() =>
 	orderHasCardKeyContent(orderGoodsList.value)
 )
@@ -335,12 +435,43 @@ const allowOperation = computed(() =>
 )
 
 const showDeliveryInfoBlock = computed(() => {
+	if (isAppointmentOrderFlag.value) return true
 	if (isECouponOrder.value) return true
+	if (order.value.verificationCode) return true
 	if (order.value.orderType === 'VIRTUAL') return false
 	if (order.value.deliveryMethod === 'SELF_PICK_UP') return false
-	if (order.value.verificationCode) return true
 	if (order.value.deliveryMethod === 'LOGISTICS') return true
 	return false
+})
+
+const verificationCodeItems = computed(() => {
+	if (isAppointmentOrderFlag.value) {
+		const cancelled = order.value.orderStatus === 'CANCELLED'
+		let qrAssigned = false
+		return appointmentCodes.value.map((code, index) => {
+			const pending = !cancelled && code.status === 'UNUSED'
+			const showQr = pending && !qrAssigned
+			if (showQr) qrAssigned = true
+			return {
+				key: code.id || code.code || String(index),
+				canvasId: `verify-code-${index}`,
+				code: code.code,
+				struck: !pending,
+				showQr,
+			}
+		})
+	}
+	const code = order.value.verificationCode
+	if (!code || isECouponOrder.value) return []
+	const status = order.value.orderStatus
+	const pending = status !== 'CANCELLED' && status !== 'COMPLETED'
+	return [{
+		key: code,
+		canvasId: 'verify-code-0',
+		code,
+		struck: !pending,
+		showQr: pending,
+	}]
 })
 
 const deliveryEntryText = computed(() =>
@@ -444,6 +575,19 @@ function ByUserMessage(orderItem: any) {
 	})
 }
 
+async function loadAppointmentDetail(orderSnParam: string) {
+	if (!checkAppointmentOrder(order.value?.orderType)) {
+		appointmentDetail.value = {}
+		return
+	}
+	try {
+		const res = await getAppointmentOrderDetail(orderSnParam)
+		appointmentDetail.value = res.data?.result || {}
+	} catch {
+		appointmentDetail.value = {}
+	}
+}
+
 function loadData(orderSnParam: string) {
 	uni.showLoading({ title: '加载中' })
 	getOrderDetail(orderSnParam).then(async (res) => {
@@ -454,6 +598,7 @@ function loadData(orderSnParam: string) {
 		if (!order.value.allowOperationVO && result.allowOperationVO) {
 			order.value.allowOperationVO = result.allowOperationVO
 		}
+		await loadAppointmentDetail(orderSnParam)
 		await loadDelivery(order.value)
 		hideLoadingIfNeeded()
 	})
@@ -477,6 +622,35 @@ function onCopy(orderSnText: string) {
 		return
 	}
 	setClipboard(String(orderSnText))
+}
+
+function canApplySkuAfterSale(sku: any) {
+	const status = String(sku?.afterSaleStatus || '')
+	if (status.includes('NOT_APPLIED') || status.includes('PART_AFTER_SALE')) return true
+	if (isAppointmentOrderFlag.value && (!status || status === 'NEW')) return true
+	return false
+}
+
+function canShowSkuAfterSale(sku: any) {
+	if (isECouponOrder.value) return false
+	if (!order.value?.sn || Number(order.value.flowPrice) === 0) return false
+	if (isAppointmentOrderFlag.value && !appointmentAllow.value.afterSale) return false
+	return canApplySkuAfterSale(sku)
+}
+
+function onSkuAfterSale(sku: any) {
+	if (!canShowSkuAfterSale(sku)) return
+	storage.setAfterSaleData({
+		...order.value,
+		...sku,
+		orderItems: orderGoodsList.value || [],
+		storeName: order.value.storeName,
+		flowPrice: order.value.flowPrice,
+		orderType: order.value.orderType,
+	})
+	uni.navigateTo({
+		url: `./afterSales/afterSalesSelect?sn=${sku.sn}`,
+	})
 }
 
 function onAfterSales(orderSnText: string, sku: any) {
@@ -571,13 +745,56 @@ function reBuy(orderItem: any) {
 <style lang="scss">
 @import "./goods.scss";
 
-.goods-item-view {
+.seller-view .goods-item-view {
+  align-items: flex-start;
+
+  .goods-body {
+    flex: 4;
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+  }
+
   .goods-info {
+    flex: 1;
+    min-width: 0;
+
     .goods-title {
       font-size: 24rpx;
       line-height: 1.4;
     }
   }
+
+  .goods-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    align-self: stretch;
+    min-height: 131rpx;
+    margin-left: 12rpx;
+  }
+
+  .goods-side.has-action {
+    justify-content: space-between;
+  }
+
+  .goods-num {
+    flex: none;
+    width: auto;
+    text-align: right;
+  }
+}
+
+.after-sale-btn {
+  height: 44rpx;
+  line-height: 44rpx;
+  padding: 0 16rpx;
+  font-size: 22rpx;
+  color: #666;
+  background: #f5f5f5;
+  border-radius: 22rpx;
+  white-space: nowrap;
 }
 
 .empty {
@@ -752,6 +969,38 @@ page,
     .copy {
       margin-left: 16rpx;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40rpx;
+      height: 40rpx;
+    }
+
+    .copy-icon {
+      position: relative;
+      width: 28rpx;
+      height: 28rpx;
+    }
+
+    .copy-icon::before,
+    .copy-icon::after {
+      content: '';
+      position: absolute;
+      width: 16rpx;
+      height: 16rpx;
+      border: 2rpx solid #666;
+      border-radius: 4rpx;
+      background: #fff;
+    }
+
+    .copy-icon::before {
+      left: 0;
+      top: 8rpx;
+    }
+
+    .copy-icon::after {
+      right: 0;
+      top: 0;
     }
   }
 
@@ -772,6 +1021,31 @@ page,
       color: $font-color-light;
     }
   }
+}
+
+.appointment-entry__row {
+  display: flex;
+  align-items: flex-start;
+  font-size: 26rpx;
+  margin-bottom: 16rpx;
+  line-height: 1.5;
+}
+.appointment-entry__row .label {
+  color: #999;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+.appointment-entry__row .value {
+  flex: 1;
+  min-width: 0;
+  color: #333;
+  word-break: break-all;
+}
+.appointment-group {
+  margin: 8rpx 0 12rpx;
+  font-size: 24rpx;
+  color: var(--theme-primary, #ff3c2a);
+  line-height: 1.4;
 }
 
 .verificationCode {
