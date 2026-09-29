@@ -7,6 +7,12 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <title></title>
+    <!-- H5 构建会把 process.env 替换成空对象，但运行时仍会读取 process，浏览器中不存在该变量 -->
+    <script>
+      if (typeof process === "undefined") {
+        window.process = { env: {} };
+      }
+    </script>
     <!--preload-links-->
     <!--app-context-->
   </head>

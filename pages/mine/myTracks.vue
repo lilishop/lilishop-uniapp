@@ -10,55 +10,46 @@
         <view class="light-color edit" @click="isEdit = !isEdit">{{ !isEdit ? '编辑' : '完成'}}</view>
       </template>
 		</u-navbar>
-		<view class="tracks-tip">
-			<u-icon name="volume" color="#f9ae3d" size="19"></u-icon>
-			<text class="tracks-tip-text">右划删除浏览记录</text>
-		</view>
 		<u-empty text="暂无历史记录" style="margin-top:200rpx;" mode="history" v-if="isEmpty"></u-empty>
-		<view v-else class="tracks-list">
-			<block v-for="(item, index) in trackList" :key="index">
-				<view
-					class="myTracks-title"
-					v-if="getStoreName(item)"
-					@click="navigateToStore(item)"
-				>{{ getStoreName(item) }}</view>
-				<u-swipe-action class="myTracks-swipe">
-					<u-swipe-action-item
-						:show="item.show"
-						:name="index"
-						@click="deleteTracks"
-						@open="openSwipe"
-						:options="swipeOptions"
-					>
-						<view class="myTracks-item">
-							<u-checkbox-group v-if="isEdit" class="store-line-check">
-								<u-checkbox
-									usedAlone
-									shape="circle"
-									:active-color="lightColor"
-									v-model:checked="item.checked"
-									@change="onTrackCheckChange(item)"
-								></u-checkbox>
-							</u-checkbox-group>
-							<view class="myTracks-item-img" @click.stop="navigateToDetail(item)">
-								<image class="track-thumb" :src="item.thumbnail"></image>
-							</view>
-							<view class="myTracks-item-content" @click.stop="navigateToDetail(item)">
-								<view class="myTracks-item-title">
-									{{ item.goodsName }}
-								</view>
-								<view class="myTracks-item-price">
-									￥{{ unitPrice(item.price) }}
-								</view>
-							</view>
+		<view v-else class="tracks-list" :class="{ 'is-editing': isEdit }">
+			<u-swipe-action
+				v-for="(item, index) in trackList"
+				:key="item.id || index"
+				class="myTracks-swipe"
+			>
+				<u-swipe-action-item
+					:show="item.show"
+					:name="index"
+					@click="deleteTracks"
+					@open="openSwipe"
+					:options="swipeOptions"
+				>
+					<view class="myTracks-item">
+						<u-checkbox-group v-if="isEdit" class="store-line-check">
+							<u-checkbox
+								usedAlone
+								shape="circle"
+								:active-color="lightColor"
+								v-model:checked="item.checked"
+								@change="onTrackCheckChange(item)"
+							></u-checkbox>
+						</u-checkbox-group>
+						<view class="myTracks-item-img" @click.stop="navigateToDetail(item)">
+							<image v-if="item.thumbnail" class="track-thumb-img" mode="aspectFill" :src="item.thumbnail"></image>
 						</view>
-					</u-swipe-action-item>
-				</u-swipe-action>
-				<view class="myTracks-divider"></view>
-			</block>
-			<view v-if="isEdit" class="submit" @click="deleteSelectedTracks">
-				删除所选
-			</view>
+						<view class="myTracks-item-content" @click.stop="navigateToDetail(item)">
+							<view class="myTracks-item-title">{{ item.goodsName }}</view>
+							<view
+								v-if="getStoreName(item)"
+								class="myTracks-item-store"
+								@click.stop="navigateToStore(item)"
+							>{{ getStoreName(item) }}</view>
+							<view class="myTracks-item-price">￥{{ unitPrice(item.price) }}</view>
+						</view>
+					</view>
+				</u-swipe-action-item>
+			</u-swipe-action>
+			<view v-if="isEdit" class="submit" @click="deleteSelectedTracks">删除所选</view>
 		</view>
 
 	</view>
@@ -226,28 +217,30 @@ function deleteTracks(e: any, ids?: any) {
 
 	.myTracks {
 		width: 100%;
+		min-height: 100vh;
+		background: #f5f5f5;
 		padding-top: 2rpx;
-	}
-
-	.tracks-tip {
-		display: flex;
-		align-items: center;
-		padding: 18rpx 24rpx;
-		background: #fdf6ec;
-	}
-
-	.tracks-tip-text {
-		margin-left: 10rpx;
-		font-size: 28rpx;
-		color: #f9ae3d;
-		line-height: 1.4;
+		box-sizing: border-box;
 	}
 
 	.tracks-list {
-		width: 100%;
+		padding: 20rpx 24rpx 40rpx;
+		box-sizing: border-box;
+
+		&.is-editing {
+			padding-bottom: calc(140rpx + constant(safe-area-inset-bottom));
+			padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+		}
 	}
 
-	.myTracks-swipe,
+	.myTracks-swipe {
+		display: block;
+		margin-bottom: 20rpx;
+		border-radius: 16rpx;
+		overflow: hidden;
+		background: #fff;
+	}
+
 	:deep(.u-swipe-action),
 	:deep(.u-swipe-action-item),
 	:deep(.u-swipe-action-item__content) {
@@ -256,25 +249,12 @@ function deleteTracks(e: any, ids?: any) {
 
 	:deep(.u-swipe-action-item__content) {
 		overflow: hidden;
-	}
-
-	.myTracks-title {
-		width: 100%;
-		height: 110rpx;
-		padding: 0 20rpx;
-		font-size: 28rpx;
-		color: #666;
-		font-weight: bold;
-		background-color: #fff;
-		display: flex;
-		align-items: center;
-		box-sizing: border-box;
+		background: #fff;
 	}
 
 	.myTracks-item {
 		width: 100%;
-		min-height: 226rpx;
-		padding: 30rpx 20rpx;
+		padding: 24rpx;
 		background-color: #fff;
 		box-sizing: border-box;
 		display: flex;
@@ -287,13 +267,17 @@ function deleteTracks(e: any, ids?: any) {
 	}
 
 	.myTracks-item-img {
+		width: 160rpx;
+		height: 160rpx;
 		margin-right: 20rpx;
 		flex-shrink: 0;
+		border-radius: 12rpx;
+		background: #f3f4f6;
+		overflow: hidden;
 
-		.track-thumb {
-			width: 130rpx;
-			height: 130rpx;
-			border-radius: 8rpx;
+		.track-thumb-img {
+			width: 100%;
+			height: 100%;
 			display: block;
 		}
 	}
@@ -301,27 +285,38 @@ function deleteTracks(e: any, ids?: any) {
 	.myTracks-item-content {
 		flex: 1;
 		min-width: 0;
+		min-height: 160rpx;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
+		justify-content: space-between;
 	}
 
 	.myTracks-item-title {
 		font-size: 28rpx;
 		color: #333;
 		line-height: 1.4;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+
+	.myTracks-item-store {
+		margin-top: 8rpx;
+		font-size: 24rpx;
+		color: #999;
+		line-height: 1.4;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 	}
 
 	.myTracks-item-price {
-		font-size: 28rpx;
+		margin-top: 12rpx;
+		font-size: 32rpx;
+		font-weight: 600;
 		color: $light-color;
-		padding-top: 10rpx;
-	}
-
-	.myTracks-divider {
-		width: 100%;
-		height: 20rpx;
-		background: #f5f5f5;
+		line-height: 1.2;
 	}
 
 	.edit {

@@ -11,15 +11,21 @@
       <div class="step-list">
         <div
           class="step-item"
-          :class="{ active: current == index }"
-          v-for="(item, index) in entrySteps"
-          :key="index"
+          :class="{ active: current == index, done: current > index }"
+          v-for="(item, index) in flowSteps"
+          :key="item.value"
         >
-          {{ item.title }}
+          <div class="step-mark">{{ index + 1 }}</div>
+          <div class="step-title">{{ item.title }}</div>
         </div>
       </div>
-      <div class="submit" @click="keepOn()">开始填写</div>
-      <div class="notice" @click="getEntryNotice">查看店铺入驻协议</div>
+      <div v-if="statusTip" class="status-tip" :class="statusTip.value">
+        {{ statusTip.title }}
+      </div>
+      <div class="actions">
+        <div v-if="showFillButton" class="submit" @click="keepOn()">开始填写</div>
+        <div class="notice" @click="getEntryNotice">查看店铺入驻协议</div>
+      </div>
     </div>
   </div>
 </template>
@@ -36,8 +42,15 @@ const store = useStore()
 
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
-const current = ref(999)
+const current = ref(-1)
 const companyData = ref<any>('')
+const showFillButton = computed(() => companyData.value?.storeDisable !== 'OPEN')
+const flowSteps = computed(() =>
+  entrySteps.value.filter((item) => item.value === 'APPLY' || item.value === 'APPLYING')
+)
+const statusTip = computed(() =>
+  entrySteps.value.find((item) => item.value !== 'APPLY' && item.value !== 'APPLYING')
+)
 
 const entrySteps = ref([
   {
@@ -137,54 +150,103 @@ page {
 }
 
 .entry-content {
-  padding: 32rpx 80rpx calc(40rpx + env(safe-area-inset-bottom));
+  padding: 48rpx 48rpx calc(40rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
 .title {
   line-height: 1.2;
-  font-weight: 500;
-  font-size: 56rpx;
-  color: #333;
+  font-weight: 600;
+  font-size: 48rpx;
+  color: #222;
 }
 
 .step-list {
-  margin: 80rpx 0;
+  margin-top: 64rpx;
 }
 
 .step-item {
-  padding: 30rpx 20rpx;
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #666;
+  display: flex;
+  align-items: center;
+  padding: 18rpx 0;
+  color: #999;
 }
 
-.step-item.active {
+.step-mark {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 20rpx;
+  border-radius: 50%;
+  background: #f2f2f2;
+  color: #999;
+  font-size: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.step-item.done .step-mark,
+.step-item.active .step-mark {
+  background: var(--theme-light, #ff6b35);
+  color: #fff;
+}
+
+.step-item.done .step-title {
+  color: #333;
+}
+
+.step-item.active .step-title {
+  color: var(--theme-light, #ff6b35);
+}
+
+.status-tip {
+  margin-top: 24rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
   color: var(--theme-light, #ff6b35);
   background: var(--theme-light-10, rgba(255, 107, 53, 0.1));
-  border-radius: 20rpx;
+}
+
+.status-tip.REFUSED {
+  color: var(--theme-primary, #ff3c2a);
+  background: #fff1f0;
+}
+
+.status-tip.CLOSED {
+  color: #666;
+  background: #f5f5f5;
+}
+
+.actions {
+  margin-top: 72rpx;
 }
 
 .submit,
 .notice {
-  font-weight: bold;
-  font-size: 28rpx;
-  height: 92rpx;
+  height: 88rpx;
+  line-height: 88rpx;
   text-align: center;
-  letter-spacing: 4rpx;
-  line-height: 92rpx;
-  border-radius: 20rpx;
+  font-size: 30rpx;
+  border-radius: 44rpx;
 }
 
 .submit {
   color: #fff;
-  margin-top: 120rpx;
   background: var(--theme-light, #ff6b35);
+  margin-bottom: 24rpx;
 }
 
 .notice {
-  margin-top: 40rpx;
   color: #333;
-  background: $bg-color;
+  background: #f5f5f5;
 }
 </style>

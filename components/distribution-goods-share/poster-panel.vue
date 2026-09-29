@@ -226,8 +226,10 @@ async function generatePosters() {
   }
 
   // #ifndef MP-WEIXIN
-  loadError.value = '请在微信小程序中生成海报'
-  return
+  {
+    loadError.value = '请在微信小程序中生成海报'
+    return
+  }
   // #endif
 
   loading.value = true

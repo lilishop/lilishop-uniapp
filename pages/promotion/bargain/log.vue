@@ -1,25 +1,22 @@
 <template>
   <view class="box">
-    <view v-if="bargainLog.length != 0">
-      <view v-for="(item,index) in bargainLog" class="flex" :key="index">
+    <view v-if="bargainLog.length != 0" class="list">
+      <view v-for="(item,index) in bargainLog" class="card" :key="index">
         <view class="goods-img">
-          <u-image radius="20rpx" width="230rpx" height="230rpx" :src="item.thumbnail"></u-image>
+          <u-image radius="12rpx" width="160rpx" height="160rpx" :src="item.thumbnail"></u-image>
         </view>
         <view class="goods">
-          <view class="wes-2">
-            {{item.goodsName}}
+          <view class="head">
+            <view class="goods-name wes-2">{{ item.goodsName }}</view>
+            <text class="tips" :class="item.status">{{ statusWay[item.status] }}</text>
           </view>
-          <view class="surplus">
-            还剩<text class="surplusPrice">{{unitPrice(item.surplusPrice)}}元</text>
-          </view>
-
-          <view @click="navigateToBargainDetail(item)" v-if="item.status == 'START'" class="buy">
-            继续免费领
-          </view>
-        </view>
-        <view class="tips-box">
-          <view class="tips" :class="[item.status]">
-            {{statusWay[item.status]}}
+          <view class="foot">
+            <view class="surplus">
+              还剩<text class="surplusPrice">{{ unitPrice(item.surplusPrice) }}</text>元
+            </view>
+            <view v-if="item.status == 'START'" class="buy" @click="navigateToBargainDetail(item)">
+              继续免费领
+            </view>
           </view>
         </view>
       </view>
@@ -76,67 +73,90 @@ function navigateToBargainDetail(val: any) {
 </script>
 <style>
 page {
-  background: #fff;
+  background: #f5f5f5;
 }
 </style>
 <style scoped lang="scss">
 .box {
-  padding: 0 32rpx;
+  min-height: 100vh;
+  padding: 20rpx 24rpx 40rpx;
+  background: #f5f5f5;
+  box-sizing: border-box;
+}
+.card {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding: 24rpx;
   background: #fff;
+  border-radius: 16rpx;
 }
 .goods-img {
-  width: 230rpx;
-  height: 230rpx;
-  flex: 0 0 230rpx;
-}
-.buy {
-  background: $light-color;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10rpx 0;
-  border-radius: 100rpx;
-  width: 200rpx;
-  font-size: 24rpx;
-  margin-top: 20rpx;
-}
-.tips-box {
-  flex: 1;
-  justify-content: center;
-  display: flex;
-
-  align-items: center;
-}
-.tips {
-  color: #999;
-
-  margin-top: 20rpx;
-}
-.surplusPrice {
-  font-size: 40rpx;
-  margin-left: 10rpx;
-  font-weight: bold;
-  color: $light-color;
-}
-.surplus {
-  color: #333;
-  font-size: 26rpx;
-  margin-top: 12rpx;
+  width: 160rpx;
+  height: 160rpx;
+  flex: 0 0 160rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #f5f5f5;
 }
 .goods {
-  margin: 0 20rpx;
+  flex: 1;
+  min-width: 0;
+  margin-left: 20rpx;
   display: flex;
-  flex: 2;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  min-height: 160rpx;
 }
-.flex {
-  border-bottom: 1rpx solid #f7f7f7;
+.head {
+  display: flex;
+  align-items: flex-start;
+}
+.goods-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.4;
+}
+.tips {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  font-size: 24rpx;
+  line-height: 1.4;
+  color: #999;
+}
+.foot {
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
-  margin: 10rpx 0;
+  justify-content: space-between;
+  margin-top: 16rpx;
+}
+.surplus {
+  flex: 1;
+  min-width: 0;
+  color: #666;
+  font-size: 24rpx;
+  white-space: nowrap;
+}
+.surplusPrice {
+  margin: 0 6rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: $light-color;
+}
+.buy {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  height: 56rpx;
+  padding: 0 28rpx;
+  border-radius: 100rpx;
+  background: $light-color;
+  color: #fff;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .SUCCESS {
   color: $light-color;

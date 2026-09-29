@@ -18,7 +18,6 @@
           v-model="bindForm.cardSecret"
           border="none"
           maxlength="128"
-          password
           placeholder="请输入兑换码（卡密）"
           clearable
         />

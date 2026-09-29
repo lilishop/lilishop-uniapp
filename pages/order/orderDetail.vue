@@ -34,7 +34,7 @@
           <verification-codes :items="verificationCodeItems" />
         </view>
         <view v-else-if="isECouponOrder" class="card-key-entry">
-          <view v-if="ecouponCardKeyDelivered" class="card-key-entry__btn" @click="goCardKeyDetail">
+          <view v-if="ecouponCardKeyDelivered" class="btn" @click="goCardKeyDetail">
             查看卡密
           </view>
           <view v-else-if="order.orderStatus === 'CANCELLED'" class="card-key-entry__tip">
@@ -1055,17 +1055,14 @@ page,
 
 .card-key-entry {
   width: 100%;
-  text-align: center;
-}
 
-.card-key-entry__btn {
-  display: inline-block;
-  padding: 20rpx 80rpx;
-  border: 2rpx solid $main-color;
-  border-radius: 12rpx;
-  color: $main-color;
-  font-size: 28rpx;
-  font-weight: 600;
+  .btn {
+    width: 100%;
+    height: 80rpx;
+    line-height: 80rpx;
+    border-radius: 40rpx;
+    font-size: 30rpx;
+  }
 }
 
 .card-key-entry__tip {
