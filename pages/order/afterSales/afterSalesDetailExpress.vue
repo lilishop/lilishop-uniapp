@@ -69,7 +69,7 @@
       @confirm="onTimeConfirm"
       @close="timeshow = false"
     />
-    <u-toast ref="uToast"/>
+    <u-toast ref="toastRef"/>
   </view>
 </template>
 
@@ -96,7 +96,7 @@ const form = reactive({
 })
 const serviceDetail = reactive<{ sn: string }>({ sn: '' })
 const sku = ref<any>({})
-const uToast = ref<any>(null)
+const toastRef = ref<any>(null)
 
 onLoad((options) => {
   sku.value = storage.getAfterSaleData()
@@ -136,15 +136,15 @@ function onSubmit() {
   delete submitForm.courierCompany
 
   if (form.logisticsId == '') {
-    uToast.value?.show({ title: '请选择快递公司', type: 'error' })
+    toastRef.value?.show({ title: '请选择快递公司', type: 'error' })
     return
   }
   if (form.logisticsNo == '') {
-    uToast.value?.show({ title: '请填写快递单号', type: 'error' })
+    toastRef.value?.show({ title: '请填写快递单号', type: 'error' })
     return
   }
   if (form.mDeliverTime == '') {
-    uToast.value?.show({ title: '请选择发货时间', type: 'error' })
+    toastRef.value?.show({ title: '请选择发货时间', type: 'error' })
     return
   }
 
@@ -152,7 +152,7 @@ function onSubmit() {
   fillShipInfo(serviceDetail.sn, submitForm).then((res) => {
     hideLoadingIfNeeded()
     if (res.statusCode === 200) {
-      uToast.value?.show({
+      toastRef.value?.show({
         title: '提交成功',
         type: 'success',
         back: true,

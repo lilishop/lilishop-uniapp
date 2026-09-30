@@ -27,8 +27,8 @@
           <view class="relative">
             <view class="alifont icon-bianji-copy"></view>
             <text class="mr-40" @click="addAddress(item.id)">编辑</text>
-            <view class="alifont icon-lajitong"></view>
-            <text @click="removeAddress(item.id)">删除</text>
+            <view class="alifont icon-lajitong" @click.stop="removeAddress(item.id)"></view>
+            <text @click.stop="removeAddress(item.id)">删除</text>
           </view>
         </view>
       </view>
@@ -38,7 +38,6 @@
       <u-icon name="plus-circle" color="#ffffff" size="18"></u-icon>
       <text class="btn-text">添加新收货人</text>
     </view>
-    <u-action-sheet :list="removeList" :tips="tips" v-model:show="showAction" @click="deleteAddressMessage"></u-action-sheet>
   </view>
 </template>
 
@@ -52,10 +51,6 @@ import * as API_Address from '@/api/address.js'
 const store = useStore()
 
 const addressList = ref<any[]>([])
-const showAction = ref(false)
-const removeList = [{ text: '确定' }]
-const tips = { text: '确定要删除该收货人信息吗？' }
-const removeId = ref('')
 const routerVal = ref<Record<string, string>>({})
 const params = { pageNumber: 1, pageSize: 1000 }
 
@@ -94,18 +89,20 @@ function getAddressList() {
 }
 
 function removeAddress(id: string) {
-  removeId.value = id
-  showAction.value = true
-}
-
-function deleteAddressMessage() {
-  API_Address.deleteAddress(removeId.value).then((res) => {
-    if (res.statusCode == 200) {
-      uni.showToast({ icon: 'none', title: '删除成功' })
-      getAddressList()
-    } else {
-      uni.showToast({ icon: 'none', title: res.data.message, duration: 2000 })
-    }
+  uni.showModal({
+    title: '提示',
+    content: '确定要删除该收货人信息吗？',
+    success: (res) => {
+      if (!res.confirm) return
+      API_Address.deleteAddress(id).then((result) => {
+        if (result.statusCode == 200) {
+          uni.showToast({ icon: 'none', title: '删除成功' })
+          getAddressList()
+        } else {
+          uni.showToast({ icon: 'none', title: result.data.message, duration: 2000 })
+        }
+      })
+    },
   })
 }
 

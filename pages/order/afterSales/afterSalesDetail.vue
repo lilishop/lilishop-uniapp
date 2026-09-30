@@ -159,7 +159,7 @@
       title="申请原因"
       @confirm="reasonSelectConfirm"
     ></u-picker>
-    <u-toast ref="uToast" />
+    <u-toast ref="toastRef" />
   </view>
 </template>
 
@@ -186,7 +186,7 @@ const sku = ref<any>({})
 const reasonSelectShow = ref(false)
 const reasonList = ref<any[]>([])
 const applyInfo = ref<any>({})
-const uToast = ref<any>(null)
+const toastRef = ref<any>(null)
 const isAppointmentAfterSale = ref(false)
 
 const form = reactive({
@@ -335,8 +335,8 @@ function onUploadAfterRead(event: any) {
 
 function showToast(message: string, type = 'error') {
   const text = message || (type === 'success' ? '操作成功' : '操作失败')
-  if (uToast.value) {
-    uToast.value.show({ message: text, type })
+  if (toastRef.value) {
+    toastRef.value.show({ message: text, type })
     return
   }
   uni.showToast({

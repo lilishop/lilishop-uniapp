@@ -35,14 +35,35 @@ export function loadCachedTheme() {
   }
 }
 
-export function applyTabBarStyle(mainColor) {
-  if (!mainColor) return;
-  try {
-    uni.setTabBarStyle({
-      selectedColor: mainColor,
-    });
-  } catch (e) {
-    // 非 tabBar 页面可能报错，忽略
+const TAB_BAR_ROUTES = [
+  "pages/tabbar/home/index",
+  "pages/tabbar/category/category",
+  "pages/tabbar/cart/cartList",
+  "pages/tabbar/user/my",
+];
+
+function normalizeRoute(route = "") {
+  return String(route).replace(/^\//, "").split("?")[0];
+}
+
+function currentRoute() {
+  const pages = typeof getCurrentPages === "function" ? getCurrentPages() : [];
+  const page = pages[pages.length - 1];
+  return (page && page.route) || "";
+}
+
+export function isTabBarRoute(route) {
+  return TAB_BAR_ROUTES.includes(normalizeRoute(route || currentRoute()));
+}
+
+export function applyTabBarStyle(mainColor, route) {
+  if (!mainColor || !isTabBarRoute(route)) return;
+  const task = uni.setTabBarStyle({
+    selectedColor: mainColor,
+    fail() {},
+  });
+  if (task && typeof task.catch === "function") {
+    task.catch(() => {});
   }
 }
 

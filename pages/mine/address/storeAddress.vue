@@ -16,7 +16,13 @@
       </view>
       <view style="height: 100px"></view>
     </view>
-    <u-action-sheet :list="removeList" :tips="tips" v-model:show="showAction" @click="deleteAddressMessage"></u-action-sheet>
+    <u-action-sheet
+      :actions="removeList"
+      :description="tips.text"
+      cancel-text="取消"
+      v-model:show="showAction"
+      @select="deleteAddressMessage"
+    ></u-action-sheet>
   </view>
 </template>
 
@@ -31,7 +37,7 @@ const store = useStore()
 
 const storeAddressList = ref<any[]>([])
 const showAction = ref(false)
-const removeList = [{ text: '确定' }]
+const removeList = [{ name: '确定' }]
 const tips = { text: '确定要删除该收货人信息吗？' }
 const removeId = ref('')
 const routerVal = ref<Record<string, string>>({})

@@ -17,7 +17,9 @@ import { handleAppLaunchScene } from '@/utils/distributionBind.js'
 const store = useStore()
 
 // #ifdef MP-WEIXIN
-wx.onAppRoute(() => {})
+wx.onAppRoute((res) => {
+  applyTabBarStyle(store.state.theme && store.state.theme.mainColor, res && res.path)
+})
 // #endif
 
 onLaunch((val) => {
@@ -39,6 +41,8 @@ onLaunch((val) => {
 })
 
 onShow(() => {
+  applyTabBarStyle(store.state.theme && store.state.theme.mainColor)
+
   // #ifndef H5
   if (config.enableGetClipboard) {
     getClipboard()

@@ -56,7 +56,6 @@
 
     <view class="bottom">
       <view class="submit" @click="submit">保存</view>
-      <view class="submit light" @click="quiteLoginOut">退出登录</view>
     </view>
 
     <u-datetime-picker
@@ -84,7 +83,6 @@
 import { ref, reactive, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
-import { quiteLoginOut } from '@/utils/filters.js'
 import { saveUserInfo } from '@/api/members.js'
 import { upload } from '@/api/common.js'
 import storage from '@/utils/storage.js'
@@ -211,31 +209,40 @@ onShow(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 page {
-  background: #fff;
+  background: #f5f5f5;
 }
-
+</style>
+<style lang="scss" scoped>
 .person-msg {
   min-height: 100vh;
-  background: #fff;
-  padding-bottom: 180rpx;
+  background: #f5f5f5;
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 .head {
-  padding: 40rpx 0 20rpx;
-  color: $font-color-light;
-  font-size: $font-sm;
+  margin-bottom: 20rpx;
+  padding: 48rpx 0 32rpx;
+  background: #fff;
+  color: #999;
+  font-size: 24rpx;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  line-height: 2em;
 
   image {
     width: 144rpx;
     height: 144rpx;
     border-radius: 50%;
+    background: #f3f4f6;
+  }
+
+  view {
+    margin-top: 16rpx;
+    line-height: 1.4;
   }
 }
 
@@ -244,13 +251,13 @@ page {
 }
 
 :deep(.u-form-item) {
-  padding: 0 30rpx;
-  min-height: 100rpx;
+  padding: 0 32rpx;
 }
 
 :deep(.u-form-item__body) {
-  min-height: 100rpx;
+  min-height: 108rpx;
   align-items: center;
+  padding: 16rpx 0 !important;
 }
 
 :deep(.u-form-item__body__left__content__label) {
@@ -258,8 +265,13 @@ page {
   color: #333;
 }
 
+:deep(.u-form-item__body__right) {
+  min-width: 0;
+}
+
 :deep(.u-form-item__body__right__content__slot) {
   flex: 1;
+  min-width: 0;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -271,7 +283,8 @@ page {
 
 :deep(.u-input__content__field-wrapper__field) {
   font-size: 28rpx !important;
-  color: #666 !important;
+  color: #333 !important;
+  text-align: right;
 }
 
 .sex-row {
@@ -288,16 +301,20 @@ page {
 
 .form-value {
   width: 100%;
+  min-width: 0;
   text-align: right;
   font-size: 28rpx;
-  color: #666;
+  color: #333;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .bind-mobile {
   width: 100%;
   text-align: right;
   font-size: 28rpx;
-  color: $main-color;
+  color: $light-color;
 }
 
 .bottom {
@@ -307,10 +324,10 @@ page {
   bottom: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 24rpx 30rpx calc(24rpx + env(safe-area-inset-bottom));
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
   background: #fff;
   box-sizing: border-box;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
 .submit {
@@ -318,18 +335,9 @@ page {
   height: 80rpx;
   line-height: 80rpx;
   text-align: center;
-  border-radius: 100px;
+  border-radius: 40rpx;
   font-size: 30rpx;
   background: $light-color;
   color: #fff;
-}
-
-.submit + .submit {
-  margin-left: 24rpx;
-}
-
-.light {
-  background: rgba($color: $light-color, $alpha: 0.2) !important;
-  color: $light-color !important;
 }
 </style>

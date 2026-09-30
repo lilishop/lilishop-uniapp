@@ -417,7 +417,11 @@ function openOrder(order: any) {
 }
 
 function changeTab(e: any) {
-	tabCurrentIndex.value = e.target.current
+	// H5 的 swiper change 把下标放在 detail.current。
+	// 读 target.current 会得到 undefined，选中态被清掉，列表就停在「全部」。
+	const current = Number(e?.detail?.current ?? e?.target?.current)
+	if (!Number.isInteger(current) || current < 0 || current >= navList.length) return
+	tabCurrentIndex.value = current
 }
 
 function tabClick(index: number) {

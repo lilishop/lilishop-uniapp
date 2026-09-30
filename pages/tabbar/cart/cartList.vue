@@ -98,7 +98,7 @@
         </u-swipe-action>
       </div>
     </div>
-    <u-modal v-model:show="deleteShow" :confirm-style="{'color':lightColor}" @confirm="deleteConfirm" show-cancel-button
+    <u-modal v-if="deleteShow" v-model:show="deleteShow" :confirm-style="modalConfirmStyle" @confirm="deleteConfirm" show-cancel-button
       :content="deleteContent" :async-close="true"></u-modal>
     <!-- 结账 -->
     <div class="box box6">
@@ -155,7 +155,7 @@
         <div class="settlement">去结算</div>
       </view>
     </div>
-    <u-toast ref="uToast" />
+    <u-toast />
   </div>
 </template>
 <script setup lang="ts">
@@ -169,7 +169,6 @@ import { useStore } from '@/store'
 import { unitPrice, goodsFormatPrice, isLogin, forceLogin } from '@/utils/filters.js'
 
 const store = useStore()
-const uToast = ref()
 const swiperAction = ref()
 
 const lightColor = computed(() => store.getters.lightColor)
@@ -210,6 +209,10 @@ const cartNavbarStyle = computed(() => {
     "--cart-capsule-inset": `${capsuleInsetRight.value}px`,
   }
 })
+
+const modalConfirmStyle = computed(() => ({
+  color: lightColor.value,
+}))
 
 onMounted(() => {
   setCapsuleInset()
