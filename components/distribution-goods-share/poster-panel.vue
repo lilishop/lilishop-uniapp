@@ -1,6 +1,6 @@
 <template>
   <view class="poster-panel">
-    <view class="poster-hint">点击海报预览后可保存到相册</view>
+    <view v-if="posterList.length" class="poster-hint">点击海报预览后可保存到相册</view>
 
     <view v-if="loading" class="loading-wrap">
       <text class="loading-text">海报生成中...</text>
@@ -465,23 +465,38 @@ function saveCurrentPoster() {
 }
 
 .loading-wrap {
-  padding: 120rpx 0;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 48rpx;
+  box-sizing: border-box;
 }
 
 .loading-text {
+  display: block;
+  width: 100%;
   color: #999;
   font-size: 28rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.retry-btn {
+  margin-top: 32rpx;
 }
 
 .retry-btn,
 .save-btn {
-  display: inline-block;
-  padding: 12rpx 40rpx;
-  border-radius: 30rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 64rpx;
+  padding: 0 40rpx;
+  border-radius: 32rpx;
   background: linear-gradient(90deg, #ff9f3f, #ff6b35);
   color: #fff;
   font-size: 26rpx;
+  white-space: nowrap;
 }
 
 .poster-swiper {
