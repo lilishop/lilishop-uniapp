@@ -3,7 +3,7 @@
   @Date 2026-08-03
 -->
 <template>
-  <view class="card-key-page">
+  <view :style="themeStyle" class="card-key-page">
     <view v-if="loading" class="card-key-page__loading">加载中...</view>
     <view v-else-if="errorMessage" class="card-key-page__empty">{{ errorMessage }}</view>
     <view v-else-if="!cardKeyRows.length" class="card-key-page__empty">
@@ -64,6 +64,10 @@ import {
   resolveCardKeyFulfillMessage,
   CARD_KEY_FULFILL_STATUS,
 } from '@/utils/goodsType.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const orderSn = ref('')
 const loading = ref(true)

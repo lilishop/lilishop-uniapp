@@ -44,14 +44,14 @@ page {
     display: flex;
     align-items: center;
     > .to-buy {
-        background-image: linear-gradient(135deg, #ffba0d, #ffc30d 69%, #ffcf0d);
+        background-image: linear-gradient(135deg, $main-color, $light-color);
     }
     > .to-buy-theme {
         background-image: none;
         background: var(--theme-primary, #ff3c2a);
     }
     > .to-store-car {
-        background-image: linear-gradient(135deg, #f2140c, #f2270c 70%, #f24d0c);
+        background-image: linear-gradient(91deg, $light-color 1%, $aider-light-color 99%);
     }
     > .to-store-btn {
         flex: 1;
@@ -426,7 +426,7 @@ page {
 .showBox {
     width: 100%;
     height: 90rpx;
-    background: #ff6262;
+    background: $main-color;
     color: #fff;
     padding: 0 20rpx;
 

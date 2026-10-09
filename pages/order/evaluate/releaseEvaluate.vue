@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view :style="themeStyle">
     <!-- 遍历出评价商品 -->
     <view>
       <view class="after-sales-goods-detail-view">
@@ -87,13 +87,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { commentsMemberOrder } from '@/api/members.js'
 import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const type = 'textarea'
 const border = false

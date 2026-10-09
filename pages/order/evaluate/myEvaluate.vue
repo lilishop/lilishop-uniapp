@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view :style="themeStyle">
     <view class="wrap">
       <view class="u-tabs-box">
         <u-tabs
@@ -85,8 +85,10 @@ import { onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getOrderList } from '@/api/order.js'
 import { getComments } from '@/api/members.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
 
 const list = [

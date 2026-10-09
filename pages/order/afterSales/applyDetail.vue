@@ -1,5 +1,5 @@
 <template>
-  <view v-if="serviceDetail">
+  <view :style="themeStyle" v-if="serviceDetail">
     <view class="after-sales-goods-detail-view">
       <view class="header">
         <view>
@@ -185,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import {
@@ -201,8 +201,10 @@ import {
   getAfterSaleLog,
   getAfterSaleReason,
 } from '@/api/after-sale.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const reason = ref('')
 const serviceTypeList: Record<string, string> = {

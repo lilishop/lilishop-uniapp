@@ -1,5 +1,5 @@
 <template>
-  <view class="wrapper" v-if="flag">
+  <view :style="themeStyle" class="wrapper" v-if="flag">
     <div class='goods' v-if="selectedGoods">
       <image class="goods-image" :src="selectedGoods.thumbnail" alt="" />
       <p class="goodsName">{{selectedGoods.goodsName}}</p>
@@ -96,8 +96,10 @@ import shares from '@/components/m-share/index'
 import storage from '@/utils/storage.js'
 import popupGoods from '@/components/m-buy/goods'
 import { unitPrice } from '@/utils/filters.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const popupGoodsRef = ref<any>(null)
 const flag = ref(false)

@@ -1,5 +1,5 @@
 <template>
-  <view class="sign-in">
+  <view :style="themeStyle" class="sign-in">
     <view class="date-card">
       <div class="box">
         <div class="circle-box">
@@ -66,8 +66,10 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { sign, signTime } from '@/api/point.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const aiderLightColor = computed(() => store.getters.aiderLightColor)
 
 const signAnimating = ref(false)
@@ -226,7 +228,7 @@ page {
   height: 200rpx;
   border-radius: 50%;
   background: $aider-light-color;
-  box-shadow: 0 4rpx 24rpx 0 rgba($color: $aider-light-color, $alpha: 1);
+  box-shadow: 0 4rpx 24rpx 0 $aider-light-color;
   display: flex;
   justify-content: center; //这个是X轴居中
   align-items: center; //这个是 Y轴居中

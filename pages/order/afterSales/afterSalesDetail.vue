@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap">
+  <view :style="themeStyle" class="page-wrap">
     <scroll-view scroll-y class="page-scroll">
       <up-form
         :model="form"
@@ -173,8 +173,10 @@ import { isAppointmentOrder } from '@/utils/goodsType.js'
 import { computePartialRefundPrice } from '@/utils/appointmentGoods.js'
 import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
 import storage from '@/utils/storage.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const { proxy } = getCurrentInstance()!
 const $u = proxy!.$u
 

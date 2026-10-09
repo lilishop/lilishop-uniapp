@@ -1,5 +1,5 @@
 <template>
-  <view class="invoice-detail">
+  <view :style="themeStyle" class="invoice-detail">
     <view class="block-item flex-center">
       <view>
         <view>
@@ -75,10 +75,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getReceiptDetail } from '@/api/order.js'
 import { unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const order = ref<Record<string, any>>({})
 const title_type = ref('')

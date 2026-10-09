@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view :style="themeStyle" class="page">
     <view class="form-card">
       <view class="title">充值金额</view>
       <view class="amount-row">
@@ -20,8 +20,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { recharge } from '@/api/members'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const price = ref('')
 const flag = ref(true)

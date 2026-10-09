@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div :style="themeStyle" class="wrapper">
     <div class="box">
       <div class="block block-1">
         <image class="img" src="@/pages/cart/static/pay.png" />
@@ -67,14 +67,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, getCurrentInstance, onMounted } from 'vue'
+import { ref, getCurrentInstance, onMounted, computed } from 'vue'
 import { onLoad, onBackPress } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import * as API_Trade from '@/api/trade'
 import { payCallback } from '@/api/members'
 import { unitPrice } from '@/utils/filters.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const { proxy } = getCurrentInstance()!
 
 const routerVal = ref<Record<string, string>>({})

@@ -1,5 +1,5 @@
 <template>
-  <view class="log-list">
+  <view :style="themeStyle" class="log-list">
     <view
       class="log-way"
       v-if="withdrawLogList.length != 0"
@@ -53,14 +53,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { cashLog, getDistributionOrders } from '@/api/distribution'
 import { unitPrice } from '@/utils/filters.js'
 import { assertActiveDistributor } from '@/utils/distributionStatus'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const withdrawLogList = ref<any[]>([])
 const achievementList = ref<any[]>([])

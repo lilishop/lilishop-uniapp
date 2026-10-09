@@ -1,5 +1,5 @@
 <template>
-	<view class="box">
+	<view :style="themeStyle" class="box">
 		<view class="box-tips">
 			<h2 class="h2">绑定手机号码</h2>
 			<view class="verification"></view>
@@ -44,15 +44,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, getCurrentInstance } from 'vue'
+import { ref, reactive, watch, getCurrentInstance, computed } from 'vue'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { sendMobile, bindMobile } from '@/api/login'
 import { getUserInfo } from '@/api/members.js'
 import storage from '@/utils/storage.js'
 import MyVerification from '@/components/verification/verification.vue'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const { proxy } = getCurrentInstance()!
 
 const phoneVerified = ref(false)

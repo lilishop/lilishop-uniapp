@@ -1,5 +1,5 @@
 <template>
-  <view class="content">
+  <view :style="themeStyle" class="content">
     <view class="portrait-box">
       <image src="/static/pointTrade/point_bg_1.png" mode=""></image>
       <image class="point-img" src="/static/pointTrade/tradehall.png" />
@@ -36,12 +36,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getPointsData, getMemberPointSum } from '@/api/members.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const loadStatus = ref('more')
 const pointList = ref<any[]>([])

@@ -1,5 +1,5 @@
 <template>
-  <view class="wrapper">
+  <view :style="themeStyle" class="wrapper">
     <view class="tips">我的投诉信息</view>
     <u-cell-group>
       <u-cell :isLink="false" :value="complainDetail.goodsName" title="投诉商品"></u-cell>
@@ -52,12 +52,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getComplainDetail, communication } from '@/api/after-sale'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const complainId = ref('')
 const complainValue = ref('')

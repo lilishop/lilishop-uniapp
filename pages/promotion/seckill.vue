@@ -1,5 +1,5 @@
 <template>
-	<view class="sale">
+	<view :style="themeStyle" class="sale">
 		<u-navbar
 			title="限时抢购"
 			:fixed="true"
@@ -39,11 +39,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow, onUnload } from '@dcloudio/uni-app'
 import { getSeckillTimeLine, getSeckillTimeGoods } from '@/api/promotions.js'
 import Foundation from '@/utils/Foundation.js'
 import goodsTemplate from '@/components/m-goods-list/promotion.vue'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const nav = ref(0)
 const timeLine = ref<any[]>([])

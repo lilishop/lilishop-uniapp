@@ -1,5 +1,5 @@
 <template>
-  <view class="box">
+  <view :style="themeStyle" class="box">
     <view v-if="bargainLog.length != 0" class="list">
       <view v-for="(item,index) in bargainLog" class="card" :key="index">
         <view class="goods-img">
@@ -28,10 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow, onReachBottom } from '@dcloudio/uni-app'
 import { getMineBargainLog } from '@/api/promotions'
 import { unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const params = ref({
   pageNumber: 1,

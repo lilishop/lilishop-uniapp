@@ -98,7 +98,7 @@ page {
   }
   > .sort-btn-confim {
     color: #fff;
-    background-image: linear-gradient(90deg, #ff6b35, #ff9f28, #ffcc03);
+    background-image: linear-gradient(90deg, $main-color, $light-color, $aider-light-color);
   }
 }
 .uinput {
@@ -328,7 +328,7 @@ page {
   flex-shrink: 0;
   font-size: 28rpx;
   color: #fff;
-  background: linear-gradient(to right, #ff9801, #ff570a);
+  background: linear-gradient(to right, $main-color, $aider-light-color);
   border-radius: 60rpx;
 }
 

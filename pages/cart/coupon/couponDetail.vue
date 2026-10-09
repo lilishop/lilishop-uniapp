@@ -1,5 +1,5 @@
 <template>
-  <view class="content">
+  <view :style="themeStyle" class="content">
     <view class="body">
       <view class="top-view">
         <view class="title">{{ coupon.title }}</view>
@@ -28,9 +28,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const coupon = ref<Record<string, any>>({})
 

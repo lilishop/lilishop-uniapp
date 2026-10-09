@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view :style="themeStyle">
     <view class="header">
       <u-icon name='checkmark' size="150" color="#ff6b35"></u-icon>
       <view class="success-text">售后申请提交成功</view>
@@ -21,7 +21,12 @@
   </view>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts">import { computed } from 'vue'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
+
 function navigateToAfterSales() {
   uni.redirectTo({
     url: '/pages/order/afterSales/afterSales',

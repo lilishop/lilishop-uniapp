@@ -1,5 +1,5 @@
 <template>
-  <view class="index">
+  <view :style="themeStyle" class="index">
     <user-point />
     <view class="index-head">
       <!-- #ifdef H5 -->
@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import {
   onLoad,
   onShow,
@@ -111,6 +111,10 @@ import {
 import { getPointsCategory, getPointsGoods } from '@/api/promotions.js'
 import userPoint from './user.vue'
 import { unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 interface CategoryTab {
   categoryId: number | string

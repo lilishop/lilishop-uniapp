@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view :style="themeStyle" class="page">
     <u-navbar
       title="余额"
       :auto-back="false"
@@ -39,10 +39,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { getUserWallet } from '@/api/members'
 import { isLogin, navigateToLogin, unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const walletNum = ref(0)
 

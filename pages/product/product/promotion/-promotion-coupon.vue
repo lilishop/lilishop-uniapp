@@ -102,7 +102,7 @@ function getCoupon(item: any, index: number) {
 		display: flex;
 		flex-direction: column;
 		min-height: 230rpx;
-		background: #e9ebfb;
+		background: var(--theme-primary-10, #ffe8e5);
 		margin: 30rpx 0;
 		padding: 10rpx 30rpx;
 		border-radius: 12rpx;
@@ -152,7 +152,7 @@ function getCoupon(item: any, index: number) {
 		.price {
 			width: 33%;
 			justify-content: center;
-			color: #6772e5;
+			color: $price-color;
 			font-size: 40rpx;
 			display: flex;
 			height: 100%;
@@ -196,7 +196,7 @@ function getCoupon(item: any, index: number) {
 				text-align: center;
 				line-height: 56rpx;
 				color: #fff;
-				background: #6772e5;
+				background: $price-color;
 				border-radius: 28rpx;
 				font-size: 24rpx;
 				box-sizing: border-box;

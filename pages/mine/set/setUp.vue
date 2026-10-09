@@ -1,5 +1,5 @@
 <template>
-  <view class="set-up">
+  <view :style="themeStyle" class="set-up">
     <view class="person" @click="checkUserInfo()">
       <u-image
         width="140rpx"
@@ -39,10 +39,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import config from '@/config/config'
 import { isLogin, tipsToLogin, quiteLoginOut, logoff } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const userImage = config.defaultUserPhoto
 const userInfo = ref<Record<string, any>>({})
