@@ -1,5 +1,5 @@
 <template>
-  <view class="feedBack">
+  <view class="feedBack" :style="themeStyle">
     <view class="feedBack-box">
       <view class="box-title">猜你想问</view>
       <view
@@ -54,11 +54,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, getCurrentInstance } from 'vue'
+import { ref, reactive, computed, getCurrentInstance } from 'vue'
 import { feedBack as submitFeedBackApi } from '@/api/members.js'
 import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
 
 const { proxy } = getCurrentInstance()!
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const feedbackForm = reactive({
 	type: 'FUNCTION',

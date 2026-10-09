@@ -89,7 +89,7 @@
 
 .countdown-day {
 	font-size: 22rpx;
-	color: #f71471;
+	color: $price-color;
 	margin-right: 4rpx;
 }
 
@@ -99,13 +99,13 @@
 	padding: 0 4rpx;
 	font-size: 25rpx;
 	color: #fff;
-	background-color: #f71471;
+	background-color: $price-color;
 	border-radius: 4rpx;
 	text-align: center;
 }
 
 .countdown-colon {
 	font-size: 25rpx;
-	color: #f71471;
+	color: $price-color;
 	margin: 0 2rpx;
 }

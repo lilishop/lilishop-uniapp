@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="themeStyle">
     <u-navbar
       :border="false"
       :fixed="true"
@@ -43,10 +43,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, computed } from 'vue'
 import { onReachBottom } from '@dcloudio/uni-app'
 import { getStoreList } from '@/api/store'
 import { unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const params = reactive({
   pageNumber: 1,

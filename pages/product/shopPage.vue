@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view :style="themeStyle">
     <!-- 楼层装修店铺信息 -->
     <div>
       <!-- 基础店铺：返回 + 搜索；楼层装修无顶部搜索时：仅返回 -->
@@ -244,8 +244,10 @@ import {
   unitPrice,
 } from '@/utils/filters.js'
 import storage from '@/utils/storage.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const mainColor = computed(() => store.getters.mainColor)
 
 const pageData = ref<{ list: any[] }>({ list: [] })
@@ -753,7 +755,7 @@ onMounted(() => {
 
     .money {
       width: 45%;
-      color: #fd6466;
+      color: $price-color;
       font-weight: 500;
       text-align: center;
 
@@ -808,34 +810,52 @@ onMounted(() => {
   }
 }
 
+.category {
+  padding: 0 20rpx;
+}
+
 .category-item {
   background: #fff;
-  padding: 22rpx;
-  margin: 20rpx 10rpx;
+  border-radius: 16rpx;
+  padding: 0 24rpx;
+  margin: 20rpx 0;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 
   > .flex {
-    color: #666;
+    color: #333;
+    font-size: 28rpx;
+    font-weight: 500;
+    height: 88rpx;
+    align-items: center;
     justify-content: space-between;
   }
 
   > .child-list {
     display: flex;
-    margin: 20rpx 0;
     flex-wrap: wrap;
+    padding-bottom: 8rpx;
 
     > .child {
-      justify-content: center;
-      margin: 1% 0;
-      display: flex;
-      width: 48%;
+      width: 32%;
+      margin-right: 2%;
+      margin-bottom: 16rpx;
+      height: 64rpx;
+      line-height: 64rpx;
+      padding: 0 12rpx;
       font-size: 24rpx;
-      color: #999;
-      margin-right: 1%;
-      border: 1rpx solid #ededed;
+      color: #666;
+      background: #f7f8fa;
+      border: none;
+      border-radius: 8rpx;
       box-sizing: border-box;
-      height: 70rpx;
       text-align: center;
-      line-height: 70rpx;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &:nth-child(3n) {
+        margin-right: 0;
+      }
     }
   }
 }

@@ -104,10 +104,9 @@ function clickAddress(val: any) {
 <style lang="scss" scoped>
 .light {
   background-image: linear-gradient(
-    135deg,
-    #ffba0d,
-    #ffc30d 69%,
-    #ffcf0d
+    91deg,
+    $light-color 1%,
+    $aider-light-color 99%
   ) !important;
   box-shadow: 0 2px 6px 0 rgba(255, 65, 66, 0.2);
 }

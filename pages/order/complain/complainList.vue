@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view :style="themeStyle">
     <view class="seller-view" v-for="(item, index) in complaionData" :key="index">
       <view class="seller-info u-flex u-row-between">
         <view class="seller-name">
@@ -41,13 +41,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { unitPrice } from '@/utils/filters.js'
 import { getComplain, clearComplain } from '@/api/after-sale'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const statusData: Record<string, string> = {
   NEW: '新投诉',

@@ -1,5 +1,5 @@
 <template>
-  <view class="page">
+  <view :style="themeStyle" class="page">
     <view class="form-card">
       <view class="field-label">提现类型</view>
       <view class="readonly-value">{{ typeLabel }}</view>
@@ -62,6 +62,10 @@
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 import { getUserWallet, withdrawalApply, withdrawalSettingVO } from '@/api/members'
 import { unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const { proxy } = getCurrentInstance()!
 

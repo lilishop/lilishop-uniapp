@@ -1,5 +1,5 @@
 <template>
-  <view class="wrapper">
+  <view :style="themeStyle" class="wrapper">
     <u-navbar
       class="my-title"
       title-size="32"
@@ -197,7 +197,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, getCurrentInstance } from 'vue'
+import { ref, nextTick, getCurrentInstance, computed } from 'vue'
 import {
   onLoad,
   onHide,
@@ -215,6 +215,10 @@ import storage from '@/utils/storage.js'
 import { beautifyTime, unitPrice } from '@/utils/filters.js'
 import config from '@/config/config.js'
 import { textReplaceEmoji, emojistwo } from '@/utils/emojis.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 // rpx和px的比率
 let l: number

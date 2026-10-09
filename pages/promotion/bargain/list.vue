@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div :style="themeStyle" class="page">
     <u-navbar :auto-back="false" @leftClick="back" left-icon-color="#fff" :bg-color="background.backgroundColor" :border="false" >
     </u-navbar>
     <div class="wrapper">
@@ -16,10 +16,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow, onReachBottom } from '@dcloudio/uni-app'
 import { getBargainList } from '@/api/promotions'
 import goodsTemplate from '@/components/m-goods-list/promotion'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const background = ref({
   backgroundColor: 'transparent',

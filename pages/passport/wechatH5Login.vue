@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view :style="themeStyle" class="container">
     <u-navbar :auto-back="false" @leftClick="back" title="公众网页登录"></u-navbar>
     <view class="wx-auth-container">
       <div class="box">
@@ -20,10 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { whetherNavigate } from '@/utils/Foundation'
 import config from '@/config/config'
 import api from '@/config/api.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const projectName = ref(config.name)
 

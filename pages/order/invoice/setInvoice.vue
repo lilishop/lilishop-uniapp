@@ -1,5 +1,5 @@
 <template>
-  <u-popup closeable border-radius="28" @close="onPopupClose" mode="bottom" height="80%" v-model:show="show">
+  <u-popup :style="themeStyle" closeable border-radius="28" @close="onPopupClose" mode="bottom" height="80%" v-model:show="show">
 
     <div class="wrapper">
       <!-- 发票类型 -->
@@ -94,6 +94,10 @@
 </template>
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted, getCurrentInstance } from 'vue'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 interface InvoiceOption {
   title: string
@@ -481,7 +485,7 @@ function submitInvoice() {
   font-weight: bold;
   color: $main-color;
   border: 2rpx solid $main-color;
-  background: rgba($color: $main-color, $alpha: 0.1);
+  background: var(--theme-primary-10, rgba(255, 60, 42, 0.1));
 }
 .disabled {
   color: #b5b5b6;

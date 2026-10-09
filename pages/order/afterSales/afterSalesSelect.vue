@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view :style="themeStyle">
     <view class="after-sales-goods-detail-view">
       <view class="header">
         <view>
@@ -58,13 +58,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { unitPrice, parseGoodsImageUrl } from '@/utils/filters.js'
 import { getAfterSaleInfo } from '@/api/after-sale'
 import storage from '@/utils/storage'
 // 深链进入时拦截 E_COUPON，后端 apply/save 亦会拒绝
 import { isECouponOrder } from '@/utils/goodsType.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const sn = ref('')
 const sku = ref<any>({})

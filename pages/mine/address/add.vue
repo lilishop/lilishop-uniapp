@@ -1,5 +1,5 @@
 <template>
-  <view class="add-address">
+  <view :style="themeStyle" class="add-address">
     <up-form
       :model="form"
       ref="uForm"
@@ -92,8 +92,10 @@ import { addAddress as addAddressApi, editAddress, getAddressDetail } from '@/ap
 import MCity from '@/components/m-city/m-city.vue'
 import uniMap from '@/components/uniMap'
 import permision from '@/js_sdk/wa-permission/permission.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const { proxy } = getCurrentInstance()!
 
 const lightColor = computed(() => store.getters.lightColor)

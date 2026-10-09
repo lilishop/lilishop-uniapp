@@ -1,5 +1,5 @@
 <template>
-  <view class="mp-iphonex-bottom content">
+  <view :style="themeStyle" class="mp-iphonex-bottom content">
     <up-form
       :model="form"
       ref="uForm"
@@ -81,8 +81,10 @@ import { unitPrice } from '@/utils/filters.js'
 import { getLogistics } from '@/api/address.js'
 import { fillShipInfo } from '@/api/after-sale.js'
 import storage from '@/utils/storage'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
 
 const companySelectShow = ref(false)

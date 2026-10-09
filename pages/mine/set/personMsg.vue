@@ -1,5 +1,5 @@
 <template>
-  <view class="person-msg">
+  <view :style="themeStyle" class="person-msg">
     <view class="head" @click="changeFace">
       <image :src="form.face || '/static/missing-face.png'" mode="aspectFill"></image>
       <view>点击修改头像</view>
@@ -87,6 +87,7 @@ import { saveUserInfo } from '@/api/members.js'
 import { upload } from '@/api/common.js'
 import storage from '@/utils/storage.js'
 import MCity from '@/components/m-city/m-city.vue'
+import { getThemeStyle } from '@/utils/theme'
 
 function parseBirthdayTimestamp(str?: string) {
 	if (!str) return Date.now()
@@ -103,6 +104,7 @@ function formatBirthday(timestamp: number) {
 }
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
 
 const userInfo = storage.getUserInfo() || {}

@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div :style="themeStyle" class="wrapper">
     <div class="pay-wrapper">
       <div class="pay-money">
         ￥{{unitPrice(Number(payPrice)) }}
@@ -25,10 +25,14 @@
 
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import goodsRecommend from '@/components/m-goods-recommend'
 import { unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const paymentMethod = ref('')
 const from = ref('')
@@ -110,7 +114,7 @@ function navigateTo(url: string, type?: string) {
   display: flex;
   justify-content: space-between;
   font-size: 24rpx;
-  color: rgba($color: $main-color, $alpha: 0.8);
+  color: var(--theme-primary-70, rgba(255, 60, 42, 0.7));
 }
 
 .pay-box {
@@ -122,7 +126,7 @@ function navigateTo(url: string, type?: string) {
   margin: 80rpx auto 40rpx auto;
   padding: 20rpx;
   border-radius: 20rpx;
-  background: rgba($color: $main-color, $alpha: 0.2);
+  background: var(--theme-primary-20, rgba(255, 60, 42, 0.2));
 
   >h2 {
     margin-top: 20rpx;
@@ -132,7 +136,7 @@ function navigateTo(url: string, type?: string) {
 }
 
 .pay-wrapper {
-  background-image: linear-gradient(90deg, #fa123b, #ff6b35, #ff9f28, #ffcc03);
+  background-image: linear-gradient(90deg, $main-color, $light-color, $aider-light-color);
   height: 480rpx;
   position: relative;
   display: flex;

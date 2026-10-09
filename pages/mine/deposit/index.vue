@@ -1,5 +1,5 @@
 <template>
-  <view class="wap">
+  <view :style="themeStyle" class="wap">
     <u-navbar
       title="预存款列表"
       :fixed="true"
@@ -53,9 +53,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getWalletLog, getUserWallet } from '@/api/members'
 import { unitPrice } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const walletNum = ref(0)
 const swiperCurrent = ref(0)

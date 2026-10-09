@@ -1,5 +1,5 @@
 <template>
-  <view class="content">
+  <view :style="themeStyle" class="content">
     <view class="u-tabs-box">
       <u-tabs
         :list="list"
@@ -204,8 +204,10 @@ import { isECouponOrder } from '@/utils/goodsType.js'
 import { getAfterSaleList, cancelAfterSale } from '@/api/after-sale.js'
 import { getOrderList } from '@/api/order.js'
 import storage from '@/utils/storage'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
 
 const list = [

@@ -1,5 +1,5 @@
 <template>
-	<view class="myTracks">
+	<view :style="themeStyle" class="myTracks">
 		<u-navbar
 			title="我的足迹"
 			:fixed="true"
@@ -62,8 +62,10 @@ import { useStore } from '@/store'
 import { unitPrice } from '@/utils/filters.js'
 import { myTrackList, deleteHistoryListId } from '@/api/members.js'
 import { getStoreBaseInfo } from '@/api/store.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
 
 const isEdit = ref(false)

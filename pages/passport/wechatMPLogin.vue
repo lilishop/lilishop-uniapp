@@ -1,5 +1,5 @@
 <template>
-	<view class="container">
+	<view :style="themeStyle" class="container">
 		<u-navbar :auto-back="false" :fixed="true" :placeholder="true" @leftClick="back" title="小程序登录"></u-navbar>
 		<u-modal v-model:show="phoneAuthPopup" :mask-close-able="true" :title="projectName+'商城'"
 			:show-confirm-button="false">
@@ -54,8 +54,10 @@ import { whetherNavigate } from '@/utils/Foundation'
 import { getUserInfo } from '@/api/members'
 import storage from '@/utils/storage.js'
 import config from '@/config/config'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
 
 const checked = ref(false)

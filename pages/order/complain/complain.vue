@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view :style="themeStyle">
     <!-- 商品模块 -->
     <view class="seller-view">
       <view class="seller-info u-flex u-row-between">
@@ -58,15 +58,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getOrderDetail } from '@/api/order.js'
 import { getComplainReason, addComplain } from '@/api/after-sale.js'
 import { handleUploadAfterRead } from '@/utils/uploadHelper.js'
 import { unitPrice } from '@/utils/filters.js'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const orderStatusMap: Record<string, string> = {
   UNDELIVERED: '待发货',

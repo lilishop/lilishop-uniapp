@@ -465,12 +465,12 @@ defineExpose({
 }
 
 .buy {
-	background-image: linear-gradient(135deg, #ffba0d, #ffc30d 69%, #ffcf0d);
+	background-image: linear-gradient(135deg, $main-color, $light-color);
 	box-shadow: 0 2px 6px 0 rgba(255, 65, 66, 0.2);
 }
 
 .card {
-	background-image: linear-gradient(135deg, #f2140c, #f2270c 70%, #f24d0c);
+	background-image: linear-gradient(91deg, $light-color 1%, $aider-light-color 99%);
 	box-shadow: 0 2px 6px 0 rgba(255, 65, 66, 0.2);
 }
 

@@ -961,7 +961,7 @@ page {
 .promotions-list {
   margin-left: 20rpx;
   > .promotions-item-seckill {
-    background: rgba($color: $main-color, $alpha: 0.1);
+    background: var(--theme-primary-10, rgba(255, 60, 42, 0.1));
     font-size: 24rpx;
     color: $main-color;
     display: inline;

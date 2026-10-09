@@ -1,5 +1,5 @@
 <template>
-	<div class="wrapper">
+	<div :style="themeStyle" class="wrapper">
 		<div v-if="!wechatLogin" class="login-body">
 			<u-navbar :auto-back="false" :border="false" :fixed="true" :placeholder="true" @leftClick="back"></u-navbar>
 			<div class="login-header">
@@ -143,6 +143,7 @@ import storage from '@/utils/storage.js'
 import wechatH5Login from './wechatH5Login.vue'
 import { md5 } from '@/utils/md5.js'
 import { secrecyMobile } from '@/utils/filters.js'
+import { getThemeStyle } from '@/utils/theme'
 
 interface LoginListItem {
 	icon: string
@@ -153,6 +154,7 @@ interface LoginListItem {
 }
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const { proxy } = getCurrentInstance()!
 
 const lightColor = computed(() => store.getters.lightColor)

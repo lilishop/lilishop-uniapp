@@ -1,5 +1,5 @@
 <template>
-	<view class="box">
+	<view :style="themeStyle" class="box">
 		<view class="box-tips">
 			<h2 class="h2">{{ verificationTitle[phoneVerified ? 1 : 0].title }}</h2>
 			<view class="verification">{{ verificationTitle[step].desc }}</view>
@@ -55,15 +55,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, getCurrentInstance } from 'vue'
+import { ref, reactive, watch, getCurrentInstance, computed } from 'vue'
 import { onReady } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { isLogin } from '@/utils/filters.js'
 import { sendMobile, resetByMobile, resetPassword } from '@/api/login'
 import { md5 } from '@/utils/md5.js'
 import MyVerification from '@/components/verification/verification.vue'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const { proxy } = getCurrentInstance()!
 
 const phoneVerified = ref(false)

@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view :style="themeStyle" class="container">
     <u-navbar
       title="扫码登录授权"
       :fixed="true"
@@ -32,10 +32,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { forceLogin } from '@/utils/filters.js'
 import { scannerCodeLogin, scannerCodeLoginConfirm } from '@/api/login'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const errorMsg = ref('')
 const token = ref('')

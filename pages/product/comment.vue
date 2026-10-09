@@ -1,5 +1,5 @@
 <template>
-  <view class="comment">
+  <view :style="themeStyle" class="comment">
     <u-navbar
       title="商品评价"
       :fixed="true"
@@ -83,11 +83,15 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import * as membersApi from '@/api/members.js'
 import configs from '@/config/config'
 import { noPassByName } from '@/utils/filters.js'
+import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
+const store = useStore()
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const status = ref('loadmore')
 const userImage = configs.defaultUserPhoto

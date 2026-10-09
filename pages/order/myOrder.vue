@@ -1,5 +1,5 @@
 <template>
-	<view class="content">
+	<view class="content" :style="themeStyle">
 		<scroll-view class="navbar" scroll-x :show-scrollbar="false">
 			<view class="navbar-inner">
 				<view v-for="(item, index) in navList" :key="index" class="nav-item"
@@ -138,6 +138,7 @@
 import { ref, reactive, computed, watch, getCurrentInstance } from 'vue'
 import { onLoad, onShow, onPullDownRefresh, onBackPress } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
+import { getThemeStyle } from '@/utils/theme'
 import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue'
 import { getOrderList, cancelOrder, confirmReceipt } from '@/api/order.js'
 import { getClearReason, getAfterSaleList } from '@/api/after-sale.js'
@@ -154,6 +155,7 @@ import { appointmentOrderStatusText, getAppointmentAllowOperation } from '@/util
 
 const store = useStore()
 const { proxy } = getCurrentInstance()!
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
 const mainColor = computed(() => store.getters.mainColor)
 

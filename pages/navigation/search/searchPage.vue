@@ -1,5 +1,5 @@
 <template>
-	<view class="content" :class="{ 'content--goods': isShowSeachGoods }">
+	<view class="content" :class="{ 'content--goods': isShowSeachGoods }" :style="themeStyle">
 		<u-navbar
 			:bg-color="navObj.background"
 			:auto-back="false"
@@ -260,8 +260,12 @@ import goodsList from '@/components/m-goods-list/list.vue'
 import { getHotKeywords } from '@/api/home.js'
 import mSearch from '@/components/m-search-revision/m-search-revision.vue'
 import storage from '@/utils/storage'
+import { getThemeStyle } from '@/utils/theme'
 
 const store = useStore()
+
+// 注入主题色 CSS 变量，商品价格、排序选中态、标签等随之联动
+const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const mSearchRef = ref<any>(null)
 
