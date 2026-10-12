@@ -48,6 +48,8 @@
       <lineLayout v-if="item.type == 'line'" :res="item.options" />
       <richText v-if="item.type == 'richText'" :res="item.options" />
       <coupon v-if="item.type == 'coupon'" :res="item.options" />
+      <articleList v-if="item.type == 'article'" :res="item.options" />
+      <shopList v-if="item.type == 'shop'" :res="item.options" />
     </div>
     <u-no-network></u-no-network>
   </div>
@@ -80,6 +82,8 @@ import lineLayout from '@/pages/tabbar/home/template/tpl_line'
 import richText from '@/pages/tabbar/home/template/tpl_rich_text'
 import integral from '@/pages/tabbar/home/template/tpl_integral'
 import coupon from '@/pages/tabbar/home/template/tpl_coupon'
+import articleList from '@/pages/tabbar/home/template/tpl_article'
+import shopList from '@/pages/tabbar/home/template/tpl_shop'
 import { toSpecial, getSpecial } from '@/api/home'
 import permision from '@/js_sdk/wa-permission/permission.js'
 import config from '@/config/config'

@@ -39,5 +39,17 @@ export function getArticleDetail(type) {
   });
 }
 
+/**
+ * 分页获取文章列表（楼层装修用）
+ * @param params { pageNumber, pageSize, categoryId? }
+ */
+export function getArticleList(params) {
+  return http.request({
+    url: `/other/article`,
+    method: Method.GET,
+    params,
+  });
+}
+
 
 
