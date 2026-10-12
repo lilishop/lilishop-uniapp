@@ -9,9 +9,7 @@
     >
       <view class="article-text">
         <view class="article-name">{{ item.title }}</view>
-        <view class="article-time" v-if="item.createTime">{{ item.createTime.split(" ")[0] }}</view>
       </view>
-      <image v-if="item.cover" class="article-thumb" :src="item.cover" mode="aspectFill" />
     </view>
   </view>
 </template>
@@ -73,17 +71,5 @@ function goDetail(item: any) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.article-time {
-  font-size: 22rpx;
-  color: #999;
-  margin-top: 8rpx;
-}
-.article-thumb {
-  width: 112rpx;
-  height: 84rpx;
-  border-radius: 8rpx;
-  margin-left: 20rpx;
-  flex-shrink: 0;
 }
 </style>
