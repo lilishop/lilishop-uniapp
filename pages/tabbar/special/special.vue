@@ -111,13 +111,21 @@ function init() {
   if (bodyParam.value) {
     toSpecial({ body: bodyParam.value }).then((res) => {
       if (res.data.success) {
-        pageData.value = JSON.parse(res.data.result.pageData)
+        const parsed = JSON.parse(res.data.result.pageData)
+        if (parsed && Array.isArray(parsed.list)) {
+          parsed.list = parsed.list.filter((i: any) => !i?.hidden)
+        }
+        pageData.value = parsed
       }
     })
   } else {
     getSpecial(id.value).then((res) => {
       if (res.data.success) {
-        pageData.value = JSON.parse(res.data.result.pageData)
+        const parsed = JSON.parse(res.data.result.pageData)
+        if (parsed && Array.isArray(parsed.list)) {
+          parsed.list = parsed.list.filter((i: any) => !i?.hidden)
+        }
+        pageData.value = parsed
       }
     })
   }

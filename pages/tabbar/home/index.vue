@@ -145,7 +145,9 @@ function init() {
 
       try {
         const result = JSON.parse(pageDataStr)
-        pageData.value = Array.isArray(result?.list) ? result : { list: [] }
+        pageData.value = Array.isArray(result?.list)
+          ? { ...result, list: result.list.filter((i: any) => !i?.hidden) }
+          : { list: [] }
         const lastItem = pageData.value.list[pageData.value.list.length - 1]
         enableLoad.value =
           lastItem?.type === 'goods' || lastItem?.model === 'goods'

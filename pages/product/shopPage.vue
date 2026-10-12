@@ -341,6 +341,9 @@ function initPageData() {
       }
       try {
         const parsed = JSON.parse(pageDataStr)
+        if (parsed && Array.isArray(parsed.list)) {
+          parsed.list = parsed.list.filter((i: any) => !i?.hidden)
+        }
         pageData.value =
           parsed && Array.isArray(parsed.list) ? parsed : { list: [] }
         enablePageData.value = pageData.value.list.length > 0
