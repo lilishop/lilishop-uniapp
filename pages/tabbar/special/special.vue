@@ -41,7 +41,7 @@
       <group v-if="item.type == 'group'" :res="item.options" />
       <notice v-if="item.type == 'notice'" :res="item.options" />
       <promotions v-if="item.type == 'promotionDetail'" :res="item.options" />
-      <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
+      <integral v-if="item.type == 'integral'" :res="item.options" />
       <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
       <videoLayout v-if="item.type == 'video'" :res="item.options" />
       <blank v-if="item.type == 'blank'" :res="item.options" />
@@ -77,6 +77,7 @@ import promotions from '@/pages/tabbar/home/template/tpl_promotions_detail'
 import blank from '@/pages/tabbar/home/template/tpl_blank'
 import lineLayout from '@/pages/tabbar/home/template/tpl_line'
 import richText from '@/pages/tabbar/home/template/tpl_rich_text'
+import integral from '@/pages/tabbar/home/template/tpl_integral'
 import { toSpecial, getSpecial } from '@/api/home'
 import permision from '@/js_sdk/wa-permission/permission.js'
 import config from '@/config/config'

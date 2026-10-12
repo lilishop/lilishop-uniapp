@@ -191,7 +191,7 @@
 
           <group v-if="item.type == 'group'" :res="item.options" />
           <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
-          <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
+          <integral v-if="item.type == 'integral'" :res="item.options" />
           <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
           <blank v-if="item.type == 'blank'" :res="item.options" />
           <lineLayout v-if="item.type == 'line'" :res="item.options" />
@@ -231,6 +231,7 @@ import GoodsFloor from '@/pages/tabbar/home/template/tpl_goods.vue'
 import blank from '@/pages/tabbar/home/template/tpl_blank.vue'
 import lineLayout from '@/pages/tabbar/home/template/tpl_line.vue'
 import richText from '@/pages/tabbar/home/template/tpl_rich_text.vue'
+import integral from '@/pages/tabbar/home/template/tpl_integral.vue'
 import goodsTemplate from '@/components/m-goods-list/list.vue'
 import { getStoreBaseInfo, getStoreCategory } from '@/api/store.js'
 import {
