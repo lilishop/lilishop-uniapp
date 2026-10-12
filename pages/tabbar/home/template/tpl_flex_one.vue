@@ -1,6 +1,6 @@
 <template>
-  <view class="layout">
-    <view class="flex-one">
+  <view class="layout" :style="wrapperStyle">
+    <view class="flex-one" :style="contentStyle">
       <u-image
         v-if="!hasHotZone"
         @click="modelNavigateTo(res.list[0])"
@@ -25,6 +25,18 @@ const hasHotZone = computed(() => {
   const zoneInfo = props.res?.list?.[0]?.zoneInfo;
   return Array.isArray(zoneInfo) ? zoneInfo.length > 0 : !!zoneInfo;
 });
+
+const wrapperStyle = computed(() => ({
+  background: props.res?.bgColor ?? "transparent",
+  padding: `${props.res?.paddingTop ?? 0}rpx ${props.res?.paddingX ?? 0}rpx ${props.res?.paddingBottom ?? 0}rpx`,
+  marginBottom: `${props.res?.pageGap ?? 0}rpx`,
+  borderRadius: `${props.res?.borderRadius ?? 0}rpx`,
+  overflow: (props.res?.borderRadius ?? 0) > 0 ? "hidden" : "visible",
+}));
+
+const contentStyle = computed(() => ({
+  borderRadius: `${props.res?.imgRadius ?? 0}rpx`,
+}));
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";
