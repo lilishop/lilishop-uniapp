@@ -193,6 +193,9 @@
           <!-- <joinGroup v-if="item.type == 'joinGroup'" :res="item.options" /> -->
           <!-- <integral v-if="item.type == 'integral'" :res="item.options" /> -->
           <!-- <spike v-if="item.type == 'spike'" :res="item.options" /> -->
+          <blank v-if="item.type == 'blank'" :res="item.options" />
+          <lineLayout v-if="item.type == 'line'" :res="item.options" />
+          <richText v-if="item.type == 'richText'" :res="item.options" />
         </view>
       </view>
       <u-no-network></u-no-network>
@@ -225,6 +228,9 @@ import menuLayout from '@/pages/tabbar/home/template/tpl_menu.vue'
 import search from '@/pages/tabbar/home/template/tpl_search.vue'
 import group from '@/pages/tabbar/home/template/tpl_group.vue'
 import GoodsFloor from '@/pages/tabbar/home/template/tpl_goods.vue'
+import blank from '@/pages/tabbar/home/template/tpl_blank.vue'
+import lineLayout from '@/pages/tabbar/home/template/tpl_line.vue'
+import richText from '@/pages/tabbar/home/template/tpl_rich_text.vue'
 import goodsTemplate from '@/components/m-goods-list/list.vue'
 import { getStoreBaseInfo, getStoreCategory } from '@/api/store.js'
 import {

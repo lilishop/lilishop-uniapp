@@ -43,6 +43,9 @@
       <notice v-if="item.type == 'notice'" :res="item.options" />
       <promotions v-if="item.type == 'promotionDetail'" :res="item.options" />
       <videoLayout v-if="item.type == 'video'" :res="item.options" />
+      <blank v-if="item.type == 'blank'" :res="item.options" />
+      <lineLayout v-if="item.type == 'line'" :res="item.options" />
+      <richText v-if="item.type == 'richText'" :res="item.options" />
     </view>
     <fetchCoupon ref="couponRef" />
   </view>
@@ -78,6 +81,9 @@ import goods from '@/pages/tabbar/home/template/tpl_goods.vue'
 import notice from '@/pages/tabbar/home/template/tpl_notice.vue'
 import promotions from '@/pages/tabbar/home/template/tpl_promotions_detail.vue'
 import fetchCoupon from '@/pages/tabbar/home/template/fetch_coupon.vue'
+import blank from '@/pages/tabbar/home/template/tpl_blank.vue'
+import lineLayout from '@/pages/tabbar/home/template/tpl_line.vue'
+import richText from '@/pages/tabbar/home/template/tpl_rich_text.vue'
 import { getFloorData } from '@/api/home'
 
 const HOME_LAYOUT_PADDING_RPX = 16
