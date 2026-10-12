@@ -47,6 +47,7 @@
       <lineLayout v-if="item.type == 'line'" :res="item.options" />
       <richText v-if="item.type == 'richText'" :res="item.options" />
       <integral v-if="item.type == 'integral'" :res="item.options" />
+      <coupon v-if="item.type == 'coupon'" :res="item.options" />
     </view>
     <fetchCoupon ref="couponRef" />
   </view>
@@ -86,6 +87,7 @@ import blank from '@/pages/tabbar/home/template/tpl_blank.vue'
 import lineLayout from '@/pages/tabbar/home/template/tpl_line.vue'
 import richText from '@/pages/tabbar/home/template/tpl_rich_text.vue'
 import integral from '@/pages/tabbar/home/template/tpl_integral.vue'
+import coupon from '@/pages/tabbar/home/template/tpl_coupon.vue'
 import { getFloorData } from '@/api/home'
 
 const HOME_LAYOUT_PADDING_RPX = 16
