@@ -165,7 +165,7 @@ const nameStyle = computed(() =>
 const salesStyle = computed(() =>
   props.res?.salesColor ? { color: props.res.salesColor } : {}
 );
-const rpx = (v: any) => `${(Number(v) || 0) * 2}rpx`;
+const rpx = (v: any) => `${Number(v) || 0}rpx`;
 const wrapperStyle = computed(() => {
   const res = props.res || {};
   const bg =
@@ -175,11 +175,15 @@ const wrapperStyle = computed(() => {
   return {
     background: bg,
     padding: `${rpx(res.paddingTop)} ${rpx(res.paddingX)} ${rpx(res.paddingBottom)}`,
+    marginBottom: rpx(res.pageGap),
     borderRadius: rpx(res.borderRadius),
     overflow: Number(res.borderRadius) > 0 ? "hidden" : "visible",
   };
 });
-const listStyle = computed(() => ({ gap: rpx(props.res?.contentGap ?? 10) }));
+const listStyle = computed(() => {
+  const gap = rpx(props.res?.contentGap ?? 10);
+  return { gap, "--g-gap": gap };
+});
 const itemStyle = computed(() => ({
   borderRadius: rpx(props.res?.contentRadius ?? 7),
   overflow: Number(props.res?.contentRadius ?? 7) > 0 ? "hidden" : "visible",
@@ -242,14 +246,15 @@ async function loadNewGoods(reset = true) {
       sales: g.buyCount != null ? g.buyCount : null,
     }));
     if (reset) {
-      // 指定商品：按选择顺序排列
+      // 指定商品：按选择顺序排列（兼容 SKU id 与 goodsId）
       if (first.value.dataMode === "goods") {
-        const byGoodsId: Record<string, any> = {};
+        const byId: Record<string, any> = {};
         mapped.forEach((g: any) => {
-          byGoodsId[g.goodsId] = g;
+          if (g.id) byId[g.id] = g;
+          if (g.goodsId) byId[g.goodsId] = g;
         });
         newGoodsData.value = (first.value.goodsList || [])
-          .map((g: any) => byGoodsId[g.id])
+          .map((g: any) => byId[g.id] || byId[g.goodsId])
           .filter(Boolean);
       } else {
         newGoodsData.value = mapped;
@@ -479,40 +484,61 @@ $w_94: 94%;
 
 .cart-plus,
 .cart-cart {
-  width: 36rpx;
-  height: 36rpx;
+  width: 48rpx;
+  height: 48rpx;
   border-radius: 50%;
 }
 
 .cart-plus-label {
-  font-size: 28rpx;
+  font-size: 30rpx;
   line-height: 1;
 }
 
 .cart-text {
-  border-radius: 18rpx;
-  padding: 4rpx 18rpx;
+  border-radius: 24rpx;
+  padding: 6rpx 20rpx;
 }
 
 .cart-text-label {
-  font-size: 22rpx;
+  font-size: 24rpx;
 }
 
-/* 卡片：左图右文 */
+/* 卡片：左图右文（参考 CRMEB 详细列表，左侧 224rpx 缩略图，右侧标题置顶、价格销量置底） */
 .mode-card {
   flex-direction: column;
   .g-item {
     flex-direction: row;
-    align-items: center;
-    padding: 16rpx;
+    align-items: stretch;
+    padding: 20rpx;
   }
   .g-imgbox {
-    width: 140rpx;
-    height: 140rpx;
-    margin-right: 16rpx;
+    width: 224rpx;
+    height: 224rpx;
+    margin-right: 24rpx;
+    border-radius: 12rpx;
+    overflow: hidden;
+  }
+  .g-info {
+    min-height: 224rpx;
+    justify-content: space-between;
   }
   .g-name {
+    font-size: 28rpx;
+    font-weight: 500;
+    line-height: 40rpx;
+    margin-bottom: 12rpx;
+  }
+  .g-price {
+    font-size: 32rpx;
+    font-weight: 700;
+    margin-top: auto;
     margin-bottom: 8rpx;
+  }
+  .g-bottom {
+    margin-top: 0;
+  }
+  .g-sales {
+    font-size: 24rpx;
   }
   .g-cart {
     align-self: center;
@@ -522,7 +548,7 @@ $w_94: 94%;
 /* 列表：两列网格 */
 .mode-list {
   .g-item {
-    width: calc(50% - 10rpx);
+    width: calc((100% - var(--g-gap, 10rpx)) / 2);
     flex-direction: column;
   }
   .g-imgbox {
@@ -541,7 +567,7 @@ $w_94: 94%;
 /* 三列 */
 .mode-three {
   .g-item {
-    width: calc(33.33% - 12rpx);
+    width: calc((100% - var(--g-gap, 10rpx) * 2) / 3);
     flex-direction: column;
   }
   .g-imgbox {

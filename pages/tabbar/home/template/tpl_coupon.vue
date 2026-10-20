@@ -43,6 +43,7 @@
         class="cp1-item"
         v-for="item in couponList"
         :key="item.id"
+        :style="itemGapStyle"
         @click="receive(item)"
       >
         <view class="cp1-left">
@@ -77,6 +78,7 @@
         class="cp2-item"
         v-for="item in couponList"
         :key="item.id"
+        :style="itemGapStyle"
         @click="receive(item)"
       >
         <view class="cp2-top">
@@ -107,6 +109,7 @@
         class="cp3-item"
         v-for="item in couponList"
         :key="item.id"
+        :style="itemGapStyle"
         @click="receive(item)"
       >
         <view class="cp3-left">
@@ -136,6 +139,7 @@
         class="cp4-item"
         v-for="item in couponList"
         :key="item.id"
+        :style="itemGapStyle"
         @click="receive(item)"
       >
         <view class="cp4-left">
@@ -177,6 +181,11 @@ const layoutStyle = computed(() => (props.res && props.res.layoutStyle) || "1");
 
 // 面板保存过样式字段才启用自定义样式，老数据保持原样
 const styled = computed(() => props.res && props.res.paddingTop !== undefined);
+const itemGapStyle = computed(() => {
+  if (!styled.value) return {};
+  const gap = props.res?.contentGap !== undefined ? Number(props.res.contentGap) || 0 : 5;
+  return { marginRight: `${gap}rpx` };
+});
 const wrapperStyle = computed(() => {
   const res = props.res || {};
   if (styled.value) {
@@ -290,6 +299,12 @@ function receive(item: any) {
 }
 .cp-scroll {
   white-space: nowrap;
+}
+.cp1-item:last-child,
+.cp2-item:last-child,
+.cp3-item:last-child,
+.cp4-item:last-child {
+  margin-right: 0 !important;
 }
 .cp-notch {
   position: absolute;

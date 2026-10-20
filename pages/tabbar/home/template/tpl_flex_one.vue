@@ -26,13 +26,22 @@ const hasHotZone = computed(() => {
   return Array.isArray(zoneInfo) ? zoneInfo.length > 0 : !!zoneInfo;
 });
 
-const wrapperStyle = computed(() => ({
-  background: props.res?.bgColor ?? "transparent",
-  padding: `${props.res?.paddingTop ?? 0}rpx ${props.res?.paddingX ?? 0}rpx ${props.res?.paddingBottom ?? 0}rpx`,
-  marginBottom: `${props.res?.pageGap ?? 0}rpx`,
-  borderRadius: `${props.res?.borderRadius ?? 0}rpx`,
-  overflow: (props.res?.borderRadius ?? 0) > 0 ? "hidden" : "visible",
-}));
+const wrapperStyle = computed(() => {
+  const r = props.res || {};
+  const bg =
+    r.bgColor1 !== undefined
+      ? !r.bgColor2 || r.bgColor1 === r.bgColor2
+        ? r.bgColor1
+        : `linear-gradient(180deg, ${r.bgColor1}, ${r.bgColor2})`
+      : r.bgColor ?? "transparent";
+  return {
+    background: bg,
+    padding: `${r.paddingTop ?? 0}rpx ${r.paddingX ?? 0}rpx ${r.paddingBottom ?? 0}rpx`,
+    marginBottom: `${r.pageGap ?? 0}rpx`,
+    borderRadius: `${r.borderRadius ?? 0}rpx`,
+    overflow: (r.borderRadius ?? 0) > 0 ? "hidden" : "visible",
+  };
+});
 
 const contentStyle = computed(() => ({
   borderRadius: `${props.res?.imgRadius ?? 0}rpx`,

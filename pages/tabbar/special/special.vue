@@ -1,9 +1,9 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" :style="pageBgStyle">
     <!-- uni 中不能使用 vue component 所以用if判断每个组件 -->
     <div v-for="(item, index) in pageData.list" :key="index">
       <!-- 搜索栏，如果在楼层装修顶部则会自动浮动，否则不浮动 -->
-      <div class="navbar" v-if="item.type == 'search'">
+      <div class="navbar" v-if="item.type == 'search'" :style="{ background: topColor }">
         <search style="width: 100%" :res="item.options" />
         <!-- #ifndef H5 -->
         <!-- 扫码功能 不兼容h5 详情文档: https://uniapp.dcloud.io/api/system/barcode?id=scancode -->
@@ -12,6 +12,7 @@
         </div>
         <!-- #endif -->
       </div>
+      <homeComb v-if="item.type == 'homeComb'" :res="item.options" />
       <carousel v-if="item.type == 'carousel'" :res="item.options" />
       <titleLayout v-if="item.type == 'title'" :res="item.options" />
       <leftOneRightTwo
@@ -56,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import carousel from '@/pages/tabbar/home/template/tpl_banner'
 import titleLayout from '@/pages/tabbar/home/template/tpl_title'
@@ -84,6 +85,7 @@ import integral from '@/pages/tabbar/home/template/tpl_integral'
 import coupon from '@/pages/tabbar/home/template/tpl_coupon'
 import articleList from '@/pages/tabbar/home/template/tpl_article'
 import shopList from '@/pages/tabbar/home/template/tpl_shop'
+import homeComb from '@/pages/tabbar/home/template/tpl_home_comb.vue'
 import { toSpecial, getSpecial } from '@/api/home'
 import permision from '@/js_sdk/wa-permission/permission.js'
 import config from '@/config/config'
@@ -92,6 +94,42 @@ const id = ref('')
 const pageData = ref<any>('')
 const bodyParam = ref('')
 const isIos = ref('')
+
+const topColor = computed(() => pageData.value?.topColor || '#ffffff')
+const pageBgStyle = computed(() => {
+  const data: any = pageData.value
+  if (data?.bgType === 'image' && data?.bgImage) {
+    const size =
+      data.bgFill === 'contain'
+        ? 'contain'
+        : data.bgFill === 'cover'
+          ? 'cover'
+          : '100% 100%'
+    return {
+      backgroundImage: `url(${data.bgImage})`,
+      backgroundSize: size,
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: data.bgColor || '#f9f9f9',
+    }
+  }
+  if (data?.bgColor) {
+    return { backgroundColor: data.bgColor }
+  }
+  return {}
+})
+
+function applyPageSettings(parsed: any) {
+  if (!parsed) return
+  if (parsed.title) {
+    uni.setNavigationBarTitle({ title: parsed.title })
+  }
+  if (parsed.topColor || parsed.titleColor) {
+    uni.setNavigationBarColor({
+      frontColor: parsed.titleColor === 'white' ? '#ffffff' : '#000000',
+      backgroundColor: parsed.topColor || '#ffffff',
+    })
+  }
+}
 
 onMounted(() => {
   init()
@@ -116,6 +154,7 @@ function init() {
           parsed.list = parsed.list.filter((i: any) => !i?.hidden)
         }
         pageData.value = parsed
+        applyPageSettings(parsed)
       }
     })
   } else {
@@ -126,6 +165,7 @@ function init() {
           parsed.list = parsed.list.filter((i: any) => !i?.hidden)
         }
         pageData.value = parsed
+        applyPageSettings(parsed)
       }
     })
   }

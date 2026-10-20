@@ -36,7 +36,7 @@
       </view>
     </view>
     <!-- 样式一：两列大卡片 -->
-    <view v-else-if="layoutStyle === '1'" class="ig-grid2">
+    <view v-else-if="layoutStyle === '1'" class="ig-grid2" :style="gapStyle">
       <view
         class="ig-g2-item"
         v-for="(item, index) in goodsList"
@@ -46,7 +46,7 @@
         <view class="ig-g2-img-box" :style="imgRadiusStyle">
           <image class="ig-img" :src="item.goodsImage || item.thumbnail" mode="aspectFill" />
         </view>
-        <view class="ig-g2-name">{{ item.goodsName || item.promotionName || '' }}</view>
+        <view class="ig-g2-name" :style="nameStyle">{{ item.goodsName || item.promotionName || '' }}</view>
         <view class="ig-price-row">
           <view class="ig-price" :style="pointStyle">
             <text class="ig-coin">¥</text>{{ item.points != null ? item.points : 0 }}积分
@@ -56,7 +56,7 @@
       </view>
     </view>
     <!-- 样式二：三列，积分价在名称上方 -->
-    <view v-else-if="layoutStyle === '2'" class="ig-grid3">
+    <view v-else-if="layoutStyle === '2'" class="ig-grid3" :style="gapStyle">
       <view
         class="ig-g3-item"
         v-for="(item, index) in goodsList"
@@ -69,11 +69,11 @@
         <view class="ig-price ig-price-sm" :style="pointStyle">
           <text class="ig-coin ig-coin-sm">¥</text>{{ item.points != null ? item.points : 0 }}积分
         </view>
-        <view class="ig-g3-name">{{ item.goodsName || item.promotionName || '' }}</view>
+        <view class="ig-g3-name" :style="nameStyle">{{ item.goodsName || item.promotionName || '' }}</view>
       </view>
     </view>
     <!-- 样式三：三列，仅积分价 -->
-    <view v-else class="ig-grid3">
+    <view v-else class="ig-grid3" :style="gapStyle">
       <view
         class="ig-g3-item"
         v-for="(item, index) in goodsList"
@@ -136,7 +136,9 @@ const headStyle = computed(() => {
   const res = props.res;
   if (res.headBgType === "image" && res.headBgImage) {
     return {
-      backgroundImage: `url(${res.headBgImage});background-size:cover;background-position:center;`,
+      backgroundImage: `url(${res.headBgImage})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     };
   }
   const bg =
@@ -162,9 +164,14 @@ const moreStyle = computed(() =>
 const pointStyle = computed(() =>
   styled.value && props.res.pointColor ? { color: props.res.pointColor } : {}
 );
-const gapStyle = computed(() =>
-  styled.value ? { gap: `${Number(props.res.contentGap) || 0}rpx` } : {}
+const nameStyle = computed(() =>
+  styled.value && props.res.nameColor ? { color: props.res.nameColor } : {}
 );
+const gapStyle = computed(() => {
+  if (!styled.value) return {};
+  const gap = `${Number(props.res.contentGap ?? 10) || 0}rpx`;
+  return { gap, "--ig-gap": gap };
+});
 const imgRadiusStyle = computed(() =>
   styled.value ? { borderRadius: `${Number(props.res.imgRadius) || 0}rpx`, overflow: "hidden" } : {}
 );
@@ -252,16 +259,14 @@ function goDetail(item: any) {
 .ig-grid2 {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
 }
 .ig-g2-item {
-  width: 49%;
+  width: calc((100% - var(--ig-gap, 10rpx)) / 2);
   background: #fff;
   border-radius: 16rpx;
   overflow: hidden;
   padding-bottom: 16rpx;
   box-sizing: border-box;
-  margin-bottom: 16rpx;
 }
 .ig-g2-img-box {
   width: 100%;
@@ -323,16 +328,14 @@ function goDetail(item: any) {
 .ig-grid3 {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
 }
 .ig-g3-item {
-  width: 32.5%;
+  width: calc((100% - var(--ig-gap, 10rpx) * 2) / 3);
   background: #fff;
   border-radius: 16rpx;
   overflow: hidden;
   padding-bottom: 16rpx;
   box-sizing: border-box;
-  margin-bottom: 16rpx;
 }
 .ig-g3-img-box {
   width: 100%;

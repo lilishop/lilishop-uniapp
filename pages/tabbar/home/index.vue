@@ -13,7 +13,7 @@
         :placeholder="index === 1 ? false : true"
         left-icon=""
         title=""
-        bg-color="#ffffff"
+        :bg-color="topColor"
       >
         <template #left>
           <view class="navbar-search-wrap" :style="searchBarStyle" @click.stop>
@@ -21,6 +21,7 @@
           </view>
         </template>
       </u-navbar>
+      <homeComb v-if="item.type == 'homeComb'" :res="item.options" />
       <carousel v-if="item.type == 'carousel'" :res="item.options" />
       <titleLayout v-if="item.type == 'title'" :res="item.options" />
       <leftOneRightTwo v-if="item.type == 'leftOneRightTwo'" :res="item.options" />
@@ -92,6 +93,7 @@ import integral from '@/pages/tabbar/home/template/tpl_integral.vue'
 import coupon from '@/pages/tabbar/home/template/tpl_coupon.vue'
 import articleList from '@/pages/tabbar/home/template/tpl_article.vue'
 import shopList from '@/pages/tabbar/home/template/tpl_shop.vue'
+import homeComb from '@/pages/tabbar/home/template/tpl_home_comb.vue'
 import { getFloorData } from '@/api/home'
 
 const HOME_LAYOUT_PADDING_RPX = 16
@@ -100,10 +102,12 @@ const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const couponRef = ref<InstanceType<typeof fetchCoupon>>()
-const pageData = ref<{ list: any[] }>({ list: [] })
+const pageData = ref<Record<string, any>>({ list: [] })
 const enableLoad = ref(false)
 const loading = ref(false)
 const searchBarWidth = ref(0)
+
+const topColor = computed(() => pageData.value?.topColor || '#ffffff')
 
 // 页面设置-样式：画布背景（背景色 / 背景图 + 填充方式）
 const pageBgStyle = computed(() => {
@@ -174,6 +178,13 @@ function init() {
         // 页面设置-内容：页面标题同步到导航栏
         if (result?.title) {
           uni.setNavigationBarTitle({ title: result.title })
+        }
+        // 页面设置-样式：顶部颜色与标题颜色同步到导航栏
+        if (result?.topColor || result?.titleColor) {
+          uni.setNavigationBarColor({
+            frontColor: result?.titleColor === 'white' ? '#ffffff' : '#000000',
+            backgroundColor: result?.topColor || '#ffffff',
+          })
         }
         const lastItem = pageData.value.list[pageData.value.list.length - 1]
         enableLoad.value =
