@@ -303,7 +303,7 @@ page {
           .star-item {
             width: 28rpx;
             height: 28rpx;
-            background: url("/static/star.png");
+            background: url("/pages/product/static/star.png");
             background-size: 100%;
             opacity: 0.25;
 

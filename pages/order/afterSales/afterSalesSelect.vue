@@ -35,7 +35,7 @@
     <view class="select-view">
       <view class="select-cell" v-if="applyInfo.returnGoods" @click="onSelect(1)">
         <view class="select-image">
-          <image class="select-icon" src="/static/order/t1.png"></image>
+          <image class="select-icon" src="/pages/order/static/t1.png"></image>
         </view>
         <view class="cell-body">
           <view class="select-title">退货</view>
@@ -45,7 +45,7 @@
       </view>
       <view class="select-cell" v-if="applyInfo.returnMoney" @click="onSelect(3)">
         <view class="select-image">
-          <image class="select-icon" src="/static/order/t3.png"></image>
+          <image class="select-icon" src="/pages/order/static/t3.png"></image>
         </view>
         <view class="cell-body">
           <view class="select-title">退款</view>

@@ -192,6 +192,7 @@
     "mp-weixin" : {
         /* 小程序特有相关 */
         "usingComponents" : true,
+        "lazyCodeLoading" : "requiredComponents",
         "appid" : "wx6f10f29075dc1b0b",
         "optimization" : {
             "subPackages" : true
