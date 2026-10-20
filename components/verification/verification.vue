@@ -4,7 +4,7 @@
       v-if="!state.hid"
       class="flex-row-center"
       :style="{ top: state.scHight }"
-      style="width: 750rpx; position: fixed; z-index: 100; left: 0"
+      style="width: 750rpx; position: fixed; z-index: 100; left: 0; background-color: #ffffff; padding: 40rpx 0"
     >
       <view class="flex-column-center">
         <movable-area
@@ -44,33 +44,31 @@
           ></image>
         </movable-area>
 
-        <view class="v-track">
+        <movable-area class="v-track" animation="false">
           <view class="v-fill" :style="{ width: fillWidth }"></view>
           <text class="v-track-text" :style="{ color: state.col }">{{
             state.hasImg
           }}</text>
-          <movable-area class="v-area" animation="false">
-            <movable-view
-              scale-value="1"
-              animation="false"
-              damping="50"
-              :x="state.movePv"
-              class="v-handle"
-              :style="handleStyle"
-              direction="horizontal"
-              @change="moveChange"
-              @touchend="end"
-            >
-              <u-icon
-                color="#ffffff"
-                size="38"
-                v-if="state.endLoad"
-                name="arrow-right"
-              ></u-icon>
-              <u-icon color="#ffffff" size="38" v-else name="reload"></u-icon>
-            </movable-view>
-          </movable-area>
-        </view>
+          <movable-view
+            scale-value="1"
+            animation="false"
+            damping="50"
+            :x="state.movePv"
+            class="v-handle"
+            :style="handleStyle"
+            direction="horizontal"
+            @change="moveChange"
+            @touchend="end"
+          >
+            <u-icon
+              color="#ffffff"
+              size="38"
+              v-if="state.endLoad"
+              name="arrow-right"
+            ></u-icon>
+            <u-icon color="#ffffff" size="38" v-else name="reload"></u-icon>
+          </movable-view>
+        </movable-area>
 
         <view class="v-foot">
           <view class="v-icon-btn" @click="getCode">
@@ -116,7 +114,7 @@ const phone = uni.getSystemInfoSync()
 const l = phone.screenWidth / 750
 
 const mainColor = computed(() => store.getters.mainColor)
-const fillWidth = computed(() => `calc(${state.moveX}px + 42rpx)`)
+const fillWidth = computed(() => `${state.moveX + 42 * l}px`)
 const handleStyle = computed(() => {
   const glow = /^#[0-9a-fA-F]{6}$/.test(mainColor.value)
     ? mainColor.value + '59'
@@ -282,9 +280,6 @@ defineExpose({
   margin-top: 36rpx;
   background-color: #f7f7f8;
   border-radius: 42rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .v-fill {
@@ -297,17 +292,14 @@ defineExpose({
 }
 
 .v-track-text {
-  font-size: 26rpx;
-  letter-spacing: 2rpx;
-}
-
-.v-area {
   position: absolute;
   left: 0;
+  right: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
+  line-height: 84rpx;
+  text-align: center;
+  font-size: 26rpx;
+  letter-spacing: 2rpx;
 }
 
 .v-handle {
