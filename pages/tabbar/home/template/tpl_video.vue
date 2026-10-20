@@ -91,7 +91,26 @@ const item = computed(() => {
   return data;
 });
 
+// 面板保存过样式字段（options 级）才启用新样式，老数据走 item.style 体系
+const styled = computed(() => props.res && props.res.paddingTop !== undefined);
+
 const wrapperStyle = computed(() => {
+  const res = props.res || {};
+  if (styled.value) {
+    const bg =
+      !res.bgColor2 || res.bgColor1 === res.bgColor2
+        ? res.bgColor1
+        : `linear-gradient(180deg, ${res.bgColor1}, ${res.bgColor2})`;
+    const radius = Number(res.borderRadius) || 0;
+    return {
+      padding: `${Number(res.paddingTop) || 0}rpx ${Number(res.paddingX) || 0}rpx ${Number(res.paddingBottom) || 0}rpx`,
+      background: bg,
+      borderRadius: `${radius}rpx`,
+      marginBottom: `${Number(res.pageGap) || 0}rpx`,
+      overflow: radius > 0 ? "hidden" : "visible",
+      boxSizing: "border-box",
+    };
+  }
   const style = item.value.style;
   return {
     margin: `${style.margin || 0}px`,
@@ -102,6 +121,14 @@ const wrapperStyle = computed(() => {
 });
 
 const boxStyle = computed(() => {
+  if (styled.value) {
+    return {
+      borderRadius: `${Number(props.res.imgRadius) || 0}rpx`,
+      overflow: "hidden",
+      position: "relative",
+      width: "100%",
+    };
+  }
   const style = item.value.style;
   const box: Record<string, string> = {
     borderRadius: `${style.bgRadius || 0}px`,

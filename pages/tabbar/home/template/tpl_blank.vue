@@ -7,9 +7,18 @@ import { computed } from "vue";
 
 const props = defineProps<{ res: any }>();
 
-const blankStyle = computed(() => ({
-  background: props.res?.bgColor || "#f5f5f5",
-  height: `${props.res?.height ?? 10}rpx`,
-  margin: `0 ${props.res?.paddingX ?? 0}rpx ${props.res?.pageGap ?? 10}rpx`,
-}));
+const blankStyle = computed(() => {
+  const res = props.res || {};
+  const bg =
+    res.bgColor1 !== undefined
+      ? !res.bgColor2 || res.bgColor1 === res.bgColor2
+        ? res.bgColor1
+        : `linear-gradient(180deg, ${res.bgColor1}, ${res.bgColor2})`
+      : res.bgColor || "#f5f5f5";
+  return {
+    background: bg,
+    height: `${res.height ?? 10}rpx`,
+    margin: `0 ${res.paddingX ?? 0}rpx ${res.pageGap ?? 10}rpx`,
+  };
+});
 </script>

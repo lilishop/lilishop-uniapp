@@ -1,31 +1,90 @@
 <template>
   <view class="layout" :style="wrapperStyle" v-if="goodsList.length">
-    <view class="join-list">
-      <view class="join-title" @click="goMore">
-        <view class="join-title-name">{{ title }}</view>
-        <view class="join-title-more">更多</view>
+    <view class="integral-head" :style="headStyle" @click="goMore">
+      <image
+        v-if="styled && options.titleType === 'image' && options.titleImage"
+        class="integral-head-img"
+        :src="options.titleImage"
+        mode="aspectFit"
+      />
+      <view v-else class="integral-head-title" :style="headTitleStyle">{{ title }}</view>
+      <view class="integral-head-space"></view>
+      <view class="integral-head-more" :style="moreStyle">更多 &gt;</view>
+    </view>
+    <!-- 老数据：原始四列样式 -->
+    <view v-if="!styled" class="join-box">
+      <view
+        class="join-item"
+        @click="goDetail(item)"
+        v-for="(item, index) in goodsList"
+        :key="index"
+      >
+        <view class="item-img-box">
+          <u-image
+            class="item-img"
+            width="150rpx"
+            height="150rpx"
+            :src="item.goodsImage || item.thumbnail"
+          />
+        </view>
+        <view class="item-price">
+          <span class="price-text">{{ item.points != null ? item.points : 0 }}积分</span>
+        </view>
+        <view class="item-line-through" v-if="item.originalPrice">
+          <span class="price-text">￥{{ item.originalPrice }}</span>
+        </view>
       </view>
-      <view class="join-box">
-        <view
-          class="join-item"
-          @click="goDetail(item)"
-          v-for="(item, index) in goodsList"
-          :key="index"
-        >
-          <view class="item-img-box">
-            <u-image
-              class="item-img"
-              width="150rpx"
-              height="150rpx"
-              :src="item.goodsImage || item.thumbnail"
-            />
+    </view>
+    <!-- 样式一：两列大卡片 -->
+    <view v-else-if="layoutStyle === '1'" class="ig-grid2">
+      <view
+        class="ig-g2-item"
+        v-for="(item, index) in goodsList"
+        :key="index"
+        @click="goDetail(item)"
+      >
+        <view class="ig-g2-img-box" :style="imgRadiusStyle">
+          <image class="ig-img" :src="item.goodsImage || item.thumbnail" mode="aspectFill" />
+        </view>
+        <view class="ig-g2-name">{{ item.goodsName || item.promotionName || '' }}</view>
+        <view class="ig-price-row">
+          <view class="ig-price" :style="pointStyle">
+            <text class="ig-coin">¥</text>{{ item.points != null ? item.points : 0 }}积分
           </view>
-          <view class="item-price">
-            <span class="price-text">{{ item.points != null ? item.points : 0 }}积分</span>
-          </view>
-          <view class="item-line-through" v-if="item.originalPrice">
-            <span class="price-text">￥{{ item.originalPrice }}</span>
-          </view>
+          <text class="ig-original" v-if="item.originalPrice">¥{{ item.originalPrice }}</text>
+        </view>
+      </view>
+    </view>
+    <!-- 样式二：三列，积分价在名称上方 -->
+    <view v-else-if="layoutStyle === '2'" class="ig-grid3">
+      <view
+        class="ig-g3-item"
+        v-for="(item, index) in goodsList"
+        :key="index"
+        @click="goDetail(item)"
+      >
+        <view class="ig-g3-img-box" :style="imgRadiusStyle">
+          <image class="ig-img" :src="item.goodsImage || item.thumbnail" mode="aspectFill" />
+        </view>
+        <view class="ig-price ig-price-sm" :style="pointStyle">
+          <text class="ig-coin ig-coin-sm">¥</text>{{ item.points != null ? item.points : 0 }}积分
+        </view>
+        <view class="ig-g3-name">{{ item.goodsName || item.promotionName || '' }}</view>
+      </view>
+    </view>
+    <!-- 样式三：三列，仅积分价 -->
+    <view v-else class="ig-grid3">
+      <view
+        class="ig-g3-item"
+        v-for="(item, index) in goodsList"
+        :key="index"
+        @click="goDetail(item)"
+      >
+        <view class="ig-g3-img-box" :style="imgRadiusStyle">
+          <image class="ig-img" :src="item.goodsImage || item.thumbnail" mode="aspectFill" />
+        </view>
+        <view class="ig-price ig-price-sm" :style="pointStyle">
+          <text class="ig-coin ig-coin-sm">¥</text>{{ item.points != null ? item.points : 0 }}积分
         </view>
       </view>
     </view>
@@ -39,16 +98,76 @@ const props = defineProps<{ res: any }>();
 
 const goodsList = ref<any[]>([]);
 
-const title = computed(() => props.res?.list?.[0]?.title || "积分商城");
-const count = computed(() => props.res?.list?.[0]?.count || 3);
+const options = computed(() => props.res || {});
+const title = computed(() => props.res?.list?.[0]?.title || "积分兑好礼");
+const count = computed(() => props.res?.list?.[0]?.count || 6);
+const layoutStyle = computed(() => props.res?.layoutStyle || "1");
 
-const wrapperStyle = computed(() => ({
-  background: props.res?.bgColor || "#FFFFFF",
-  padding: `0 ${props.res?.paddingX ?? 0}rpx`,
-  marginBottom: `${props.res?.pageGap ?? 10}rpx`,
-  borderRadius: `${props.res?.borderRadius ?? 0}rpx`,
-  overflow: "hidden",
-}));
+// 面板保存过样式字段才启用新样式，老数据保持原样
+const styled = computed(() => props.res && props.res.paddingTop !== undefined);
+
+const wrapperStyle = computed(() => {
+  const res = props.res || {};
+  if (styled.value) {
+    const bg =
+      !res.bgColor2 || res.bgColor1 === res.bgColor2
+        ? res.bgColor1
+        : `linear-gradient(180deg, ${res.bgColor1}, ${res.bgColor2})`;
+    const radius = Number(res.borderRadius) || 0;
+    return {
+      background: bg,
+      padding: `${Number(res.paddingTop) || 0}rpx ${Number(res.paddingX) || 0}rpx ${Number(res.paddingBottom) || 0}rpx`,
+      marginBottom: `${Number(res.pageGap) || 0}rpx`,
+      borderRadius: `${radius}rpx`,
+      overflow: radius > 0 ? "hidden" : "visible",
+    };
+  }
+  return {
+    background: res.bgColor || "#FFFFFF",
+    padding: `0 ${res.paddingX ?? 0}rpx`,
+    marginBottom: `${res.pageGap ?? 10}rpx`,
+    borderRadius: `${res.borderRadius ?? 0}rpx`,
+    overflow: "hidden",
+  };
+});
+
+const headStyle = computed(() => {
+  if (!styled.value) return {};
+  const res = props.res;
+  if (res.headBgType === "image" && res.headBgImage) {
+    return {
+      backgroundImage: `url(${res.headBgImage});background-size:cover;background-position:center;`,
+    };
+  }
+  const bg =
+    !res.headBg2 || res.headBg1 === res.headBg2
+      ? res.headBg1
+      : `linear-gradient(90deg, ${res.headBg1}, ${res.headBg2})`;
+  return { background: bg };
+});
+
+const headTitleStyle = computed(() => {
+  if (!styled.value) return {};
+  const res = props.res;
+  return {
+    color: res.titleColor || "#FFFFFF",
+    fontWeight: res.titleStyle === "bold" ? "bold" : "normal",
+    fontStyle: res.titleStyle === "italic" ? "italic" : "normal",
+  };
+});
+
+const moreStyle = computed(() =>
+  styled.value ? { color: props.res.moreColor || "#999999" } : {}
+);
+const pointStyle = computed(() =>
+  styled.value && props.res.pointColor ? { color: props.res.pointColor } : {}
+);
+const gapStyle = computed(() =>
+  styled.value ? { gap: `${Number(props.res.contentGap) || 0}rpx` } : {}
+);
+const imgRadiusStyle = computed(() =>
+  styled.value ? { borderRadius: `${Number(props.res.imgRadius) || 0}rpx`, overflow: "hidden" } : {}
+);
 
 onMounted(() => {
   API_Promotions.getPointsGoods({
@@ -71,6 +190,33 @@ function goDetail(item: any) {
 </script>
 <style lang="scss" scoped>
 @import "./tpl.scss";
+.integral-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 96rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  margin-bottom: 20rpx;
+  border-radius: 12rpx;
+}
+.integral-head-img {
+  width: 154rpx;
+  height: 32rpx;
+}
+.integral-head-title {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+.integral-head-space {
+  flex: 1;
+}
+.integral-head-more {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: #999;
+}
 .join-box {
   display: flex;
 }
@@ -96,20 +242,109 @@ function goDetail(item: any) {
     color: #999;
   }
 }
-.join-title {
+
+/* 积分商品卡片（参考 CRMEB 积分商城） */
+.ig-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.ig-grid2 {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
+}
+.ig-g2-item {
+  width: 49%;
   background: #fff;
-  height: 100rpx;
-  padding: 0 20rpx;
-  .join-title-name {
-    font-size: 32rpx;
-    font-weight: bold;
-  }
-  .join-title-more {
-    font-size: 24rpx;
-    color: #999;
-  }
+  border-radius: 16rpx;
+  overflow: hidden;
+  padding-bottom: 16rpx;
+  box-sizing: border-box;
+  margin-bottom: 16rpx;
+}
+.ig-g2-img-box {
+  width: 100%;
+  height: 300rpx;
+  background: #f5f5f5;
+}
+.ig-g2-name {
+  margin: 16rpx 16rpx 0;
+  font-size: 26rpx;
+  color: #282828;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ig-price-row {
+  display: flex;
+  align-items: baseline;
+  margin: 10rpx 16rpx 0;
+  min-width: 0;
+}
+.ig-price {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #f5483a;
+  white-space: nowrap;
+}
+.ig-price-sm {
+  font-size: 24rpx;
+  margin: 10rpx 16rpx 0;
+}
+.ig-coin {
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffe29a, #f5a623);
+  color: #fff;
+  font-size: 18rpx;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6rpx;
+  flex-shrink: 0;
+}
+.ig-coin-sm {
+  width: 24rpx;
+  height: 24rpx;
+  font-size: 16rpx;
+}
+.ig-original {
+  font-size: 22rpx;
+  color: #999;
+  margin-left: 10rpx;
+  white-space: nowrap;
+  text-decoration: line-through;
+}
+.ig-grid3 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.ig-g3-item {
+  width: 32.5%;
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  padding-bottom: 16rpx;
+  box-sizing: border-box;
+  margin-bottom: 16rpx;
+}
+.ig-g3-img-box {
+  width: 100%;
+  height: 184rpx;
+  background: #f5f5f5;
+}
+.ig-g3-name {
+  margin: 8rpx 16rpx 0;
+  font-size: 24rpx;
+  color: #282828;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

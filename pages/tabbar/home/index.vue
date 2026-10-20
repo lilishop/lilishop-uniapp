@@ -1,5 +1,5 @@
 <template>
-  <view class="home-page" :style="themeStyle">
+  <view class="home-page" :style="[themeStyle, pageBgStyle]">
     <view
       v-for="(item, index) in pageData.list"
       :key="`${item.type}-${index}`"
@@ -105,6 +105,29 @@ const enableLoad = ref(false)
 const loading = ref(false)
 const searchBarWidth = ref(0)
 
+// 页面设置-样式：画布背景（背景色 / 背景图 + 填充方式）
+const pageBgStyle = computed(() => {
+  const data: any = pageData.value
+  if (data?.bgType === 'image' && data?.bgImage) {
+    const size =
+      data.bgFill === 'contain'
+        ? 'contain'
+        : data.bgFill === 'cover'
+          ? 'cover'
+          : '100% 100%'
+    return {
+      backgroundImage: `url(${data.bgImage})`,
+      backgroundSize: size,
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: data.bgColor || '#f9f9f9',
+    }
+  }
+  if (data?.bgColor) {
+    return { backgroundColor: data.bgColor }
+  }
+  return {}
+})
+
 const searchBarStyle = computed(() => {
   if (searchBarWidth.value) {
     return { width: `${searchBarWidth.value}px` }
@@ -148,6 +171,10 @@ function init() {
         pageData.value = Array.isArray(result?.list)
           ? { ...result, list: result.list.filter((i: any) => !i?.hidden) }
           : { list: [] }
+        // 页面设置-内容：页面标题同步到导航栏
+        if (result?.title) {
+          uni.setNavigationBarTitle({ title: result.title })
+        }
         const lastItem = pageData.value.list[pageData.value.list.length - 1]
         enableLoad.value =
           lastItem?.type === 'goods' || lastItem?.model === 'goods'

@@ -243,3 +243,35 @@ function seacnCode() {
     },
   });
 	}
+
+/** 广告魔方各布局共用的样式字段（装修面板配置；老数据无字段时返回空对象，保持原样） */
+export function cubeWrapperStyle(res) {
+  if (!res || res.paddingTop === undefined) return {};
+  const r = (v) => `${Number(v) || 0}rpx`;
+  const bg =
+    !res.bgColor2 || res.bgColor1 === res.bgColor2
+      ? res.bgColor1
+      : `linear-gradient(180deg, ${res.bgColor1}, ${res.bgColor2})`;
+  return {
+    padding: `${r(res.paddingTop)} ${r(res.paddingX)} ${r(res.paddingBottom)}`,
+    background: bg,
+    borderRadius: r(res.borderRadius),
+    marginBottom: r(res.pageGap),
+    overflow: Number(res.borderRadius) > 0 ? "hidden" : "visible",
+  };
+}
+
+/** 内容圆角（作用于单张图片容器） */
+export function cubeImgStyle(res) {
+  if (!res || res.imgRadius === undefined) return {};
+  return {
+    borderRadius: `${Number(res.imgRadius) || 0}rpx`,
+    overflow: "hidden",
+  };
+}
+
+/** 内容间距（作用于图片布局容器，flex gap） */
+export function cubeGapStyle(res) {
+  if (!res || res.contentGap === undefined) return {};
+  return { gap: `${Number(res.contentGap) || 0}rpx` };
+}
