@@ -6,10 +6,7 @@
       :style="{ top: state.scHight }"
       style="width: 750rpx; position: fixed; z-index: 100; left: 0"
     >
-      <view
-        class="flex-column-center"
-        style="background-color: #fcfcfc; padding: 30rpx; border-radius: 10rpx"
-      >
+      <view class="flex-column-center">
         <movable-area
           class="flex"
           style="width: 100%"
@@ -43,63 +40,49 @@
             :src="state.img"
             mode="aspectFit"
             :style="{ height: state.originalHeight, width: state.originalWidth }"
-            style="border-radius: 10rpx"
+            style="border-radius: 24rpx"
           ></image>
         </movable-area>
 
-        <movable-area
-          class="flex-row-start"
-          style="
-            width: 100%;
-            background-color: #efefef;
-            height: 80rpx;
-            border-radius: 40rpx;
-            margin-top: 30rpx;
-          "
-        >
-          <movable-view
-            scale-value="1"
-            animation="false"
-            damping="50"
-            :x="state.movePv"
-            class="flex-row-center"
-            style="
-              border-radius: 50%;
-              height: 100rpx;
-              width: 100rpx;
-              background-color: #ffffff;
-              border: 2rpx solid #e3e3e3;
-              margin-top: -13rpx;
-            "
-            direction="horizontal"
-            @change="moveChange"
-            @touchend="end"
-          >
-            <u-icon
-              :color="mainColor"
-              size="40"
-              v-if="state.endLoad"
-              name="arrow-right"
-            ></u-icon>
-            <u-icon :color="mainColor" size="40" v-else name="reload"></u-icon>
-          </movable-view>
-
-          <text style="padding-left: 140rpx" :style="{ color: state.col }">{{
+        <view class="v-track">
+          <view class="v-fill" :style="{ width: fillWidth }"></view>
+          <text class="v-track-text" :style="{ color: state.col }">{{
             state.hasImg
           }}</text>
-        </movable-area>
-        <view class="flex-row-around padding-top" style="width: 100%">
-          <u-icon
-            @click="hide"
-            :color="mainColor"
-            size="40"
-            name="close"
-          ></u-icon>
+          <movable-area class="v-area" animation="false">
+            <movable-view
+              scale-value="1"
+              animation="false"
+              damping="50"
+              :x="state.movePv"
+              class="v-handle"
+              :style="handleStyle"
+              direction="horizontal"
+              @change="moveChange"
+              @touchend="end"
+            >
+              <u-icon
+                color="#ffffff"
+                size="38"
+                v-if="state.endLoad"
+                name="arrow-right"
+              ></u-icon>
+              <u-icon color="#ffffff" size="38" v-else name="reload"></u-icon>
+            </movable-view>
+          </movable-area>
+        </view>
 
-          <text class="cu-tag round" @click="getCode">刷新拼图</text>
-          <text class="my-neirong-sm cuIcon-safe" style="color: #c1c1c1"
-            >Lili-FRAMEWORK</text
-          >
+        <view class="v-foot">
+          <view class="v-icon-btn" @click="getCode">
+            <u-icon color="#888888" size="32" name="reload"></u-icon>
+          </view>
+          <view class="v-icon-btn" @click="hide">
+            <u-icon color="#888888" size="30" name="close"></u-icon>
+          </view>
+        </view>
+        <view class="v-mark">
+          <text class="cuIcon-safe v-mark-icon"></text>
+          <text>Lili-FRAMEWORK 安全验证</text>
         </view>
       </view>
     </view>
@@ -133,6 +116,13 @@ const phone = uni.getSystemInfoSync()
 const l = phone.screenWidth / 750
 
 const mainColor = computed(() => store.getters.mainColor)
+const fillWidth = computed(() => `calc(${state.moveX}px + 42rpx)`)
+const handleStyle = computed(() => {
+  const glow = /^#[0-9a-fA-F]{6}$/.test(mainColor.value)
+    ? mainColor.value + '59'
+    : 'rgba(0, 0, 0, 0.18)'
+  return { background: mainColor.value, boxShadow: `0 6rpx 20rpx ${glow}` }
+})
 const state = reactive({
   flage: false,
   key: '', // key
@@ -284,6 +274,85 @@ defineExpose({
 @import "./animation.css";
 @import "./icon.css";
 // @import './main.css';
+
+.v-track {
+  position: relative;
+  width: 100%;
+  height: 84rpx;
+  margin-top: 36rpx;
+  background-color: #f7f7f8;
+  border-radius: 42rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.v-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #ffe9e5;
+  border-radius: 42rpx;
+}
+
+.v-track-text {
+  font-size: 26rpx;
+  letter-spacing: 2rpx;
+}
+
+.v-area {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+}
+
+.v-handle {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.v-foot {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 28rpx;
+}
+
+.v-icon-btn {
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 50%;
+  background-color: #f4f4f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 24rpx;
+}
+
+.v-mark {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32rpx;
+  font-size: 22rpx;
+  color: #d2d2d2;
+}
+
+.v-mark-icon {
+  margin-right: 8rpx;
+  font-size: 22rpx;
+  color: #d9d9d9;
+}
 .dh-wt {
   animation: at 1.1s ease;
   animation-iteration-count: infinite;
