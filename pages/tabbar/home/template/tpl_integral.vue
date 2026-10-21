@@ -9,7 +9,7 @@
       />
       <view v-else class="integral-head-title" :style="headTitleStyle">{{ title }}</view>
       <view class="integral-head-space"></view>
-      <view class="integral-head-more" :style="moreStyle">更多 &gt;</view>
+      <view class="integral-head-more" :style="moreStyle">{{ "更多 >" }}</view>
     </view>
     <!-- 老数据：原始四列样式 -->
     <view v-if="!styled" class="join-box">
@@ -125,7 +125,7 @@ const wrapperStyle = computed(() => {
   return {
     background: res.bgColor || "#FFFFFF",
     padding: `0 ${res.paddingX ?? 0}rpx`,
-    marginBottom: `${res.pageGap ?? 10}rpx`,
+    marginBottom: `${res.pageGap ?? 0}rpx`,
     borderRadius: `${res.borderRadius ?? 0}rpx`,
     overflow: "hidden",
   };

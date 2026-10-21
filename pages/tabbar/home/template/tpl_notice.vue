@@ -12,7 +12,7 @@
           :direction="directionValue"
           :bg-color="styled ? 'transparent' : item.bk_color"
           :color="item.color"
-          :text="texts"
+          :text="noticeText"
           @click="clickNotice"
         ></u-notice-bar>
       </view>
@@ -67,8 +67,19 @@ const texts = computed(() =>
   titleList.value.map((t: any) => String(t.context))
 );
 
-function clickNotice(index: number) {
-  const target = titleList.value[index];
+// uView-plus 的 notice-bar 在横向滚动（direction="row"）时要求 text 为字符串，竖向（column）可为数组
+const noticeText = computed(() => {
+  if (directionValue.value === "row") {
+    return texts.value.join("    ");
+  }
+  return texts.value;
+});
+
+function clickNotice(index?: number) {
+  const target =
+    typeof index === "number"
+      ? titleList.value[index] || titleList.value[0]
+      : titleList.value[0];
   if (target && target.url) {
     modelNavigateTo(target);
   }

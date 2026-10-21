@@ -3,7 +3,7 @@
     <view class="shop-head" v-if="headIcon || title || moreUrl">
       <image v-if="headIcon" class="shop-head-icon" :src="headIcon" mode="aspectFit" />
       <view class="shop-title" :style="titleStyle">{{ title }}</view>
-      <view v-if="moreUrl" class="shop-more" :style="moreStyle" @click="goMore">更多 &gt;</view>
+      <view v-if="moreUrl" class="shop-more" :style="moreStyle" @click="goMore">{{ "更多 >" }}</view>
     </view>
 
     <!-- 老数据：两列网格 -->
@@ -24,7 +24,7 @@
       </view>
     </view>
 
-    <!-- 样式一：店铺卡片（商品图背景 + Logo + 名称 + 类型标签） -->
+    <!-- 样式一：店铺卡片（全景大片橱窗） -->
     <view v-else-if="shopStyle === 'one'" class="shop-grid">
       <view
         class="shop-card"
@@ -33,13 +33,22 @@
         @click="goShop(item)"
       >
         <image
-          v-if="(item.goodsImages && item.goodsImages.length) || item.storeBanner"
+          v-if="!item.imgError && ((item.goodsImages && item.goodsImages.length) || item.storeBanner)"
           class="shop-card-bg"
           :style="logoStyle"
           :src="item.goodsImages && item.goodsImages.length ? item.goodsImages[0] : item.storeBanner"
           mode="aspectFill"
+          @error="handleImgError(item)"
+        />
+        <image
+          v-else-if="item.storeLogo"
+          class="shop-card-bg"
+          :style="logoStyle"
+          :src="item.storeLogo"
+          mode="aspectFill"
         />
         <view v-else class="shop-card-bg shop-card-bg-empty" :style="logoStyle"></view>
+        <view class="shop-card-badge" v-if="isSelf(item)">自营</view>
         <view class="shop-card-body">
           <image
             v-if="showLogo"
@@ -52,7 +61,7 @@
       </view>
     </view>
 
-    <!-- 样式二：店铺卡片 + 商品列表 -->
+    <!-- 样式二：店铺卡片 + 商品列表（大牌名店街 + 精品橱窗） -->
     <view v-else class="shop-street-list">
       <view
         class="shop-street-card"
@@ -61,15 +70,17 @@
         @click="goShop(item)"
       >
         <view class="shop-street-head">
-          <image v-if="showLogo" class="shop-street-logo" :src="item.storeLogo" mode="aspectFit" />
-          <view v-if="showName" class="shop-street-name" :style="nameStyle">{{ item.storeName }}</view>
-          <image
-            v-if="(item.goods && item.goods.length) || item.storeBanner"
-            class="shop-street-banner"
-            :style="logoStyle"
-            :src="item.goods && item.goods.length ? item.goods[0].img : item.storeBanner"
-            mode="aspectFill"
-          />
+          <view class="shop-street-info">
+            <image v-if="showLogo" class="shop-street-logo" :src="item.storeLogo" mode="aspectFit" />
+            <view class="shop-street-meta">
+              <view class="shop-street-name-row">
+                <view v-if="showName" class="shop-street-name" :style="nameStyle">{{ item.storeName }}</view>
+                <text class="shop-street-tag" v-if="isSelf(item)">自营</text>
+              </view>
+              <view class="shop-street-desc">热卖好物甄选中</view>
+            </view>
+          </view>
+          <view class="shop-street-enter">进店逛逛 &gt;</view>
         </view>
         <view class="shop-street-goods">
           <view
@@ -77,10 +88,12 @@
             v-for="(g, gi) in item.goods || []"
             :key="gi"
           >
-            <image class="street-goods-img" :src="g.img" mode="aspectFill" />
+            <view class="street-goods-cover">
+              <image class="street-goods-img" :src="g.img" mode="aspectFill" />
+            </view>
             <view class="street-goods-name">{{ g.name }}</view>
             <view class="street-goods-price">
-              ¥{{ goodsFormatPrice(g.price)[0] }}.{{ goodsFormatPrice(g.price)[1] }}
+              <text class="street-goods-symbol">¥</text>{{ goodsFormatPrice(g.price)[0] }}.{{ goodsFormatPrice(g.price)[1] }}
             </view>
           </view>
         </view>
@@ -130,7 +143,7 @@ const wrapperStyle = computed(() => {
   return {
     background: res.bgColor || "#FFFFFF",
     padding: `20rpx ${res.paddingX ?? 0}rpx`,
-    marginBottom: `${res.pageGap ?? 10}rpx`,
+    marginBottom: `${res.pageGap ?? 0}rpx`,
     borderRadius: `${res.borderRadius ?? 0}rpx`,
     overflow: "hidden",
   };
@@ -161,9 +174,8 @@ async function loadShops() {
   loadGoodsImages();
 }
 
-// 样式二：按店铺拉取商品（图片、名称、价格）
+// 按店铺拉取商品（样式一用第1张商品作为店铺封面图，样式二展示商品条）
 function loadGoodsImages() {
-  if (shopStyle.value !== "two") return;
   shopList.value.forEach((shop: any, i: number) => {
     getGoodsList({ storeId: shop.id, pageNumber: 1, pageSize: 3 }).then((res: any) => {
       const records = res?.data?.result?.records || res?.data?.result || [];
@@ -174,8 +186,10 @@ function loadGoodsImages() {
           img: g.thumbnail || g.small || g.goodsImage,
         }))
         .filter((g: any) => g.img);
-      shopList.value[i].goods = goods;
-      shopList.value[i].goodsImages = goods.map((g: any) => g.img);
+      if (shopList.value[i]) {
+        shopList.value[i].goods = goods;
+        shopList.value[i].goodsImages = goods.map((g: any) => g.img);
+      }
     }).catch(() => {});
   });
 }
@@ -185,6 +199,22 @@ watch(
   () => loadShops(),
   { immediate: true, deep: true }
 );
+
+function isSelf(shop: any) {
+  if (!shop) return false;
+  return Boolean(
+    shop.selfOperated === true ||
+    shop.selfOperated === 'true' ||
+    shop.selfOperated === 1 ||
+    shop.selfOperated === '1' ||
+    (shop.storeName && shop.storeName.includes('自营')) ||
+    (shop.name && shop.name.includes('自营'))
+  );
+}
+
+function handleImgError(item: any) {
+  item.imgError = true;
+}
 
 function goShop(item: any) {
   uni.navigateTo({ url: `/pages/product/shopPage?id=${item.id}` });
@@ -222,7 +252,7 @@ function goMore() {
   color: #999;
 }
 
-// 样式一：三列店铺卡片
+// 样式一：三列店铺卡片（全景大片橱窗）
 .shop-grid {
   display: flex;
   flex-wrap: wrap;
@@ -230,121 +260,201 @@ function goMore() {
   gap: 16rpx;
 }
 .shop-card {
+  position: relative;
   width: calc((100% - 32rpx) / 3);
-  border-radius: 12rpx;
+  height: 224rpx;
+  border-radius: 16rpx;
   overflow: hidden;
   background: #f7f7f7;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
 }
 .shop-card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 140rpx;
+  height: 100%;
   display: block;
-  background: #eee;
 }
 .shop-card-bg-empty {
   background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
 }
+.shop-card-badge {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  z-index: 2;
+  font-size: 20rpx;
+  color: #fff;
+  background: #e1251b;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+  line-height: 1.3;
+  font-weight: 500;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.2);
+}
 .shop-card-body {
-  padding: 8rpx;
-  text-align: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 32rpx 12rpx 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 35%, rgba(0, 0, 0, 0.72) 100%);
 }
 .shop-card-logo {
-  position: relative;
-  z-index: 1;
+  flex-shrink: 0;
   display: block;
-  width: 96rpx;
-  height: 32rpx;
-  margin: -16rpx auto 0;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 6rpx;
   background: #fff;
+  padding: 2rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.15);
 }
 .shop-card-name {
-  font-size: 24rpx;
-  color: #333;
+  flex: 1;
+  min-width: 0;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #fff;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-top: 6rpx;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.6);
 }
-// 样式二：店铺卡片 + 商品列表
+
+// 样式二：大牌名店街 + 精品橱窗
 .shop-street-list {
   padding: 0 24rpx;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 20rpx;
 }
 .shop-street-card {
-  border-radius: 12rpx;
+  border-radius: 20rpx;
   overflow: hidden;
-  background: #f7f7f7;
+  background: #fbfbfb;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
 }
 .shop-street-head {
-  position: relative;
   display: flex;
   align-items: center;
-  height: 68rpx;
-  padding: 0 16rpx;
-  box-sizing: border-box;
-  background: var(--theme-primary, #ff3c2a);
-  overflow: hidden;
+  justify-content: space-between;
+  padding: 16rpx 20rpx;
+  background: #fff;
+  border-bottom: 1px solid #f5f5f5;
+}
+.shop-street-info {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-width: 0;
+  flex: 1;
 }
 .shop-street-logo {
   flex-shrink: 0;
-  width: 88rpx;
-  height: 32rpx;
-  padding: 2rpx 6rpx;
+  width: 64rpx;
+  height: 64rpx;
+  padding: 4rpx;
   box-sizing: border-box;
   background: #fff;
-  border-radius: 4rpx;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
+}
+.shop-street-meta {
+  min-width: 0;
+  flex: 1;
+}
+.shop-street-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
 }
 .shop-street-name {
-  max-width: calc(100% - 220rpx);
-  margin-left: 12rpx;
-  color: #fff;
   font-size: 26rpx;
   font-weight: 600;
+  color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.shop-street-banner {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 160rpx;
-  height: 68rpx;
+.shop-street-tag {
+  flex-shrink: 0;
+  font-size: 18rpx;
+  color: #fff;
+  background: #e1251b;
+  padding: 0 8rpx;
+  border-radius: 6rpx;
+  line-height: 28rpx;
+  font-weight: 500;
+}
+.shop-street-desc {
+  font-size: 20rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+.shop-street-enter {
+  flex-shrink: 0;
+  font-size: 20rpx;
+  font-weight: 500;
+  color: var(--theme-primary, #ff3c2a);
+  background: #fff;
+  border: 1px solid rgba(255, 60, 42, 0.25);
+  padding: 6rpx 16rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 2rpx 4rpx rgba(255, 60, 42, 0.05);
+  margin-left: 16rpx;
 }
 .shop-street-goods {
   display: flex;
-  gap: 12rpx;
-  padding: 12rpx;
+  gap: 16rpx;
+  padding: 16rpx;
   box-sizing: border-box;
 }
 .street-goods-item {
   flex: 1;
   min-width: 0;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   overflow: hidden;
   background: #fff;
+  border: 1px solid #f2f2f2;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.02);
+}
+.street-goods-cover {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #fafafa;
 }
 .street-goods-img {
   width: 100%;
-  height: 116rpx;
+  height: 100%;
   display: block;
-  background: #eee;
 }
 .street-goods-name {
-  padding: 8rpx 8rpx 0;
-  color: #282828;
+  padding: 8rpx 12rpx 0;
+  color: #333;
   font-size: 22rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .street-goods-price {
-  padding: 4rpx 8rpx 10rpx;
+  padding: 4rpx 12rpx 12rpx;
   color: var(--theme-primary, #ff3c2a);
-  font-size: 22rpx;
-  font-weight: 600;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+.street-goods-symbol {
+  font-size: 18rpx;
+  font-weight: normal;
+  margin-right: 2rpx;
 }
 
 // 老数据两列网格（未配置样式时）

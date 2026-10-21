@@ -18,7 +18,7 @@ const blankStyle = computed(() => {
   return {
     background: bg,
     height: `${res.height ?? 10}rpx`,
-    margin: `0 ${res.paddingX ?? 0}rpx ${res.pageGap ?? 10}rpx`,
+    margin: `0 ${res.paddingX ?? 0}rpx ${res.pageGap ?? 0}rpx`,
   };
 });
 </script>

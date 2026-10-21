@@ -12,7 +12,7 @@
         :style="moreStyle"
         @click="goMore"
       >
-        {{ item.moreText || "更多" }} &gt;
+        {{ (item.moreText || "更多") + " >" }}
       </view>
     </view>
     <!-- 老数据：保持原样 -->

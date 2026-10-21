@@ -20,7 +20,7 @@ const wrapperStyle = computed(() => {
   return {
     background: bg,
     padding: `0 ${res.paddingX ?? 12}rpx`,
-    marginBottom: `${res.pageGap ?? 10}rpx`,
+    marginBottom: `${res.pageGap ?? 0}rpx`,
     borderRadius: `${res.borderRadius ?? 0}rpx`,
     overflow: "hidden",
   };
