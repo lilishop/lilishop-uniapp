@@ -1,5 +1,5 @@
 <template>
-  <div class="layout" :style="wrapperStyle">
+  <view v-if="hasData" class="layout" :style="wrapperStyle">
     <!-- 拼团：红橙渐变头部 + 左图右文商品行（参考 CRMEB） -->
     <view v-if="isPintuan" class="pt-card">
       <view class="pt-head" :style="ptHeadStyle">
@@ -20,7 +20,7 @@
           <text class="pt-success">{{ firstItem.groupSuccess }}</text>
         </template>
         <view class="pt-space"></view>
-        <view class="pt-more" @click="goToDetail('PINTUAN')">更多 &gt;</view>
+        <view class="pt-more" @click="goToDetail('PINTUAN')">{{ "更多 >" }}</view>
       </view>
       <view class="pt-body">
         <!-- 样式一：纵向商品行 -->
@@ -226,7 +226,7 @@
         <text v-else class="lv-head-title">{{ firstItem.title || "精彩直播" }}</text>
         <text class="lv-head-sub" :style="titleStyle">{{ firstItem.title1 || "精彩抢先看" }}</text>
         <view class="lv-space"></view>
-        <text class="lv-more" :style="moreStyle" @click="goToDetail('LIVE')">更多 &gt;</text>
+        <text class="lv-more" :style="moreStyle" @click="goToDetail('LIVE')">{{ "更多 >" }}</text>
       </view>
       <view class="lv-head-en">Exciting live streaming</view>
       <!-- 单行：横向滑动卡片 -->
@@ -299,7 +299,7 @@
         <text class="sk-divider"></text>
         <text class="sk-head-sub" :style="titleStyle">{{ firstItem.title1 || "邀请你的好友来参与" }}</text>
         <view class="sk-space"></view>
-        <text class="sk-go" @click="goToDetail('SECKILL')">GO &gt;</text>
+        <text class="sk-go" @click="goToDetail('SECKILL')">{{ "GO >" }}</text>
       </view>
       <!-- 样式一：横向滑动 -->
       <scroll-view
@@ -374,7 +374,7 @@
         <text class="sk-divider"></text>
         <text class="sk-head-sub" :style="titleStyle">{{ firstItem.title1 || "邀请好友来砍价" }}</text>
         <view class="sk-space"></view>
-        <text class="sk-go" @click="goToDetail('KANJIA')">GO &gt;</text>
+        <text class="sk-go" @click="goToDetail('KANJIA')">{{ "GO >" }}</text>
       </view>
       <!-- 样式一：横向滑动 -->
       <scroll-view
@@ -440,7 +440,7 @@
       <view v-if="styled && (options.icon || options.moreUrl)" class="promo-head">
         <image v-if="options.icon" class="promo-head-icon" :src="options.icon" mode="aspectFit" />
         <view class="promo-head-space"></view>
-        <view v-if="options.moreUrl" class="promo-more" :style="moreStyle" @click="goMore">更多 &gt;</view>
+        <view v-if="options.moreUrl" class="promo-more" :style="moreStyle" @click="goMore">{{ "更多 >" }}</view>
       </view>
       <div class="join-list" :style="gapStyle">
         <div
@@ -506,7 +506,7 @@
         </div>
       </div>
     </template>
-  </div>
+  </view>
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
@@ -533,8 +533,15 @@ const isPintuan = computed(() => firstItem.value.type === "PINTUAN");
 const isLive = computed(() => firstItem.value.type === "LIVE");
 const isSeckill = computed(() => firstItem.value.type === "SECKILL");
 const isKanjia = computed(() => firstItem.value.type === "KANJIA");
+function isRealGoods(item: any) {
+  if (!item) return false;
+  const img = item.thumbnail || item.goodsImage || "";
+  if (!img || img.startsWith("/demo/") || img.startsWith("demo/")) return false;
+  return true;
+}
+
 const seckillData = computed(() => {
-  const data = (firstItem.value && firstItem.value.data) || [];
+  const data = ((firstItem.value && firstItem.value.data) || []).filter(isRealGoods);
   return layoutStyle.value === "2" ? data.slice(0, 4) : data.slice(0, 6);
 });
 // 老数据未保存过样式时，给个红→白渐变兜底背景
@@ -578,11 +585,30 @@ const liveData = computed(() => {
   });
 });
 const displayData = computed(() => {
-  const data = (firstItem.value && firstItem.value.data) || [];
+  const data = ((firstItem.value && firstItem.value.data) || []).filter(isRealGoods);
   if (layoutStyle.value === "3" || layoutStyle.value === "4") {
     return data.slice(0, 6);
   }
   return data.slice(0, 2);
+});
+
+// 无活动数据时整块不渲染，避免展示空标题/空卡片
+const hasData = computed(() => {
+  if (isPintuan.value) {
+    return displayData.value.length > 0;
+  }
+  if (isSeckill.value) {
+    return seckillData.value.length > 0;
+  }
+  if (isKanjia.value) {
+    return seckillData.value.length > 0;
+  }
+  if (isLive.value) {
+    return liveData.value.length > 0;
+  }
+  return displayList.value.some(
+    (item: any) => item.data && item.data.filter(isRealGoods).length > 0
+  );
 });
 const headTitleImage = computed(() =>
   props.res?.headTitleType === "image" ? props.res.headTitleImage : ""
