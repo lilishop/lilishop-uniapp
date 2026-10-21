@@ -9,7 +9,7 @@
 			@left-click="back"
 		></u-navbar>
 		<view class="header-wraper">
-			<image class="header-banner" mode="aspectFit" src="/static/seckill.png"></image>
+			<image class="header-banner" mode="aspectFit" src="/pages/promotion/static/seckill.png"></image>
 		</view>
 		<scroll-view scroll-x>
 			<view class="index-navs">
@@ -176,7 +176,7 @@ function clickNavigateTime(type: number) {
 	}
 
 	.header-wraper {
-		background: url('/static/bg.png') no-repeat center center;
+		background: url('/pages/promotion/static/bg.png') no-repeat center center;
 		background-size: cover;
 		height: 200rpx;
 		display: flex;

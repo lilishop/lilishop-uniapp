@@ -27,7 +27,7 @@
 		</u-navbar>
 		<!-- 顶部栏 -->
 		<view class="header-wraper">
-			<image class="header-banner" mode="aspectFit" src="/static/join-buy.png"></image>
+			<image class="header-banner" mode="aspectFit" src="/pages/promotion/static/join-buy.png"></image>
 		</view>
 		<!-- 商品栏 -->
 		<div class="swiper">
@@ -156,7 +156,7 @@ function GET_AssembleGoods() {
 	}
 
 	.header-wraper {
-		background: url('/static/bg.png') no-repeat center center;
+		background: url('/pages/promotion/static/bg.png') no-repeat center center;
 		background-size: cover;
 		height: 200rpx;
 		display: flex;

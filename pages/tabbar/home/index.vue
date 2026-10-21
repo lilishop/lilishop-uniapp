@@ -1,5 +1,5 @@
 <template>
-  <view class="home-page" :style="themeStyle">
+  <view class="home-page" :style="[themeStyle, pageBgStyle]">
     <view
       v-for="(item, index) in pageData.list"
       :key="`${item.type}-${index}`"
@@ -13,7 +13,7 @@
         :placeholder="index === 1 ? false : true"
         left-icon=""
         title=""
-        bg-color="#ffffff"
+        :bg-color="topColor"
       >
         <template #left>
           <view class="navbar-search-wrap" :style="searchBarStyle" @click.stop>
@@ -21,6 +21,7 @@
           </view>
         </template>
       </u-navbar>
+      <homeComb v-if="item.type == 'homeComb'" :res="item.options" />
       <carousel v-if="item.type == 'carousel'" :res="item.options" />
       <titleLayout v-if="item.type == 'title'" :res="item.options" />
       <leftOneRightTwo v-if="item.type == 'leftOneRightTwo'" :res="item.options" />
@@ -43,6 +44,13 @@
       <notice v-if="item.type == 'notice'" :res="item.options" />
       <promotions v-if="item.type == 'promotionDetail'" :res="item.options" />
       <videoLayout v-if="item.type == 'video'" :res="item.options" />
+      <blank v-if="item.type == 'blank'" :res="item.options" />
+      <lineLayout v-if="item.type == 'line'" :res="item.options" />
+      <richText v-if="item.type == 'richText'" :res="item.options" />
+      <integral v-if="item.type == 'integral'" :res="item.options" />
+      <coupon v-if="item.type == 'coupon'" :res="item.options" />
+      <articleList v-if="item.type == 'article'" :res="item.options" />
+      <shopList v-if="item.type == 'shop'" :res="item.options" />
     </view>
     <fetchCoupon ref="couponRef" />
   </view>
@@ -78,6 +86,14 @@ import goods from '@/pages/tabbar/home/template/tpl_goods.vue'
 import notice from '@/pages/tabbar/home/template/tpl_notice.vue'
 import promotions from '@/pages/tabbar/home/template/tpl_promotions_detail.vue'
 import fetchCoupon from '@/pages/tabbar/home/template/fetch_coupon.vue'
+import blank from '@/pages/tabbar/home/template/tpl_blank.vue'
+import lineLayout from '@/pages/tabbar/home/template/tpl_line.vue'
+import richText from '@/pages/tabbar/home/template/tpl_rich_text.vue'
+import integral from '@/pages/tabbar/home/template/tpl_integral.vue'
+import coupon from '@/pages/tabbar/home/template/tpl_coupon.vue'
+import articleList from '@/pages/tabbar/home/template/tpl_article.vue'
+import shopList from '@/pages/tabbar/home/template/tpl_shop.vue'
+import homeComb from '@/pages/tabbar/home/template/tpl_home_comb.vue'
 import { getFloorData } from '@/api/home'
 
 const HOME_LAYOUT_PADDING_RPX = 16
@@ -86,10 +102,35 @@ const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const couponRef = ref<InstanceType<typeof fetchCoupon>>()
-const pageData = ref<{ list: any[] }>({ list: [] })
+const pageData = ref<Record<string, any>>({ list: [] })
 const enableLoad = ref(false)
 const loading = ref(false)
 const searchBarWidth = ref(0)
+
+const topColor = computed(() => pageData.value?.topColor || '#ffffff')
+
+// 页面设置-样式：画布背景（背景色 / 背景图 + 填充方式）
+const pageBgStyle = computed(() => {
+  const data: any = pageData.value
+  if (data?.bgType === 'image' && data?.bgImage) {
+    const size =
+      data.bgFill === 'contain'
+        ? 'contain'
+        : data.bgFill === 'cover'
+          ? 'cover'
+          : '100% 100%'
+    return {
+      backgroundImage: `url(${data.bgImage})`,
+      backgroundSize: size,
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: data.bgColor || '#f9f9f9',
+    }
+  }
+  if (data?.bgColor) {
+    return { backgroundColor: data.bgColor }
+  }
+  return {}
+})
 
 const searchBarStyle = computed(() => {
   if (searchBarWidth.value) {
@@ -131,7 +172,20 @@ function init() {
 
       try {
         const result = JSON.parse(pageDataStr)
-        pageData.value = Array.isArray(result?.list) ? result : { list: [] }
+        pageData.value = Array.isArray(result?.list)
+          ? { ...result, list: result.list.filter((i: any) => !i?.hidden) }
+          : { list: [] }
+        // 页面设置-内容：页面标题同步到导航栏
+        if (result?.title) {
+          uni.setNavigationBarTitle({ title: result.title })
+        }
+        // 页面设置-样式：顶部颜色与标题颜色同步到导航栏
+        if (result?.topColor || result?.titleColor) {
+          uni.setNavigationBarColor({
+            frontColor: result?.titleColor === 'white' ? '#ffffff' : '#000000',
+            backgroundColor: result?.topColor || '#ffffff',
+          })
+        }
         const lastItem = pageData.value.list[pageData.value.list.length - 1]
         enableLoad.value =
           lastItem?.type === 'goods' || lastItem?.model === 'goods'

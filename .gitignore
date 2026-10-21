@@ -1,3 +1,4 @@
 node_modules/
 unpackage/
 .DS_Store
+.idea/

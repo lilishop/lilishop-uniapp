@@ -113,7 +113,7 @@
 					<u-icon v-if="item.title != 'APPLE'" color="#fff" size="42" :name="item.icon"
 						@click="navigateLogin(item)">
 					</u-icon>
-					<u-image v-else src="/static/appleidButton@2x.png" :lazy-load="false" @click="navigateLogin(item)"
+					<u-image v-else src="/pages/passport/static/appleidButton@2x.png" :lazy-load="false" @click="navigateLogin(item)"
 						width="80" height="80" />
 				</div>
 				</template>

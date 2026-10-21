@@ -1,8 +1,8 @@
 <template>
   <view :style="themeStyle" class="content">
     <view class="portrait-box">
-      <image src="/static/pointTrade/point_bg_1.png" mode=""></image>
-      <image class="point-img" src="/static/pointTrade/tradehall.png" />
+      <image src="/pages/mine/static/point_bg_1.png" mode=""></image>
+      <image class="point-img" src="/pages/mine/static/tradehall.png" />
       <view class="position-point">
 
 

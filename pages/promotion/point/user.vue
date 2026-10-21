@@ -32,7 +32,7 @@ async function init() {
   padding: 0 20rpx;
   height: 300rpx;
   flex-shrink: 0;
-  background: url("/static/point-bg.png") no-repeat;
+  background: url("/pages/promotion/static/point-bg.png") no-repeat;
   background-size: 100%;
   display: flex;
   align-items: center;

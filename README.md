@@ -1,159 +1,179 @@
-# Lilishop(PickMall) 开源商城系统
+<div align="center">
+  <img src="./icon.png" width="80" alt="Lilishop Logo" />
+  <h1>Lilishop(PickMall) 开源商城系统 - 移动端 (uni-app)</h1>
 
-[![GitHub Stars](https://img.shields.io/github/stars/lilishop/lilishop.svg?style=social&logo=github)](https://github.com/lilishop/lilishop)
-[![Gitee Stars](https://gitee.com/beijing_hongye_huicheng/lilishop/badge/star.svg?theme=dark)](https://gitee.com/beijing_hongye_huicheng/lilishop)
-[![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](./LICENSE)
-[![Vue](https://img.shields.io/badge/Vue-3-brightgreen.svg)](https://vuejs.org/)
-[![uni-app](https://img.shields.io/badge/uni--app-Vue3-blue.svg)](https://uniapp.dcloud.net.cn/)
+  <p>
+    <a href="https://github.com/lilishop/lilishop"><img src="https://img.shields.io/github/stars/lilishop/lilishop.svg?style=social&logo=github" alt="GitHub Stars" /></a>
+    <a href="https://gitee.com/beijing_hongye_huicheng/lilishop"><img src="https://gitee.com/beijing_hongye_huicheng/lilishop/badge/star.svg?theme=dark" alt="Gitee Stars" /></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+    <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3-brightgreen.svg" alt="Vue 3" /></a>
+    <a href="https://uniapp.dcloud.net.cn/"><img src="https://img.shields.io/badge/uni--app-Vue3-blue.svg" alt="uni-app" /></a>
+  </p>
 
-<p align="right">
-  简体中文 | <a href="./README.en.md">English</a>
-</p>
+  <p>
+    <a href="https://pickmall.cn">🏠 官方网站</a> ·
+    <a href="https://bdwx2tfwwt.feishu.cn/wiki/space/7675179368632617952?ccm_open_type=lark_wiki_spaceLink&open_tab_from=wiki_home">📖 产品文档</a> ·
+    <a href="#2-在线演示">📱 在线演示</a> ·
+    <a href="#7-社区与支持">💬 微信交流群</a>
+  </p>
 
+  <p>
+    <b>简体中文</b> | <a href="./README.en.md">English</a>
+  </p>
+</div>
 
-LILISHOP 是基于 Spring Boot / Spring Cloud / Vue / Uniapp 开发的 Java 开源商城系统，支持 B2B2C 多商户商城、小程序商城、微服务商城、直播电商、分销返佣、秒杀活动、Docker 私有化部署。
+> ⭐ **如果觉得项目不错，请点击右上角 `Star` 收藏支持！您的 Star 是我们持续开源迭代的最大动力！**
 
-## 核心特性
+**LILISHOP** 是基于 Spring Boot / Vue 3 / uni-app 开发的开源商城系统，支持 B2B2C 多商户商城、微信小程序商城、H5 商城、APP 商城、直播电商、分销返佣、秒杀活动。
 
-- Java商城系统
-- 开源商城系统
-- Spring Boot 4商城系统
-- SpringCloud微服务商城
-- B2B2C商城源码
-- 多商户商城系统
-- 小程序商城源码
-- Uniapp商城系统
-- Vue商城系统
-- Docker商城部署
-- 多语言商城
-
-适用于：
-
-- 企业级商城系统
-- 私有化商城部署
-- Java商城系统二次开发
-- 开源商城源码学习
-- 多商户电商平台
----
-
-### 1. 项目简介
-
-**Lilishop** 是一款功能完善的B2B2C多商户商城系统，采用前后端分离架构，全端代码开源。
-后端基于 **Spring Boot 4**（Java 21）构建，具备高内聚、低耦合的特性，支持分布式部署。
-前端覆盖PC、H5、小程序和APP，基于 **Vue** 和 **uni-app** 开发。
-
--   **官方网站**: <https://pickmall.cn>
--   **官方文档**: <https://docs.pickmall.cn>
--   **Gitee 仓库**: <https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp>
--   **GitHub 仓库**: <https://github.com/lilishop/lilishop>
-
-本仓库为买家端 **H5 / 小程序 / APP** 源码（`lilishop-uniapp`）。
+### ✨ 为什么选择 Lilishop
+- 🟢 **真 MIT 协议**：支持免费商用与私有化闭源二开，无版权后顾之忧。
+- 🚀 **Vue 3 全新栈**：基于 `uni-app + Vue 3 + uview-plus 3.x`，告别老旧 Vue 2 模板。
+- 🧩 **生产级完整度**：非静态切图模板，完整覆盖 B2B2C 多商户、可视化装修、IM 客服、秒杀拼团、分销直播全闭环。
 
 ---
 
-### 2. 核心特性
+## 1. 项目简介
 
--   **全端覆盖**: 一套代码库支持PC、H5、小程序、APP，降低开发和维护成本。
--   **商家入驻**: 支持多商家入驻，构建平台化电商生态。
--   **分布式架构**: 后端API服务化，支持独立部署和弹性伸缩。
--   **前后端分离**: 清晰的职责划分，便于团队协作和独立开发。
--   **容器化支持**: 提供Docker镜像和docker-compose配置，实现一键部署。
--   **功能完善**: 涵盖客户、订单、商品、促销、店铺、运营、统计等完整电商业务模块。
+**Lilishop** 是一款功能完善的 B2B2C 多商户商城系统，采用前后端分离架构，全端代码开源。  
+后端基于 **Spring Boot 4**（Java 21）构建，具备高内聚、低耦合的特性，支持分布式部署；前端覆盖 PC、H5、小程序和 APP，基于 **Vue 3** 和 **uni-app** 开发。
 
----
+本仓库（`lilishop-uniapp`）为 **买家端移动端源码**，一套代码同时支持 **H5、微信小程序、Android / iOS APP**。
 
-### 3. 在线演示
-
-**注意**: 演示站手机验证码统一为 `111111`。演示环境部署于 `master` 分支。
-
--   **平台管理端**: <https://admin-b2b2c.pickmall.cn>
-    -   账号: `admin`
-    -   密码: `123456`
--   **店铺管理端**: <https://store-b2b2c.pickmall.cn>
-    -   账号: `13011111111`
-    -   密码: `111111`
--   **商城PC端**: <https://pc-b2b2c.pickmall.cn>
--   **微信小程序**:
-    ![移动端体验二维码](https://static.pickmall.cn/images/h5-qrcode.png)
+- **官方网站**: <https://pickmall.cn>
+- **官方文档**: [产品文档](https://bdwx2tfwwt.feishu.cn/wiki/space/7675179368632617952?ccm_open_type=lark_wiki_spaceLink&open_tab_from=wiki_home)
+- **Gitee 仓库**: <https://gitee.com/beijing_hongye_huicheng>
+- **GitHub 主仓库**: <https://github.com/lilishop/lilishop>
 
 ---
 
-### 4. 快速开始
+## 2. 在线演示
 
-#### 环境准备与部署
-详细的本地部署指南，请参考官方文档：
-[**部署文档 -> 环境准备**](https://docs.pickmall.cn/deply/deply.html)
+> **注意**: 演示站手机验证码统一为 `111111`。演示环境部署于 `master` 分支。
 
-#### 数据库初始化
--   **推荐方式**: 使用项目提供的 `docker-compose` 配置，可自动完成数据库（MySQL、Redis 等）的部署与初始化。
--   **手动方式**: 如果您选择手动部署，SQL脚本位于以下地址。请确保获取与您代码版本一致的SQL文件。
-    [**数据库脚本 (Gitee)**](https://gitee.com/beijing_hongye_huicheng/docker/tree/master/init/mysql)
+| 微信小程序 | 移动端 H5（[点击直接访问](https://m-b2b2c.pickmall.cn)） |
+| :---: | :---: |
+| <img src="https://static.pickmall.cn/images/h5-qrcode.png" width="180" alt="微信小程序体验码" /> | <img src="https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/h5-qrcode.png" width="180" alt="移动端 H5 体验二维码" /> |
+| 微信扫码体验小程序 | 手机扫码或访问 <https://m-b2b2c.pickmall.cn> |
 
----
+- **商城 PC 端**: <https://pc-b2b2c.pickmall.cn>
+- **平台管理端**: <https://admin-b2b2c.pickmall.cn>
+  - 账号: `admin` / 密码: `123456`
+- **店铺管理端**: <https://store-b2b2c.pickmall.cn>
+  - 账号: `13011111111` / 密码: `111111`
 
-### 5. 架构文档边界
+### 移动端界面预览
 
-本仓库首页不再维护不完整的系统架构图和技术栈表，避免与实际源码、部署形态和分支差异产生偏差。当前仓库主要说明买家端 H5 / 小程序 / APP 源码定位、在线演示和部署入口。
-
-完整架构请以官方文档及四个源码仓库为准：
-
-- 后端源码：`lilishop`
-- PC / 商家端 / 运营端 / IM Web：`lilishop-ui`
-- H5 / 小程序 / APP：`lilishop-uniapp`
-- 部署、SQL、镜像与启动脚本：`docker`
+| 商城首页 | 商品列表 | 商品详情 | 填写订单 | 个人中心 |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/image.png" width="160" alt="商城首页" /> | <img src="https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/image3.png" width="160" alt="商品列表" /> | <img src="https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/image4.png" width="160" alt="商品详情" /> | <img src="https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/image5.png" width="160" alt="填写订单" /> | <img src="https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/image2.png" width="160" alt="个人中心" /> |
 
 ---
 
-### 6. 功能列表
+## 3. 核心特性与技术栈
 
-[功能清单](https://bdwx2tfwwt.feishu.cn/sheets/FFQKscQKDhUx60to1k9cbMngnYb?from=from_copylink)
+### 核心特性
+- **全端覆盖**: 一套 `uni-app` 代码库支持 H5、微信小程序、Android / iOS APP，大幅降低多端开发与维护成本。
+- **商家入驻**: 支持多商家入驻，构建平台化 B2B2C 电商生态。
+- **可视化装修**: 支持首页及专题楼层（`pages/floor`）动态可视化配置与主题色切换。
+- **即时通讯与直播**: 集成腾讯云 IM / MQTT 消息推送及 HLS 视频流，支持在线客服与直播带货。
+- **完整电商闭环**: 涵盖商品浏览、购物车、多种促销（秒杀/拼团/优惠券/积分/砍价/分销）、订单履约、售后维权、会员中心等全流程。
 
----
-
-### 7. 开源与授权
-
-1.  **开源协议**: 本项目遵循 `AGPL-3.0` 开源协议。
-2.  **使用范围**: 仅允许用于个人学习、研究和非商业用途。
-3.  **禁止行为**: 禁止将本项目的代码和资源用于任何形式的商业销售。
-4.  **商业授权**: 如需商业使用，必须获得官方授权。授权为一次性永久授权，并提供持续的版本升级服务。详情请联系官网客服。
-5.  **软件著作权**: 本软件受国家计算机软件著作权保护（登记号：2021SR0805085）。
-
----
-
-### 8. 社区与支持
-
-我们欢迎任何形式的交流与贡献。在提问前，请先查阅 [官方文档](https://docs.pickmall.cn/) ，并参考 [《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/master/README-zh_CN.md) 以便高效沟通。
-
--   **[在线客服](https://work.weixin.qq.com/kfid/kfc4d8dc24a73c15f44)**
--   **微信交流群**:
-    ![微信群](https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/wechat.jpg)
+### 移动端技术栈
+| 类别 | 技术选型 | 说明 |
+| :--- | :--- | :--- |
+| 核心框架 | `uni-app` + `Vue 3` | 跨端开发框架（支持 Vue 3 语法与渲染） |
+| 状态管理 | `Vuex 4` | 全局登录态、购物车与用户状态管理 |
+| UI 组件库 | `uview-plus 3.x` | 适配 Vue 3 的 uni-app 多端 UI 组件库 |
+| 即时通讯 | `mqtt 5.x` / `@tencentcloud/chat` | 客服消息与实时通知推送 |
+| 音视频流 | `hls.js` | 直播流播放支持 |
+| 样式预处理 | `Sass (SCSS)` | 全局主题变量（`uni.scss`）与组件样式定制 |
 
 ---
 
-### 9. 升级计划
+## 4. 目录结构
 
-以下功能将陆续在后续版本中发布：✅ 已完成 · 🔜 规划中
+```text
+lilishop-uniapp
+├── api/                  # 各业务模块接口定义（会员、商品、订单、促销、IM 等）
+├── components/           # 公共业务与基础组件
+├── config/               # 全局配置目录
+│   ├── api.js            # 接口域名配置（buyer / im / mqtt）
+│   └── config.js         # 商城名称、小程序 AppID、高德 Key、主题色等全局参数
+├── hybrid/               # App 端本地 HTML 资源（如异常页、WebView 辅助页）
+├── js_sdk/               # 第三方及 uni-app 插件 SDK
+├── lib/                  # 基础工具库封装
+├── pages/                # 页面与分包目录
+│   ├── tabbar/           # 底部导航主包页面（首页、分类、购物车、我的等）
+│   ├── passport/         # 登录、注册、找回密码分包
+│   ├── product/          # 商品详情、列表、评价、店铺主页分包
+│   ├── cart/             # 购物车与结算页分包
+│   ├── order/            # 订单列表、详情、售后、物流、发票分包
+│   ├── promotion/        # 秒杀、拼团、砍价、积分商城、分销、直播等营销分包
+│   ├── mine/             # 个人中心、钱包、积分、收藏、地址管理分包
+│   ├── floor/            # 可视化装修楼层组件与专题页
+│   └── navigation/       # 导航与搜索相关页面
+├── patches/              # patch-package 第三方依赖补丁
+├── scripts/              # 构建与依赖修补脚本（如 postinstall 补丁）
+├── static/               # 静态图片与字体资源
+├── store/                # Vuex 状态管理
+├── styles/               # 公共样式文件
+├── uni_modules/          # uni_modules 模块（含 uview-plus 等）
+├── utils/                # 请求拦截器、加密、校验、存储等工具函数
+├── App.vue               # 应用入口组件
+├── main.js               # 应用初始化入口
+├── manifest.json         # uni-app 多端应用配置（AppID、权限、SDK 配置等）
+├── pages.json            # 页面路由、分包加载与导航栏配置
+└── uni.scss              # 全局 SCSS 变量与主题色定义
+```
 
-- ✅ 商品定时上下架
-- ✅ 商品分组
-- ✅ 会员分组
-- ✅ 商品虚拟销量
-- ✅ 专用发票（发票上传）
-- ✅ 置顶评论
-- ✅ 客户等级
-- ✅ 购物卡
-- ✅ 腾讯云-云直播
-- ✅ 统计：营业概况、商品概况、会员概况、积分分析、储值分析、营销概况、分销统计
-- ✅ 经营报表（店铺业绩报表、商品同比环比报表、销售订单明细报表、商品销售汇总报表）
-- ✅ 卡密商品
-- ✅ 二级分销
-- ✅ 定时任务管理
-- ✅ 服务商品
-- ✅ 主题色管理
-- 🔜 店铺结算汇总
-- 🔜 支付方式汇总
-- 🔜 结算台账
-- 🔜 钱包流水
-- 🔜 财务汇总
+---
+
+## 5. 配套源码仓库
+
+本仓库专注于买家端 **H5 / 小程序 / APP**（`lilishop-uniapp`）。完整系统由以下四个核心仓库组成：
+
+| 仓库名称 | 职责说明 | 仓库地址 |
+| :--- | :--- | :--- |
+| **`lilishop`** | 后端服务源码（Spring Boot 4 / Java 21） | [Gitee](https://gitee.com/beijing_hongye_huicheng/lilishop) · [GitHub](https://github.com/lilishop/lilishop) |
+| **`lilishop-ui`** | PC 商城 / 商家端 / 运营管理端 / IM Web 前端 | [Gitee](https://gitee.com/beijing_hongye_huicheng/lilishop-ui) |
+| **`lilishop-uniapp`** | 买家端 H5 / 微信小程序 / Android & iOS APP | [Gitee](https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp) |
+| **`docker`** | 容器化部署编排、镜像与数据库脚本 | [Gitee](https://gitee.com/beijing_hongye_huicheng/docker) · [MySQL 脚本](https://gitee.com/beijing_hongye_huicheng/docker/tree/master/init/mysql) |
+
+---
+
+## 6. 开源与授权
+
+本项目遵循 [MIT](./LICENSE) 开源协议，版权归 **北京宏业汇成科技有限公司** 所有。允许个人及企业免费用于学习、研究、修改和商业用途（需保留原始版权和许可声明）。
+
+---
+
+## 7. 社区与支持
+
+我们欢迎任何形式的交流与贡献。在提问前，请先查阅 [产品文档](https://bdwx2tfwwt.feishu.cn/wiki/space/7675179368632617952?ccm_open_type=lark_wiki_spaceLink&open_tab_from=wiki_home)，并参考 [《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/master/README-zh_CN.md) 以便高效沟通。
+
+- **[在线客服](https://work.weixin.qq.com/kfid/kfc4d8dc24a73c15f44)**
+- **微信交流群**:  
+  <img src="https://lilishop-wechat.oss-cn-beijing.aliyuncs.com/wechat.jpg" width="200" alt="微信群" />
+
+---
+
+## 8. 升级计划
+
+### ✅ 已完成特性
+| 功能模块 | 功能模块 |
+| :--- | :--- |
+| ✅ 商品定时上下架 | ✅ 商品分组 / 会员分组 |
+| ✅ 商品虚拟销量 | ✅ 专用发票（发票上传） |
+| ✅ 置顶评论 | ✅ 客户等级体系 |
+| ✅ 购物卡 | ✅ 腾讯云-云直播 |
+| ✅ 卡密商品 | ✅ 二级分销 |
+| ✅ 定时任务管理 | ✅ 预约服务商品 |
+| ✅ 主题色管理 | ✅ 商家发货改造（整单/拆单/无需配送） |
+| ✅ 多维统计（营业/商品/会员/积分/储值/营销/分销） | ✅ 经营报表（店铺业绩/商品同比环比/订单明细/销售汇总） |
+
+### 🔜 近期规划中
+- 🔜 店铺结算汇总 & 结算台账
+- 🔜 支付方式汇总 & 钱包流水 & 财务汇总
 - 🔜 微信小店对接
 - 🔜 抖店对接

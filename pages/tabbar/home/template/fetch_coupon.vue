@@ -18,7 +18,7 @@
         <view style="width: 120rpx; height: 120rpx; float: right">
           <image
             @click="enableShowCoupon = false"
-            src="/static/cpauto1.png"
+            src="https://lilishop-uniapp.oss-cn-beijing.aliyuncs.com/cpauto1.png"
             style="width: 100%; height: 100%"
           ></image>
         </view>

@@ -4,7 +4,6 @@
   "description": "Lilishop uni-app mobile client (Vue 3)",
   "main": "main.js",
   "scripts": {
-    "migrate:vue3": "node scripts/migrate-vue3.js && node scripts/migrate-filters-usage.js",
     "postinstall": "patch-package && node scripts/patch-mqtt-abort.js",
     "test:mqtt-app-runtime": "node scripts/test-mqtt-app-runtime.js"
   },
@@ -12,7 +11,7 @@
     "type": "git",
     "url": "https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp"
   },
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@tencentcloud/chat": "^3.5.5",
     "hls.js": "^1.6.16",

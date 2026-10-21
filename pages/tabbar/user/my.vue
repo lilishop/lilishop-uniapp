@@ -181,7 +181,7 @@ body {
     background-size: cover;
     border-bottom-left-radius: 30rpx;
     border-bottom-right-radius: 30rpx;
-    background-image: url("/static/img/main-bg.png");
+    background-image: url("https://lilishop-uniapp.oss-cn-beijing.aliyuncs.com/main-bg.png");
     background-position: bottom;
     background-repeat: no-repeat;
     color: #ffffff;

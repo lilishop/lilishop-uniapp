@@ -1,55 +1,103 @@
 <template>
-  <div class="layout" v-if="list.length">
-    <div class="background">
-      <u-notice-bar
-        direction="column"
-        :bg-color="noticeStyle.bk_color"
-        :color="noticeStyle.color"
-        :text="list"
-      ></u-notice-bar>
-    </div>
-  </div>
+  <view class="layout" :class="{ styled: styled }" v-if="texts.length" :style="wrapperStyle">
+    <view class="notice-bar">
+      <image
+        v-if="styled && item.img"
+        class="notice-icon"
+        :src="item.img"
+        mode="aspectFit"
+      />
+      <view class="notice-body" :style="{ textAlign: alignValue }">
+        <u-notice-bar
+          :direction="directionValue"
+          :bg-color="styled ? 'transparent' : item.bk_color"
+          :color="item.color"
+          :text="texts"
+          @click="clickNotice"
+        ></u-notice-bar>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { modelNavigateTo } from "./tpl";
 
 const props = defineProps<{ res: any }>();
 
-const noticeStyle = computed(() => props.res?.list?.[0] || {});
+const item = computed(() => props.res?.list?.[0] || {});
 
-const list = computed(() => {
-  const titles = props.res?.list?.[0]?.title;
-  if (!Array.isArray(titles)) return [];
-  return titles
-    .map((item: { context?: string }) => (item?.context == null ? "" : String(item.context)))
-    .filter((text: string) => text.length > 0);
+// 面板保存过样式字段才启用自定义样式，老数据保持原样
+const styled = computed(() => props.res && props.res.paddingX !== undefined);
+
+const wrapperStyle = computed(() => {
+  const res = props.res || {};
+  if (!styled.value) return {};
+  const bg =
+    !res.bgColor2 || res.bgColor1 === res.bgColor2
+      ? res.bgColor1
+      : `linear-gradient(180deg, ${res.bgColor1}, ${res.bgColor2})`;
+  const radius = Number(res.borderRadius) || 0;
+  return {
+    padding: `${Number(res.paddingTop) || 0}rpx ${Number(res.paddingX) || 0}rpx ${Number(res.paddingBottom) || 0}rpx`,
+    background: bg,
+    borderRadius: `${radius}rpx`,
+    marginBottom: `${Number(res.pageGap) || 0}rpx`,
+    overflow: radius > 0 ? "hidden" : "visible",
+  };
 });
+
+const directionValue = computed(() =>
+  styled.value && item.value.direction === "horizontal" ? "row" : "column"
+);
+const alignValue = computed(() =>
+  styled.value ? item.value.textAlign || "left" : "left"
+);
+
+const titleList = computed(() => {
+  const titles = item.value?.title;
+  if (!Array.isArray(titles)) return [];
+  return titles.filter(
+    (t: any) => t && t.context != null && String(t.context).length > 0
+  );
+});
+
+const texts = computed(() =>
+  titleList.value.map((t: any) => String(t.context))
+);
+
+function clickNotice(index: number) {
+  const target = titleList.value[index];
+  if (target && target.url) {
+    modelNavigateTo(target);
+  }
+}
 </script>
 <style lang="scss" scoped>
-  @import "./tpl.scss";
-  .background {
-    position: absolute;
-    z-index: 2;
-    width: 100%;
-    height: 84rpx;
-    text-align: left;
-    font-size: 20rpx;
-    background-size: cover;
-  }
-  .layout {
-    text-align: center;
-    position: relative;
-    height: 84rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #ffffff;
-  }
-  .title {
-    line-height: 84rpx;
-    font-size: 20px;
-    font-weight: bold;
-  }
+@import "./tpl.scss";
+.layout {
+  display: flex;
+  align-items: center;
+  height: 84rpx;
+  background: #ffffff;
+}
+.layout.styled {
+  height: auto;
+}
+.notice-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.notice-icon {
+  width: 130rpx;
+  height: 36rpx;
+  flex-shrink: 0;
+  margin: 0 16rpx;
+}
+.notice-body {
+  flex: 1;
+  min-width: 0;
+}
 </style>

@@ -3,7 +3,9 @@ import App from './App'
 import uviewPlus, { setConfig } from 'uview-plus'
 import store from './store'
 import config from '@/config/config'
+// #ifdef H5
 import airBtn from '@/components/m-airbtn/index.vue'
+// #endif
 import mpShare from '@/utils/mpShare.js'
 import * as filterUtils from './utils/filters.js'
 import { getThemeStyle } from '@/utils/theme'
