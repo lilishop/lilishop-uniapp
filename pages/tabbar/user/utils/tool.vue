@@ -1,136 +1,116 @@
 <template>
-  <view>
-    <!-- 常用工具 -->
-    <view class="interact-tools" style="margin-bottom: 15px">
+  <view class="tool-wrapper">
+    <!-- 卡片 1: 资产与常用 -->
+    <view class="service-card">
+      <view class="service-title-bar">
+        <text class="service-title-text">资产与常用</text>
+      </view>
 
-      <div class="paddingBox">
-        <view class="interact-container">
-			<view class="interact-item" @click="navigateTo('/pages/mine/address/addressManage')">
-			  <image class="interact-item-icon" src="/static/mine/myaddress.png" mode=""></image>
-			  <view>地址管理</view>
-			</view>
-			
-			<view class="interact-item" @click="navigateTo('/pages/mine/myTracks')">
-			  <image class="interact-item-icon" src="/static/mine/logistics.png" mode=""></image>
-			  <view>我的足迹</view>
-			</view>
-		
-			<view class="interact-item" @click="navigateTo('/pages/order/evaluate/myEvaluate')">
-			  <image class="interact-item-icon" src="/static/mine/feedback.png" mode=""></image>
-			  <view>我的评价</view>
-			</view>
-			<view class="interact-item" @click="linkMsgDetail()">
-			  <image class="interact-item-icon" src="/static/mine/mycommit.png" mode=""></image>
-			  <view>我的消息</view>
-			</view>
-		
-		
-			<view class="interact-item" @click="navigateTo('/pages/mine/myCollect')">
-			  <image class="interact-item-icon" src="/static/mine/myfavorite.png" mode=""></image>
-			  <view>我的关注</view>
-			</view>
-			
-			
-			
-			<view class="interact-item" @click="navigateTo('/pages/mine/point/myPoint')">
-			  <image class="interact-item-icon" src="/static/mine/mypoint.png" mode=""></image>
-			  <view>我的积分</view>
-			</view>
-			
-			<view class="interact-item" @click="distribution">
-			  <image class="interact-item-icon" src="/static/mine/distribution.png" mode=""></image>
-			  <view>我的分销</view>
-			</view>
-			
-			
-			
-			<view class="interact-item" @click="navigateTo('/pages/order/complain/complainList')">
-			  <image class="interact-item-icon" src="/static/mine/shensu.png" mode=""></image>
-			  <view>我的投诉</view>
-			</view>
-				   
-			<view class="interact-item" @click="navigateTo('/pages/cart/coupon/myCoupon')">
-			  <image class="interact-item-icon" src="/static/mine/mycoupon.png" mode=""></image>
-			  <view>优惠券</view>
-			</view>
-			<view class="interact-item" @click="navigateTo('/pages/cart/gift-card/myGiftCards')">
-			  <image class="interact-item-icon" src="/static/mine/pointgift.png" mode=""></image>
-			  <view>礼品卡</view>
-			</view>
-			
-		
-			        
-					
-          <view class="interact-item" @click="navigateTo('/pages/mine/signIn')">
-            <image class="interact-item-icon" src="/static/mine/sign.png" mode=""></image>
-            <view>每日签到</view>
-          </view>
-         
-         
-       
-          
-
-      
-          <view class="interact-item" @click="navigateTo('/pages/cart/coupon/couponCenter')">
-            <image class="interact-item-icon" src="/static/mine/couponcenter.png" mode=""></image>
-            <view>领券中心</view>
-          </view>
-          
-         
-          
-          <view class="interact-item" @click="navigateTo('/pages/promotion/bargain/log')">
-            <image class="interact-item-icon" src="/static/mine/kanjia.png" mode=""></image>
-            <view>砍价记录</view>
-          </view>
-		  
-		
-		  
-          <view class="interact-item" @click="navigateTo('/pages/mine/set/feedBack')">
-            <image class="interact-item-icon" src="/static/mine/feedback.png" mode=""></image>
-            <view>意见反馈</view>
-          </view>
-          
-          <view class="interact-item" @click="navigateTo('/pages/mine/set/editionIntro')">
-            <image class="interact-item-icon" src="/static/mine/pointgift.png" mode=""></image>
-            <view>关于</view>
-          </view>
-          
-          <view class="interact-item" @click="navigateTo('/pages/passport/entry/seller/index')">
-            <image class="interact-item-icon" src="/static/mine/feedback.png" mode=""></image>
-            <view>店铺入驻</view>
-          </view>
-          
-          
-<!--          <view class="interact-item" @click="inviter()">-->
-<!--          	<image class="interact-item-icon" src="/static/mine/share.png" mode=""></image>-->
-<!--          	<view>邀新</view>-->
-<!--          </view>-->
-          <view class="interact-item" @click="navigateTo('/pages/mine/set/setUp')">
-            <image class="interact-item-icon" src="/static/mine/setting.png" mode=""></image>
-            <view>设置</view>
-          </view>
-        
-		  
+      <view class="service-grid">
+        <view class="service-grid-item" @click="navigateTo('/pages/cart/coupon/couponCenter')">
+          <image class="grid-icon" src="/static/mine/couponcenter.png" mode="aspectFit"></image>
+          <text class="grid-label">领券中心</text>
         </view>
-      </div>
-	  
-	  			<template>
-	  				<u-popup v-model:show="sharingShow" mode="bottom" border-radius="14">
-	  					<view style="margin: 10px; text-align: center;"> 请邀请用户扫描二维码或者将地址复制转发给其他用户 </view>
-	  					<view class='qrcode'>
-	  						<uqrcode v-if="sharingLink" ref="uqrcode" canvas-id="qrcode" :value="sharingLink" :options="{ margin: 10 }">
-	  						</uqrcode>
-	  					</view>
-	  
-						  <view class="copy-text" @click="getDetail(sharingLink)">
-							{{sharingLink}}
-						  </view>
-	  					<view class="confrim-btn">
-	  						<u-button @click="sharingShow = false;">关闭</u-button>
-	  					</view>
-	  				</u-popup>
-	  			</template>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/mine/point/myPoint')">
+          <image class="grid-icon" src="/static/mine/mypoint.png" mode="aspectFit"></image>
+          <text class="grid-label">我的积分</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/mine/signIn')">
+          <image class="grid-icon" src="/static/mine/sign.png" mode="aspectFit"></image>
+          <text class="grid-label">每日签到</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/cart/coupon/myCoupon')">
+          <image class="grid-icon" src="/static/mine/mycoupon.png" mode="aspectFit"></image>
+          <text class="grid-label">优惠券</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/mine/address/addressManage')">
+          <image class="grid-icon" src="/static/mine/myaddress.png" mode="aspectFit"></image>
+          <text class="grid-label">地址管理</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/mine/myTracks')">
+          <image class="grid-icon" src="/static/mine/logistics.png" mode="aspectFit"></image>
+          <text class="grid-label">我的足迹</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/mine/myCollect')">
+          <image class="grid-icon" src="/static/mine/myfavorite.png" mode="aspectFit"></image>
+          <text class="grid-label">我的关注</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/order/evaluate/myEvaluate')">
+          <image class="grid-icon" src="/static/mine/feedback.png" mode="aspectFit"></image>
+          <text class="grid-label">我的评价</text>
+        </view>
+      </view>
     </view>
+
+    <!-- 卡片 2: 更多服务 -->
+    <view class="service-card">
+      <view class="service-title-bar">
+        <text class="service-title-text">更多服务</text>
+      </view>
+
+      <view class="service-grid">
+        <view class="service-grid-item" @click="distribution">
+          <image class="grid-icon" src="/static/mine/distribution.png" mode="aspectFit"></image>
+          <text class="grid-label">我的分销</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/cart/gift-card/myGiftCards')">
+          <image class="grid-icon" src="/static/mine/pointgift.png" mode="aspectFit"></image>
+          <text class="grid-label">礼品卡</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/promotion/bargain/log')">
+          <image class="grid-icon" src="/static/mine/kanjia.png" mode="aspectFit"></image>
+          <text class="grid-label">砍价记录</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/passport/entry/seller/index')">
+          <image class="grid-icon" src="/static/mine/feedback.png" mode="aspectFit"></image>
+          <text class="grid-label">店铺入驻</text>
+        </view>
+
+        <view class="service-grid-item" @click="linkMsgDetail()">
+          <image class="grid-icon" src="/static/mine/mycommit.png" mode="aspectFit"></image>
+          <text class="grid-label">我的消息</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/order/complain/complainList')">
+          <image class="grid-icon" src="/static/mine/shensu.png" mode="aspectFit"></image>
+          <text class="grid-label">我的投诉</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/mine/set/feedBack')">
+          <image class="grid-icon" src="/static/mine/feedback.png" mode="aspectFit"></image>
+          <text class="grid-label">意见反馈</text>
+        </view>
+
+        <view class="service-grid-item" @click="navigateTo('/pages/mine/set/setUp')">
+          <image class="grid-icon" src="/static/mine/setting.png" mode="aspectFit"></image>
+          <text class="grid-label">系统设置</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 分享二维码弹窗（保留原有能力） -->
+    <u-popup v-model:show="sharingShow" mode="bottom" border-radius="14">
+      <view style="margin: 10px; text-align: center;">请邀请用户扫描二维码或者将地址复制转发给其他用户</view>
+      <view class="qrcode">
+        <uqrcode v-if="sharingLink" ref="uqrcode" canvas-id="qrcode" :value="sharingLink" :options="{ margin: 10 }"></uqrcode>
+      </view>
+      <view class="copy-text" @click="getDetail(sharingLink)">
+        {{ sharingLink }}
+      </view>
+      <view class="confrim-btn">
+        <u-button @click="sharingShow = false;">关闭</u-button>
+      </view>
+    </u-popup>
   </view>
 </template>
 
@@ -227,7 +207,6 @@ function distribution() {
   if (!tipsToLogin('normal')) {
     return
   }
-  // 入口按 distributionStatus 路由：有对象 ≠ 有效分销员。清退停住，不进 join / home。
   fetchDistribution().then((res) => {
     if (res.data.result) {
       const type = res.data.result.distributionStatus
@@ -264,6 +243,69 @@ function distribution() {
 </script>
 
 <style lang="scss" scoped>
+.tool-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+
+.service-card {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 24rpx 16rpx 20rpx;
+  box-shadow: 0 4rpx 18rpx rgba(17, 30, 79, 0.04);
+
+  .service-title-bar {
+    padding: 0 12rpx 20rpx;
+    border-bottom: 1rpx solid #f6f7fa;
+
+    .service-title-text {
+      font-size: 29rpx;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: 0.5rpx;
+    }
+  }
+
+  .service-grid {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-top: 14rpx;
+
+    .service-grid-item {
+      width: 25%;
+      flex: 0 0 25%;
+      box-sizing: border-box;
+      height: 146rpx;
+      padding: 12rpx 4rpx;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, opacity 0.15s;
+
+      &:active {
+        transform: scale(0.92);
+        opacity: 0.8;
+      }
+
+      .grid-icon {
+        width: 52rpx;
+        height: 52rpx;
+        margin-bottom: 12rpx;
+      }
+
+      .grid-label {
+        font-size: 24rpx;
+        color: #444444;
+        line-height: 1.2;
+      }
+    }
+  }
+}
+
 .copy-text {
   display: flex;
   align-items: center;
@@ -272,50 +314,8 @@ function distribution() {
   line-break: anywhere;
 }
 
-.interact-tools {
-	border-left: none;
-	border-right: none;
-
-
-	.interactBox {
-		height: 156rpx;
-	}
-
-	.interact-container {
-		margin: 0 20rpx;
-		background: #fff;
-		border-radius: 20rpx;
-		box-shadow: 0 4rpx 24rpx 0 rgba($color: #f6f6f6, $alpha: 1);
-
-		.interact-item-icon {
-			width: 56rpx;
-			height: 56rpx;
-			margin-bottom: 10rpx;
-		}
-
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
-		text-align: center;
-
-		.interact-item {
-			font-size: 24rpx;
-			width: 25%;
-			flex: 0 0 25%;
-			box-sizing: border-box;
-			height: 150rpx;
-			padding: 20rpx 8rpx;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			color: #666;
-		}
-	}
-}
-
 .qrcode {
-	margin: 0 auto;
-	width: 200px;
+  margin: 0 auto;
+  width: 200px;
 }
 </style>
