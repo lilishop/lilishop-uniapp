@@ -15,19 +15,12 @@ export const DEFAULT_CATEGORY_PAGE_SETTING = {
 const STORAGE_KEY = "category_page_setting";
 const EXPIRATION_KEY = "category_page_setting_expiration_time";
 
-/**
- * 归一化分类页设置。入参为 buyer 接口 result(Setting 实体或 null),
- * null / 解析失败 / 缺键 / template 非 1-4 一律回退默认值。
- */
-export function normalizeCategoryPageSetting(setting = null) {
-  const fallback = () => JSON.parse(JSON.stringify(DEFAULT_CATEGORY_PAGE_SETTING));
-  if (!setting || !setting.settingValue) return fallback();
-  let raw;
-  try {
-    raw = JSON.parse(setting.settingValue);
-  } catch {
-    return fallback();
-  }
+function fallback() {
+  return JSON.parse(JSON.stringify(DEFAULT_CATEGORY_PAGE_SETTING));
+}
+
+/** 对已解析的配置对象做字段级清洗(缺键补默认、非法值回退)。 */
+function sanitize(raw) {
   if (!raw || typeof raw !== "object") return fallback();
   const result = fallback();
   if ([1, 2, 3, 4].includes(raw.template)) {
@@ -43,6 +36,19 @@ export function normalizeCategoryPageSetting(setting = null) {
   return result;
 }
 
+/**
+ * 归一化分类页设置。入参为 buyer 接口 result(Setting 实体或 null),
+ * null / 解析失败 / 缺键 / template 非 1-4 一律回退默认值。
+ */
+export function normalizeCategoryPageSetting(setting = null) {
+  if (!setting || !setting.settingValue) return fallback();
+  try {
+    return sanitize(JSON.parse(setting.settingValue));
+  } catch {
+    return fallback();
+  }
+}
+
 export function cacheCategoryPageSetting(data) {
   const expirationTime = new Date().setHours(new Date().getHours() + 1);
   uni.setStorageSync(EXPIRATION_KEY, expirationTime);
@@ -55,7 +61,9 @@ export function loadCachedCategoryPageSetting() {
     expirationTime && new Date() <= new Date(Number(expirationTime));
   if (!cacheValid) return null;
   try {
-    return uni.getStorageSync(STORAGE_KEY) || null;
+    const cached = uni.getStorageSync(STORAGE_KEY);
+    // 缓存可能被篡改/来自旧版本,读出后同样过清洗
+    return cached ? sanitize(cached) : null;
   } catch {
     return null;
   }
