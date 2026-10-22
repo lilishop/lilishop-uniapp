@@ -6,7 +6,7 @@ export const DEFAULT_CATEGORY_PAGE_SETTING = {
     tags: true,
     selfTag: true,
     price: true,
-    linePrice: true,
+    linePrice: false,
     sales: true,
     cart: true,
   },

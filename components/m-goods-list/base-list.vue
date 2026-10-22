@@ -82,9 +82,6 @@
               </div>
             </view>
             <div class="promotion" @click="navigateToDetailPage(item)">
-              <div v-if="item.salesModel == 'WHOLESALE'">
-                <span>批</span>
-              </div>
               <div
                 v-for="(promotionItem, promotionIndex) in getPromotion(item)"
                 :key="promotionIndex"

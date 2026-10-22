@@ -21,9 +21,6 @@
 						</div>
 					</view>
 					<div class="promotion" @click="navigateToDetailPage(item)">
-						<div v-if="item.salesModel == 'WHOLESALE'">
-							<span class="promotion-tag">批</span>
-						</div>
 						<div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
 							<span class="promotion-tag" v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
 							<span class="promotion-tag" v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
@@ -46,18 +43,32 @@
 			</view>
 		</view>
 		<!-- 一行一列商品展示 -->
-		<div v-if="type == 'oneColumns'"  class="goods-one-row">
+		<div v-if="type == 'oneColumns'" class="goods-one-row" :class="{ 'goods-one-row--embedded': !tabBarGap }">
 			<div v-for="(item, index) in res" :key="index" class="goods-row">
 				<div class="flex goods-col">
 					<div class="goods-img" @click="navigateToDetailPage(item)">
-						<u-image width="230rpx" mode="aspectFit" border-radius='16' height="230rpx" :src="item.thumbnail">
+						<u-image :width="!tabBarGap ? '170rpx' : '230rpx'" mode="aspectFit" :border-radius="!tabBarGap ? '12' : '16'" :height="!tabBarGap ? '170rpx' : '230rpx'" :src="item.thumbnail">
 							<template #loading><u-loading-icon></u-loading-icon></template>
 						</u-image>
 					</div>
 					<div class="goods-detail">
-						<div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.goodsName }}</div>
+						<div class="title clamp2" @click="navigateToDetailPage(item)">
+							<text class="self-tag" v-if="(!storeName || flag('selfTag')) && item.selfOperated">自营</text>
+							{{ item.goodsName }}
+						</div>
 						<div class="selling-point" v-if="extra('subTitle') && item.sellingPoint">{{ item.sellingPoint }}</div>
 						<div class="spec-summary" v-if="extra('spec') && specSummary(item)">{{ specSummary(item) }}</div>
+						<div class="promotion" v-if="flag('tags')" @click="navigateToDetailPage(item)">
+							<div v-for="(promotionItem,promotionIndex) in getPromotion(item)" :key="promotionIndex">
+								<span class="promotion-tag" v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
+								<span class="promotion-tag" v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
+								<span class="promotion-tag" v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
+							</div>
+						</div>
+						<div style="overflow: hidden" v-if="flag('sales')" @click="navigateToDetailPage(item)" class="count-config">
+							<span style="float: left; font-size: 22rpx">已售 {{ item.buyCount || '0' }}</span>
+							<span style="float: right; font-size: 22rpx" v-if="item.commentNum">{{ item.commentNum }}条评论</span>
+						</div>
 						<view class="price-box" @click="navigateToDetailPage(item)">
 							<div class="price" v-if="flag('price') && item.price!=undefined">
 								¥<span class="price-int">{{ goodsFormatPrice(item.price )[0] }} </span>.{{
@@ -66,25 +77,11 @@
 							</div>
 							<div class="market-price" v-if="extra('linePrice') && hasMarketPrice(item)">¥{{ item.marketPrice }}</div>
 							<div class="cart-btn" v-if="extra('cart')" @click.stop="emit('addCart', item)">
-								<u-icon name="shopping-cart" size="20" color="#fff"></u-icon>
+								<u-icon name="shopping-cart" size="16" :color="mainColor"></u-icon>
 							</div>
 						</view>
-						<div class="promotion" v-if="flag('tags')" @click="navigateToDetailPage(item)">
-							<div v-if="item.salesModel == 'WHOLESALE'">
-								<span class="promotion-tag">批</span>
-							</div>
-							<div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
-								<span class="promotion-tag" v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
-								<span class="promotion-tag" v-if="promotionItem.indexOf('FULL_DISCOUNT') != -1">满减</span>
-								<span class="promotion-tag" v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
-							</div>
-						</div>
-						<div style="overflow: hidden" v-if="flag('sales')" @click="navigateToDetailPage(item)" class="count-config">
-							<span style="float: left; font-size: 22rpx">已售 {{ item.buyCount || '0' }}</span>
-							<span style="float: right; font-size: 22rpx">{{ item.commentNum || '0' }}条评论</span>
-						</div>
-						<div class="store-seller-name" @click="navigateToStoreDetailPage(item)">
-							<view class="store-name-row" v-if="storeName">
+						<div class="store-seller-name" v-if="storeName" @click="navigateToStoreDetailPage(item)">
+							<view class="store-name-row">
 								<text class="self-tag" v-if="item.selfOperated && flag('selfTag')">自营</text>
 								<text class="store-name-text">{{ item.storeName }}</text>
 								<text class="to-store">进店</text>
@@ -93,17 +90,19 @@
 						</div>
 					</div>
 				</div>
-
 			</div>
 		</div>
-
 	</view>
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
+import { useStore } from '@/store'
 import { useGoodsListCommon } from './common'
 import { goodsFormatPrice } from '@/utils/filters.js'
+
+const store = useStore()
+const mainColor = computed(() => (store && store.getters && store.getters.mainColor) || '#ff3c2a')
 
 const { lightSearchStr, getPromotion, navigateToDetailPage, navigateToStoreDetailPage } = useGoodsListCommon()
 
@@ -238,6 +237,128 @@ watch(() => props.keyword, (val) => {
 			}
 		}
 
+		.goods-one-row--embedded {
+			.goods-row {
+				padding: 20rpx 16rpx;
+				border-bottom: 1rpx solid #f6f6f6;
+				background: #ffffff;
+
+				>.goods-col {
+					display: flex;
+					align-items: stretch;
+
+					>.goods-img {
+						flex: 0 0 170rpx;
+						width: 170rpx;
+						height: 170rpx;
+						border-radius: 12rpx;
+						overflow: hidden;
+						background: #f8f8f8;
+					}
+
+					>.goods-detail {
+						flex: 1;
+						min-width: 0;
+						margin: 0 0 0 16rpx;
+						display: flex;
+						flex-direction: column;
+						justify-content: space-between;
+
+						>.title {
+							font-size: 26rpx;
+							color: #222;
+							line-height: 1.4;
+							max-height: 74rpx;
+							padding: 0;
+							display: -webkit-box;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 2;
+							overflow: hidden;
+							text-overflow: ellipsis;
+
+							.self-tag {
+								display: inline-block;
+								margin-right: 8rpx;
+								padding: 1rpx 8rpx;
+								border-radius: 6rpx;
+								background: $main-color;
+								color: #fff;
+								font-size: 20rpx;
+								line-height: 1.4;
+								vertical-align: middle;
+							}
+						}
+
+						.selling-point {
+							font-size: 22rpx;
+							color: #999;
+							line-height: 1.3;
+							margin-top: 4rpx;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+
+						.spec-summary {
+							font-size: 22rpx;
+							color: #999;
+							line-height: 1.3;
+							margin-top: 2rpx;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+
+						.count-config {
+							font-size: 22rpx;
+							color: #999;
+							margin-top: 4rpx;
+						}
+
+						.price-box {
+							display: flex;
+							align-items: flex-end;
+							justify-content: space-between;
+							margin-top: auto;
+							padding-top: 8rpx;
+
+							.price {
+								font-size: 22rpx;
+								color: $main-color;
+								font-weight: 500;
+								line-height: 1;
+
+								.price-int {
+									font-size: 34rpx;
+									font-weight: bold;
+								}
+							}
+
+							.market-price {
+								font-size: 22rpx;
+								color: #bbb;
+								text-decoration: line-through;
+								margin-left: 8rpx;
+							}
+
+							.cart-btn {
+								width: 48rpx;
+								height: 48rpx;
+								border-radius: 50%;
+								background: #ffffff;
+								border: 2rpx solid $main-color;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								box-sizing: border-box;
+								box-shadow: 0 2rpx 8rpx rgba(255, 60, 42, 0.12);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		.goods-row {
 			background: #fff;
 			padding: 16rpx;
@@ -299,14 +420,17 @@ watch(() => props.keyword, (val) => {
 		}
 
 		.cart-btn {
-			width: 44rpx;
-			height: 44rpx;
+			width: 48rpx;
+			height: 48rpx;
 			border-radius: 50%;
-			background: $main-color;
+			background: #ffffff;
+			border: 2rpx solid $main-color;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			flex-shrink: 0;
+			box-sizing: border-box;
+			box-shadow: 0 2rpx 8rpx rgba(255, 60, 42, 0.12);
 		}
 
 		.promotion {

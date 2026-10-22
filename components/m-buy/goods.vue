@@ -27,18 +27,7 @@
 						</view>
 						<!-- 正常商品的价格 -->
 						<view v-else>
-							<!-- 批发阶梯价（E_COUPON 仅零售价） -->
-							<div class="price-row flex" v-if="goodsDetail.salesModel === 'WHOLESALE' && !isECoupon(goodsDetail.goodsType)">
-								<div class="goods-price" v-for="(item, index) in wholesaleList" :key="index">
-									<span>
-										￥
-										<span class="goods-price-bigshow">{{ goodsFormatPrice(item.price)[0] }}</span>
-										.{{ goodsFormatPrice(item.price)[1] }}
-									</span>
-									<span class="wholesale-item">{{ item.num }}{{ goodsDetail.goodsUnit }}</span>
-								</div>
-							</div>
-							<div class="goods-price" v-else>
+							<div class="goods-price">
 								<span>
 									￥
 									<span class="goods-price-bigshow">{{ goodsFormatPrice(goodsDetail.price)[0] }}</span>
@@ -135,7 +124,6 @@ import {
 } from '@/utils/goodsType.js'
 
 const props = withDefaults(defineProps<{
-	wholesaleList?: any[] | boolean
 	buyMask?: boolean
 	isGroup?: boolean
 	goodsDetail?: any
@@ -144,7 +132,6 @@ const props = withDefaults(defineProps<{
 	addr?: any | null
 	pointDetail?: any | null
 }>(), {
-	wholesaleList: false,
 	buyMask: false,
 	isGroup: false,
 	goodsDetail: () => ({}),
@@ -156,7 +143,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits(['closeBuy', 'changed', 'handleClickSku', 'queryCart'])
 
-const num = ref(props.wholesaleList && Array.isArray(props.wholesaleList) && props.wholesaleList.length > 0 ? props.wholesaleList[0].num : 1)
+const num = ref(1)
 
 const selectName = ref('')
 const selectSkuList = ref<any>('')
@@ -231,18 +218,7 @@ watch(
 	}
 )
 
-const numCheck = (val: number) => {
-	if (Array.isArray(props.wholesaleList) && props.wholesaleList.length > 0) {
-		if (num.value <= props.wholesaleList[0].num) {
-			uni.showToast({
-				title: '批发商品购买数量不能小于起批数量!',
-				duration: 2000,
-				icon: 'none'
-			})
-			num.value = props.wholesaleList[0].num
-		}
-	}
-}
+
 
 const closeMask = () => {
 	emit('closeBuy', false)
@@ -541,13 +517,6 @@ defineExpose({
 	}
 }
 
-.wholesale-item {
-	color: #999 !important;
-	font-size: 24rpx;
-	margin: 0 20rpx;
-	display: flex;
-	justify-content: center;
-}
 
 .goods-header {
 	height: 200rpx;

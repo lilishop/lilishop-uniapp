@@ -101,20 +101,7 @@
                   <view class="-goods-price" v-if="goodsDetail.price != undefined">
 
                     <span>
-                      <span v-if="wholesaleList.length">
-                        <span>¥</span><span class="price">{{
-                          goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[0]
-                        }}</span>.{{
-                          goodsFormatPrice(wholesaleList[wholesaleList.length - 1].price)[1]
-                        }}
-                        ~
-                        <span>¥</span><span class="price">{{
-                          goodsFormatPrice(wholesaleList[0].price)[0]
-                        }}</span>.{{
-                          goodsFormatPrice(wholesaleList[0].price)[1]
-                        }}
-                      </span>
-                      <span v-else>
+                      <span>
                         <span>¥</span><span class="price">{{
                           goodsFormatPrice(goodsDetail.price)[0]
                         }}</span>.{{ goodsFormatPrice(goodsDetail.price)[1] }}
@@ -291,7 +278,7 @@
       <!-- 商品规格  商品详情，以及默认参与活动的id-->
       <popupGoods :addr="delivery" ref="popupGoodsRef" @changed="changedGoods" @closeBuy="closePopupBuy"
         @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :isGroup="isGroup" :id="productId"
-        v-if="goodsDetail.id" :pointDetail="pointDetail" :wholesaleList="wholesaleList" @handleClickSku="selectSku"
+        v-if="goodsDetail.id" :pointDetail="pointDetail" @handleClickSku="selectSku"
         :buyMask="buyMask" />
 
       <!-- 下架框 -->
@@ -391,7 +378,6 @@ const productId = ref(0)
 const startTimer = ref(false)
 const routerVal = ref<any>("")
 const IMLink = ref("")
-const wholesaleList = ref<any[]>([])
 const takeDownFromSale = ref(false)
 
 // computed
@@ -520,7 +506,6 @@ async function init(id: any, goodsId: any, distributionId = "", shareId = "") {
   if (goodsDetail.value) {
     goodsDetail.value.thumbnail = parseGoodsImageUrl(goodsDetail.value.thumbnail)
   }
-  wholesaleList.value = response.data.result.wholesaleList || []
   goodsSpec.value = response.data.result.specs || ""
   PromotionList.value = response.data.result.promotionMap || ""
   goodsParams.value = response.data.result.goodsParamsDTOList || []

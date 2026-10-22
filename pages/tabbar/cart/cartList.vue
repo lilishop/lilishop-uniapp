@@ -68,7 +68,6 @@
               </p>
               <!-- 规格 -->
               <p class="sp-type" style="width:300rpx">{{skuItem.goodsSku.simpleSpecs}}</p>
-              <p class="sp-type" v-if="skuItem.goodsSku.salesModel == 'WHOLESALE'">批发商品</p>
               <view class="sp-number">
                 <view class="sp-price">
                   <div class="main-color">

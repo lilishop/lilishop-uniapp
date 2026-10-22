@@ -11,43 +11,51 @@
       bg-color="#ffffff"
     >
       <template #left>
-        <view class="nav-content">
-          <text class="title">商品分类</text>
-          <view class="nav-search-wrap" :style="searchBarStyle">
-            <!-- #ifdef H5 -->
-            <u-search class="nav-search" @click="search" placeholder="搜索商品" :show-action="false"></u-search>
-            <!-- #endif -->
-            <!-- #ifndef H5 -->
-            <u-search class="nav-search" disabled @click="search" placeholder="搜索商品" :show-action="false"></u-search>
-            <!-- #endif -->
-          </view>
+        <view class="nav-search-box" :style="searchBarStyle" @click="search">
+          <u-icon name="search" size="16" color="#999999"></u-icon>
+          <text class="search-placeholder">搜索商品</text>
         </view>
       </template>
     </u-navbar>
     <view class="content" v-if="pageTemplate === 1">
       <scroll-view scroll-y scroll-with-animation class="left-aside">
-        <view v-for="(item, index) in tabList" :key="item.id" class="f-item b-b" :class="{ active: item.id === currentId }" @click="tabtap(item, index)">
-          {{ item.name }}
+        <view
+          v-for="(item, index) in tabList"
+          :key="item.id"
+          class="f-item"
+          :class="{ active: item.id === currentId }"
+          @click="tabtap(item, index)"
+        >
+          <text class="f-text">{{ item.name }}</text>
         </view>
       </scroll-view>
       <scroll-view scroll-with-animation scroll-y class="right-aside" :upper-threshold="-100" :lower-threshold="-100">
         <!-- 头部图片 -->
-        <view class="top-img" id="main-top">
-          <u-image width="500rpx" height="230rpx" @click="navigateToList(topImg.id,topImg.id)" :src="topImg.image" mode="">
+        <view class="top-img" id="main-top" v-if="topImg && topImg.image">
+          <u-image width="100%" height="200rpx" border-radius="12rpx" @click="navigateToList(topImg.id, topImg.id)" :src="topImg.image" mode="aspectFill">
           </u-image>
         </view>
         <view v-for="item in categoryList" :key="item.id" class="s-list" :id="'main-' + item.id">
           <!-- 分类标题 -->
-          <text class="s-item">{{ item.name }}</text>
+          <view class="s-header" @click="navigateToList(item.id, item.id)">
+            <text class="s-item">{{ item.name }}</text>
+            <u-icon name="arrow-right" size="12" color="#bbbbbb"></u-icon>
+          </view>
           <!-- 分类详情 -->
           <view class="t-list">
             <template v-for="(children, cIndex) in item.children" :key="children.id">
-            <view @click="navigateToList(item.id, children.id)" v-if="children.parentId === item.id" class="t-item"
-              :class="{ 'margin-right': (cIndex + 1) % 3 == 0 }">
-              <u-image width="70px" height="70px" :src="children.image" :lazy-load="true">
-              </u-image>
-              <text>{{ children.name }}</text>
-            </view>
+              <view
+                @click="navigateToList(item.id, children.id)"
+                v-if="children.parentId === item.id"
+                class="t-item"
+              >
+                <view class="t-img-box">
+                  <u-image width="128rpx" height="128rpx" border-radius="12rpx" :src="children.image" :lazy-load="true" mode="aspectFit">
+                    <template #loading><u-loading-icon></u-loading-icon></template>
+                  </u-image>
+                </view>
+                <text class="t-name">{{ children.name }}</text>
+              </view>
             </template>
           </view>
         </view>
@@ -55,6 +63,7 @@
     </view>
     <tpl-category-goods
       v-else
+      class="tpl-goods-wrapper"
       :category-list="tabList"
       :setting="categoryPageSetting"
       :template="pageTemplate"
@@ -88,9 +97,9 @@ const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
 const searchBarStyle = computed(() => {
   if (searchBarWidth.value) {
-    return { width: `${searchBarWidth.value}px` }
+    return { width: searchBarWidth.value + 'px' }
   }
-  return { width: "460rpx" }
+  return { width: "680rpx" }
 })
 
 onLoad(() => {
@@ -111,18 +120,25 @@ function setSearchBarWidth() {
   // #ifdef MP-WEIXIN
   try {
     const menuButton = uni.getMenuButtonBoundingClientRect()
-    const { windowWidth } = uni.getWindowInfo()
-    const capsuleInsetRight = windowWidth - menuButton.left
-    const titleWidth = uni.upx2px(160) // "商品分类" 标题宽度
-    const leftPadding = uni.upx2px(60) // 左侧内边距
+    const leftMargin = uni.upx2px(24) // 搜索框左边距
     const gap = uni.upx2px(20) // 搜索框与胶囊间距
-    searchBarWidth.value =
-      windowWidth - capsuleInsetRight - titleWidth - leftPadding - gap
+    // 搜索框延伸至胶囊左边沿
+    const calcWidth = menuButton.left - leftMargin - gap
+    searchBarWidth.value = Math.max(calcWidth, 200)
   } catch (e) {
-    searchBarWidth.value = 180
+    searchBarWidth.value = 240
+  }
+  // #endif
+  // #ifndef MP-WEIXIN
+  try {
+    const info = (uni.getWindowInfo ? uni.getWindowInfo() : (uni.getSystemInfoSync ? uni.getSystemInfoSync() : {})); const windowWidth = info.windowWidth || 375;
+    searchBarWidth.value = windowWidth - uni.upx2px(48)
+  } catch (e) {
+    searchBarWidth.value = 340
   }
   // #endif
 }
+
 /**
  * 查询
  */
@@ -138,8 +154,10 @@ function search() {
 async function loadData() {
   let list = await getCategoryList(0)
   tabList.value = list.data.result
-  currentId.value = list.data.result[0].id
-  loadListContent(0)
+  if (tabList.value && tabList.value.length) {
+    currentId.value = tabList.value[0].id
+    loadListContent(0)
+  }
 }
 
 /**
@@ -149,6 +167,7 @@ function loadListContent(index: number) {
   topImg.value = tabList.value[index]
   categoryList.value = tabList.value[index].children
 }
+
 /**
  * 一级分类点击
  */
@@ -161,7 +180,7 @@ function tabtap(item: any, i: number) {
 
 function navigateToList(sid: any, tid: any) {
   uni.navigateTo({
-    url: `/pages/navigation/search/searchPage?category=${tid}`,
+    url: '/pages/navigation/search/searchPage?category=' + tid,
   })
 }
 </script>
@@ -169,7 +188,7 @@ function navigateToList(sid: any, tid: any) {
 <style lang="scss">
 page {
   height: 100%;
-  background-color: #fdfaff;
+  background-color: #ffffff;
 }
 </style>
 
@@ -183,36 +202,42 @@ page {
 /* 解决H5 的问题 */
 /* #ifdef H5 */
 uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
-  /* 隐藏滚动条，但依旧具备可以滚动的功能 */
   display: none;
 }
 /* #endif */
-.s-list {
-  box-shadow: 0 4rpx 12rpx 0 rgba(0, 0, 0, 0.05);
-}
-.nav-content {
-  display: flex;
-  align-items: center;
-}
-.nav-search-wrap {
-  flex-shrink: 0;
-}
-.nav-search {
-  width: 100%;
-}
-.title {
-  flex-shrink: 0;
-  text-align: center;
-  font-size: 28rpx;
-  padding-right: 16rpx;
-  white-space: nowrap;
-}
+
 .category-wrap {
-  height: 100vh;
+  height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
+  background-color: #ffffff;
+
+  .navbar {
+    border-bottom: 1rpx solid #f2f3f5;
+  }
+
+  .nav-search-box {
+    height: 64rpx;
+    background: #f4f5f7;
+    border-radius: 32rpx;
+    display: flex;
+    align-items: center;
+    padding: 0 24rpx;
+    margin-left: 24rpx;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  .search-placeholder {
+    font-size: 26rpx;
+    color: #999999;
+    margin-left: 12rpx;
+    line-height: 1;
+  }
+
   .content {
     flex: 1;
     min-height: 0;
@@ -220,85 +245,159 @@ uni-scroll-view .uni-scroll-view::-webkit-scrollbar {
     display: flex;
     color: #333;
     font-size: 28rpx;
-    background: #fff;
+    background: #ffffff;
     overflow: hidden;
   }
+
   .left-aside {
     flex-shrink: 0;
-    width: 200rpx;
+    width: 176rpx;
     height: 100%;
-    background-color: #f7f7f7;
+    background-color: #f6f7f9;
+    border-right: 1rpx solid #ebebeb;
     box-sizing: border-box;
   }
+
   .f-item {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 97rpx;
+    min-height: 96rpx;
+    padding: 16rpx 14rpx;
+    box-sizing: border-box;
+    font-size: 26rpx;
+    color: #666;
+    text-align: center;
+    line-height: 1.35;
     position: relative;
+    transition: all 0.2s ease;
+
     &.active {
-      font-weight: bold;
+      font-weight: 600;
       color: $light-color;
-      background: #fff;
+      background: #ffffff;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6rpx;
+        height: 36rpx;
+        border-radius: 0 4rpx 4rpx 0;
+        background: $light-color;
+      }
     }
   }
+
+  .f-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .right-aside {
     flex: 1;
     height: 100%;
     min-height: 0;
     overflow: hidden;
-    padding: 40rpx 0 0 30rpx;
+    padding: 20rpx 20rpx 40rpx;
     box-sizing: border-box;
+    background: #f8f9fa;
   }
 
   .top-img {
-    width: 500rpx;
-    height: 230rpx;
-    border-radius: 8px;
+    width: 100%;
+    height: 200rpx;
+    border-radius: 14rpx;
     overflow: hidden;
-    image {
-      width: 100%;
-      height: 100%;
-    }
+    margin-bottom: 20rpx;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
   }
-  .s-item {
+
+  .s-list {
+    background: #ffffff;
+    border-radius: 16rpx;
+    padding: 24rpx 20rpx 12rpx;
+    margin-bottom: 20rpx;
+    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.02);
+  }
+
+  .s-header {
     display: flex;
     align-items: center;
-    height: 70rpx;
-    padding-top: 16rpx;
-    font-weight: 500;
+    justify-content: space-between;
+    padding-bottom: 16rpx;
+    cursor: pointer;
   }
+
+  .s-item {
+    font-size: 26rpx;
+    font-weight: 600;
+    color: #222;
+  }
+
   .t-list {
     display: flex;
     flex-wrap: wrap;
     width: 100%;
-    padding-top: 12rpx;
   }
-  .margin-right {
-    margin-right: 0 !important;
-  }
+
   .t-item {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    width: 150rpx;
-    margin-right: 25rpx;
+    width: 33.333%;
+    padding: 10rpx 0 20rpx;
+    box-sizing: border-box;
+  }
+
+  .t-img-box {
+    width: 128rpx;
+    height: 128rpx;
+    border-radius: 12rpx;
+    overflow: hidden;
+    background: #f9f9f9;
+    margin-bottom: 12rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .t-name {
     font-size: 24rpx;
-    padding-bottom: 20rpx;
-    image {
-      width: 140rpx;
-      height: 140rpx;
-      border-radius: 8px;
-      margin-bottom: 20rpx;
-    }
-    ::v-deep .u-image {
-      width: 140rpx !important;
-      height: 140rpx !important;
-      border-radius: 8px !important;
-      margin-bottom: 20rpx !important;
-    }
+    color: #333;
+    max-width: 140rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.2;
   }
 }
+
+.tpl-goods-wrapper {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* #ifdef MP-WEIXIN || MP-ALIPAY || MP-BAIDU || MP-TOUTIAO || MP-QQ */
+tpl-category-goods {
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* #endif */
 </style>

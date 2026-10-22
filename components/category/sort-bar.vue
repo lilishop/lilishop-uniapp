@@ -5,31 +5,31 @@
       :class="{ active: sort === 'releaseTime' }"
       @click="onClick('releaseTime')"
     >
-      综合
+      <text class="sort-label">综合</text>
     </view>
     <view
       class="sort-item"
       :class="{ active: sort === 'buyCount' }"
       @click="onClick('buyCount')"
     >
-      销量
+      <text class="sort-label">销量</text>
     </view>
     <view
       class="sort-item"
       :class="{ active: sort === 'price' }"
       @click="onClick('price')"
     >
-      <text>价格</text>
+      <text class="sort-label">价格</text>
       <view class="arrows">
         <u-icon
-          name="arrow-up"
-          size="10"
-          :color="sort === 'price' && order === 'asc' ? '#ff6700' : '#c5c5c5'"
+          name="arrow-up-fill"
+          size="7"
+          :color="sort === 'price' && order === 'asc' ? '#ff6700' : '#bbbbbb'"
         ></u-icon>
         <u-icon
-          name="arrow-down"
-          size="10"
-          :color="sort === 'price' && order === 'desc' ? '#ff6700' : '#c5c5c5'"
+          name="arrow-down-fill"
+          size="7"
+          :color="sort === 'price' && order === 'desc' ? '#ff6700' : '#bbbbbb'"
         ></u-icon>
       </view>
     </view>
@@ -60,24 +60,35 @@ function onClick(type: string) {
 .sort-bar {
   display: flex;
   align-items: center;
-  height: 72rpx;
-  background: #fff;
+  height: 68rpx;
+  background: #ffffff;
   padding: 0 20rpx;
+  border-bottom: 1rpx solid #f6f6f6;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 .sort-item {
   display: flex;
   align-items: center;
-  margin-right: 40rpx;
+  margin-right: 44rpx;
   font-size: 26rpx;
-  color: #333;
+  color: #666;
+  height: 100%;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
   &.active {
     color: $light-color;
-    font-weight: bold;
+    font-weight: 600;
   }
+}
+.sort-label {
+  font-size: 26rpx;
 }
 .arrows {
   display: flex;
   flex-direction: column;
-  margin-left: 6rpx;
+  margin-left: 8rpx;
+  gap: 2rpx;
 }
 </style>

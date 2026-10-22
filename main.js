@@ -39,6 +39,7 @@ export function createApp() {
   setConfig({
     config: {
       loadFontOnce: true,
+      iconUrl: 'https://lilishop-uniapp.oss-cn-beijing.aliyuncs.com/font_2225171_8kdcwk4po24.ttf',
     },
     props: {
       form: {

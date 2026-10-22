@@ -8,13 +8,6 @@
       mode="icon"
       @change="onL1Change"
     />
-    <!-- 模板2:三级分类标签横滑 -->
-    <sub-tag-bar
-      v-if="template === 2 && l3List.length"
-      :list="l3List"
-      :current-id="currentL3 && currentL3.id"
-      @change="onL3Change"
-    />
     <view class="tpl-main">
       <!-- 左侧:模板2/3 为二级分类,模板4 为一级分类 -->
       <category-side-list
@@ -23,6 +16,13 @@
         @change="onSideChange"
       />
       <view class="tpl-right">
+        <!-- 模板2:三级分类标签横滑 (置于右栏顶部) -->
+        <sub-tag-bar
+          v-if="template === 2 && l3List.length"
+          :list="l3List"
+          :current-id="currentL3 && currentL3.id"
+          @change="onL3Change"
+        />
         <!-- 模板4:右上二级分类文字横滑(起点为当前一级名称,作为"全部"入口) -->
         <category-scroller
           v-if="template === 4"
@@ -39,15 +39,24 @@
             type="oneColumns"
             :show-fields="setting.showFields"
             :tab-bar-gap="false"
+            :store-name="false"
             @add-cart="onAddCart"
           />
-          <view v-else-if="!loading" class="empty">
-            <text>{{ failed ? '加载失败,请点击重试' : '暂无商品' }}</text>
-            <view v-if="failed" class="retry" @click="loadGoods(true)">重试</view>
+          <view v-else-if="!loading" class="empty-state">
+            <u-empty
+              :text="failed ? '加载失败，请重试' : '暂无相关商品'"
+              mode="data"
+              icon="http://cdn.uviewui.com/uview/empty/data.png"
+              margin-top="100"
+            >
+              <view v-if="failed" class="retry" @click="loadGoods(true)">重试</view>
+            </u-empty>
           </view>
           <uni-load-more
-            v-if="goodsList.length"
+            v-if="showLoadMore"
             :status="loading ? 'loading' : hasMore ? 'more' : 'noMore'"
+            :color="'#bfbfbf'"
+            :content-text="loadMoreText"
           ></uni-load-more>
         </scroll-view>
       </view>
@@ -63,6 +72,13 @@ import CategorySideList from './category-side-list.vue'
 import SubTagBar from './sub-tag-bar.vue'
 import SortBar from './sort-bar.vue'
 import MGoodsList from '@/components/m-goods-list/list.vue'
+
+defineOptions({
+  options: {
+    virtualHost: true,
+    addGlobalClass: true,
+  },
+})
 
 const props = withDefaults(defineProps<{
   categoryList?: any[]
@@ -85,6 +101,20 @@ const pageNumber = ref(1)
 const hasMore = ref(true)
 const loading = ref(false)
 const failed = ref(false)
+
+const loadMoreText = {
+  contentdown: '上拉加载更多',
+  contentrefresh: '正在加载...',
+  contentnomore: '—— 到底啦 ——',
+}
+
+// 仅在正在加载、或者有下一页、或者商品总数达到 6 件以上触底时才展示底线，避免少量商品（如1~2件）时在空白区域突兀展示
+const showLoadMore = computed(() => {
+  if (!goodsList.value.length) return false
+  if (loading.value) return true
+  if (hasMore.value) return true
+  return goodsList.value.length >= 6
+})
 
 // 模板2/3:左侧为当前一级的二级分类;模板4:左侧为一级分类
 const sideList = computed(() =>
@@ -212,7 +242,7 @@ function loadMore() {
 
 function onAddCart(item: any) {
   uni.navigateTo({
-    url: `/pages/product/goods?id=${item.id}&goodsId=${item.goodsId}`,
+    url: '/pages/product/goods?id=' + item.id + '&goodsId=' + item.goodsId,
   })
 }
 </script>
@@ -221,40 +251,47 @@ function onAddCart(item: any) {
 .tpl-goods {
   flex: 1;
   min-height: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: #ffffff;
+  overflow: hidden;
 }
 .tpl-main {
   flex: 1;
   min-height: 0;
+  height: 0;
   display: flex;
+  overflow: hidden;
 }
 .tpl-right {
   flex: 1;
   min-width: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  background: #ffffff;
 }
 .goods-scroll {
   flex: 1;
   min-height: 0;
   height: 0;
 }
-.empty {
-  padding: 120rpx 0;
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #999;
-  font-size: 26rpx;
+  justify-content: center;
+  padding: 60rpx 0 100rpx;
 }
 .retry {
-  margin-top: 20rpx;
-  padding: 10rpx 48rpx;
+  margin-top: 24rpx;
+  padding: 12rpx 50rpx;
   border: 1rpx solid $light-color;
   color: $light-color;
-  border-radius: 32rpx;
+  border-radius: 36rpx;
   font-size: 24rpx;
+  font-weight: 500;
 }
 </style>

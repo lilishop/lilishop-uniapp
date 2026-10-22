@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
 defineEmits(['change'])
 
 const intoView = computed(() =>
-  props.currentId != null ? `tb-${props.currentId}` : ''
+  props.currentId != null ? 'tb-' + props.currentId : ''
 )
 </script>
 
@@ -35,21 +35,27 @@ const intoView = computed(() =>
 .tag-bar {
   white-space: nowrap;
   width: 100%;
-  background: #fff;
-  padding: 8rpx 0;
+  background: #ffffff;
+  padding: 12rpx 16rpx 10rpx;
+  border-bottom: 1rpx solid #f6f6f6;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 .tag-item {
   display: inline-block;
-  padding: 8rpx 24rpx;
+  padding: 6rpx 22rpx;
   margin-right: 12rpx;
   font-size: 24rpx;
-  color: #333;
-  background: #f5f5f5;
+  color: #666;
+  background: #f5f6f8;
   border-radius: 24rpx;
+  line-height: 1.35;
+  transition: all 0.2s ease;
+
   &.active {
-    color: #fff;
+    color: #ffffff;
     background: $light-color;
-    font-weight: bold;
+    font-weight: 500;
   }
 }
 </style>
