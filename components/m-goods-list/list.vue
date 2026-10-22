@@ -56,14 +56,20 @@
 					</div>
 					<div class="goods-detail">
 						<div class="title clamp3" @click="navigateToDetailPage(item)">{{ item.goodsName }}</div>
+						<div class="selling-point" v-if="extra('subTitle') && item.sellingPoint">{{ item.sellingPoint }}</div>
+						<div class="spec-summary" v-if="extra('spec') && specSummary(item)">{{ specSummary(item) }}</div>
 						<view class="price-box" @click="navigateToDetailPage(item)">
-							<div class="price" v-if="item.price!=undefined">
+							<div class="price" v-if="flag('price') && item.price!=undefined">
 								¥<span class="price-int">{{ goodsFormatPrice(item.price )[0] }} </span>.{{
 			            goodsFormatPrice(item.price )[1]
 			          }}
 							</div>
+							<div class="market-price" v-if="extra('linePrice') && hasMarketPrice(item)">¥{{ item.marketPrice }}</div>
+							<div class="cart-btn" v-if="extra('cart')" @click.stop="emit('addCart', item)">
+								<u-icon name="shopping-cart" size="20" color="#fff"></u-icon>
+							</div>
 						</view>
-						<div class="promotion" @click="navigateToDetailPage(item)">
+						<div class="promotion" v-if="flag('tags')" @click="navigateToDetailPage(item)">
 							<div v-if="item.salesModel == 'WHOLESALE'">
 								<span class="promotion-tag">批</span>
 							</div>
@@ -73,13 +79,13 @@
 								<span class="promotion-tag" v-if="promotionItem.indexOf('SECKILL') != -1">秒杀</span>
 							</div>
 						</div>
-						<div style="overflow: hidden" @click="navigateToDetailPage(item)" class="count-config">
+						<div style="overflow: hidden" v-if="flag('sales')" @click="navigateToDetailPage(item)" class="count-config">
 							<span style="float: left; font-size: 22rpx">已售 {{ item.buyCount || '0' }}</span>
 							<span style="float: right; font-size: 22rpx">{{ item.commentNum || '0' }}条评论</span>
 						</div>
 						<div class="store-seller-name" @click="navigateToStoreDetailPage(item)">
 							<view class="store-name-row" v-if="storeName">
-								<text class="self-tag" v-if="item.selfOperated">自营</text>
+								<text class="self-tag" v-if="item.selfOperated && flag('selfTag')">自营</text>
 								<text class="store-name-text">{{ item.storeName }}</text>
 								<text class="to-store">进店</text>
 							</view>
@@ -107,13 +113,28 @@ const props = withDefaults(defineProps<{
 	storeName?: boolean
 	tabBarGap?: boolean
 	keyword?: string | null
+	showFields?: Record<string, boolean> | null
 }>(), {
 	res: () => [],
 	type: 'twoColumns',
 	storeName: true,
 	tabBarGap: true,
-	keyword: ''
+	keyword: '',
+	showFields: null
 })
+
+const emit = defineEmits(['addCart'])
+
+// 存量字段(促销/销量/自营/价格):showFields 为 null 时维持现状渲染
+const flag = (key: string) => props.showFields == null || props.showFields[key] !== false
+// 新增字段(副标题/规格/划线价/购物车按钮):仅 showFields 提供时可渲染
+const extra = (key: string) => props.showFields != null && props.showFields[key] !== false
+const hasMarketPrice = (item: any) =>
+	item.marketPrice != null && item.price != null && item.marketPrice > item.price
+const specSummary = (item: any) =>
+	Array.isArray(item.attrList)
+		? item.attrList.slice(0, 2).map((a: any) => `${a.name}: ${a.value}`).join(' · ')
+		: ''
 
 watch(() => props.keyword, (val) => {
 	if (val) {
@@ -250,7 +271,45 @@ watch(() => props.keyword, (val) => {
 				overflow: hidden;
 			}
 
-			.promotion {
+			.selling-point {
+			font-size: 22rpx;
+			color: #999;
+			line-height: 1.4;
+			margin-top: 4rpx;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.spec-summary {
+			font-size: 22rpx;
+			color: #999;
+			line-height: 1.4;
+			margin-top: 4rpx;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.market-price {
+			font-size: 22rpx;
+			color: #999;
+			text-decoration: line-through;
+			margin-left: 8rpx;
+		}
+
+		.cart-btn {
+			width: 44rpx;
+			height: 44rpx;
+			border-radius: 50%;
+			background: $main-color;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.promotion {
 				margin-top: 4rpx;
 				display: flex;
 
