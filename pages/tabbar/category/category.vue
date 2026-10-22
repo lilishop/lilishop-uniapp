@@ -24,7 +24,7 @@
         </view>
       </template>
     </u-navbar>
-    <view class="content">
+    <view class="content" v-if="pageTemplate === 1">
       <scroll-view scroll-y scroll-with-animation class="left-aside">
         <view v-for="(item, index) in tabList" :key="item.id" class="f-item b-b" :class="{ active: item.id === currentId }" @click="tabtap(item, index)">
           {{ item.name }}
@@ -53,6 +53,12 @@
         </view>
       </scroll-view>
     </view>
+    <tpl-category-goods
+      v-else
+      :category-list="tabList"
+      :setting="categoryPageSetting"
+      :template="pageTemplate"
+    />
   </view>
 </template>
 
@@ -61,9 +67,16 @@ import { ref, computed } from 'vue'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { getCategoryList } from '@/api/goods.js'
 import { getThemeStyle } from '@/utils/theme'
+import { DEFAULT_CATEGORY_PAGE_SETTING } from '@/utils/categoryPageSetting'
 import { useStore } from '@/store'
+import TplCategoryGoods from '@/components/category/tpl-category-goods.vue'
 
 const store = useStore()
+
+const categoryPageSetting = computed(
+  () => store.state.categoryPageSetting || DEFAULT_CATEGORY_PAGE_SETTING
+)
+const pageTemplate = computed(() => categoryPageSetting.value.template || 1)
 
 const currentId = ref(0)
 const tabList = ref<any[]>([]) // 左侧标题列表
