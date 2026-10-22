@@ -41,3 +41,14 @@ export function getThemeSetting() {
     message: false,
   });
 }
+
+/**
+ * 获取分类页配置
+ */
+export function getCategoryPageSetting() {
+  return http.request({
+    url: `${api.buyer}/common/site/category-page`,
+    method: Method.GET,
+    message: false,
+  });
+}

@@ -3,13 +3,18 @@ import config from '@/config/config'
 import { getClipboardData } from '@/js_sdk/h5-copy/h5-copy.js'
 import APPUpdate from '@/plugins/APPUpdate'
 import storage from '@/utils/storage'
-import { getThemeSetting } from '@/api/common.js'
+import { getThemeSetting, getCategoryPageSetting } from '@/api/common.js'
 import {
   applyTabBarStyle,
   cacheTheme,
   loadCachedTheme,
   normalizeTheme,
 } from '@/utils/theme'
+import {
+  cacheCategoryPageSetting,
+  loadCachedCategoryPageSetting,
+  normalizeCategoryPageSetting,
+} from '@/utils/categoryPageSetting'
 import { onLaunch, onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { handleAppLaunchScene } from '@/utils/distributionBind.js'
@@ -24,6 +29,7 @@ wx.onAppRoute((res) => {
 
 onLaunch((val) => {
   initTheme()
+  initCategoryPageSetting()
   handleAppLaunchScene(val)
   if (val?.query?.inviter) {
     storage.setInviter(val.query.inviter)
@@ -76,6 +82,22 @@ function initTheme() {
         } catch (e) {
           // 主题配置解析失败时使用缓存
         }
+      }
+    })
+    .catch(() => {})
+}
+
+function initCategoryPageSetting() {
+  const cached = loadCachedCategoryPageSetting()
+  if (cached) {
+    store.commit('SET_CATEGORY_PAGE_SETTING', cached)
+  }
+  getCategoryPageSetting()
+    .then((res) => {
+      if (res.data?.success) {
+        const setting = normalizeCategoryPageSetting(res.data.result)
+        store.commit('SET_CATEGORY_PAGE_SETTING', setting)
+        cacheCategoryPageSetting(setting)
       }
     })
     .catch(() => {})

@@ -2,8 +2,13 @@ import { createStore } from 'vuex'
 import storage from '@/utils/storage'
 import config from '@/config/config'
 import { DEFAULT_THEME, loadCachedTheme } from '@/utils/theme'
+import {
+  DEFAULT_CATEGORY_PAGE_SETTING,
+  loadCachedCategoryPageSetting,
+} from '@/utils/categoryPageSetting'
 
 const cachedTheme = loadCachedTheme()
+const cachedCategoryPageSetting = loadCachedCategoryPageSetting()
 
 const store = createStore({
   state: {
@@ -17,6 +22,8 @@ const store = createStore({
     uuid: storage.getUuid(),
     token: '',
     theme: cachedTheme || { ...DEFAULT_THEME },
+    categoryPageSetting:
+      cachedCategoryPageSetting || { ...DEFAULT_CATEGORY_PAGE_SETTING },
   },
   getters: {
     mainColor: (state) => state.theme.mainColor,
@@ -43,6 +50,9 @@ const store = createStore({
         lightColor: theme.lightColor || DEFAULT_THEME.lightColor,
         aiderLightColor: theme.aiderLightColor || DEFAULT_THEME.aiderLightColor,
       }
+    },
+    SET_CATEGORY_PAGE_SETTING(state, setting) {
+      state.categoryPageSetting = setting || { ...DEFAULT_CATEGORY_PAGE_SETTING }
     },
   },
   actions: {}
