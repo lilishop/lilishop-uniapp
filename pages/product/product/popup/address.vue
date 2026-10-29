@@ -54,10 +54,6 @@ const cityList = ref([
 onMounted(() => {
   if (isLogin('auth')) {
     getShippingAddress()
-  } else {
-    uni.navigateTo({
-      url: '/pages/passport/login',
-    })
   }
 })
 

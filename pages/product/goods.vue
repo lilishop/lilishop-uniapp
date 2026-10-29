@@ -170,17 +170,6 @@
                 <u-icon name="more-dot-fill"></u-icon>
               </view>
             </view>
-            <view class="card-flex" @click="shutMask(3)">
-              <view class="card-title"> 送至</view>
-              <view class="card-content">
-                <span v-if="delivery">{{clearStrComma(delivery.consigneeAddressPath)
-                }}</span>
-                <span v-else>暂无地址信息</span>
-              </view>
-              <view class="card-bottom">
-                <u-icon name="more-dot-fill"></u-icon>
-              </view>
-            </view>
           </view>
 
           <!-- 评价 -->
@@ -271,12 +260,8 @@
         </view>
       </u-popup>
 
-      <!-- 配送地址弹窗 -->
-      <popupAddress @closeAddress="closePopupAddress" @deliveryData="deliveryFun" v-if="goodsDetail.id"
-        :goodsId="goodsDetail.id" :addressFlag="addressFlag" />
-
       <!-- 商品规格  商品详情，以及默认参与活动的id-->
-      <popupGoods :addr="delivery" ref="popupGoodsRef" @changed="changedGoods" @closeBuy="closePopupBuy"
+      <popupGoods ref="popupGoodsRef" @changed="changedGoods" @closeBuy="closePopupBuy"
         @queryCart="cartCount()" :goodsDetail="goodsDetail" :goodsSpec="goodsSpec" :isGroup="isGroup" :id="productId"
         v-if="goodsDetail.id" :pointDetail="pointDetail" @handleClickSku="selectSku"
         :buyMask="buyMask" />
@@ -318,7 +303,6 @@ import storeLayout from './product/shop/-shop'
 import Evaluation from './product/evaluation/-evaluation'
 import GoodsSwiper from './product/goods/-goods-swiper'
 import popupGoods from '@/components/m-buy/goods'
-import popupAddress from './product/popup/address'
 import shares from '@/components/m-share/index'
 import takeDownFormSaleGoods from '@/components/m-take-down-sale-goods/index'
 import setup from './product/popup/popup'
@@ -358,7 +342,6 @@ const goodsSpec = ref<any>("")
 const imgList = ref<any[]>([])
 const favorite = ref(false)
 const recommendList = ref<any[]>([])
-const addressFlag = ref(false)
 const buyMask = ref(false)
 const num = ref(1)
 const skuId = ref<any>("")
@@ -372,7 +355,6 @@ const PromotionList = ref<any>("")
 const specList = ref<any[]>([])
 const selectedSpec = ref<any[]>([])
 const nums = ref(0)
-const delivery = ref<any>("")
 const exchange = ref<any>({})
 const productId = ref(0)
 const startTimer = ref(false)
@@ -550,13 +532,6 @@ function changedGoods(val: any) {
   selectedGoods.value = val
 }
 
-function deliveryFun(val: any) {
-  delivery.value = val
-}
-
-function closePopupAddress(val: any) {
-  addressFlag.value = val
-}
 
 function closePopupBuy(val: any) {
   buyMask.value = val
@@ -694,14 +669,10 @@ function handleBuyClick() {
 function shutMask(flag: any, buyFlag?: any, type?: any) {
   promotionShow.value = false
   buyMask.value = false
-  addressFlag.value = false
   if (flag) {
     switch (flag) {
       case 1:
         promotionShow.value = true
-        break
-      case 3:
-        addressFlag.value = true
         break
       case 4:
         buyMask.value = true
