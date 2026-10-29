@@ -55,6 +55,17 @@
     </template>
 
     <view class="submit" @click="cashd">提现</view>
+
+    <!-- 提现规则说明（满足微信小程序审核要求） -->
+    <view class="rule-card">
+      <view class="rule-title">
+        <text class="rule-icon"></text>
+        <text>提现规则说明</text>
+      </view>
+      <view class="rule-content">
+        <text class="rule-text">{{ displayRule }}</text>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -75,11 +86,27 @@ const minPrice = ref(0)
 const type = ref('')
 const connectNumber = ref('')
 const realName = ref('')
+const withdrawRule = ref('')
 
 const typeLabel = computed(() => {
   if (type.value === 'ALI') return '支付宝'
   if (type.value) return '微信'
   return '--'
+})
+
+const defaultRule = computed(() => {
+  const minText = minPrice.value ? `单笔最低提现金额为 ${minPrice.value} 元` : '单笔最低提现金额以页面提示为准'
+  const channelText = typeLabel.value === '支付宝' ? '支付宝账户' : '微信零钱账户'
+  return `1. 提现额度：${minText}，单日累计最高提现 5000 元；
+2. 提现频次：每个用户每日最多可申请提现 1 次；
+3. 提现时间：支持全天 24 小时随时发起提现申请；
+4. 到账时间：提交申请后预计 1~3 个工作日内审核并转账至您的${channelText}；
+5. 手续费说明：提现免收手续费；
+6. 如有其他疑问或遇到提现未到账，请联系在线客服协助处理。`
+})
+
+const displayRule = computed(() => {
+  return withdrawRule.value ? withdrawRule.value : defaultRule.value
 })
 
 onMounted(async () => {
@@ -88,6 +115,7 @@ onMounted(async () => {
   walletNum.value = result.data.result.memberWallet
   minPrice.value = res.data.result.minPrice
   type.value = res.data.result.type
+  withdrawRule.value = res.data.result.withdrawRule || ''
 })
 
 function cashd() {
@@ -264,5 +292,38 @@ function handleAll() {
   border-radius: 44rpx;
   text-align: center;
   font-size: 32rpx;
+}
+
+.rule-card {
+  margin-top: 48rpx;
+  padding: 12rpx;
+}
+
+.rule-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+
+  .rule-icon {
+    width: 6rpx;
+    height: 26rpx;
+    background: $main-color;
+    border-radius: 4rpx;
+    margin-right: 12rpx;
+  }
+}
+
+.rule-content {
+  .rule-text {
+    font-size: 24rpx;
+    color: #888;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
 }
 </style>
