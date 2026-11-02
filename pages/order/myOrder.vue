@@ -38,6 +38,8 @@
 							<view class="btn-view u-flex u-row-between">
 								<view class="description">{{ afterSaleTypeText(order.serviceType) }}</view>
 								<view class="goods-btn flex flex-a-c">
+									<view class="cancel-btn" v-if="order.serviceStatus === 'APPLY'" @click="onCancelAfterSale(order)">取消售后</view>
+									<view class="pay-btn" v-if="order.serviceStatus === 'PASS' && order.serviceType !== 'RETURN_MONEY'" @click="onAfterSaleExpress(order)">提交物流</view>
 									<view class="pay-btn" @click="openOrder(order)">售后详情</view>
 								</view>
 							</view>
@@ -131,6 +133,8 @@
 		<u-toast ref="uToast" />
 		<u-modal :confirm-color="lightColor" v-model:show="rogShow" :show-cancel-button="true" :content="'是否确认收货?'"
 			@confirm="confirmRog"></u-modal>
+		<u-modal :confirm-color="lightColor" v-model:show="cancelAfterSaleShow" :show-cancel-button="true" content="确认取消售后?"
+			@confirm="confirmCancelAfterSale"></u-modal>
 	</view>
 </template>
 
@@ -141,7 +145,8 @@ import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue'
 import { getOrderList, cancelOrder, confirmReceipt } from '@/api/order.js'
-import { getClearReason, getAfterSaleList } from '@/api/after-sale.js'
+import { getClearReason, getAfterSaleList, cancelAfterSale } from '@/api/after-sale.js'
+import storage from '@/utils/storage'
 import LiLiWXPay from '@/js_sdk/lili-pay/wx-pay.js'
 import {
 	unitPrice,
@@ -200,6 +205,8 @@ const orderSn = ref('')
 const reason = ref('')
 const cancelList = ref<any[]>([])
 const rogShow = ref(false)
+const cancelAfterSaleShow = ref(false)
+const pendingAfterSaleSn = ref('')
 
 function hideLoadingIfNeeded() {
 	if (store.state.isShowToast) uni.hideLoading()
@@ -416,6 +423,30 @@ function openOrder(order: any) {
 		return
 	}
 	navigateToOrderDetail(order.sn)
+}
+
+function onCancelAfterSale(order: any) {
+	pendingAfterSaleSn.value = order?.serviceSn || order?.sn || ''
+	cancelAfterSaleShow.value = true
+}
+
+async function confirmCancelAfterSale() {
+	if (!pendingAfterSaleSn.value) return
+	uni.showLoading({ title: '加载中' })
+	const res = await cancelAfterSale(pendingAfterSaleSn.value)
+	hideLoadingIfNeeded()
+	if (res?.data?.success) {
+		uni.showToast({ title: '取消成功!', duration: 2000, icon: 'none' })
+		initData(tabCurrentIndex.value)
+	}
+}
+
+function onAfterSaleExpress(order: any) {
+	const sku = (order?.orderItems && order.orderItems[0]) || {}
+	storage.setAfterSaleData({ ...order, ...sku, storeName: order.storeName })
+	uni.navigateTo({
+		url: `./afterSales/afterSalesDetailExpress?serviceSn=${order.serviceSn || order.sn}`,
+	})
 }
 
 function changeTab(e: any) {

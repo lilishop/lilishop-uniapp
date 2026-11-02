@@ -118,10 +118,21 @@ onMounted(async () => {
   withdrawRule.value = res.data.result.withdrawRule || ''
 })
 
+let submitting = false
+
 function cashd() {
+  if (submitting) return
   const amount = Number(price.value)
-  if (!proxy.$u.test.amount(parseInt(String(amount)))) {
+  if (!(amount > 0) || !proxy.$u.test.amount(parseInt(String(amount)))) {
     uni.showToast({ title: '请输入正确金额', duration: 2000, icon: 'none' })
+    return
+  }
+  if (minPrice.value && amount < Number(minPrice.value)) {
+    uni.showToast({ title: `最低提现金额为 ${minPrice.value} 元`, duration: 2000, icon: 'none' })
+    return
+  }
+  if (amount > Number(walletNum.value || 0)) {
+    uni.showToast({ title: '提现金额不能大于可提现金额', duration: 2000, icon: 'none' })
     return
   }
 
@@ -139,14 +150,23 @@ function cashd() {
     params.realName = realName.value
   }
 
-  withdrawalApply(params).then((res) => {
-    if (res.data.success) {
-      uni.showToast({ title: '提现成功!', duration: 2000, icon: 'none' })
-      setTimeout(() => {
-        uni.navigateBack({ delta: 1 })
-      }, 1000)
-    }
-  })
+  const doSubmit = () => {
+    submitting = true
+    withdrawalApply(params)
+      .then((res) => {
+        if (res.data.success) {
+          uni.showToast({ title: '提现申请已提交', duration: 2000, icon: 'none' })
+          setTimeout(() => {
+            uni.navigateBack({ delta: 1 })
+          }, 1000)
+        }
+      })
+      .finally(() => {
+        submitting = false
+      })
+  }
+
+  doSubmit()
 }
 
 function handleAll() {

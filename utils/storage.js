@@ -9,6 +9,12 @@ const FACE_LOGIN = isDev ? "face_login_dev" : "face_login";
 const FINGER_LOGIN = isDev ? "finger_login_dev" : "finger_login";
 const CART_BACKBTN = isDev ? "cart_backbtn_dev" : "cart_backbtn";
 const AFTERSALE_DATA = isDev ? "aftersale_data_dev" : "aftersale_data";
+
+// 商家端专属 Key（与买家隔离）
+const STORE_ACCESS_TOKEN = isDev ? "store_access_token_dev" : "store_access_token";
+const STORE_REFRESH_TOKEN = isDev ? "store_refresh_token_dev" : "store_refresh_token";
+const STORE_INFO = isDev ? "store_info_obj_dev" : "store_info_obj";
+
 export default {
 	setInviter(val){
 		uni.setStorageSync('inviter', val)
@@ -147,6 +153,41 @@ export default {
     uni.setStorageSync('imGoodId', val);
   },
   getImGoodsLink() {
-  return  uni.getStorageSync('imGoodId');
+    return  uni.getStorageSync('imGoodId');
+  },
+
+  // ============== 商家专属 Token 与鉴权方法 ==============
+  setStoreAccessToken(val) {
+    uni.setStorageSync(STORE_ACCESS_TOKEN, val);
+  },
+  getStoreAccessToken() {
+    return uni.getStorageSync(STORE_ACCESS_TOKEN);
+  },
+  removeStoreAccessToken() {
+    uni.removeStorageSync(STORE_ACCESS_TOKEN);
+  },
+  setStoreRefreshToken(val) {
+    uni.setStorageSync(STORE_REFRESH_TOKEN, val);
+  },
+  getStoreRefreshToken() {
+    return uni.getStorageSync(STORE_REFRESH_TOKEN);
+  },
+  removeStoreRefreshToken() {
+    uni.removeStorageSync(STORE_REFRESH_TOKEN);
+  },
+  setStoreInfo(val) {
+    uni.setStorageSync(STORE_INFO, val);
+  },
+  getStoreInfo() {
+    return uni.getStorageSync(STORE_INFO);
+  },
+  removeStoreInfo() {
+    uni.removeStorageSync(STORE_INFO);
+  },
+  /** 清理商家登录状态，保留买家会话 */
+  clearStoreAuth() {
+    uni.removeStorageSync(STORE_ACCESS_TOKEN);
+    uni.removeStorageSync(STORE_REFRESH_TOKEN);
+    uni.removeStorageSync(STORE_INFO);
   },
 };

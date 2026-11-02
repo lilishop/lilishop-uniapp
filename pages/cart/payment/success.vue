@@ -2,7 +2,7 @@
   <div :style="themeStyle" class="wrapper">
     <div class="pay-wrapper">
       <div class="pay-money">
-        ￥{{unitPrice(Number(payPrice)) }}
+        ￥{{ unitPrice(Number(payPrice)) }}
       </div>
       <div class="pay-btns">
         <div v-show="!from" @click="checkOrder">查看{{ orderType == "RECHARGE" ? '余额' : '订单' }}</div>
@@ -22,7 +22,6 @@
     </div>
     <goodsRecommend />
   </div>
-
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
@@ -31,6 +30,11 @@ import goodsRecommend from '@/components/m-goods-recommend'
 import { unitPrice } from '@/utils/filters.js'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
+import {
+  prefetchMpMessageTemplates,
+  subscribePayMessageThen,
+} from '@/js_sdk/lili-pay/wx-pay.js'
+
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
@@ -38,12 +42,17 @@ const paymentMethod = ref('')
 const from = ref('')
 const payPrice = ref<number | string>(0)
 const orderType = ref('')
+const orderPromotionType = ref('')
 
 onLoad((options) => {
   paymentMethod.value = options.paymentMethod || ''
   from.value = options.from || ''
   payPrice.value = options.payPrice || 0
   orderType.value = options.orderType || ''
+  orderPromotionType.value = options.orderPromotionType || ''
+  // #ifdef MP-WEIXIN
+  prefetchMpMessageTemplates()
+  // #endif
 })
 
 function paymentTypeFilter(val: string) {
@@ -66,19 +75,44 @@ function checkOrder() {
     })
     return
   }
-  uni.reLaunch({
-    url: '/pages/order/myOrder?status=0',
+  const doGoOrder = () => {
+    uni.reLaunch({
+      url: '/pages/order/myOrder?status=0',
+    })
+  }
+  // #ifdef MP-WEIXIN
+  subscribePayMessageThen(doGoOrder, {
+    orderPromotionType: orderPromotionType.value,
   })
+  // #endif
+  // #ifndef MP-WEIXIN
+  doGoOrder()
+  // #endif
 }
 
 function navigateTo(url: string, type?: string) {
-  if (type === 'switch') {
-    uni.switchTab({ url })
-  } else {
-    uni.redirectTo({ url })
+  const doNavigate = () => {
+    if (type === 'switch') {
+      uni.switchTab({ url })
+    } else {
+      uni.redirectTo({ url })
+    }
   }
+  if (orderType.value == 'RECHARGE') {
+    doNavigate()
+    return
+  }
+  // #ifdef MP-WEIXIN
+  subscribePayMessageThen(doNavigate, {
+    orderPromotionType: orderPromotionType.value,
+  })
+  // #endif
+  // #ifndef MP-WEIXIN
+  doNavigate()
+  // #endif
 }
-</script><style scoped lang="scss">
+</script>
+<style scoped lang="scss">
 .subscribe {
   justify-content: space-between;
   align-items: center;

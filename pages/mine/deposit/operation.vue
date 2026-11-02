@@ -45,6 +45,11 @@ import { getUserWallet } from '@/api/members'
 import { isLogin, navigateToLogin, unitPrice } from '@/utils/filters.js'
 import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
+import {
+  prefetchMpMessageTemplates,
+  subscribeMpMessageByScenes,
+} from '@/js_sdk/lili-pay/wx-pay.js'
+
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 
@@ -52,6 +57,9 @@ const walletNum = ref(0)
 
 onShow(async () => {
   if (isLogin('auth')) {
+    // #ifdef MP-WEIXIN
+    prefetchMpMessageTemplates()
+    // #endif
     const result = await getUserWallet()
     walletNum.value = result.data.result.memberWallet
   } else {
@@ -60,7 +68,15 @@ onShow(async () => {
 })
 
 function back() {
-  uni.switchTab({ url: '/pages/tabbar/user/my' })
+  const doBack = () => {
+    uni.switchTab({ url: '/pages/tabbar/user/my' })
+  }
+  // #ifdef MP-WEIXIN
+  subscribeMpMessageByScenes(['WALLET_CHANGE'], doBack)
+  // #endif
+  // #ifndef MP-WEIXIN
+  doBack()
+  // #endif
 }
 
 function navigateTo(url: string) {

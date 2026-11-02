@@ -1,15 +1,18 @@
 /**
  * buyer : 买家 API（baseURL 为 buyer + /buyer）
+ * store : 商家 API（baseURL 为 store + /store）
  */
 // 开发环境
 const dev = {
   buyer: "https://buyer-api.pickmall.cn",
+  store: "https://admin-api.pickmall.cn",
   im: "https://im-api.pickmall.cn",
   mqtt: "wss://lilishop-mqtt-pull.dllll.xyz/mqtt",
 };
 // 生产环境
 const prod = {
   buyer: "https://buyer-api.pickmall.cn",
+  store: "https://admin-api.pickmall.cn",
   im: "https://im-api.pickmall.cn",
   mqtt: "wss://lilishop-mqtt-pull.dllll.xyz/mqtt",
 };
@@ -26,10 +29,13 @@ api = prod;
 // #endif
 
 const buyerHost = api.buyer;
+const storeHost = api.store;
 api.buyer = buyerHost + "/buyer";
+api.store = storeHost + "/store";
 api.im = api.im + "/im";
 
 export default {
   ...api,
   buyerHost,
+  storeHost,
 };

@@ -26,6 +26,11 @@
       ></u-cell>
       <!-- #endif -->
       <u-cell is-link title="用户注销" v-if="userInfo.id" @click="logoff"></u-cell>
+      <u-cell
+        is-link
+        title="消息通知"
+        @click="navigateTo('/pages/mine/set/messageNotice')"
+      ></u-cell>
       <u-cell is-link title="意见反馈" @click="navigateTo('/pages/mine/set/feedBack')"></u-cell>
       <u-cell
         is-link

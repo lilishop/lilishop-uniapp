@@ -109,7 +109,7 @@
       </view>
 
       <!-- 服务工具卡片（分组化重构） -->
-      <tool />
+      <tool :user-info="userInfo" />
     </view>
   </view>
 </template>

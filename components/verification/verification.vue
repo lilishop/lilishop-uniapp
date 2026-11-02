@@ -101,12 +101,18 @@ const props = withDefaults(defineProps<{
   left?: string
   top?: string
   business?: string
+  apiType?: string
 }>(), {
   height: '80rpx',
   width: '350rpx',
   left: '180rpx',
   top: '30rpx',
-  business: 'LOGIN'
+  business: 'LOGIN',
+  apiType: 'buyer'
+})
+
+const sliderBaseUrl = computed(() => {
+  return props.apiType === 'store' ? api.store : api.buyer
 })
 
 const store = useStore()
@@ -182,7 +188,7 @@ function getCode() {
     storage.setUuid(uuid.v1())
   }
   uni.request({
-    url: api.buyer + '/common/slider/' + props.business,
+    url: sliderBaseUrl.value + '/common/slider/' + props.business,
     header: {
       uuid: storage.getUuid()
     },
@@ -217,7 +223,7 @@ function end() {
   uni.request({
     method: 'POST',
     url:
-      api.buyer +
+      sliderBaseUrl.value +
       '/common/slider/' +
       props.business +
       '?xPos=' +

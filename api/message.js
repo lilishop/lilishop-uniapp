@@ -110,3 +110,15 @@ export function getLogisticsMessages(params) {
     data
   });
 }
+
+
+/**
+ * 获取微信公众号通知配置及绑定状态
+ */
+export function getWechatOfficialAccountSetting() {
+  return http.request({
+    url: '/message/wechatOfficialAccount',
+    method: Method.GET,
+    needToken: true,
+  });
+}

@@ -158,7 +158,7 @@ function onSubmit() {
         title: '提交成功',
         type: 'success',
         back: true,
-        url: '/pages/order/afterSales/afterSales',
+        url: '/pages/order/myOrder?status=5',
       })
     }
   })

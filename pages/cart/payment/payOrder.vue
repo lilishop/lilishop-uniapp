@@ -126,15 +126,20 @@ function hideLoadingIfNeeded() {
 }
 
 function callback(paymentMethod: string) {
-  uni.redirectTo({
-    url:
-      '/pages/cart/payment/success?paymentMethod=' +
-      paymentMethod +
-      '&payPrice=' +
-      cashierParams.value.price +
-      '&orderType=' +
-      orderType.value,
-  })
+  const goSuccess = () => {
+    uni.redirectTo({
+      url:
+        '/pages/cart/payment/success?paymentMethod=' +
+        paymentMethod +
+        '&payPrice=' +
+        cashierParams.value.price +
+        '&orderType=' +
+        orderType.value +
+        '&orderPromotionType=' +
+        (cashierParams.value.orderPromotionType || ''),
+    })
+  }
+  goSuccess()
 }
 
 function cashierData() {

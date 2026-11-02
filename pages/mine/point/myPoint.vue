@@ -1,5 +1,13 @@
 <template>
   <view :style="themeStyle" class="content">
+    <u-navbar
+      title="我的积分"
+      :fixed="true"
+      :placeholder="true"
+      :border="false"
+      :auto-back="false"
+      @leftClick="handleBack"
+    ></u-navbar>
     <view class="portrait-box">
       <image src="/pages/mine/static/point_bg_1.png" mode=""></image>
       <image class="point-img" src="/pages/mine/static/tradehall.png" />
@@ -41,6 +49,10 @@ import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { getPointsData, getMemberPointSum } from '@/api/members.js'
 import { getThemeStyle } from '@/utils/theme'
+import {
+  prefetchMpMessageTemplates,
+  subscribeMpMessageByScenes,
+} from '@/js_sdk/lili-pay/wx-pay.js'
 
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
@@ -51,9 +63,28 @@ const params = ref({ pageNumber: 1, pageSize: 10 })
 const pointSummary = ref<Record<string, any>>({})
 
 onLoad(() => {
+	// #ifdef MP-WEIXIN
+	prefetchMpMessageTemplates()
+	// #endif
 	fetchPointSummary()
 	fetchPointLogList()
 })
+
+function handleBack() {
+	const doBack = () => {
+		uni.navigateBack({
+			fail: () => {
+				uni.switchTab({ url: '/pages/tabbar/user/my' })
+			},
+		})
+	}
+	// #ifdef MP-WEIXIN
+	subscribeMpMessageByScenes(['POINT_CHANGE'], doBack)
+	// #endif
+	// #ifndef MP-WEIXIN
+	doBack()
+	// #endif
+}
 
 onReachBottom(() => {
 	params.value.pageNumber++

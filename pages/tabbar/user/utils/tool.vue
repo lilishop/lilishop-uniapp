@@ -76,6 +76,11 @@
           <text class="grid-label">店铺入驻</text>
         </view>
 
+        <view v-if="hasMerchantPermission" class="service-grid-item" @click="toMerchantWorkbench">
+          <image class="grid-icon" src="/static/mine/setting.png" mode="aspectFit"></image>
+          <text class="grid-label">商家工作台</text>
+        </view>
+
         <view class="service-grid-item" @click="linkMsgDetail()">
           <image class="grid-icon" src="/static/mine/mycommit.png" mode="aspectFit"></image>
           <text class="grid-label">我的消息</text>
@@ -115,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { distribution as fetchDistribution } from '@/api/distribution'
 import configs from '@/config/config'
 import storage from '@/utils/storage'
@@ -128,8 +133,46 @@ import {
   DISTRIBUTION_STATUS,
 } from '@/utils/distributionStatus'
 
+const props = withDefaults(
+  defineProps<{
+    userInfo?: any
+  }>(),
+  {
+    userInfo: () => ({}),
+  }
+)
+
 const sharingShow = ref(false)
 const sharingLink = ref('')
+
+// 只有商家权限（店主 haveStore / 绑有 storeId 的店员 / 本地已有有效商家 token）的用户才展示入口
+const hasMerchantPermission = computed(() => {
+  if (storage.getStoreAccessToken()) {
+    return true
+  }
+  const u = (props.userInfo && props.userInfo.id) ? props.userInfo : (storage.getUserInfo() || {})
+  return Boolean(u.haveStore === true || u.haveStore === 'true' || u.storeId)
+})
+
+function toMerchantWorkbench() {
+  if (!hasMerchantPermission.value) {
+    uni.showToast({
+      title: '暂无商家权限',
+      icon: 'none',
+    })
+    return
+  }
+  const storeToken = storage.getStoreAccessToken()
+  if (storeToken) {
+    uni.navigateTo({
+      url: '/pages-sub/merchant/pages/index/index',
+    })
+  } else {
+    uni.navigateTo({
+      url: '/pages-sub/merchant/pages/login/index',
+    })
+  }
+}
 
 function handleNavigate(url: string) {
   uni.navigateTo({ url })

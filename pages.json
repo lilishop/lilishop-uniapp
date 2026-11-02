@@ -107,6 +107,70 @@
 	"subPackages": [
 
 		{
+			"root": "pages-sub/merchant",
+			"pages": [
+				{
+					"path": "pages/index/index",
+					"style": {
+						"navigationBarTitleText": "商家工作台",
+						"navigationBarBackgroundColor": "#111827",
+						"navigationBarTextStyle": "white"
+					}
+				},
+				{
+					"path": "pages/login/index",
+					"style": {
+						"navigationBarTitleText": "商家登录",
+						"navigationBarBackgroundColor": "#111827",
+						"navigationBarTextStyle": "white"
+					}
+				},
+				{
+					"path": "pages/order/list",
+					"style": {
+						"navigationBarTitleText": "订单核销管理",
+						"enablePullDownRefresh": true,
+						"navigationBarBackgroundColor": "#ffffff",
+						"navigationBarTextStyle": "black"
+					}
+				},
+				{
+					"path": "pages/order/detail",
+					"style": {
+						"navigationBarTitleText": "订单详情",
+						"navigationBarBackgroundColor": "#ffffff",
+						"navigationBarTextStyle": "black"
+					}
+				},
+				{
+					"path": "pages/goods/list",
+					"style": {
+						"navigationBarTitleText": "商品管理",
+						"enablePullDownRefresh": true,
+						"navigationBarBackgroundColor": "#ffffff",
+						"navigationBarTextStyle": "black"
+					}
+				},
+				{
+					"path": "pages/goods/detail",
+					"style": {
+						"navigationBarTitleText": "商品详情",
+						"navigationBarBackgroundColor": "#ffffff",
+						"navigationBarTextStyle": "black"
+					}
+				},
+				{
+					"path": "pages/evaluation/list",
+					"style": {
+						"navigationBarTitleText": "评价管理",
+						"enablePullDownRefresh": true,
+						"navigationBarBackgroundColor": "#ffffff",
+						"navigationBarTextStyle": "black"
+					}
+				}
+			]
+		},
+		{
 			"root": "pages/mine",
 			"pages": [
 				
@@ -448,6 +512,13 @@
 					}
 				},
 				{
+					"path": "set/messageNotice",
+					"style": {
+						"navigationBarTitleText": "消息通知",
+						"navigationStyle": "custom"
+					}
+				},
+				{
 					"path": "set/personMsg",
 					"style": {
 						"navigationBarTitleText": "个人信息",
@@ -471,7 +542,8 @@
 				}, {
 					"path": "point/myPoint",
 					"style": {
-						"navigationBarTitleText": "我的积分"
+						"navigationBarTitleText": "我的积分",
+						"navigationStyle": "custom"
 					}
 				},
 				 {
@@ -926,6 +998,7 @@
 				{
 					"path": "afterSales/applySuccess",
 					"style": {
+						"navigationStyle": "custom",
 						"navigationBarTitleText": "提交成功",
 						"app-plus": {
 							"bounce": "none",
@@ -955,13 +1028,6 @@
 					"path": "afterSales/afterSalesDetail",
 					"style": {
 						"navigationBarTitleText": "申请售后"
-					}
-				},
-				{
-					"path": "afterSales/afterSales",
-					"style": {
-						"navigationBarTitleText": "售后管理",
-						"enablePullDownRefresh": true
 					}
 				},
 				{
