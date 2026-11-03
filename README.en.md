@@ -5,7 +5,7 @@
   <p>
     <a href="https://github.com/lilishop/lilishop"><img src="https://img.shields.io/github/stars/lilishop/lilishop.svg?style=social&logo=github" alt="GitHub Stars" /></a>
     <a href="https://gitee.com/beijing_hongye_huicheng/lilishop"><img src="https://gitee.com/beijing_hongye_huicheng/lilishop/badge/star.svg?theme=dark" alt="Gitee Stars" /></a>
-    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License" /></a>
     <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3-brightgreen.svg" alt="Vue 3" /></a>
     <a href="https://uniapp.dcloud.net.cn/"><img src="https://img.shields.io/badge/uni--app-Vue3-blue.svg" alt="uni-app" /></a>
   </p>
@@ -27,7 +27,7 @@
 **LILISHOP** is an open-source e-commerce system built with Spring Boot, Vue 3, and uni-app. It supports B2B2C multi-vendor marketplaces, WeChat Mini Programs, H5, Android/iOS Apps, live-streaming e-commerce, affiliate distribution, and flash sales.
 
 ### ✨ Why Choose Lilishop
-- 🟢 **True MIT License**: Free for commercial use and private secondary development without licensing concerns.
+- 🟢 **True Apache-2.0 License**: Free for commercial use and private secondary development without licensing concerns.
 - 🚀 **Modern Vue 3 Stack**: Built on `uni-app + Vue 3 + uview-plus 3.x`, leaving legacy Vue 2 templates behind.
 - 🧩 **Production-Ready Completeness**: Not a static UI template—fully integrated with B2B2C multi-vendor workflows, visual storefront decoration, IM customer service, flash sales, group buying, affiliate distribution, and live streaming.
 
@@ -137,4 +137,4 @@ lilishop-uniapp
 
 ## 6. License
 
-Lilishop is licensed under the [MIT](./LICENSE) License. Copyright © 2020-2026 **Beijing Hongye Huicheng Technology Co., Ltd.**
+Lilishop is licensed under the [Apache-2.0](./LICENSE) License. Copyright © 2020-2026 **Beijing Hongye Huicheng Technology Co., Ltd.**

@@ -5,7 +5,7 @@
   <p>
     <a href="https://github.com/lilishop/lilishop"><img src="https://img.shields.io/github/stars/lilishop/lilishop.svg?style=social&logo=github" alt="GitHub Stars" /></a>
     <a href="https://gitee.com/beijing_hongye_huicheng/lilishop"><img src="https://gitee.com/beijing_hongye_huicheng/lilishop/badge/star.svg?theme=dark" alt="Gitee Stars" /></a>
-    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License" /></a>
     <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3-brightgreen.svg" alt="Vue 3" /></a>
     <a href="https://uniapp.dcloud.net.cn/"><img src="https://img.shields.io/badge/uni--app-Vue3-blue.svg" alt="uni-app" /></a>
   </p>
@@ -27,7 +27,7 @@
 **LILISHOP** 是基于 Spring Boot / Vue 3 / uni-app 开发的开源商城系统，支持 B2B2C 多商户商城、微信小程序商城、H5 商城、APP 商城、直播电商、分销返佣、秒杀活动。
 
 ### ✨ 为什么选择 Lilishop
-- 🟢 **真 MIT 协议**：支持免费商用与私有化闭源二开，无版权后顾之忧。
+- 🟢 **真 Apache-2.0 协议**：支持免费商用与私有化闭源二开，无版权后顾之忧。
 - 🚀 **Vue 3 全新栈**：基于 `uni-app + Vue 3 + uview-plus 3.x`，告别老旧 Vue 2 模板。
 - 🧩 **生产级完整度**：非静态切图模板，完整覆盖 B2B2C 多商户、可视化装修、IM 客服、秒杀拼团、分销直播全闭环。
 
@@ -144,7 +144,7 @@ lilishop-uniapp
 
 ## 6. 开源与授权
 
-本项目遵循 [MIT](./LICENSE) 开源协议，版权归 **北京宏业汇成科技有限公司** 所有。允许个人及企业免费用于学习、研究、修改和商业用途（需保留原始版权和许可声明）。
+本项目遵循 [Apache-2.0](./LICENSE) 开源协议，版权归 **北京宏业汇成科技有限公司** 所有。允许个人及企业免费用于学习、研究、修改和商业用途（需保留原始版权和许可声明）。
 
 ---
 
@@ -160,6 +160,8 @@ lilishop-uniapp
 
 ## 8. 升级计划
 
+> 更新日期：2026-11-03，依据各端近期提交及当前代码实现同步。
+
 ### ✅ 已完成特性
 | 功能模块 | 功能模块 |
 | :--- | :--- |
@@ -168,17 +170,11 @@ lilishop-uniapp
 | ✅ 置顶评论 | ✅ 客户等级体系 |
 | ✅ 购物卡 | ✅ 腾讯云-云直播 |
 | ✅ 卡密商品 | ✅ 二级分销 |
-| ✅ 定时任务管理 | ✅ 预约服务商品 |
-| ✅ 主题色管理 | ✅ 新增无需配送发货方式 |
-| ✅ 多维统计（营业/商品/会员/积分/储值/营销/分销） | ✅ 经营报表（店铺业绩/商品同比环比/订单明细/销售汇总） |
-| ✅ 分类页多模板设置 | ✅ 移动端楼层装修组件库 |
-| ✅ PC端楼层装修重构 | ✅ 全站统一顶栏 |
-| ✅ PC端店铺独立列表 | ✅ 敏感词场景化过滤 |
+| ✅ 定时任务管理（数据库配置驱动） | ✅ 预约服务商品 |
+| ✅ 主题色管理 | |
 
 ### 🔜 近期规划中
-- 🔜 店铺结算汇总 & 结算台账
-- 🔜 支付方式汇总 & 钱包流水 & 财务汇总
 - 🔜 微信小店对接
 - 🔜 抖店对接
-- 🔜 微信小程序原生重构与体验对齐
+- 🔜 微信小程序原生重构与体验对齐（持续完善；已接入预约交易、分类多模板与首页楼层装修）
 - 🔜 OpenAPI 开放平台与开发者中心
