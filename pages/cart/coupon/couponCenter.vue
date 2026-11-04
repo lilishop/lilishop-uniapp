@@ -11,7 +11,7 @@
 				<view class="coupon-card-right">
 					<view class="coupon-info">
 						<text class="coupon-card-name">{{ item.storeName == 'platform' ? '全平台' : item.storeName + '店铺' }}使用</text>
-						<text class="coupon-card-desc">满{{unitPrice(item.consumeThreshold) }}元可用</text>
+						<text class="coupon-card-desc">{{ item.consumeThreshold > 0 ? '满' + unitPrice(item.consumeThreshold) + '元可用' : '无门槛使用' }}</text>
 						<text class="coupon-card-time" v-if="item.endTime">有效期至：{{ item.endTime.split(" ")[0] }}</text>
 					</view>
 					<view class="coupon-claim-btn" @click="receive(item)">

@@ -5,7 +5,7 @@
         <view class="title">{{ coupon.title }}</view>
         <view class="price" v-if="coupon.couponType == 'PRICE'"><text>￥</text>{{ unitPrice(coupon.price) }}</view>
         <view class="price" v-if="coupon.couponType == 'DISCOUNT'">{{ coupon.discount }}折</view>
-        <view class="text">满{{ coupon.consumeThreshold }}元可用</view>
+        <view class="text">{{ coupon.consumeThreshold > 0 ? '满' + coupon.consumeThreshold + '元可用' : '无门槛使用' }}</view>
         <view class="bg-quan">券</view>
         <view class="jiao-1" :class="{ 'used-color': coupon.used_status != 0 }">
           <text class="text-1">{{ coupon.used_status == 0 ? '新到' : coupon.used_status_text }}</text>

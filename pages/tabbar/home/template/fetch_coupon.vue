@@ -36,11 +36,12 @@
                 }}</span
                 >元</view
               >
-              <view
+              <view v-if="item.consumeThreshold > 0"
                 >满<span style="color: red; font-size: 32rpx"
                   >{{unitPrice(item.consumeThreshold) }}元</span
                 >可用</view
               >
+              <view v-else>无门槛使用</view>
               <view v-if="item.scopeType == 'ALL' && item.storeId == '0'"
                 >全平台</view
               >

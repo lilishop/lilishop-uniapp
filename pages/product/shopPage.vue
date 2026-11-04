@@ -96,7 +96,7 @@
             <view class="xian"></view>
             <view class="text">
               <text>{{ "领取优惠券" }}</text>
-              <text>满{{unitPrice(item.consumeThreshold) }}元可用</text>
+              <text>{{ item.consumeThreshold > 0 ? '满' + unitPrice(item.consumeThreshold) + '元可用' : '无门槛使用' }}</text>
             </view>
           </view>
         </view>

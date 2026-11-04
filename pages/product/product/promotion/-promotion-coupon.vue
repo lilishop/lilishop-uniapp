@@ -15,7 +15,7 @@
 							<text v-else-if="item.scopeType == 'PORTION_GOODS'">部分商品</text>
 							<text v-else>{{ item.storeName == 'platform' ? '全平台' : item.storeName + '店铺' }}使用</text>
 						</view>
-						<text>满{{ unitPrice(item.consumeThreshold) }}可用</text>
+						<text>{{ item.consumeThreshold > 0 ? '满' + unitPrice(item.consumeThreshold) + '可用' : '无门槛使用' }}</text>
 					</view>
 					<view class="lingqu-btn" @tap="getCoupon(item, index)">
 						<view class="lingqu-text" :class="{ cur: yhqFlag[index] }">

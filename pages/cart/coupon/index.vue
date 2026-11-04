@@ -41,7 +41,7 @@
               </template>
               使用
             </text>
-            <text class="coupon-card-desc">满{{ unitPrice(item.consumeThreshold) }}元可用</text>
+            <text class="coupon-card-desc">{{ item.consumeThreshold > 0 ? '满' + unitPrice(item.consumeThreshold) + '元可用' : '无门槛使用' }}</text>
             <text class="coupon-card-time" v-if="item.reason">{{ item.reason }}</text>
             <text class="coupon-card-time" v-if="item.endTime">有效期至:{{ item.endTime }}</text>
           </view>

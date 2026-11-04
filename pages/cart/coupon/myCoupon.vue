@@ -47,6 +47,7 @@
             <view class="coupon-card-right">
               <view class="coupon-info">
                 <text class="coupon-card-name">{{ coupon.title }}</text>
+                <text class="coupon-card-desc">{{ coupon.consumeThreshold > 0 ? '满' + unitPrice(coupon.consumeThreshold) + '元可用' : '无门槛使用' }}</text>
                 <text class="coupon-card-desc">使用范围：{{
                   coupon.scopeType == "ALL" && coupon.storeId == "0"
                     ? "全平台"

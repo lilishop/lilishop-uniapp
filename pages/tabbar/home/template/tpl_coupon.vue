@@ -21,7 +21,7 @@
               <text class="coupon-value">{{ unitPrice(item.price) }}</text>
             </template>
           </view>
-          <view class="coupon-threshold">满{{ unitPrice(item.consumeThreshold) }}元可用</view>
+          <view class="coupon-threshold">{{ item.consumeThreshold > 0 ? '满' + unitPrice(item.consumeThreshold) + '元可用' : '无门槛使用' }}</view>
         </view>
         <view class="coupon-right">
           <view class="coupon-name">
