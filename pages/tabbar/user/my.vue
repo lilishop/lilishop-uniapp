@@ -182,8 +182,15 @@ onShow(() => {
 })
 
 onPullDownRefresh(() => {
-  getUserOrderNum()
-  userInfo.value = isLogin()
+  userInfo.value = isLogin() || {}
+  if (isLogin('auth')) {
+    getUserOrderNum()
+  } else {
+    walletNum.value = 0
+    couponNum.value = 0
+    footNum.value = 0
+    uni.stopPullDownRefresh()
+  }
 })
 
 // #ifndef MP
@@ -205,17 +212,24 @@ function userDetail() {
 }
 
 async function getUserOrderNum() {
-  uni.stopPullDownRefresh()
-
-  Promise.all([
-    getCouponsNum(),
-    getFootprintNum(),
-    getUserWallet(),
-  ]).then((res: any[]) => {
-    couponNum.value = res[0].data.result
-    footNum.value = res[1].data.result
-    walletNum.value = res[2].data.result.memberWallet
-  })
+  try {
+    // Each request can fail independently; a missing wallet must not break the other counts.
+    const results = await Promise.allSettled([
+      getCouponsNum(),
+      getFootprintNum(),
+      getUserWallet(),
+    ])
+    // The user may have logged out while these requests were running.
+    if (!isLogin('auth')) return
+    const targets = [couponNum, footNum, walletNum]
+    results.forEach((result, index) => {
+      if (result.status !== 'fulfilled' || !result.value?.data?.success) return
+      const data = result.value.data.result
+      targets[index].value = index === 2 ? (data?.memberWallet ?? 0) : (data ?? 0)
+    })
+  } finally {
+    uni.stopPullDownRefresh()
+  }
 }
 </script>
 

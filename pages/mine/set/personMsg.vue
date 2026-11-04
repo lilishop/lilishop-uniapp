@@ -1,9 +1,17 @@
 <template>
   <view :style="themeStyle" class="person-msg">
+    <!-- #ifdef MP-WEIXIN -->
+    <button class="head avatar-button" open-type="chooseAvatar" :disabled="avatarUploading || saving" @chooseavatar="onChooseAvatar">
+      <image :src="form.face || '/static/missing-face.png'" mode="aspectFill"></image>
+      <view>{{ avatarUploading ? '头像上传中…' : '点击选择微信头像' }}</view>
+    </button>
+    <!-- #endif -->
+    <!-- #ifndef MP-WEIXIN -->
     <view class="head" @click="changeFace">
       <image :src="form.face || '/static/missing-face.png'" mode="aspectFill"></image>
-      <view>点击修改头像</view>
+      <view>{{ avatarUploading ? '头像上传中…' : '点击修改头像' }}</view>
     </view>
+    <!-- #endif -->
 
     <up-form
       :model="form"
@@ -13,12 +21,26 @@
       label-width="180rpx"
     >
       <up-form-item label="昵称" label-width="180rpx" :border-bottom="true">
+        <!-- #ifdef MP-WEIXIN -->
+        <input
+          class="nickname-input"
+          type="nickname"
+          :value="form.nickName"
+          :disabled="saving"
+          placeholder="点击填写微信昵称"
+          @input="onNicknameChange"
+          @blur="onNicknameChange"
+          @nicknamereview="onNicknameReview"
+        />
+        <!-- #endif -->
+        <!-- #ifndef MP-WEIXIN -->
         <u-input
           v-model="form.nickName"
           border="none"
           input-align="right"
           placeholder="请输入昵称"
         />
+        <!-- #endif -->
       </up-form-item>
 
       <up-form-item label="性别" label-width="180rpx" :border-bottom="true">
@@ -55,7 +77,9 @@
     </up-form>
 
     <view class="bottom">
-      <view class="submit" @click="submit">保存</view>
+      <button class="submit" :disabled="avatarUploading || saving" :loading="saving" @click="submit">
+        {{ avatarUploading ? '头像上传中…' : saving ? '正在保存…' : '保存' }}
+      </button>
     </view>
 
     <u-datetime-picker
@@ -80,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, nextTick } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import { saveUserInfo } from '@/api/members.js'
@@ -126,6 +150,24 @@ const maxBirthdayDate = Date.now()
 const region = ref([{ id: '', localName: '请选择', children: [] }])
 const showBirthday = ref(false)
 const cityPicker = ref<any>(null)
+const avatarUploading = ref(false)
+const saving = ref(false)
+
+function onNicknameChange(e: any) {
+	if (typeof e?.detail?.value === 'string') form.nickName = e.detail.value
+}
+
+function onNicknameReview(e: any) {
+	if (e?.detail?.pass === false) {
+		form.nickName = ''
+		uni.showToast({ title: '昵称未通过审核，请重新填写', icon: 'none' })
+	}
+}
+
+function onChooseAvatar(e: any) {
+	const filePath = e?.detail?.avatarUrl
+	if (typeof filePath === 'string' && filePath) uploadAvatar(filePath)
+}
 
 function getPickerParentValue(selected: any[]) {
 	form.region = []
@@ -145,31 +187,66 @@ function clickRegion() {
 	cityPicker.value?.show()
 }
 
-function submit() {
+async function submit() {
+	if (avatarUploading.value || saving.value) return
+	// Nickname autofill can update the value in the blur event before the save tap.
+	await nextTick()
+	if (avatarUploading.value || saving.value) return
 	const params = JSON.parse(JSON.stringify(form))
+	params.nickName = String(params.nickName || '').trim()
+	if (!params.nickName) {
+		uni.showToast({ title: '请填写昵称', icon: 'none' })
+		return
+	}
 	delete params.regionPath
-	saveUserInfo(params).then((res) => {
-		if (res.statusCode === 200) {
+	saving.value = true
+	try {
+		const res = await saveUserInfo(params)
+		if (res.data?.success && res.data.result) {
 			storage.setUserInfo(res.data.result)
 			uni.navigateBack()
+		} else {
+			uni.showToast({ title: res.data?.message || '保存失败，请重试', icon: 'none' })
 		}
-	})
+	} catch {
+		uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+	} finally {
+		saving.value = false
+	}
 }
 
 function changeFace() {
+	if (avatarUploading.value || saving.value) return
 	uni.chooseImage({
+		count: 1,
 		success: (chooseImageRes) => {
-			uni.uploadFile({
-				url: upload,
-				filePath: chooseImageRes.tempFilePaths[0],
-				name: 'file',
-				header: { accessToken: storage.getAccessToken() },
-				success: (uploadFileRes) => {
-					const data = JSON.parse(uploadFileRes.data)
-					form.face = data.result
-				},
-			})
+			const filePath = chooseImageRes.tempFilePaths?.[0]
+			if (filePath) uploadAvatar(filePath)
 		},
+	})
+}
+
+function uploadAvatar(filePath: string) {
+	if (avatarUploading.value || saving.value) return
+	avatarUploading.value = true
+	uni.uploadFile({
+		url: upload,
+		filePath,
+		name: 'file',
+		header: { accessToken: storage.getAccessToken() },
+		success: (res) => {
+			try {
+				const data = JSON.parse(res.data)
+				if (res.statusCode !== 200 || !data.success || typeof data.result !== 'string' || !data.result) {
+					throw new Error('上传失败')
+				}
+				form.face = data.result
+			} catch {
+				uni.showToast({ title: '头像上传失败，请重新选择', icon: 'none' })
+			}
+		},
+		fail: () => uni.showToast({ title: '头像上传失败，请重新选择', icon: 'none' }),
+		complete: () => { avatarUploading.value = false },
 	})
 }
 
@@ -192,22 +269,11 @@ function navigateToBindMobile(username: string) {
 	})
 }
 
-function syncUserInfo() {
+onShow(() => {
 	const latest = storage.getUserInfo() || {}
-	form.nickName = latest.nickName || ''
-	form.birthday = latest.birthday || ''
-	form.face = latest.face || '/static/missing-face.png'
-	form.region = latest.region || []
-	form.sex = latest.sex != null ? String(latest.sex) : '1'
-	form.regionPath = latest.region
+	// Refresh a newly bound phone without overwriting unsaved avatar/nickname edits.
 	form.mobile = latest.mobile
 	form.username = latest.username
-	birthday.value = latest.birthday || ''
-	birthdayValue.value = parseBirthdayTimestamp(latest.birthday)
-}
-
-onShow(() => {
-	syncUserInfo()
 })
 </script>
 
@@ -246,6 +312,23 @@ page {
     margin-top: 16rpx;
     line-height: 1.4;
   }
+}
+
+.avatar-button {
+  width: 100%;
+  border-radius: 0;
+  line-height: normal;
+  &::after { border: none; }
+  &[disabled] { background: #fff; color: #999; }
+}
+
+.nickname-input {
+  width: 100%;
+  min-width: 0;
+  height: 64rpx;
+  text-align: right;
+  font-size: 28rpx;
+  color: #333;
 }
 
 .form {
@@ -341,5 +424,9 @@ page {
   font-size: 30rpx;
   background: $light-color;
   color: #fff;
+  margin: 0;
+  padding: 0;
+  &::after { border: none; }
+  &[disabled] { opacity: .5; background: $light-color; color: #fff; }
 }
 </style>

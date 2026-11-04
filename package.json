@@ -11,7 +11,7 @@
     "type": "git",
     "url": "https://gitee.com/beijing_hongye_huicheng/lilishop-uniapp"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@tencentcloud/chat": "^3.5.5",
     "hls.js": "^1.6.16",

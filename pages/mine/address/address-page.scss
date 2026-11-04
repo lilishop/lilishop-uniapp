@@ -1,0 +1,43 @@
+.address-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: #f6f7f9;
+  padding: 28rpx 24rpx calc(180rpx + env(safe-area-inset-bottom));
+}
+
+.address-card {
+  background: #fff;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+
+.address-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 90;
+  box-sizing: border-box;
+  padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1rpx solid #f0f1f4;
+}
+
+.address-primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14rpx;
+  width: 100%;
+  height: 88rpx;
+  margin: 0;
+  padding: 0 24rpx;
+  border-radius: 44rpx;
+  background: var(--theme-primary);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 500;
+  line-height: 1;
+  &::after { border: none; }
+  &[disabled] { opacity: .5; background: var(--theme-primary); color: #fff; }
+}

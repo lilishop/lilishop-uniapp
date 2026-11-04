@@ -3,8 +3,8 @@
     "name" : "lilishop",
     "appid" : "__UNI__ED807EA",
     "description" : "",
-    "versionName" : "4.5.3",
-    "versionCode" : 4000503,
+    "versionName" : "5.03",
+    "versionCode" : 503,
     "transformPx" : false,
     "app-plus" : {
         "compatible" : {
@@ -212,7 +212,7 @@
         "plugins" : {},
         "libVersion" : "3.5.8",
         "__usePrivacyCheck__" : false,
-        "requiredPrivateInfos" : [ "chooseLocation", "getLocation" ]
+        "requiredPrivateInfos" : [ "chooseLocation", "getLocation", "chooseAddress" ]
     },
     "h5" : {
         "devServer" : {
