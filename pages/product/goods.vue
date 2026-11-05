@@ -70,7 +70,7 @@
          
           <GoodsSwiper id="main1" :res="imgList" :video="goodsDetail.goodsVideo" />
 
-          <!-- 促销活动条（秒杀/限时直降/拼团等，M-02 含 E_COUPON） -->
+          <!-- 促销活动条（秒杀/拼团等，M-02 含 E_COUPON） -->
           <PromotionAssembleLayout v-if="PromotionList" :detail="goodsDetail" :res="PromotionList" />
 
           <view class="card-box top-radius-0" id="main2">

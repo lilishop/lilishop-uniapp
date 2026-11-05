@@ -2,18 +2,6 @@
 	<view>
 		<view v-for="(promotionItem, promotionIndex) in promotion" :key="promotionIndex" class="promotion_row" @click="shutMask(1)">
 			<view v-if="res != null" v-for="(item, index) in Object.keys(res)" :key="index">
-				<div class="promotion_col" v-if="item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'FLASH_DISCOUNT'">
-					<div class="flex">
-						<view class="deg_tag">{{ promotionItem.title }}</view>
-						<div class="text proText">{{ res[item].promotionName || res[item].title || '限时直降' }}</div>
-					</div>
-				</div>
-				<div class="promotion_col" v-if="item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'NTH_ITEM_DISCOUNT'">
-					<div class="flex">
-						<view class="deg_tag">{{ promotionItem.title }}</view>
-						<div class="text proText">{{ res[item].promotionName || res[item].title || '第N件优惠' }}</div>
-					</div>
-				</div>
 				<div class="promotion_col" v-if="item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'FULL_DISCOUNT'">
 					<!-- 满减，折扣 -->
 					<div class="flex">
