@@ -69,6 +69,13 @@
 
     <!-- 下方主内容卡片区域 -->
     <view class="main-container">
+      <navigator v-if="showPaidMemberEntry" class="paid-entry" :style="{ color: paidEntryColor }" url="/pages/mine/paidMember" hover-class="none">
+        <image v-if="paidEntryBackground" class="entry-bg" :src="paidEntryBackground" mode="aspectFill" />
+        <view class="entry-content">
+          <view><text class="entry-title">{{ paidEntryTitle }}</text><text class="entry-subtitle">{{ paidEntrySubtitle }}</text></view>
+          <u-icon name="arrow-right" size="14" :color="paidEntryColor" />
+        </view>
+      </navigator>
       <!-- 我的订单卡片 -->
       <view class="card-box order-box">
         <view class="card-title-bar">
@@ -132,6 +139,7 @@ import {
   onNavigationBarButtonTap,
 } from '@dcloudio/uni-app'
 import tool from '@/pages/tabbar/user/utils/tool.vue'
+import { getPaidMember } from '@/api/paid-member'
 import { getCouponsNum, getFootprintNum } from '@/api/members.js'
 import { getUserWallet } from '@/api/members'
 import configs from '@/config/config'
@@ -154,6 +162,22 @@ const aiderLightColor = computed(() => store.getters.aiderLightColor)
 
 const userImage = configs.defaultUserPhoto
 const userInfo = ref<any>({})
+const paidMemberInfo = ref<any>(null)
+let paidMemberRequestId = 0
+const showPaidMemberEntry = computed(() => !!paidMemberInfo.value?.config
+  && !!(paidMemberInfo.value.config.enabled || paidMemberInfo.value.active || paidMemberInfo.value.status === 'EXPIRED'))
+const paidEntryTitle = computed(() => paidMemberInfo.value?.active
+  ? paidMemberInfo.value.config?.openedText || '我的付费会员'
+  : paidMemberInfo.value?.config?.unopenedText || '开通付费会员，享专属权益')
+const paidEntryColor = computed(() => (paidMemberInfo.value?.active
+  ? paidMemberInfo.value.config?.openedFontColor
+  : paidMemberInfo.value?.config?.unopenedFontColor) || '#f4dfb9')
+const paidEntryBackground = computed(() => paidMemberInfo.value?.active
+  ? paidMemberInfo.value.config?.openedBackground
+  : paidMemberInfo.value?.config?.unopenedBackground)
+const paidEntrySubtitle = computed(() => paidMemberInfo.value?.active
+  ? '有效期至 ' + paidMemberInfo.value.endTime
+  : paidMemberInfo.value?.status === 'EXPIRED' ? '会员已到期，续费继续享权益' : '开通享商品优惠与专属权益')
 const couponNum = ref<string | number>('')
 const footNum = ref<string | number>('')
 const walletNum = ref<string | number>('')
@@ -189,6 +213,26 @@ function resetMemberGrade() {
   gradeIconFailed.value = false
 }
 
+/** 个人中心显示时读取会员配置及资格；退出或切换账号后丢弃旧请求结果。 */
+async function loadPaidMemberInfo() {
+  const requestId = ++paidMemberRequestId
+  const memberId = String(userInfo.value.id || '')
+  paidMemberInfo.value = null
+  if (!memberId) return
+  try {
+    const res = await getPaidMember()
+    if (requestId !== paidMemberRequestId
+      || String(userInfo.value.id || '') !== memberId
+      || String((isLogin() || {}).id || '') !== memberId) return
+    if (!res.data?.success) throw new Error(res.data?.message || '会员服务返回异常')
+    paidMemberInfo.value = res.data.result || null
+  } catch (error: any) {
+    if (requestId === paidMemberRequestId) {
+      console.warn('[付费会员] 入口加载失败', error?.message || '请求失败')
+    }
+  }
+}
+
 function onGradeBackgroundError() {
   gradeBackgroundFailed.value = true
   gradeBackgroundLoaded.value = false
@@ -218,6 +262,8 @@ watch(() => [store.state.userInfo?.id, store.state.hasLogin], () => {
   if (String(account.id || '') !== String(userInfo.value.id || '')) {
     userInfo.value = account
     resetMemberGrade()
+    paidMemberRequestId++
+    paidMemberInfo.value = null
     walletNum.value = 0
     couponNum.value = 0
     footNum.value = 0
@@ -256,9 +302,11 @@ async function refreshUserPage() {
   userInfo.value = isLogin() || {}
   try {
     if (isLogin('auth')) {
-      await Promise.allSettled([loadMemberGrade(), getUserOrderNum()])
+      await Promise.allSettled([loadMemberGrade(), loadPaidMemberInfo(), getUserOrderNum()])
     } else {
       resetMemberGrade()
+      paidMemberRequestId++
+      paidMemberInfo.value = null
       walletNum.value = 0
       couponNum.value = 0
       footNum.value = 0
@@ -313,6 +361,11 @@ async function getUserOrderNum() {
 </script>
 
 <style lang="scss" scoped>
+.paid-entry { position: relative; overflow: hidden; border-radius: 20rpx; background: linear-gradient(110deg, #423c36, #756149); margin-bottom: 20rpx; }
+.entry-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.entry-content { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20rpx; padding: 25rpx 28rpx; }
+.entry-title { font-size: 27rpx; font-weight: 600; display: block; }
+.entry-subtitle { font-size: 21rpx; opacity: .75; display: block; margin-top: 8rpx; }
 .user-page {
   min-height: 100vh;
   background-color: #f5f6f9;

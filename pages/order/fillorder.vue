@@ -346,7 +346,7 @@
       </div>
       <div>
         <u-row>
-          <u-col :span="6">活动优惠</u-col>
+          <u-col :span="6">活动优惠（含会员优惠）</u-col>
           <u-col :span="6" class="tr tipsColor" textAlign="right">
             <span v-if="orderMessage.priceDetailDTO.discountPrice"
               >-￥{{unitPrice(orderMessage.priceDetailDTO.discountPrice)

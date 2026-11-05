@@ -68,7 +68,7 @@
 </template>
 <script setup lang="ts">
 import { ref, getCurrentInstance, onMounted, computed } from 'vue'
-import { onLoad, onBackPress } from '@dcloudio/uni-app'
+import { onLoad, onBackPress, onUnload } from '@dcloudio/uni-app'
 import { useStore } from '@/store'
 import * as API_Trade from '@/api/trade'
 import { payCallback } from '@/api/members'
@@ -88,6 +88,8 @@ const paymentType = ref('')
 const paymentClient = ref('')
 const walletValue = ref(0)
 const autoCancelTime = ref(0)
+let h5PollTimer: ReturnType<typeof setInterval> | undefined
+onUnload(() => { if (h5PollTimer) clearInterval(h5PollTimer) })
 
 onLoad((val) => {
   routerVal.value = val || {}
@@ -107,7 +109,9 @@ onLoad((val) => {
 
 onBackPress((e) => {
   if (e.from == 'backbutton') {
-    if (routerVal.value.recharge_sn) {
+    if (routerVal.value.paid_member_sn) {
+      uni.redirectTo({ url: '/pages/mine/paidMemberRecords' })
+    } else if (routerVal.value.recharge_sn) {
       uni.switchTab({ url: '/pages/tabbar/user/my' })
     } else {
       uni.navigateTo({ url: '/pages/order/myOrder?status=0' })
@@ -126,6 +130,10 @@ function hideLoadingIfNeeded() {
 }
 
 function callback(paymentMethod: string) {
+  if (orderType.value === 'PAID_MEMBER') {
+    uni.redirectTo({ url: '/pages/mine/paidMember?payment_sn=' + encodeURIComponent(sn.value) })
+    return
+  }
   const goSuccess = () => {
     uni.redirectTo({
       url:
@@ -145,7 +153,10 @@ function callback(paymentMethod: string) {
 function cashierData() {
   const parms: Record<string, string> = {}
 
-  if (routerVal.value.recharge_sn) {
+  if (routerVal.value.paid_member_sn) {
+    sn.value = routerVal.value.paid_member_sn
+    orderType.value = 'PAID_MEMBER'
+  } else if (routerVal.value.recharge_sn) {
     sn.value = routerVal.value.recharge_sn
     orderType.value = 'RECHARGE'
   } else if (routerVal.value.trade_sn) {
@@ -212,6 +223,11 @@ function onPayTimeout() {
 }
 
 function goPayError(message = '支付失败，如果您已支付，请勿反复支付') {
+  if (orderType.value === 'PAID_MEMBER') {
+    uni.showToast({ title: '支付未完成，请在购买记录中查看结果', icon: 'none' })
+    uni.redirectTo({ url: '/pages/mine/paidMemberRecords' })
+    return
+  }
   const query = [`orderSn=${encodeURIComponent(sn.value)}`, `message=${encodeURIComponent(message)}`]
   uni.navigateTo({ url: `/pages/cart/payment/error?${query.join('&')}` })
 }
@@ -276,15 +292,24 @@ async function pay(payment: string) {
         })
         hideLoadingIfNeeded()
       } else {
-        window.location.href = JSON.parse(response.result).h5_url
+        const paymentUrl = typeof response.result === 'string' && response.result.startsWith('http')
+          ? response.result : JSON.parse(response.result).h5_url
+        const returnUrl = orderType.value === 'PAID_MEMBER'
+          ? window.location.href.split('#')[0] + '#/pages/mine/paidMember?payment_sn=' + encodeURIComponent(sn.value)
+          : window.location.href
+        window.location.href = paymentUrl + (paymentUrl.includes('?') ? '&' : '?') + 'redirect_url=' + encodeURIComponent(returnUrl)
         const searchParams = { ...params, price: cashierParams.value }
-        const timer = setInterval(() => {
+        let attempts = 0
+        if (h5PollTimer) clearInterval(h5PollTimer)
+        h5PollTimer = setInterval(() => {
+          if (++attempts > 100) { clearInterval(h5PollTimer); return }
           payCallback(searchParams).then((cbRes) => {
             if (cbRes.data.result) {
-              clearInterval(timer)
-              uni.navigateTo({ url: '/pages/order/myOrder' })
+              clearInterval(h5PollTimer)
+              if (orderType.value === 'PAID_MEMBER') callback(paymentMethod)
+              else uni.navigateTo({ url: '/pages/order/myOrder' })
             }
-          })
+          }).catch(() => {})
         }, 3000)
         hideLoadingIfNeeded()
       }

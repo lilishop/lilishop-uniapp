@@ -67,7 +67,7 @@
       >
         <view class="scroll-inner">
           <!-- 轮播图 -->
-         
+
           <GoodsSwiper id="main1" :res="imgList" :video="goodsDetail.goodsVideo" />
 
           <!-- 促销活动条（秒杀/拼团等，M-02 含 E_COUPON） -->
@@ -139,6 +139,7 @@
             </view>
           </view>
 
+          <view v-if="paidQuote && !isSeckill && !isGroup" class="card-box"><PaidMemberPrice :quote="paidQuote" /></view>
           <!-- 促销/领券入口 -->
           <view class="card-box">
             <view class="card-flex" @click="shutMask(1)">
@@ -298,6 +299,8 @@ import PromotionAssembleLayout from './product/promotion/-promotion-assemble-pro
 import PromotionAssembleListLayout from './product/promotion/-promotion-assemble-list'
 import PromotionCoupon from './product/promotion/-promotion-coupon'
 import GoodsIntro from './product/goods/-goods-intro'
+import PaidMemberPrice from '@/components/paid-member-price/index.vue'
+import { getPaidMemberQuotes } from '@/api/paid-member'
 import GoodsRecommend from './product/goods/-goods-recommend'
 import storeLayout from './product/shop/-shop'
 import Evaluation from './product/evaluation/-evaluation'
@@ -338,6 +341,19 @@ const scrollId = ref("1")
 const scrollFlag = ref(true)
 const current = ref("1")
 const goodsDetail = ref<any>({})
+const paidQuote = ref<any>(null)
+let paidQuoteRequest = 0
+async function loadPaidQuote() {
+  const id = ++paidQuoteRequest, memberId = String(isLogin()?.id || ''), skuId = goodsDetail.value?.id
+  paidQuote.value = null
+  if (!memberId || !skuId) return
+  try {
+    const res = await getPaidMemberQuotes([skuId])
+    if (id === paidQuoteRequest && String(isLogin()?.id || '') === memberId && res.data?.success) paidQuote.value = res.data.result?.[skuId] || null
+  } catch {}
+}
+watch(() => [goodsDetail.value?.id, store.state.userInfo?.id, store.state.hasLogin], loadPaidQuote)
+onShow(loadPaidQuote)
 const goodsSpec = ref<any>("")
 const imgList = ref<any[]>([])
 const favorite = ref(false)

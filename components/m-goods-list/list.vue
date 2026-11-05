@@ -20,6 +20,7 @@
 	          }}
 						</div>
 					</view>
+					<PaidMemberPrice :quote="paidQuotes[item.id]" />
 					<div class="promotion" @click="navigateToDetailPage(item)">
 						<div v-for="(promotionItem,promotionIndex) in  getPromotion(item)" :key="promotionIndex">
 							<span class="promotion-tag" v-if="promotionItem.indexOf('COUPON') != -1">劵</span>
@@ -80,6 +81,7 @@
 								<u-icon name="shopping-cart" size="16" :color="mainColor"></u-icon>
 							</div>
 						</view>
+						<PaidMemberPrice v-if="flag('price')" :quote="paidQuotes[item.id]" />
 						<div class="store-seller-name" v-if="storeName" @click="navigateToStoreDetailPage(item)">
 							<view class="store-name-row">
 								<text class="self-tag" v-if="item.selfOperated && flag('selfTag')">自营</text>
@@ -96,7 +98,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import PaidMemberPrice from '@/components/paid-member-price/index.vue'
+import { getPaidMemberQuotes } from '@/api/paid-member'
+import { isLogin } from '@/utils/filters'
 import { useStore } from '@/store'
 import { useGoodsListCommon } from './common'
 import { goodsFormatPrice } from '@/utils/filters.js'
@@ -123,6 +129,21 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits(['addCart'])
+const paidQuotes = ref<Record<string, any>>({})
+let paidRequest = 0
+async function loadPaidQuotes() {
+  const request = ++paidRequest, memberId = String(isLogin()?.id || '')
+  paidQuotes.value = {}
+  if (!memberId) return
+  const ids = [...new Set((props.res || []).map(item => String(item.id || '')).filter(Boolean))]
+  try {
+    const results = await Promise.all(Array.from({length:Math.ceil(ids.length/100)},(_,i)=>getPaidMemberQuotes(ids.slice(i*100,i*100+100))))
+    if (request !== paidRequest || String(isLogin()?.id || '') !== memberId) return
+    paidQuotes.value = Object.assign({}, ...results.filter(res=>res.data?.success).map(res=>res.data.result || {}))
+  } catch {}
+}
+watch(() => [(props.res || []).map(item=>item.id).join(','), store.state.userInfo?.id, store.state.hasLogin], loadPaidQuotes, {immediate:true})
+onShow(loadPaidQuotes)
 
 // 存量字段(促销/销量/自营/价格):showFields 为 null 时维持现状渲染
 const flag = (key: string) => props.showFields == null || props.showFields[key] !== false

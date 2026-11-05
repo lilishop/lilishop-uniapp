@@ -13,16 +13,16 @@
 		}
 	},
 	"pages": [
-
+		
 		{
 			"path": "pages/tabbar/home/index",
 			"style": {
 				"navigationBarTitleText": "首页",
 				"navigationStyle": "custom", // 隐藏系统导航栏
 				"navigationBarTextStyle": "black",
-				"enablePullDownRefresh":true
+				"enablePullDownRefresh":true  
 			}
-		},
+		}, 
 		{
 			"path":"pages/tabbar/screen/fullScreen",
 			"style": {
@@ -63,13 +63,13 @@
 				}
 			}
 		},
-
+				
 		{
 			"path": "pages/navigation/search/searchPage",
 			"style": {
 				"navigationBarTitleText": "搜索",
 				"navigationStyle": "custom",
-
+				
 				"app-plus": {
 					//app页面不显示滚动条
 					"scrollIndicator": "none",
@@ -89,11 +89,11 @@
 				"navigationStyle": "custom"
 			}
 		},
-
+		
 		{
 			"path": "pages/tabbar/home/web-view",
 			"style": {
-
+				
 			}
 		},
 				{
@@ -174,8 +174,10 @@
 			"root": "pages/mine",
 			"pages": [
                 {"path":"memberBenefits","style":{"navigationBarTitleText":"会员权益","enablePullDownRefresh":true,"navigationBarBackgroundColor":"#f5f6f9","navigationBarTextStyle":"black"}},
+                {"path":"paidMember","style":{"navigationBarTitleText":"付费会员","enablePullDownRefresh":true,"navigationBarBackgroundColor":"#f5f6f9","navigationBarTextStyle":"black"}},
+                {"path":"paidMemberRecords","style":{"navigationBarTitleText":"会员购买记录","enablePullDownRefresh":true,"navigationBarBackgroundColor":"#f5f6f9","navigationBarTextStyle":"black"}},
                 {"path":"experience","style":{"navigationBarTitleText":"我的经验","enablePullDownRefresh":true,"navigationBarBackgroundColor":"#f5f6f9","navigationBarTextStyle":"black"}},
-
+				
 				{
 					"path": "signIn",
 					"style": {
@@ -381,7 +383,7 @@
 						"navigationStyle": "custom"
 					}
 				},
-
+			
 			{
 				"path": "deposit/info",
 				"style": {
@@ -434,8 +436,8 @@
 						"navigationBarTitleText": "面容登录"
 					}
 				},
-
-
+				
+				
 				{
 					"path": "set/securityCenter/editPassword",
 					"style": {
@@ -445,13 +447,13 @@
 						}
 					}
 				},
-
+				
 				{
 					"path": "set/securityCenter/bindMobile",
 					"style": {
 						"navigationBarTitleText": "绑定手机号",
 						"app-plus": {
-
+				
 						}
 					}
 				},
@@ -463,7 +465,7 @@
 						"enablePullDownRefresh": true,
 						"app-plus": {
 						}
-
+						
 					}
 				},
 				{
@@ -473,7 +475,7 @@
 						"enablePullDownRefresh": true,
 						"app-plus": {
 						}
-
+						
 					}
 				},
 				{
@@ -621,9 +623,9 @@
 							// 禁止页面滚动
 							"scrollIndicator": "none",
 							"safearea": {
-								"bottom": {
-									  "offset": "none"
-								  }
+								"bottom": {  
+									  "offset": "none" 
+								  }   
 							  }
 						}
 					}
@@ -679,14 +681,14 @@
 							"animationType": "slide-in-bottom",
 							"scrollIndicator": "none",
 							"safearea": {
-								"bottom": {
-									  "offset": "none"
-								  }
+								"bottom": {  
+									  "offset": "none" 
+								  }   
 							  }
 						}
 					}
 				},
-
+				
 				{
 					"path": "entry/seller/index",
 					"style": {
@@ -742,7 +744,7 @@
 						}
 					}
 				},
-
+				
 				// #ifndef MP-WEIXIN
 				{
 					"path": "live/room",
@@ -804,7 +806,7 @@
 					"path": "point/pointList",
 					"style": {
 						"navigationBarTitleText": "积分商城"
-
+						
 
 					}
 				}
@@ -820,7 +822,7 @@
 						"navigationBarTitleText": "我的优惠券",
 						"app-plus": {
 							"bounce": "coupon/none"
-
+							
 						}
 					}
 				},
@@ -836,13 +838,13 @@
 						"navigationBarTitleText": "优惠券"
 					}
 				},
-
+				
 				{
 					"path": "coupon/couponCenter",
 					"style": {
 						"navigationBarTitleText": "领券中心",
 						"enablePullDownRefresh": true
-
+						
 					}
 				},
 				{
@@ -899,7 +901,7 @@
 						}
 					}
 				}
-
+				
 			]
 
 		},
@@ -930,7 +932,7 @@
 						"enablePullDownRefresh": true,
 						"app-plus": {
 							"bounce": "none"
-
+						
 						}
 					}
 				},
@@ -971,7 +973,7 @@
 						"navigationBarTitleText": "评价详情"
 					}
 				},
-
+			
 				{
 					"path": "evaluate/releaseEvaluate",
 					"style": {
@@ -984,7 +986,7 @@
 						"navigationBarTitleText": "我的评价"
 					}
 				},
-
+				
 				{
 					"path": "afterSales/applyProgress",
 					"style": {
@@ -1069,7 +1071,7 @@
 				"selectedIconPath": "static/tabbar/category-s.png",
 				"text": "分类"
 			},
-
+		
 			{
 				"pagePath": "pages/tabbar/cart/cartList",
 				"iconPath": "static/tabbar/cart.png",
@@ -1084,11 +1086,11 @@
 			}
 		]
 	},
-	// #todo 为什么要注释condition下代码？
+	// #todo 为什么要注释condition下代码？ 
 	// IOS plus.runtime.arguments 添加 condition节点后， 框架会修改 runtime.arguments
 	// 会影响什么功能？
 	//    -在h5中唤醒app会一直返回默认值 {"name":"","path":"","query":"","id":0}
-	"condition": { //模式配置，仅开发期间生效
+	"condition": { //模式配置，仅开发期间生效   
 		// "current": 0, //当前激活的模式(list 的索引项)
 		// "list": [{
 		// 	"name": "", //模式名称
