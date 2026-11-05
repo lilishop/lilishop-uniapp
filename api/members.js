@@ -477,3 +477,11 @@ export function withdrawalSettingVO() {
   });
 }
 
+
+export function getCurrentMemberBenefits() { return http.request({url:'/member/benefit/current',method:Method.GET,needToken:true}) }
+export function getMemberGradeBenefits() { return http.request({url:'/member/memberGrade/list',method:Method.GET,needToken:true}) }
+
+/** 仅返回后台已开启的经验值规则及当前会员累计获得情况。 */
+export function getExperienceTasks() { return http.request({ url: '/member/memberGrade/rules', method: Method.GET, needToken: true }) }
+/** 当前会员等级、经验值及分页流水；会员身份由服务端登录态确定。 */
+export function getExperienceRecords(params) { return http.request({ url: '/member/memberGrade/current', method: Method.GET, params, needToken: true }) }

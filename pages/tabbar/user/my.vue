@@ -1,14 +1,21 @@
 <template>
   <view class="user-page" :style="themeStyle">
     <!-- 顶部沉浸式头部区域 -->
-    <view class="hero-header" :style="{ paddingTop: headerPaddingTop + 'px' }">
-      <!-- 用户信息区（沉降至胶囊安全区下方，舒展大气） -->
+    <view class="hero-header" :style="heroHeaderStyle">
+      <image
+        v-if="gradeBackgroundUrl && !gradeBackgroundFailed"
+        :key="gradeBackgroundUrl"
+        class="grade-background"
+        :class="{ 'is-loaded': gradeBackgroundLoaded }"
+        :src="gradeBackgroundUrl"
+        mode="aspectFill"
+        @load="gradeBackgroundLoaded = true"
+        @error="onGradeBackgroundError"
+      />
+      <!-- 用户信息区保持在微信胶囊安全区下方 -->
       <view class="user-profile" @click="userDetail">
         <view class="avatar-container">
           <image class="avatar-img" :src="userInfo.face || userImage" mode="aspectFill"></image>
-          <view class="vip-tag-icon" v-if="userInfo.id">
-            <u-icon name="level" size="10" color="#ffffff"></u-icon>
-          </view>
         </view>
 
         <view class="user-detail-info">
@@ -16,17 +23,19 @@
             <text class="user-nickname">{{ userInfo.id ? userInfo.nickName : '登录 / 注册' }}</text>
           </view>
           <view class="user-sub-row">
-            <view class="badge-tag" v-if="userInfo.id">
-              <text>普通会员</text>
+            <view class="badge-tag" v-if="userInfo.id" @click.stop="navigateTo('/pages/mine/memberBenefits')">
+              <image v-if="gradeIconUrl && !gradeIconFailed" :key="gradeIconUrl" class="grade-icon" :src="gradeIconUrl" mode="aspectFit" @error="gradeIconFailed = true" />
+              <u-icon v-else name="level" size="16" :color="memberHeaderColor"></u-icon>
+              <text class="grade-name">{{ memberGradeName }}</text>
             </view>
             <text class="user-sub-text" v-else>
-              登录享受更多会员特权与折扣
+              登录享受更多会员权益
             </text>
           </view>
         </view>
 
         <view class="profile-arrow">
-          <u-icon name="arrow-right" size="14" color="rgba(255, 255, 255, 0.75)"></u-icon>
+            <u-icon name="arrow-right" size="14" :color="memberHeaderColor"></u-icon>
         </view>
       </view>
 
@@ -115,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import {
   onLoad,
   onShow,
@@ -130,6 +139,13 @@ import { useStore } from '@/store'
 import { getThemeStyle } from '@/utils/theme'
 import { isLogin, navigateToLogin, unitPrice } from '@/utils/filters.js'
 
+import { getCurrentMemberBenefits } from '@/api/members'
+const memberGrade = ref<any>({})
+const gradeOwnerId = ref('')
+const gradeBackgroundLoaded = ref(false)
+const gradeBackgroundFailed = ref(false)
+const gradeIconFailed = ref(false)
+let gradeRequestId = 0
 const store = useStore()
 const themeStyle = computed(() => getThemeStyle(store.state.theme))
 const lightColor = computed(() => store.getters.lightColor)
@@ -142,8 +158,74 @@ const couponNum = ref<string | number>('')
 const footNum = ref<string | number>('')
 const walletNum = ref<string | number>('')
 
+const currentGrade = computed(() =>
+  userInfo.value.id && gradeOwnerId.value === String(userInfo.value.id) ? memberGrade.value : {}
+)
+const memberGradeName = computed(() => currentGrade.value.gradeName || '普通会员')
+const gradeBackgroundUrl = computed(() => currentGrade.value.gradeBackground || '')
+const gradeIconUrl = computed(() => currentGrade.value.gradeImage || '')
+const memberHeaderColor = computed(() => {
+  if (!gradeBackgroundUrl.value || !gradeBackgroundLoaded.value || gradeBackgroundFailed.value) return '#ffffff'
+  const color = currentGrade.value.gradeFontColor || ''
+  return /^#[0-9a-f]{6}$/i.test(color) ? color : '#333333'
+})
+const heroHeaderStyle = computed(() => ({
+  paddingTop: headerPaddingTop.value + 'px',
+  '--member-header-color': memberHeaderColor.value,
+}))
+
+watch(gradeBackgroundUrl, () => {
+  gradeBackgroundLoaded.value = false
+  gradeBackgroundFailed.value = false
+}, { flush: 'sync' })
+watch(gradeIconUrl, () => { gradeIconFailed.value = false }, { flush: 'sync' })
+
+function resetMemberGrade() {
+  gradeRequestId++
+  gradeOwnerId.value = ''
+  memberGrade.value = {}
+  gradeBackgroundLoaded.value = false
+  gradeBackgroundFailed.value = false
+  gradeIconFailed.value = false
+}
+
+function onGradeBackgroundError() {
+  gradeBackgroundFailed.value = true
+  gradeBackgroundLoaded.value = false
+}
+
+async function loadMemberGrade() {
+  const memberId = String(userInfo.value.id || '')
+  if (!memberId) { resetMemberGrade(); return }
+  if (gradeOwnerId.value !== memberId) resetMemberGrade()
+  const requestId = ++gradeRequestId
+  const stillCurrent = () => requestId === gradeRequestId
+    && String((isLogin() || {}).id || '') === memberId
+    && String(userInfo.value.id || '') === memberId
+  try {
+    const res = await getCurrentMemberBenefits()
+    if (!stillCurrent()) return
+    gradeOwnerId.value = memberId
+    memberGrade.value = res.data?.success ? (res.data.result?.grade || {}) : {}
+  } catch {
+    if (stillCurrent()) resetMemberGrade()
+  }
+}
+
+// 保留页在退出登录/切换账号时立即清除上一账号的等级展示。
+watch(() => [store.state.userInfo?.id, store.state.hasLogin], () => {
+  const account = store.state.hasLogin === false ? {} : (isLogin() || {})
+  if (String(account.id || '') !== String(userInfo.value.id || '')) {
+    userInfo.value = account
+    resetMemberGrade()
+    walletNum.value = 0
+    couponNum.value = 0
+    footNum.value = 0
+  }
+})
+
 // 动态计算顶部安全留白，避免顶到灵动岛/状态栏
-const headerPaddingTop = ref<number>(88)
+const headerPaddingTop = ref<number>(80)
 
 function initSafeTop() {
   try {
@@ -152,17 +234,17 @@ function initSafeTop() {
     // #ifdef MP-WEIXIN
     const menu = uni.getMenuButtonBoundingClientRect()
     if (menu && menu.bottom) {
-      // 头像整行落到微信胶囊下方，预留 16px 呼吸空隙，彻底消除压迫感
-      headerPaddingTop.value = menu.bottom + 16
+      // 胶囊下方保留 8px，减少空白且不遮挡用户信息
+      headerPaddingTop.value = menu.bottom + 8
     } else {
-      headerPaddingTop.value = statusBar + 54
+      headerPaddingTop.value = statusBar + 44
     }
     // #endif
     // #ifndef MP-WEIXIN
-    headerPaddingTop.value = statusBar + 32
+    headerPaddingTop.value = statusBar + 20
     // #endif
   } catch (e) {
-    headerPaddingTop.value = 88
+    headerPaddingTop.value = 80
   }
 }
 
@@ -170,28 +252,24 @@ onLoad(() => {
   initSafeTop()
 })
 
-onShow(() => {
+async function refreshUserPage() {
   userInfo.value = isLogin() || {}
-  if (isLogin('auth')) {
-    getUserOrderNum()
-  } else {
-    walletNum.value = 0
-    couponNum.value = 0
-    footNum.value = 0
-  }
-})
-
-onPullDownRefresh(() => {
-  userInfo.value = isLogin() || {}
-  if (isLogin('auth')) {
-    getUserOrderNum()
-  } else {
-    walletNum.value = 0
-    couponNum.value = 0
-    footNum.value = 0
+  try {
+    if (isLogin('auth')) {
+      await Promise.allSettled([loadMemberGrade(), getUserOrderNum()])
+    } else {
+      resetMemberGrade()
+      walletNum.value = 0
+      couponNum.value = 0
+      footNum.value = 0
+    }
+  } finally {
     uni.stopPullDownRefresh()
   }
-})
+}
+
+onShow(refreshUserPage)
+onPullDownRefresh(refreshUserPage)
 
 // #ifndef MP
 onNavigationBarButtonTap((e) => {
@@ -212,6 +290,7 @@ function userDetail() {
 }
 
 async function getUserOrderNum() {
+  const memberId = String(userInfo.value.id || '')
   try {
     // Each request can fail independently; a missing wallet must not break the other counts.
     const results = await Promise.allSettled([
@@ -220,15 +299,15 @@ async function getUserOrderNum() {
       getUserWallet(),
     ])
     // The user may have logged out while these requests were running.
-    if (!isLogin('auth')) return
+    if (String((isLogin() || {}).id || '') !== memberId || String(userInfo.value.id || '') !== memberId) return
     const targets = [couponNum, footNum, walletNum]
     results.forEach((result, index) => {
       if (result.status !== 'fulfilled' || !result.value?.data?.success) return
       const data = result.value.data.result
       targets[index].value = index === 2 ? (data?.memberWallet ?? 0) : (data ?? 0)
     })
-  } finally {
-    uni.stopPullDownRefresh()
+  } catch {
+    // 等级与资产请求独立，接口异常不影响页面其它内容。
   }
 }
 </script>
@@ -248,19 +327,35 @@ async function getUserOrderNum() {
   background: linear-gradient(175deg, #e53238 0%, #eb4448 45%, #ff5e62 100%);
   padding-left: 28rpx;
   padding-right: 28rpx;
-  padding-bottom: 64rpx;
+  padding-bottom: 44rpx;
   border-bottom-left-radius: 36rpx;
   border-bottom-right-radius: 36rpx;
-  /* CSS 静态兜底：状态栏高度 + 充足的沉降留白 */
-  padding-top: calc(var(--status-bar-height, 44px) + 88rpx);
+  /* 静态兜底保留状态栏与导航操作区域 */
+  padding-top: calc(var(--status-bar-height, 44px) + 72rpx);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-/* 用户信息行（移到胶囊下方，拥有充裕横纵向空间） */
+.grade-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.grade-background.is-loaded {
+  opacity: 1;
+}
+
+/* 紧凑用户信息行 */
 .user-profile {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 8rpx 6rpx;
+  padding: 4rpx 6rpx;
   transition: opacity 0.2s;
 
   &:active {
@@ -272,8 +367,8 @@ async function getUserOrderNum() {
     flex-shrink: 0;
 
     .avatar-img {
-      width: 124rpx;
-      height: 124rpx;
+      width: 104rpx;
+      height: 104rpx;
       border-radius: 50%;
       border: 4rpx solid rgba(255, 255, 255, 0.92);
       box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.16);
@@ -281,19 +376,6 @@ async function getUserOrderNum() {
       display: block;
     }
 
-    .vip-tag-icon {
-      position: absolute;
-      right: -2rpx;
-      bottom: 2rpx;
-      width: 34rpx;
-      height: 34rpx;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      border: 2rpx solid #ffffff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
   }
 
   .user-detail-info {
@@ -306,9 +388,9 @@ async function getUserOrderNum() {
       align-items: center;
 
       .user-nickname {
-        font-size: 38rpx;
+        font-size: 34rpx;
         font-weight: 700;
-        color: #ffffff;
+        color: var(--member-header-color, #ffffff);
         letter-spacing: 0.5rpx;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -317,25 +399,46 @@ async function getUserOrderNum() {
     }
 
     .user-sub-row {
-      margin-top: 12rpx;
+      margin-top: 8rpx;
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: 12rpx;
 
       .badge-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6rpx;
+        max-width: 100%;
+        min-height: 40rpx;
+        box-sizing: border-box;
         font-size: 20rpx;
-        color: #ffffff;
+        color: var(--member-header-color, #ffffff);
         background: rgba(255, 255, 255, 0.22);
-        padding: 3rpx 14rpx;
+        padding: 2rpx 12rpx 2rpx 6rpx;
         border-radius: 20rpx;
         border: 1rpx solid rgba(255, 255, 255, 0.35);
         font-weight: 500;
+
+        .grade-icon {
+          width: 36rpx;
+          height: 36rpx;
+          flex-shrink: 0;
+          display: block;
+        }
+
+        .grade-name {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       }
 
       .user-sub-text {
         font-size: 23rpx;
-        color: rgba(255, 255, 255, 0.88);
+        color: var(--member-header-color, #ffffff);
+        opacity: 0.88;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -350,12 +453,13 @@ async function getUserOrderNum() {
   }
 }
 
-/* 核心资产栏（沉浸在红色背景中） */
+/* 核心资产栏 */
 .hero-assets {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 44rpx;
+  margin-top: 24rpx;
   padding: 0 12rpx;
 
   .asset-col {
@@ -374,7 +478,7 @@ async function getUserOrderNum() {
     .asset-number-row {
       display: flex;
       align-items: baseline;
-      color: #ffffff;
+      color: var(--member-header-color, #ffffff);
 
       .symbol {
         font-size: 22rpx;
@@ -384,7 +488,7 @@ async function getUserOrderNum() {
       }
 
       .num {
-        font-size: 40rpx;
+        font-size: 36rpx;
         font-weight: 700;
         letter-spacing: 0.5rpx;
       }
@@ -404,9 +508,10 @@ async function getUserOrderNum() {
     }
 
     .asset-title {
-      margin-top: 10rpx;
+      margin-top: 8rpx;
       font-size: 24rpx;
-      color: rgba(255, 255, 255, 0.88);
+      color: var(--member-header-color, #ffffff);
+      opacity: 0.88;
       line-height: 1;
     }
   }
@@ -414,7 +519,8 @@ async function getUserOrderNum() {
   .asset-sep {
     width: 2rpx;
     height: 38rpx;
-    background-color: rgba(255, 255, 255, 0.22);
+    background-color: var(--member-header-color, #ffffff);
+    opacity: 0.22;
   }
 }
 
