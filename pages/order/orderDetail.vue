@@ -257,7 +257,7 @@
     <u-popup class="cancel-popup" v-model:show="cancelShow" mode="bottom" length="60%">
       <view class="header">取消订单</view>
       <view class="body">
-        <view class="title">取消订单后，本单享有的优惠可能会一并取消，是否继续？</view>
+        <view class="title">{{ order.pickupCardId ? '此订单使用提货卡兑换，取消不退还提货权益，无法再次兑换。是否继续？' : '取消订单后，本单享有的优惠可能会一并取消，是否继续？' }}</view>
         <view>
           <u-radio-group v-model="reason">
             <view class="value">

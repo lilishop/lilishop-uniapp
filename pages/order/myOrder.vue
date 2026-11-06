@@ -114,7 +114,7 @@
 		<u-popup class="cancel-popup" v-model:show="cancelShow" mode="bottom" length="60%">
 			<view class="header">取消订单</view>
 			<view class="body">
-				<view class="title">取消订单后，本单享有的优惠可能会一并取消，是否继续？</view>
+				<view class="title">{{ cancelIsPickup ? '此订单使用提货卡兑换，取消不退还提货权益，无法再次兑换。是否继续？' : '取消订单后，本单享有的优惠可能会一并取消，是否继续？' }}</view>
 				<view>
 					<u-radio-group v-model="reason">
 						<view class="value">
@@ -299,7 +299,10 @@ function getOrderItemImage(goods: any, order: any, index: number) {
 	return parseGoodsImageUrl(image)
 }
 
+const cancelIsPickup = ref(false)
+
 function onCancel(sn: string) {
+	cancelIsPickup.value = !!navList.flatMap(tab => tab.orderList).find(order => order.sn === sn)?.pickupCardId
 	orderSn.value = sn
 	cancelShow.value = true
 	uni.showLoading({ title: '加载中' })

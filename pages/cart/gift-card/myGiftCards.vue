@@ -52,17 +52,18 @@
           <view class="gcc-header-inner">
             <view class="gcc-header-left">
               <view class="gcc-title">{{ item.giftCardName || '礼品卡' }}</view>
-              <view class="gcc-face">面值{{ item.faceText }}元</view>
+              <view class="gcc-face">{{ item.cardType === 'PICKUP' ? '兑换 ' + item.pickupCount + ' 种商品' : '面值' + item.faceText + '元' }}</view>
               <view class="gcc-cardno">{{ item.cardNo }}</view>
             </view>
             <view class="gcc-header-right">
-              <view class="gcc-type">现金卡</view>
+              <view class="gcc-type">{{ item.cardType === 'PICKUP' ? '提货卡' : '现金卡' }}</view>
               <view class="gcc-expire">{{ item.expireText }}</view>
             </view>
           </view>
         </view>
         <view class="gcc-body">
-          <view class="gcc-row">
+          <view v-if="item.cardType === 'PICKUP'" class="gcc-row">每种一件 · 一次兑完 · 免邮</view>
+          <view v-else class="gcc-row">
             当前余额：
             <text class="gcc-strong" v-if="item.balance != null">￥{{ unitPrice(item.balance) }}</text>
             <text class="gcc-strong" v-else>—</text>
@@ -236,7 +237,8 @@ function onCardPrimaryAction(item: any) {
     return
   }
   if (statusTab.value === GIFT_CARD_STATUS.AVAILABLE) {
-    uni.switchTab({ url: '/pages/tabbar/home/index' })
+    if (item.cardType === 'PICKUP') uni.navigateTo({ url: '/pages/cart/gift-card/pickupCard?id=' + encodeURIComponent(resolveMemberCardId(item)) })
+    else uni.switchTab({ url: '/pages/tabbar/home/index' })
   }
 }
 </script>

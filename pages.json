@@ -848,7 +848,11 @@
 					}
 				},
 				{
-					"path": "gift-card/myGiftCards",
+					"path": "gift-card/pickupCard",
+                    "style": { "navigationBarTitleText": "提货卡兑换" }
+                },
+                {
+                    "path": "gift-card/myGiftCards",
 					"style": {
 						"navigationBarTitleText": "我的礼品卡"
 					}
