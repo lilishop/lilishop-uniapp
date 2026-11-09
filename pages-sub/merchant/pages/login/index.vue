@@ -130,6 +130,7 @@
 import { ref, reactive, onBeforeUnmount, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import storage from '@/utils/storage.js'
+import { md5 } from '@/utils/md5.js'
 import myVerification from '@/components/verification/verification.vue'
 import {
   userLogin,
@@ -250,7 +251,7 @@ const handleVerificationSuccess = () => {
   }
 }
 
-// 执行账号密码登录
+// 执行账号密码登录（密码需先做 MD5 摘要以匹配后端 BCrypt(md5(明文)) 校验口径）
 const doAccountLogin = async () => {
   submitting.value = true
   uni.showLoading({ title: '正在登录...' })
@@ -258,7 +259,7 @@ const doAccountLogin = async () => {
   try {
     const res: any = await userLogin({
       username: accountForm.username.trim(),
-      password: accountForm.password,
+      password: md5(accountForm.password),
     })
 
     uni.hideLoading()
