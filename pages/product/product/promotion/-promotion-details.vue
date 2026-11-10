@@ -1,25 +1,23 @@
+<!--
+  移动端商品详情页-促销详情弹窗内容（支持满减、满折、满赠及三级阶梯与赠品明细展示）
+  @author Bulbasaur
+  @since 2026-11-09
+-->
 <template>
   <view class="wrapper" v-if="res">
     <view v-for="prom in promotionKeys" :key="prom">
       <view v-if="getPromType(prom) == 'FULL_DISCOUNT'">
-        <view class="res_prom_item" v-if="res[prom].fullMinus">
-          <view class="deg_tag">满减</view>
-          <text class="pro-text">
-            满{{ res[prom].fullMoney }}元 立减现金
-            <text class="price">{{ res[prom].fullMinus }}元</text>
-            <text v-if="res[prom].couponFlag"> 赠送优惠券</text>
-            <text v-if="res[prom].pointFlag"> 赠送{{ res[prom].point }}积分</text>
-            <text v-if="res[prom].giftFlag"> 赠送商品</text>
-            <text v-if="res[prom].freeFreightFlag"> 赠送包邮服务</text>
-          </text>
-        </view>
-        <view class="res_prom_item" v-if="res[prom].fullRate && res[prom].fullRateFlag">
-          <view class="deg_tag">打折</view>
-          <text class="pro-text">
-            满{{ res[prom].fullMoney }}元，立享
-            <text class="price">{{ res[prom].fullRate }}折</text>
-            优惠
-          </text>
+        <view class="res_prom_item">
+          <view class="deg_tag">{{ resolveFullDiscountTag(res[prom]) }}</view>
+          <view class="pro-text">
+            <view
+              v-for="(tierText, idx) in formatFullDiscountTiers(res[prom])"
+              :key="idx"
+              class="tier-line"
+            >
+              {{ tierText }}
+            </view>
+          </view>
         </view>
       </view>
 
@@ -82,6 +80,50 @@ function getPromType(key: string) {
   return key.split('-')[0]
 }
 
+function resolveFullDiscountTag(act: any): string {
+  if (!act) return '满减'
+  if (act.activityType === 'FULL_RATE' || act.fullRateFlag) return '满折'
+  if (act.activityType === 'FULL_GIFT' || (!act.fullMinusFlag && act.giftFlag)) return '满赠'
+  return '满减'
+}
+
+function formatFullDiscountTiers(act: any): string[] {
+  if (!act) return []
+  let rules: any[] = Array.isArray(act.ruleList) ? act.ruleList : []
+  if (!rules.length && act.rulesJson) {
+    try {
+      rules = JSON.parse(act.rulesJson) || []
+    } catch (e) {
+      rules = []
+    }
+  }
+  const tag = resolveFullDiscountTag(act)
+  if (rules.length) {
+    return rules.map((r: any, i: number) => {
+      const prefix = rules.length > 1 ? `阶梯${i + 1}：` : ''
+      if (tag === '满折') {
+        return `${prefix}满${r.fullMoney}元，立享${r.fullRate}折优惠`
+      }
+      if (tag === '满赠') {
+        const gifts = Array.isArray(r.giftItems)
+          ? r.giftItems
+              .map((g: any) => `${g.goodsName || '赠品'}×${g.num || 1}`)
+              .join('、')
+          : '赠品'
+        return `${prefix}满${r.fullMoney}元，赠送[${gifts}]`
+      }
+      return `${prefix}满${r.fullMoney}元，立减现金${r.fullMinus}元`
+    })
+  }
+  if (act.fullRateFlag && act.fullRate) {
+    return [`满${act.fullMoney}元，立享${act.fullRate}折优惠`]
+  }
+  if (act.giftFlag) {
+    return [`满${act.fullMoney}元，赠送商品`]
+  }
+  return [`满${act.fullMoney}元，立减现金${act.fullMinus || 0}元`]
+}
+
 function handClickToJoinPromotion(val: string) {
   const type = getPromType(val)
   const promotionMap: Record<string, string> = {
@@ -113,6 +155,10 @@ function handClickToJoinPromotion(val: string) {
   font-size: 26rpx;
   line-height: 1.6;
   color: #333333;
+}
+
+.tier-line {
+  margin-bottom: 6rpx;
 }
 
 .wrapper {

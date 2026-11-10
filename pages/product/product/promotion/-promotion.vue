@@ -1,12 +1,17 @@
+<!--
+  移动端商品详情页-促销信息摘要栏（支持满减、满折、满赠及三级阶梯文案）
+  @author Bulbasaur
+  @since 2026-11-09
+-->
 <template>
 	<view>
 		<view v-for="(promotionItem, promotionIndex) in promotion" :key="promotionIndex" class="promotion_row" @click="shutMask(1)">
 			<view v-if="res != null" v-for="(item, index) in Object.keys(res)" :key="index">
 				<div class="promotion_col" v-if="item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'FULL_DISCOUNT'">
-					<!-- 满减，折扣 -->
+					<!-- 满减 / 满折 / 满赠 -->
 					<div class="flex">
-						<view class="deg_tag">{{ promotionItem.title }}</view>
-						<div class="text proText">满{{ res[item].fullMoney }}元，立享优惠</div>
+						<view class="deg_tag">{{ resolveFullDiscountTag(res[item]) }}</view>
+						<div class="text proText">{{ formatFullDiscountSummary(res[item]) }}</div>
 					</div>
 				</div>
 				<div class="promotion_col" v-if="item.split('-')[0] == promotionItem.value && item.split('-')[0] == 'PINTUAN'">
@@ -43,7 +48,6 @@
 				<view>
 					<div class="promotion_col coupon" v-if="couponList && promotionIndex == 1">
 						<!-- 优惠券 -->
-
 						<div><view class="deg_tag">优惠券</view></div>
 					</div>
 				</view>
@@ -86,6 +90,39 @@ watch(
   { immediate: true }
 )
 
+function resolveFullDiscountTag(act: any): string {
+  if (!act) return '满减'
+  if (act.activityType === 'FULL_RATE' || act.fullRateFlag) return '满折'
+  if (act.activityType === 'FULL_GIFT' || (!act.fullMinusFlag && act.giftFlag)) return '满赠'
+  return '满减'
+}
+
+function formatFullDiscountSummary(act: any): string {
+  if (!act) return ''
+  if (act.title) return act.title
+  if (act.rulesJson) {
+    try {
+      const rules = JSON.parse(act.rulesJson)
+      if (Array.isArray(rules) && rules.length) {
+        return rules
+          .map((r: any) => {
+            if (act.activityType === 'FULL_RATE' || act.fullRateFlag) {
+              return `满${r.fullMoney}元打${r.fullRate}折`
+            }
+            if (act.activityType === 'FULL_GIFT' || act.giftFlag) {
+              return `满${r.fullMoney}元享好礼`
+            }
+            return `满${r.fullMoney}元减${r.fullMinus}元`
+          })
+          .join('；')
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+  return `满${act.fullMoney}元，立享优惠`
+}
+
 function shutMask(val: number) {
   emit('shutMasks', val)
 }
@@ -100,11 +137,7 @@ function shutMask(val: number) {
 }
 
 .promotion_col {
-	/**/
-	// margin: 0 0 17rpx 0;
-
 	padding: 0 !important;
-
 	margin: 10rpx 0;
 }
 .promotion_row {

@@ -32,11 +32,12 @@
           </view>
         </view>
       </view>
-      <view style="height: 100px"></view>
     </view>
-    <view class="btn" @click="addAddress('')">
-      <u-icon name="plus-circle" color="#ffffff" size="18"></u-icon>
-      <text class="btn-text">添加新收货人</text>
+    <view class="btn-bar">
+      <view class="btn" @click="addAddress('')">
+        <u-icon name="plus-circle" color="#ffffff" size="18"></u-icon>
+        <text class="btn-text">添加新收货人</text>
+      </view>
     </view>
   </view>
 </template>

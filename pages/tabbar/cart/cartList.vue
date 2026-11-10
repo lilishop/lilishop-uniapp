@@ -37,16 +37,14 @@
             <span>领劵</span>
           </view>
         </view>
-        <u-swipe-action ref="swiperAction" class="cart-item" v-for="(skuItem, i) in item.skuList" :key="skuItem.goodsSku.id">
-          <u-swipe-action-item :show="skuItem.selected" @open="openAction(skuItem)" :options="options"
-          :name="i"
-          @click="changeActionTab(skuItem)" @longpress="changeActionTab(skuItem)">
-          <!-- 满减活动 -->
-          <div v-if="Object.keys(skuItem.promotionMap).length != 0">
+        <view class="cart-item" v-for="(skuItem) in item.skuList" :key="skuItem.goodsSku.id"
+          @longpress="changeActionTab(skuItem)">
+          <!-- 满优惠活动 -->
+          <div v-if="Object.keys(skuItem.promotionMap).length != 0" class="promotion-box">
             <div v-if="getPromotion(skuItem).includes('FULL_DISCOUNT')">
               <div class="promotion-notice" v-if="item.promotionNotice">
-                <span class="tips">满减</span>
-                <span style="flex:10;">{{item.promotionNotice}}</span>
+                <span class="tips">{{ getFullDiscountTag(skuItem) }}</span>
+                <span class="notice-desc">{{item.promotionNotice}}</span>
               </div>
             </div>
           </div>
@@ -93,8 +91,7 @@
               
             </view>
           </view>
-        </u-swipe-action-item>
-        </u-swipe-action>
+        </view>
       </div>
     </div>
     <u-modal v-if="deleteShow" v-model:show="deleteShow" :confirm-style="modalConfirmStyle" @confirm="deleteConfirm" show-cancel-button
@@ -168,20 +165,10 @@ import { useStore } from '@/store'
 import { unitPrice, goodsFormatPrice, isLogin, forceLogin } from '@/utils/filters.js'
 
 const store = useStore()
-const swiperAction = ref()
 
 const lightColor = computed(() => store.getters.lightColor)
 const loading = ref(false)
 const discountDetailsFlag = ref(false)
-// 商品栏右侧滑动按钮
-const options = [
-  {
-    text: "删除",
-    style: {
-      backgroundColor: store.getters.lightColor,
-    },
-  },
-]
 const isInvalid = (val: any): boolean => {
   if (!val) return false
   if (val.invalid == 1 || (!val.checked && val.errorMessage)) {
@@ -226,14 +213,7 @@ onPullDownRefresh(() => {
 
 onShow(() => {
   deleteShow.value ? (deleteShow.value = false) : true
-  if (swiperAction.value) {
-    (swiperAction.value as any[]).forEach((item: any) => {
-      item.show = false
-    })
-    getCardData()
-  } else {
-    getCardData()
-  }
+  getCardData()
 })
 
 function setCapsuleInset() {
@@ -277,22 +257,9 @@ function getCountDownTime(val: any) {
 function discountDetails() {
   discountDetailsFlag.value = true
 }
-/**
- * 左滑打开删除
- */
-function openAction(skuItem: any) {
-  cartDetail.value.cartList.forEach((cartItem: any) => {
-    if (cartItem.skuList) {
-      cartItem.skuList.forEach((sku: any) => {
-        sku["selected"] = false
-      })
-    }
-  })
-  skuItem["selected"] = true
-}
 
 /**
- * 滑动删除
+ * 长按或点击删除
  */
 function changeActionTab(val: any) {
   deleteShow.value = true
@@ -497,6 +464,22 @@ function getPromotion(item: any) {
 }
 
 /**
+ * 获取购物车商品绑定的满额活动类型标签（满减/满折/满赠）
+ */
+function getFullDiscountTag(item: any) {
+  if (!item || !item.promotionMap) return "满优惠"
+  const fdKey = Object.keys(item.promotionMap).find((child: string) => child.split("-")[0] === "FULL_DISCOUNT")
+  if (!fdKey) return "满优惠"
+  const fdObj = item.promotionMap[fdKey]
+  if (fdObj && fdObj.activityType === "FULL_RATE") return "满折"
+  if (fdObj && fdObj.activityType === "FULL_GIFT") return "满赠"
+  if (fdObj && fdObj.activityType === "FULL_MINUS") return "满减"
+  if (fdObj && fdObj.fullRateFlag) return "满折"
+  if (fdObj && fdObj.giftFlag) return "满赠"
+  return "满减"
+}
+
+/**
  * 获取购物车数据
  */
 function getCardData() {
@@ -569,22 +552,38 @@ page {
     font-size: 28rpx;
   }
 }
+.promotion-box {
+  background: #fff;
+  padding-top: 16rpx;
+}
 .promotion-notice {
-  margin-top: 10px;
-  margin-left: 68rpx;
+  margin: 0 0 0 68rpx;
+  padding-right: 20rpx;
   font-size: 24rpx;
   color: #333;
   font-weight: bold;
   display: flex;
   align-items: center;
-  ::v-deep .tips {
-    margin: 0 8rpx 0 0;
+  background: #fff;
+
+  .tips {
+    margin: 0 12rpx 0 0;
     background: $main-color;
     border-radius: 100px;
-    display: block;
-    flex: 1;
-    padding: 2rpx 12rpx;
+    display: inline-block;
+    flex-shrink: 0;
+    padding: 2rpx 14rpx;
     color: #fff;
+    font-size: 20rpx;
+    line-height: 32rpx;
+  }
+
+  .notice-desc {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 .default-color {
@@ -616,8 +615,7 @@ page {
 .cart-item {
   width: 100%;
   border-radius: 0.4em;
-  transition: 0.35s;
-  overflow: hidden;
+  background: #fff;
 }
 
 /* 空白页 */

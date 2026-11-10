@@ -51,8 +51,11 @@ export function modelNavigateTo(item) {
 						url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
 					});
 					break;
-				// 满减商品
+				// 满减/满折/满赠商品
 				case "FULL_DISCOUNT":
+				case "FULL_MINUS":
+				case "FULL_RATE":
+				case "FULL_GIFT":
 					uni.navigateTo({
 						url: "/pages/product/goods?id=" + val.skuId + "&goodsId=" + val.goodsId,
 					});

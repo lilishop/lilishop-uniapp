@@ -108,8 +108,14 @@
               </view>
               <view class="goods-body">
                 <view class="goods-info" @click="gotoGoodsDetail(sku)">
-                  <view class="goods-title u-line-2">{{ sku.goodsName }}</view>
-                  <view class="goods-price">
+                  <view class="goods-title u-line-2">
+                    <text v-if="isGiftItem(sku)" class="gift-badge">赠品</text>
+                    {{ sku.goodsName }}
+                  </view>
+                  <view class="goods-price" v-if="isGiftItem(sku)">
+                    <text class="gift-original-price">￥{{ unitPrice(sku.goodsPrice) }}</text>
+                  </view>
+                  <view class="goods-price" v-else>
                     ￥{{unitPrice(sku.goodsPrice) }}
                     <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
                     <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="!isECouponOrder && !isAppointmentOrderFlag && sku.isRefund && sku.isRefund !== 'NO_REFUND'">
@@ -122,6 +128,7 @@
                     <view>x{{ sku.num }}</view>
                   </view>
                   <view class="after-sale-btn" v-if="canShowSkuAfterSale(sku)" @click.stop="onSkuAfterSale(sku)">退款/售后</view>
+                  <view class="gift-tip" v-else-if="isGiftItem(sku)">随单赠送</view>
                 </view>
               </view>
             </view>
@@ -631,7 +638,13 @@ function canApplySkuAfterSale(sku: any) {
 	return false
 }
 
+function isGiftItem(sku: any) {
+	if (!sku) return false
+	return sku.promotionType === 'GIFT' || (Number(sku.flowPrice) === 0 && sku.promotionType === 'GIFT')
+}
+
 function canShowSkuAfterSale(sku: any) {
+	if (isGiftItem(sku)) return false
 	if (isECouponOrder.value) return false
 	if (!order.value?.sn || Number(order.value.flowPrice) === 0) return false
 	if (isAppointmentOrderFlag.value && !appointmentAllow.value.afterSale) return false
@@ -1177,5 +1190,29 @@ page,
   >.status{
     flex:2;
   }
+}
+
+.gift-badge {
+  display: inline-block;
+  background: #ff4d4f;
+  color: #fff;
+  font-size: 20rpx;
+  line-height: 28rpx;
+  padding: 0 10rpx;
+  border-radius: 6rpx;
+  margin-right: 8rpx;
+  vertical-align: middle;
+}
+.gift-original-price {
+  color: #999;
+  font-size: 26rpx;
+  text-decoration: line-through;
+  font-weight: normal;
+}
+.gift-tip {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 8rpx;
+  text-align: right;
 }
 </style>

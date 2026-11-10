@@ -68,9 +68,11 @@
 										:key="goodsIndex">
 										<u-image border-radius="6" width="131rpx" height="131rpx" mode="aspectFill"
 											:src="getOrderItemImage(goods, order, goodsIndex)"></u-image>
+										<text v-if="isGiftItem(goods)" class="gift-corner-badge">赠</text>
 									</view>
 									<view class="goods-info">
 										<view v-if="order.orderItems.length <= 1" class="goods-title u-line-2">
+											<text v-if="isGiftItem(order.orderItems[0])" class="gift-badge">赠品</text>
 											{{ order.groupName }}</view>
 										<view v-if="order.orderItems.length <= 1" class="goods-price">
 											￥{{unitPrice(order.flowPrice) }}
@@ -444,6 +446,11 @@ async function confirmCancelAfterSale() {
 	}
 }
 
+function isGiftItem(goods: any) {
+	if (!goods) return false
+	return goods.promotionType === 'GIFT' || (Number(goods.flowPrice) === 0 && goods.promotionType === 'GIFT')
+}
+
 function onAfterSaleExpress(order: any) {
 	const sku = (order?.orderItems && order.orderItems[0]) || {}
 	storage.setAfterSaleData({ ...order, ...sku, storeName: order.storeName })
@@ -692,6 +699,7 @@ function reBuy(order: any) {
 				height: 131rpx;
 				margin-right: 10rpx;
 				margin-bottom: 10rpx;
+				position: relative;
 			}
 
 			.goods-info {
@@ -802,5 +810,31 @@ function reBuy(order: any) {
 		color: $light-color !important;
 		border-color: $light-color !important;
 		background-color: #ffffff !important;
+	}
+
+	.gift-corner-badge {
+		position: absolute;
+		top: 0;
+		left: 0;
+		background: #ff4d4f;
+		color: #fff;
+		font-size: 18rpx;
+		padding: 2rpx 8rpx;
+		border-top-left-radius: 6rpx;
+		border-bottom-right-radius: 6rpx;
+		z-index: 2;
+		line-height: 1.2;
+	}
+
+	.gift-badge {
+		display: inline-block;
+		background: #ff4d4f;
+		color: #fff;
+		font-size: 20rpx;
+		line-height: 28rpx;
+		padding: 0 10rpx;
+		border-radius: 6rpx;
+		margin-right: 8rpx;
+		vertical-align: middle;
 	}
 </style>
