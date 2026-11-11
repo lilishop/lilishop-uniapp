@@ -62,7 +62,6 @@ const verificationPassed = ref(false)
 const codeForm = reactive({
 	mobile: '',
 	code: '',
-	username: '',
 })
 const codeTips = ref('')
 const seconds = 69
@@ -90,9 +89,7 @@ const codeRules = {
 	],
 }
 
-onLoad((options) => {
-	codeForm.username = options?.username || ''
-})
+onLoad(() => {})
 
 onReady(() => {
 	validateCodeForm.value?.setRules(codeRules)

@@ -23,6 +23,7 @@ export function bindMobile(params) {
     url: `/passport/member/bindMobile`,
     method: "POST",
     params,
+    needToken: true,
   });
 }
 

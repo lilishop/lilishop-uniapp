@@ -72,7 +72,7 @@
 
       <up-form-item label="手机号" label-width="180rpx" :border-bottom="false">
         <view v-if="form.mobile" class="form-value">{{ form.mobile }}</view>
-        <view v-else class="bind-mobile" @click="navigateToBindMobile(form.username)">绑定手机号码</view>
+        <view v-else class="bind-mobile" @click="navigateToBindMobile">绑定手机号码</view>
       </up-form-item>
     </up-form>
 
@@ -263,9 +263,9 @@ function closeBirthdayPicker() {
 	showBirthday.value = false
 }
 
-function navigateToBindMobile(username: string) {
+function navigateToBindMobile() {
 	uni.navigateTo({
-		url: `/pages/mine/set/securityCenter/bindMobile?username=${username}`,
+		url: '/pages/mine/set/securityCenter/bindMobile',
 	})
 }
 
