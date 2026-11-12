@@ -80,9 +80,14 @@
             <view class="title">自提点地址:</view>
             <view class="value address-line-height">{{ order.storeAddressPath }}</view>
           </view>
-          <view class="order-info-view" @click="handleCallPhone" >
+          <view class="order-info-view" @click="handleCallPhone">
             <view class="title">联系方式:</view>
-            <view class="value">{{ order.storeAddressMobile }}<u-icon name='phone-fill' ></u-icon></view>
+            <view class="value contact-phone-value">
+              <text>{{ order.storeAddressMobile }}</text>
+              <view class="phone-icon-wrap">
+                <u-icon name="phone-fill" size="28" :color="lightColor || '#2979ff'"></u-icon>
+              </view>
+            </view>
           </view>
          
         </view>
@@ -118,8 +123,8 @@
                   <view class="goods-price" v-else>
                     ￥{{unitPrice(sku.goodsPrice) }}
                     <!-- <span v-if="sku.point">+{{ sku.point }}积分</span> -->
-                    <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="!isECouponOrder && !isAppointmentOrderFlag && sku.isRefund && sku.isRefund !== 'NO_REFUND'">
-                    {{refundPriceList(sku.isRefund)}} ({{unitPrice(sku.refundPrice, "￥") }})
+                    <span style="font-size: 24rpx;margin-left: 14rpx;color: #ff9900;" v-if="order.payStatus === 'PAID' && !isECouponOrder && !isAppointmentOrderFlag && sku.isRefund && sku.isRefund !== 'NO_REFUND'">
+                    {{refundPriceList(sku.isRefund)}} ({{unitPrice(resolveRefundPrice(sku), "￥") }})
                      </span>
                   </view>
                 </view>
@@ -550,6 +555,16 @@ function refundPriceList(status: string) {
 	}
 }
 
+function resolveRefundPrice(sku: any) {
+	if (sku?.refundPrice && Number(sku.refundPrice) > 0) {
+		return sku.refundPrice
+	}
+	if (sku?.isRefund === 'ALL_REFUND' && sku?.flowPrice) {
+		return sku.flowPrice
+	}
+	return sku?.refundPrice || 0
+}
+
 function handleCallPhone() {
 	if (order.value.storeAddressMobile) {
 		callPhone(order.value.storeAddressMobile)
@@ -644,6 +659,7 @@ function isGiftItem(sku: any) {
 }
 
 function canShowSkuAfterSale(sku: any) {
+	if (order.value?.orderStatus === 'CANCELLED') return false
 	if (isGiftItem(sku)) return false
 	if (isECouponOrder.value) return false
 	if (!order.value?.sn || Number(order.value.flowPrice) === 0) return false
@@ -966,6 +982,19 @@ page,
       color: #666;
       font-size: 24rpx;
       flex:10;
+    }
+
+    .contact-phone-value {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .phone-icon-wrap {
+        margin-left: 12rpx;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 
     .order-sn-value {

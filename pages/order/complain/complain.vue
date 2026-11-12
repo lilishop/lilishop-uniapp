@@ -159,6 +159,10 @@ function loadData(orderSn: string) {
     order.value = result.order
     orderGoodsList.value = result.orderItems
     if (store.state.isShowToast) uni.hideLoading()
+    if (result?.order?.orderStatus === 'CANCELLED') {
+      uni.showToast({ title: '订单已取消，无法发起投诉', icon: 'none' })
+      setTimeout(() => { uni.navigateBack() }, 1500)
+    }
   })
 }
 
