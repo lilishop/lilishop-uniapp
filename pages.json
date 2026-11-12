@@ -732,6 +732,14 @@
 		{
 			"root": "pages/promotion",
 			"pages": [ {
+					"path": "coupon-pack",
+					"style": {
+						"navigationBarTitleText": "专属优惠券礼包",
+						"navigationBarTextStyle": "white",
+						"navigationBarBackgroundColor": "#ff4142"
+					}
+				},
+				{
 					"path": "seckill",
 					"style": {
 						"navigationBarTitleText": "限时抢购",

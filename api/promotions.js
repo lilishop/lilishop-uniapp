@@ -239,3 +239,29 @@ export function activateGiftCardCashMemberCard(memberCardId) {
 }
 
 
+
+/**
+ * 获取优惠券礼包详情
+ * @param {string} id 券礼包活动ID
+ * @author Bulbasaur
+ * @since 2026-11-12
+ */
+export function getCouponPackageDetail(id) {
+  return http.request({
+    url: /buyer/promotion/coupon/package/,
+    method: Method.GET,
+  });
+}
+
+/**
+ * 买家一键领取优惠券礼包
+ * @param {string} id 券礼包活动ID
+ * @author Bulbasaur
+ * @since 2026-11-12
+ */
+export function receiveCouponPackage(id) {
+  return http.request({
+    url: /buyer/promotion/coupon/package/receive/,
+    method: Method.POST,
+  });
+}
