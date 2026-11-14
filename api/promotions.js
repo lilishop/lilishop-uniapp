@@ -248,7 +248,7 @@ export function activateGiftCardCashMemberCard(memberCardId) {
  */
 export function getCouponPackageDetail(id) {
   return http.request({
-    url: /buyer/promotion/coupon/package/,
+    url: `/promotion/coupon/package/${id}`,
     method: Method.GET,
   });
 }
@@ -261,7 +261,7 @@ export function getCouponPackageDetail(id) {
  */
 export function receiveCouponPackage(id) {
   return http.request({
-    url: /buyer/promotion/coupon/package/receive/,
+    url: `/promotion/coupon/package/receive/${id}`,
     method: Method.POST,
   });
 }
