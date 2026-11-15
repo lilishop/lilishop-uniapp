@@ -39,14 +39,16 @@
         >
           <!-- 左侧面额 -->
           <view class="card-left">
-            <template v-if="item.couponType === 'PRICE'">
-              <text class="symbol">¥</text>
-              <text class="price">{{ item.price || 0 }}</text>
-            </template>
-            <template v-else>
-              <text class="price">{{ item.couponDiscount || 0 }}</text>
-              <text class="symbol">折</text>
-            </template>
+            <view class="coupon-value">
+              <template v-if="item.couponType === 'PRICE'">
+                <text class="symbol">¥</text>
+                <text class="price">{{ item.price || 0 }}</text>
+              </template>
+              <template v-else>
+                <text class="price">{{ item.couponDiscount || 0 }}</text>
+                <text class="symbol">折</text>
+              </template>
+            </view>
             <text class="threshold">
               {{ item.consumeThreshold > 0 ? `满${item.consumeThreshold}元可用` : '无门槛' }}
             </text>
@@ -55,7 +57,7 @@
           <!-- 中部信息 -->
           <view class="card-center">
             <view class="name-box">
-              <text class="coupon-tag">{{ item.couponType === 'PRICE' ? '满减券' : '折扣券' }}</text>
+              <text class="coupon-tag">{{ item.couponType === 'PRICE' ? (item.consumeThreshold > 0 ? '满减券' : '立减券') : '折扣券' }}</text>
               <text class="coupon-name">{{ item.couponName }}</text>
             </view>
             <text class="coupon-num">发放数量：{{ item.num || 1 }} 张</text>
@@ -119,6 +121,7 @@
  */
 import { getCouponPackageDetail, receiveCouponPackage } from "@/api/promotions.js";
 import storage from "@/utils/storage.js";
+import { getMpScene } from "@/api/goods.js";
 
 export default {
   data() {
@@ -142,14 +145,26 @@ export default {
       return this.detail.couponItems.reduce((acc, cur) => acc + (cur.num || 1), 0);
     }
   },
-  onLoad(options) {
+  /** 兼容直接链接、明文pack_参数及公共葵花码工具生成的短链接scene。 */
+  async onLoad(options) {
     if (options && options.id) {
       this.packId = options.id;
     } else if (options && options.scene) {
-      // 兼容微信小程序太阳码 scene 参数 (如 scene=pack_123)
-      const sceneStr = decodeURIComponent(options.scene);
+      let sceneStr;
+      try {
+        sceneStr = decodeURIComponent(options.scene);
+        if (!sceneStr.startsWith("pack_")) {
+          const res = await getMpScene(sceneStr);
+          if (res.data && res.data.success && typeof res.data.result === "string") {
+            sceneStr = res.data.result;
+          }
+        }
+      } catch {
+        uni.showToast({ title: "礼包推广码解析失败，请重新扫码", icon: "none" });
+        return;
+      }
       if (sceneStr.startsWith("pack_")) {
-        this.packId = sceneStr.replace("pack_", "");
+        this.packId = sceneStr.slice(5);
       } else {
         this.packId = sceneStr;
       }
@@ -248,12 +263,13 @@ export default {
   min-height: 100vh;
   background-color: #f6f7f9;
   padding-bottom: 140rpx;
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 
   .banner-box {
     position: relative;
     background: linear-gradient(135deg, #ff4142 0%, #ff6b4a 100%);
-    padding: 60rpx 40rpx 50rpx;
+    padding: 36rpx 32rpx 40rpx;
     color: #fff;
     overflow: hidden;
 
@@ -296,15 +312,18 @@ export default {
       }
 
       .pack-title {
-        font-size: 38rpx;
+        font-size: 34rpx;
         font-weight: bold;
-        margin-bottom: 24rpx;
+        margin-bottom: 20rpx;
+        max-width: 100%;
+        overflow-wrap: break-word;
       }
 
       .total-amount-box {
         display: flex;
         align-items: baseline;
         justify-content: center;
+        flex-wrap: wrap;
         margin-bottom: 16rpx;
 
         .currency {
@@ -313,7 +332,7 @@ export default {
         }
 
         .amount {
-          font-size: 88rpx;
+          font-size: 72rpx;
           font-weight: 800;
           line-height: 1;
           margin: 0 8rpx;
@@ -337,12 +356,12 @@ export default {
   }
 
   .coupon-list-container {
-    padding: 30rpx 24rpx 10rpx;
+    padding: 28rpx 24rpx 4rpx;
 
     .section-header {
       margin-bottom: 20rpx;
       .title {
-        font-size: 30rpx;
+        font-size: 28rpx;
         font-weight: bold;
         color: #333;
       }
@@ -351,32 +370,44 @@ export default {
     .coupon-card-list {
       .coupon-card {
         display: flex;
-        align-items: center;
+        align-items: stretch;
+        min-height: 160rpx;
         background: #fff;
         border-radius: 16rpx;
-        margin-bottom: 20rpx;
+        margin-bottom: 16rpx;
         overflow: hidden;
         box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
         position: relative;
 
         .card-left {
-          width: 220rpx;
+          width: 190rpx;
+          flex-shrink: 0;
+          box-sizing: border-box;
           background: linear-gradient(135deg, #fff2f0 0%, #ffe9e7 100%);
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 30rpx 10rpx;
+          padding: 24rpx 12rpx;
           border-right: 2rpx dashed #ffccc7;
 
+          .coupon-value {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            white-space: nowrap;
+            max-width: 100%;
+          }
+
           .symbol {
-            font-size: 28rpx;
+            font-size: 26rpx;
+            margin: 0 4rpx;
             color: #ff4142;
             font-weight: bold;
           }
 
           .price {
-            font-size: 52rpx;
+            font-size: 48rpx;
             font-weight: 800;
             color: #ff4142;
             line-height: 1;
@@ -391,11 +422,17 @@ export default {
 
         .card-center {
           flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
           padding: 24rpx;
 
           .name-box {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 8rpx;
             margin-bottom: 12rpx;
 
             .coupon-tag {
@@ -404,23 +441,22 @@ export default {
               font-size: 18rpx;
               padding: 2rpx 8rpx;
               border-radius: 6rpx;
-              margin-right: 12rpx;
               flex-shrink: 0;
             }
 
             .coupon-name {
-              font-size: 28rpx;
+              font-size: 26rpx;
               font-weight: bold;
               color: #222;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
+              min-width: 0;
+              max-width: 100%;
+              overflow-wrap: break-word;
             }
           }
 
           .coupon-num {
             font-size: 22rpx;
-            color: #ff8533;
+            color: #666;
           }
         }
       }
@@ -472,6 +508,8 @@ export default {
     right: 0;
     background: #fff;
     padding: 20rpx 30rpx;
+    padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+    box-sizing: border-box;
     box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
     z-index: 99;
 
@@ -483,6 +521,11 @@ export default {
       font-size: 30rpx;
       font-weight: bold;
       border: none;
+      margin: 0;
+
+      &::after {
+        border: none;
+      }
 
       &.primary-btn {
         background: linear-gradient(135deg, #ff4142 0%, #ff6b4a 100%);
